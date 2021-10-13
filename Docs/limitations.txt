@@ -1,0 +1,11 @@
+1) Our system can not handle 4 nestted level of header field. For exmaple hdr.p2p_feedback.delay_event_data is okay.
+but hdr.p2p_feedback.delay_event_data.new_field is not okay. To support that, you have to add parsing support in PrimitiveField class
+of the P416JsonParser.py. Similarly at various places, we have used the values of a primitivefield for dependency checking, you also have to modify them.
+
+2)  Nope this function do not return the list of fields modified in the expression. To do that we need primitive operation wise analysis.
+           But in expression used in conditionals we do not need to support fields that are modified. We only support fields that are checked against some value
+           If someone wants to support field modification in expression then they have to add this support to the hardware and
+           also implement the operator (architectiure specific) nwise analysis-
+
+    so basically our system do not support modification of a field in conditional expression. This is most likely not going to be supported in high speed hardware.
+    But we have plan to support that in future

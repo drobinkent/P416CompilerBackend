@@ -1,0 +1,3 @@
+# P4-CoDel: Experiences on Programmable Data Plane Hardware -- section III-A . says
+
+both ingress and egress have 32 stages. so basically after processing ingress in 32 stages. the same packet goes through 32 stages for egress piepline
