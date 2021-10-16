@@ -2391,6 +2391,13 @@ class Pipeline:
                 return tbl
         return None
 
+    def swapTableName(self, oldTblName, newTblName):
+        for tbl in self.tables:
+            if(tbl.name == oldTblName):
+                tbl.name = newTblName
+                return
+        return 
+
 
 
     def getConditionalByName(self, cndlName):

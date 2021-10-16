@@ -108,14 +108,27 @@ class PipelineGraph:
                 return act
         return None
 
-    def preprocessConditionalNodes(self):
-        self.preprocessConditionalNodeRecursively(self.pipeline.init_table)
-        pass
+    def preProcessPipelineGraph(self):
+        self.preprocessConditionalNodes()
+        self.preprocessMATAccessingStatefuleMemmories()
 
+    def preprocessMATAccessingStatefuleMemmories(self):
+        # if a node iteslef is one of the table mapped by any one of the reigister then renamme it.  (This is necessary if any node iteslf )
+        #         also renam the refernce in the raference to table in pipeline.tables with the super mat
+        # if next of any mat or conditional is one of the table mapped by any one of the reigister then renamme the reference to next nodes only.
+        #     the rest of the part will be handled through the previous if part
+        self.recursivelyPreprocessMATAccessingStatefuleMemmories(self.pipeline.init_table)
+        return
 
-
-    def preprocessConditionalNodeRecursively(self, nodeName):
-        node = self.getNodeWithActionsForPreProcessing(nodeName)
+    def recursivelyPreprocessMATAccessingStatefuleMemmories(self, nodeName):
+        flag = False
+        for k in self.registerNameToTableMap:
+            tableList = self.registerNameToTableMap.get(k)
+            if(nodeName in tableList):
+                flag = True
+        node = self.getNodeWithActionsForConditionalPreProcessing(nodeName)
+        if(flag==True):
+            pass
         if(node == None):
             logger.info("No relevant node is found in the pipeline for : " + nodeName)
             return
@@ -127,9 +140,70 @@ class PipelineGraph:
                     self.preprocessConditionalNodeRecursively(nxtNodeName)  #inside this function call we have add the headerfield for carrying if-else result
         pass
 
+    def getNodeWithActionsForStatefulMemoryBasedPreprocessing(self, name):
+        if(name==None):
+            logger.info("Name is None in getNodeWithActionsForStatefulMemoryBasedPreprocessing. returning None")
+            return None
+        tbl = self.pipeline.getTblByName(name)
+        conditional = self.pipeline.getConditionalByName(name)
+
+        if(tbl != None):
+            # print("Table name is "+name)
+            p4teTableNode =MATNode(nodeType= P4ProgramNodeType.TABLE_NODE, name = name, oriiginalP4node = tbl )
+            p4teTableNode.matchKey = tbl.getAllMatchFields()
+            p4teTableNode.actions = tbl.actions
+            p4teTableNode.actionObjectList = []
+            for a in p4teTableNode.actions:
+                actionObject = self.getActionByName(a)
+                p4teTableNode.actionObjectList.append(actionObject)
+                # Todo : get the list of fields modifiede here.
+                # print(self.getActionByName(a).getListOfFieldsModifedAndUsed())
+                statefulMemoeryBeingUsed = actionObject.getListOfStatefulMemoriesBeingUsed()
+                for statefulMem in statefulMemoeryBeingUsed:
+                    if(self.registerNameToTableMap.get(statefulMem) == None):
+                        self.registerNameToTableMap[statefulMem] = []
+                    if (not(name in self.registerNameToTableMap.get(statefulMem))):
+                        self.registerNameToTableMap.get(statefulMem).append(name)
+
+            for a in list(tbl.next_tables.values()):
+                nodeList = self.getNextNodeForP4TEAnalysis(a,self.pipelineID)
+                p4teTableNode.nextNodes = p4teTableNode.nextNodes + nodeList
+            return p4teTableNode
+        elif(conditional != None):
+            # print("conditional name is "+name)
+            p4teConditionalNode =MATNode(nodeType= P4ProgramNodeType.CONDITIONAL_NODE , name = name, oriiginalP4node = conditional)
+            p4teConditionalNode.exprNode = ExpressionNode(parsedP4Node = conditional.expression, name= name,  parsedP4NodeType = P4ProgramNodeType.CONDITIONAL_NODE, pipelineID=self.pipelineID)
+            #p4teConditionalNode.actions = self actions  # A conditional is itself an action so its actions are itself own
+            # store the action used in the conditional
+            p4teConditionalNode.matchKey = None
+            # p4teConditionalNode.actions =
+            p4teConditionalNode.next_tables = [conditional.true_next, conditional.false_next]
+            for a in p4teConditionalNode.next_tables:
+                nodeList = self.getNextNodeForP4TEAnalysis(a, isArrivingFromConditional=True)
+                p4teConditionalNode.nextNodes = p4teConditionalNode.nextNodes + nodeList
+            return p4teConditionalNode
         pass
 
-    def getNodeWithActionsForPreProcessing(self, name):
+
+    def preprocessConditionalNodes(self):
+        self.preprocessConditionalNodeRecursively(self.pipeline.init_table)
+        return
+
+
+    def preprocessConditionalNodeRecursively(self, nodeName):
+        node = self.getNodeWithActionsForConditionalPreProcessing(nodeName)
+        if(node == None):
+            logger.info("No relevant node is found in the pipeline for : " + nodeName)
+            return
+        else:
+            if (len(node.nextNodes)<=0):
+                return
+            else:
+                for nxtNodeName in node.nextNodes:
+                    self.preprocessConditionalNodeRecursively(nxtNodeName)  #inside this function call we have add the headerfield for carrying if-else result
+        pass
+
+    def getNodeWithActionsForConditionalPreProcessing(self, name):
         if(name==None):
             logger.info("Name is None in getNode. returning None")
             return None
