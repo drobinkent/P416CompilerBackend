@@ -2502,6 +2502,13 @@ class ParsedP416ProgramForV1ModelArchitecture:
                 hdrObj = HeaderField(name=h.name+"."+htf[0], bitWidth= bitWidth, isSigned= htf[2])
                 self.nameToHeaderTypeObjectMap[hdrObj.name] = hdrObj
                 pass
+        # Adding two extra fields for acrrying the results of conditionals
+        self.nameToHeaderTypeObjectMap[confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_KEY_NAME] = \
+            HeaderField(name = confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_KEY_NAME,
+                        bitWidth=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH, isSigned=True)
+        self.nameToHeaderTypeObjectMap[confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_KEY_NAME] = \
+            HeaderField(name = confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_KEY_NAME,
+                        bitWidth=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_BIT_WIDTH, isSigned=True)
         return self.nameToHeaderTypeObjectMap
 
 

@@ -135,3 +135,19 @@ class ExpressionNode(P4ProgramNode):
             elif((lvalue != None ) and (type(lvalue)== PrimitiveField)):
                 logger.info("A node in expession found which is not PrimitiveField. Check It!!!")
         return fieldList
+
+
+
+
+class MATNode:
+    nodeType = None
+
+    def __init__(self, nodeType,name,oriiginalP4node):
+        self.nodeType = nodeType
+        self.nextNodes= []
+        self.name = name
+        self.matchKey = None
+        self.actions= None
+        self.oriiginalP4node = oriiginalP4node
+
+        return

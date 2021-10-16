@@ -207,7 +207,6 @@ class PipelineGraph:
             for a in list(tbl.next_tables.values()):
                 nodeList = self.getNextNodeForP4TEAnalysis(a)
                 p4teTableNode.nextNodes = p4teTableNode.nextNodes + nodeList
-
             return p4teTableNode
         elif(conditional != None):
             # print("conditional name is "+name)

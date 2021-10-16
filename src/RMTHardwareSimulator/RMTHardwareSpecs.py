@@ -39,12 +39,13 @@ class RMTV1ModelHardware:
         num_bins = len(bin_capacities)
         data['bins'] = list(range(num_bins))
         data['bin_capacities'] = bin_capacities
+        print("Data model is "+str(data))
         return data
 
     def mapHeaderFields(self, p4ProgramHeaderFieldSpecs):
         data = self.createDataModelForHeadreMapping(p4ProgramHeaderFieldSpecs)
         # Create the mip solver with the SCIP backend.
-        solver = pywraplp.Solver.CreateSolver('SAT_INTEGER_PROGRAMMING')
+        solver = pywraplp.Solver.CreateSolver('BOP_INTEGER_PROGRAMMING')
         # Variables
         # x[i, j] = 1 if item i is packed in bin j.
         x = {}
@@ -84,20 +85,24 @@ class RMTV1ModelHardware:
             for j in data['bins']:
                 bin_weight = 0
                 bin_value = 0
-                print('Bin ', j, '\n')
+                # print('Bin ', j, '\n')
+                binFiller = {}
                 for i in data['items']:
                     if x[i, j].solution_value() > 0:
                         # print('Item', i, '- weight:', data['weights'][i], ' value:',
                         #       data['values'][i])
                         bin_weight += data['weights'][i]
                         bin_value += data['values'][i]
+
+                        if mappedacketHeaderVector.get(data['bin_capacities'][j]) == None:
+                            mappedacketHeaderVector[data['bin_capacities'][j]] = [data['weights'][i]]
+                        else:
+                            mappedacketHeaderVector.get(data['bin_capacities'][j]).append(data['weights'][i])
+                            # mappedacketHeaderVector[data['bin_capacities'][j]]  =
                 # print('Packed bin weight:', bin_weight)
                 # print('Packed bin value:', bin_value)
                 # print()
-                if mappedacketHeaderVector.get(bin_weight) == None:
-                    mappedacketHeaderVector[bin_weight] = 1
-                else:
-                    mappedacketHeaderVector[bin_weight] = mappedacketHeaderVector.get(bin_weight) + 1
+
                 total_weight += bin_weight
             print('Total packed weight:', total_weight)
             if(total_weight != totalHeaderWidthRequiredByP4Program):
@@ -106,6 +111,8 @@ class RMTV1ModelHardware:
                 exit(1)
             else:
                 print("The program's header fields can be mapped to the RMT hardware using following mappine")
+                print("For each X-bit wide header field this output lists all the hardwared header fields used. So assume in a P4 program you need 2 32 bit field. If it shows 8 x8 bit wide header fields. that means to fill"
+                      "the 2x 32 bit header fields of the program we can use 8x8 bit wide header fields available in the hardware")
                 print(str(mappedacketHeaderVector))
         else:
             print('The problem does not have an optimal solution.')

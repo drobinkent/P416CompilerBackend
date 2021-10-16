@@ -42,12 +42,12 @@ class P4ProgramGraph:
                 newPipelineGraph = PipelineGraph(pipelineID=PipelineID.INGRESS_PIPELINE, pipeline = pipeline, actions= self.parsedP4Program.actions)
                 self.pipelineIdToPipelineGraphMap[PipelineID.INGRESS_PIPELINE] = newPipelineGraph
                 self.pipelineIdToPipelineMap[PipelineID.INGRESS_PIPELINE] = pipeline
-                # newPipelineGraph.loadNodes()
+                newPipelineGraph.preprocessConditionalNodes()
             if(pipeline.name == PipelineID.EGRESS_PIPELINE.value):
                 newPipelineGraph = PipelineGraph(pipelineID=PipelineID.EGRESS_PIPELINE, pipeline = pipeline, actions= self.parsedP4Program.actions)
                 self.pipelineIdToPipelineGraphMap[PipelineID.EGRESS_PIPELINE] = newPipelineGraph
                 self.pipelineIdToPipelineMap[PipelineID.EGRESS_PIPELINE] = pipeline
-                # newPipelineGraph.loadNodes()
+                newPipelineGraph.preprocessConditionalNodes()
 
     def headeranalyzer(self):
         print(self.parsedP4Program.nameToHeaderTypeObjectMap)

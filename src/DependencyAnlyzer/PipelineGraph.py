@@ -1,9 +1,11 @@
+import json
 import logging
 from enum import Enum
 import sys
 
-from DependencyAnlyzer.DefinitionConstants import P4ProgramNodeType
-from DependencyAnlyzer.P4ProgramNode import ExpressionNode
+from DependencyAnlyzer.DefinitionConstants import P4ProgramNodeType, PipelineID
+from DependencyAnlyzer.P4ProgramNode import ExpressionNode, MATNode
+from P416JsonParser import Key
 
 sys.path.append("..")
 import ConfigurationConstants as confConst
@@ -38,8 +40,8 @@ class PipelineGraph:
         self.actions = actions
         self.registerNameToTableMap = {}
         self.conditionalNodes = {}
-        self.matchlessActionNodes = {}
         self.matchActionNodes= {}
+
 
     def headeranalyzerForSinglePipeline(self):
         '''
@@ -105,3 +107,89 @@ class PipelineGraph:
             if(act.name == actName):
                 return act
         return None
+
+    def preprocessConditionalNodes(self):
+        self.preprocessConditionalNodeRecursively(self.pipeline.init_table)
+        pass
+
+
+
+    def preprocessConditionalNodeRecursively(self, nodeName):
+        node = self.getNodeWithActionsForPreProcessing(nodeName)
+        if(node == None):
+            logger.info("No relevant node is found in the pipeline for : " + nodeName)
+            return
+        else:
+            if (len(node.nextNodes)<=0):
+                return
+            else:
+                for nxtNodeName in node.nextNodes:
+                    self.preprocessConditionalNodeRecursively(nxtNodeName)  #inside this function call we have add the headerfield for carrying if-else result
+        pass
+
+        pass
+
+    def getNodeWithActionsForPreProcessing(self, name):
+        if(name==None):
+            logger.info("Name is None in getNode. returning None")
+            return None
+        tbl = self.pipeline.getTblByName(name)
+        conditional = self.pipeline.getConditionalByName(name)
+
+        if(tbl != None):
+            # print("Table name is "+name)
+            p4teTableNode =MATNode(nodeType= P4ProgramNodeType.TABLE_NODE, name = name, oriiginalP4node = tbl )
+            p4teTableNode.matchKey = tbl.getAllMatchFields()
+            p4teTableNode.actions = tbl.actions
+            p4teTableNode.actionObjectList = []
+            for a in p4teTableNode.actions:
+                actionObject = self.getActionByName(a)
+                p4teTableNode.actionObjectList.append(actionObject)
+                # Todo : get the list of fields modifiede here.
+                # print(self.getActionByName(a).getListOfFieldsModifedAndUsed())
+                statefulMemoeryBeingUsed = actionObject.getListOfStatefulMemoriesBeingUsed()
+                for statefulMem in statefulMemoeryBeingUsed:
+                    if(self.registerNameToTableMap.get(statefulMem) == None):
+                        self.registerNameToTableMap[statefulMem] = []
+                    if (not(name in self.registerNameToTableMap.get(statefulMem))):
+                        self.registerNameToTableMap.get(statefulMem).append(name)
+
+            for a in list(tbl.next_tables.values()):
+                nodeList = self.getNextNodeForP4TEAnalysis(a,self.pipelineID)
+                p4teTableNode.nextNodes = p4teTableNode.nextNodes + nodeList
+            return p4teTableNode
+        elif(conditional != None):
+            # print("conditional name is "+name)
+            p4teConditionalNode =MATNode(nodeType= P4ProgramNodeType.CONDITIONAL_NODE , name = name, oriiginalP4node = conditional)
+            p4teConditionalNode.exprNode = ExpressionNode(parsedP4Node = conditional.expression, name= name,  parsedP4NodeType = P4ProgramNodeType.CONDITIONAL_NODE, pipelineID=self.pipelineID)
+            #p4teConditionalNode.actions = self actions  # A conditional is itself an action so its actions are itself own
+            # store the action used in the conditional
+            p4teConditionalNode.matchKey = None
+            # p4teConditionalNode.actions =
+            p4teConditionalNode.next_tables = [conditional.true_next, conditional.false_next]
+            for a in p4teConditionalNode.next_tables:
+                nodeList = self.getNextNodeForP4TEAnalysis(a, isArrivingFromConditional=True)
+                p4teConditionalNode.nextNodes = p4teConditionalNode.nextNodes + nodeList
+            return p4teConditionalNode
+        pass
+
+    def getNextNodeForP4TEAnalysis(self, nodeName, isArrivingFromConditional=False):
+        nextNodeList = []
+        for actionEntry in self.actions:
+            if actionEntry.name  == nodeName:
+                nextNodeList.append(nodeName)
+        for matchTable in self.pipeline.tables:
+            if matchTable.name  == nodeName:
+                if(self.pipeline.name == PipelineID.INGRESS_PIPELINE.value) and (isArrivingFromConditional == True):
+                    # json_object = json.loads(confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS)
+                    obj = Key.from_dict(confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS)
+                    matchTable.key.append(obj)
+                elif (self.pipeline.name == PipelineID.EGRESS_PIPELINE.value)  and (isArrivingFromConditional == True):
+                    # json_object = json.loads(confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS)
+                    obj = Key.from_dict(confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS)
+                    matchTable.key.append(obj)
+                nextNodeList.append(nodeName)
+        for cond in self.pipeline.conditionals:
+            if cond.name  == nodeName:
+                nextNodeList.append(nodeName)
+        return nextNodeList
