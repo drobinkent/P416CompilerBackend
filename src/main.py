@@ -11,6 +11,8 @@ p4program = p4ProgramParserFactory.getParsedP4Program(p4JsonFile="../Resources/s
 p4ProgramGraph = P4ProgramGraph(p4program)
 p4ProgramGraph.loadPipelines()
 headerFieldSpecsInP4Program = p4ProgramGraph.headeranalyzer()
+hw.mapHeaderFields(headerFieldSpecsInP4Program)
+#===================== Upto here header mappign is done
 
 
 
