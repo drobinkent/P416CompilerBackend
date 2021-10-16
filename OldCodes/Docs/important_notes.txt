@@ -1,0 +1,175 @@
+
+1)
+
+Rmt device 32 stages
+ Each stage a node . We may represent this as graph or just a ordered list.
+For each p4 node , there will be an embedding info.
+This embedding info will contain a stage object. In this object it will keep record for embedding the p4node how much resources were consumed from the hardware.
+
+
+
+Ulta vabe korte pari.
+
+Eta p4node er ekta stage requirement object thakbe. So erokoom dependency graph gulor path gulp ber kore niye tarpor sei path er requirement koto dekhbo. Tarpor setai embed korbo.
+
+Hardware modeling :
+
+Each stage an object. In each stage for each operation type there will be a cycle requirement. That will be also written.
+
+
+
+2) for hw modeling, keep total cycle length of a stage. also keep total cycle length for each of the primitive actoins.
+so that later if we get info on how to model a hw at cycle level we can use that.
+
+
+3) an expression can exist in a conditional or an action. But it may lead to multiple nodes for representing the computations.
+So we make them multiple node .  The question is how to find the predecessor and successor of those nodes
+
+
+4)          match with all the nodes that are already analyzed in reverse order (to find the earlest node with some type of depnedency)
+               and find the dependency type with them and add the edge accordingly. Or maybe we will need to add edge with all of the previously added node
+               -- then add the current node in already embedded node list
+               -- then each of the child nodes of the node and call the function recursively -- this will not networkx
+
+               approach 2 -- build the grpah according to json. if a node have next null then it's next will be dummy end. At this moment all the edge will be defaulttype edge
+               now reverse the edges. start from dummyend. if any node has a predecessor then anlyze the node's dependency withh all of it;s predecessor and
+               and edge accordingly.
+
+               now remove all the default edges. now if any node have null predeccsor then assign  dummystart as it;s predecessor. this resolves
+               all 1 level dependency. but this has a problem, if a node has dependency with nodes in more than 1 hop distance then this method will worongly
+               assign a node to dummystart.
+
+
+5) hardware model:
+
+in each stage there can be multiple action and each action will correspond to a VLIW instruction. so we can store multiple instruction in each stage.
+but for a packet only one will be executed.
+now a table's action and an other action can share  a stage if there is no depedency between them.
+Now assume we want to map an action to a stage. how do we do it? -- simply assume a by default true if there is no key for the table. which is true for the actions only node
+in the json.
+
+each match stage contains 16x40b tcam and 8x80b hashbased sram for exact match. so in 80b wide sram we can actually
+put 80 if-else conditions given that, the values are defined previously in the heade and the conditionals are independent.
+
+now this gives  a trouble -- how to handle read-if-else-modify type logics.. -- nope this type we do not need to handle in rmt
+
+so we have to identify these 2 types of conditional independently. if only conditional check then we can use sram for exact match. but if there is
+read-if-else-modify type logics then there is no way other then using the action.
+
+
+
+6) assume the follwoing code
+
+if ((hdr.icmpv6.type == ICMP6_TYPE_NS ) && (hdr.icmpv6.type == ICMP6_TYPE_NS)){
+       ndp_processing_control_block.apply(hdr, local_metadata, standard_metadata); //This will set the local_metaata.do_l3_l2 field to true if this is a NDP packet
+       //log_msg("egress spec is {} and egress port is {}",{standard_metadata.egress_spec , standard_metadata.egress_port});
+       //TODO we may need to remove the extra headers if other switches forward these packet
+       exit;
+    }
+
+
+    if (local_metadata.flag_hdr.do_l3_l2) {{
+    do something
+    }}
+
+ --- Now here there is a inherent assumption that the first if block will be executed. if it is false then we go to next one.
+ But assume we want to write two mutually independent conditional block. if we write them as 2 indepedent if block then
+ there is no way to parallelize them.only possible wehn the programmer write them as if-else block. our verifier can not do this optimization.
+ it is upto the programmer to write the code in correct way
+
+
+7) vvi point on conditional. If the false next of a conditional is a direct action or table then it means this is a if-else where there is no expression in else part
+but if the flase next of a conditional is another conditional that means there is some expression to evaluate in the else part. hence in first case we can do concurrent execution
+but in the later case we can not.
+
+
+if the false next of a conditional is another conditional that means there is a dependency.
+and if the false next of a conditional is a direct table then it is reverse dependency -- look at paper
+if the false next of a conditioanl is a direct action that means
+
+
+-- if the true next of a conditional is another conditional that means we can not execute the action for the first conditional in same stage as this is another conditional.
+
+if (x==3) action 1 ------------------------ conditinal : true next = action 1 false_next is if (x==4)
+else if ( x == 4 ) {action 2}
+else if (x == 5) {action 3}
+
+here as all the condiotoionals are == but still we can not concurreny;ly execute them
+
+but assume
+
+if (x<10) action 1
+else if x<20 action 2
+else if x< 30 action 3
+
+here we can not concurrently execute them.
+
+we do not handle these kind of optimizarion. it is future work.
+
+we will only handle conditional and it's one level false next.
+
+
+8) more on conditional
+
+if (a>b)
+    action 1
+else if (b>c)
+     action 2
+
+
+     we can not parallelize them. because, when we are at b>c the expression becomes a>b and b>c . which we can not complete in one stage
+
+
+ --------------------------------------- final result
+
+ we will parallelize a conditional's true and false next iff, false next has no conditional
+
+
+
+ 9) gibs thesis page 42 look at following section
+
+
+ Exact match tables utilize the Cuckoo hash algorithm [37,64,96]. Each table uses
+ a minimum of four-way hashing, with each way using a separate RAM block; the
+ smallest hash table therefore consists of 4 × 1 K entries. The hash table performs
+ reads deterministically in one cycle, with all ways accessed in parallel. Ternary match
+ tables are implemented using the TCAM blocks; each match stage contains 16 TCAM
+ blocks of 2 K entries × 40 b.
+
+ -- with all ways accesses in parallel that means at least 4 memory port to read  4 blocks.
+
+
+ 10) each instruction will have a start cycle and cycle length incluiding the match instruction
+
+ 11) for the actions in parsing we have to add the primitive ops for adding a new primitive. and for each of the actions we also have to add
+ identify what the actions are doing. now assume if someoneone is modifying a header fieild multiple times then we have to identify it.
+
+
+
+ =========================================Action Processing
+
+ 1) there is an extra "&&" operation used by the bmv2 for placing data bits correctly. so we have to skip that in processing.
+ 2) bmv2 assumes shift-and-add operation as one operation. So we assume this is available in hardware support. Whiuch is natural. becuase that is a part of multiplication.
+ https://ieeexplore-ieee-org.proxy.library.kent.edu/stamp/stamp.jsp?arnumber=8901883
+ Link to a a paper sing shift-and-add operator.
+ It doesn't matter where they existsin the action. The bmv2 collects the together and make them one primitive.
+ 3) But Bmv2 do not have support for read-modify-write processing we are adding this. Because this is essential to flowlet swtching.
+ 4) swap can be done in one clock cycle. If we just pass them parallely. But bmv2 do not process it that way, because bmv2 do not have that facility as it executes these operations
+ in cpu.
+ 5) assume follwoing code
+
+ temp = header_field1;
+ temp = temp + header_field2 + header_field3;
+
+ We can not handle this type of seqence. because it needs 2 primitive call in v1model
+
+ 6) assume another code
+
+ temp = header_field2;
+
+ header_field2 = header_field1 >> 2;
+ header_field2 = header_field2+ 3;
+
+ header_field1  = header_field2 >>4;
+  header_field1  = header_field2 >>4;
+

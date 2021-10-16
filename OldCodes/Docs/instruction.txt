@@ -1,0 +1,96 @@
+MATCH-action table
+
+1) Gibbs thesis section 3.4.2
+
+3.4.2 Configurable match memories
+Each match stage contains two 640 bit wide match units: one is a TCAM for ternary
+matches, and the other is an SRAM-based hash table for exact matches. The exact
+match table unit aggregates eight 80-bit subunits while the ternary table unit aggregates
+sixteen 40-bit subunits. Each subunit can be run independently for a narrow
+table, in parallel with other subunits for wider tables, or ganged together in series
+with other subunits into deeper tables. An input crossbar supplies match data to each
+subunit by selecting fields from the 4 Kb packet header vector. As §3.2.1 describes,
+the switch can combine tables in adjacent match stages to make larger tables. In the
+limit, all 32 stages can be combined to create a single table.
+The ingress and egress match pipelines of Figure 3.7 are actually the same physical block.
+The design shares the pipeline at a fine grain between ingress and egress
+processing; a single physical stage can simultaneously host ingress and egress tables
+(Figure 3.2b). To do this, the switch configuration process statically assigns each
+packet header vector field, action unit, and memory block to ingress or egress processing.
+Ingress fields in the vector are populated by ingress parsers, matched on by
+ingress memories, and modified by ingress action units. Egress fields are treated in a
+42 CHAPTER 3. HARDWARE DESIGN FOR MATCH-ACTION SDN
+similar manner. This static allocation of resources prevents contention issues because
+each resource is owned exclusively by either ingress or egress.
+
+
+
+--- so we have to divide the headers in 2 parts ingress and egress
+
+this is the key issue.
+
+If the header bits are within the limit of 4000 bits.
+
+then in worst case assume in an action we need operation on all 4k bits in ingress.
+then for egress we can simply duplicate their name. so after the egress deparser they
+will have difernet name. the ing ress and eg ress stage on same packet will be on different header vector.
+But obviously
+
+
+assume a 4k bit header packet. then a packet goes through the stages sewuentially.  so if a
+header variable is mapped to stage x for ingress, and it is also mapped to stag e x for egress, then no problem. because
+of the seqiential nature, they will be not procssed at the same time.
+
+but the trouble begins assume a PHV1 and PHV 2 are undergoing processing on same stage.
+
+===============================
+
+then follow a simple model. dnt think about cycle level.
+
+just assume one stage one action per header. one mem read write
+
+
+
+2) Gibs thesisi page 59-60 vvi points.
+
+Dependencies occur between non-adjacent tables in addition to adjacent tables. A
+non-adjacent dependency occurs when A, B, and C execute in order and C matches
+on a field that A modifies. In this case, C has a match dependency on A, preventing any overlap between C and A. The situation is similar for non-adjacent action
+dependencies.
+The extracted dependency information determines which logical match stages can
+be packed into the same physical stage, and it determines pipeline delays between
+successive physical stages. Logical match stages may be packed into the same physical
+stage only if a successor dependency or no dependency exists between them; otherwise,
+they must be placed in separate physical stages. The Ethernet and MPLS tables
+in Figure 3.10 may be placed in the same physical stage; the MPLS table executes
+concurrently with the Ethernet table, but its modifications to the packet header vector
+are only committed if the Ethernet table indicates that the MPLS table should be
+executed.
+Figure 3.9 shows how pipeline delays should be configured for each of the three
+dependency types. Configuration is performed individually for the ingress and egress
+pipelines. In the proposed design, match dependencies incur a 12 cycle latency between match stages; action dependencies incur a three cycle latency between stages;
+and stages with successor dependencies or no dependencies incur one cycle between
+stages. Note that the pipeline is meant to be static; the switch does not analyze dependencies between stages dynamically for each packet as is the case in CPU pipelines.
+
+--- look at specially that the "piepeline is meant to be static"
+
+
+
+3) gibs thesis page 32-34 - look at the follwoing part
+
+
+Stage 1 forwards the input fields to Stage 2 immediately after receiving them;
+Stage 2 receives the input fields at t = 1, which is before processing completes in
+Stage 1. Stage 2 contains IP route, source MAC, and destination MAC table subsections; processing by each of these subsections is predicated on the success or failure
+of matches in the corresponding tables in Stage 1. Matching commences in all three
+subsections at t = 1 and completes at t = 1+m. Table match success or failure status
+is identified at t = m in Stage 1 and forwarded to Stage 2, arriving at t = 1 + m.
+Stage 2 uses the match status to predicate application of action processing for each
+table subsection. Output fields are modified when action processing is applied, otherwise output fields pass transparently through the stage.
+Processing within each subsequent stage is offset by one cycle from the previous
+stage. Processing in Stage 32 commences at t = 32 and completes at t = 32 + m + a.
+
+--- Here they explains how actually a program is mapped.
+
+--- this explanation says that the procesing latency of a packet depends on the embedding.
+
