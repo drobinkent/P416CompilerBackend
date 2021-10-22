@@ -2185,6 +2185,10 @@ class Conditional:
     id: int
     source_info: SourceInfo
     expression: Expression
+    is_visited_for_conditional_preprocessing: bool
+    is_visited_for_stateful_memory_preprocessing: bool
+    is_visited_for_graph_drawing: bool
+    is_visited_for_TDG_processing: bool
     true_next: str
     false_next: Optional[str] = None
 
@@ -2197,7 +2201,7 @@ class Conditional:
         expression = Expression.from_dict(obj.get("expression"))
         true_next = from_str(obj.get("true_next"))
         false_next = from_union([from_none, from_str], obj.get("false_next"))
-        return Conditional(name, id, source_info, expression, true_next, false_next)
+        return Conditional(name, id, source_info, expression, False, False,False, False, true_next, false_next)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -2273,6 +2277,35 @@ class TableType(Enum):
     INDIRECT_WS = "indirect_ws"
     SIMPLE = "simple"
 
+class SuperTable:
+    def __init__(self,name):
+        self.name = name
+        self.subTableList = []
+        self.actions= []
+        self.is_visited_for_conditional_preprocessing = False
+        self.is_visited_for_stateful_memory_preprocessing = False
+        self.is_visited_for_graph_drawing = False
+        self.is_visited_for_TDG_processing = False
+        self.previousNodeToSubTableMap = {}
+    def __init__(self,name,subTableList):
+        self.name = name
+        self.actions= []
+        self.subTableList = subTableList
+        self.is_visited_for_conditional_preprocessing = False
+        self.is_visited_for_stateful_memory_preprocessing = False
+        self.is_visited_for_graph_drawing = False
+        self.is_visited_for_TDG_processing = False
+        self.previousNodeToSubTableMap = {}
+    def getAllNextNodes(self):
+        nextNodeList = []
+        for t in self.subTableList:
+            for a in list(t.next_tables.values()):
+                nextNodeList.append(a)
+        return nextNodeList
+
+
+
+
 
 @dataclass
 class Table:
@@ -2288,10 +2321,15 @@ class Table:
     action_ids: List[int]
     actions: List[str]
     next_tables: Dict[str, str]
+    is_visited_for_conditional_preprocessing: bool
+    is_visited_for_stateful_memory_preprocessing: bool
+    is_visited_for_graph_drawing: bool
+    is_visited_for_TDG_processing: bool
     direct_meters: Optional[str] = None
     base_default_next: Optional[str] = None
     default_entry: Optional[DefaultEntry] = None
     action_profile: Optional[str] = None
+
 
     def getAllMatchFields(self):
         matchFieldsAsList = []
@@ -2327,7 +2365,7 @@ class Table:
         base_default_next = from_union([from_none, from_str], obj.get("base_default_next"))
         default_entry = from_union([DefaultEntry.from_dict, from_none], obj.get("default_entry"))
         action_profile = from_union([from_str, from_none], obj.get("action_profile"))
-        return Table(name, id, source_info, key, match_type, type, max_size, with_counters, support_timeout, action_ids, actions, next_tables, direct_meters, base_default_next, default_entry, action_profile)
+        return Table(name, id, source_info, key, match_type, type, max_size, with_counters, support_timeout, action_ids, actions, next_tables, False, False,False, False, direct_meters, base_default_next, default_entry, action_profile)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -2360,6 +2398,44 @@ class Pipeline:
     action_profiles: List[ActionProfile]
     conditionals: List[Conditional]
 
+    def resetIsVisitedForStatefulMemoryProcessingVariableForGraph(self):
+        for t in self.tables:
+            t.is_visited_for_stateful_memory_preprocessing =  False
+        for c in self.conditionals:
+            c.is_visited_for_stateful_memory_preprocessing =  False
+
+    def resetIsVisitedForConditionalProcessingVariableForGraph(self):
+        for t in self.tables:
+            t.is_visited_for_conditional_preprocessing =  False
+        for c in self.conditionals:
+            c.is_visited_for_conditional_preprocessing =  False
+    def resetIsVisitedVariableForGraphDrawing(self):
+        for t in self.tables:
+            # print("Reseting graph state for table "+t.name)
+            if(type(t) == Table):
+                t.is_visited_for_graph_drawing =  False
+            if(type(t) == SuperTable):
+                for subTble in t.subTableList:
+                    subTble.is_visited_for_graph_drawing =  False
+        for c in self.conditionals:
+            c.is_visited_for_graph_drawing =  False
+    def resetIsVisitedVariableTDGProcessing(self):
+        for t in self.tables:
+            # print("Reseting graph state for table "+t.name)
+            if(type(t) == Table):
+                t.is_visited_for_TDG_processing =  False
+            if(type(t) == SuperTable):
+                for subTble in t.subTableList:
+                    subTble.is_visited_for_TDG_processing =  False
+                t.is_visited_for_TDG_processing = False
+        for c in self.conditionals:
+            c.is_visited_for_TDG_processing =  False
+
+    def resetAllIsVisitedVariableForGraph(self):
+        self.resetIsVisitedForConditionalProcessingVariableForGraph()
+        self.resetIsVisitedForStatefulMemoryProcessingVariableForGraph()
+        self.resetIsVisitedVariableForGraphDrawing()
+        self.resetIsVisitedVariableTDGProcessing()
 
 
     @staticmethod
@@ -2391,11 +2467,44 @@ class Pipeline:
                 return tbl
         return None
 
+    def showAllTableName(self):
+        for tbl in self.tables:
+            if (type(tbl) == Table):
+                print(tbl.name)
+            elif (type(tbl) == SuperTable):
+                print(tbl.name)
+                for sTbl in tbl.subTableList:
+                    print("\tsubtable:"+sTbl.name)
+
+
+    def removeTableByName(self,tableName):
+        oldTable = None
+        for tbl in self.tables:
+            if(tbl.name == tableName):
+                oldTable = tbl
+                self.tables.remove(tbl)
+                return oldTable
+
     def swapTableName(self, oldTblName, newTblName):
+        oldTable = None
         for tbl in self.tables:
             if(tbl.name == oldTblName):
-                tbl.name = newTblName
-                return
+                oldTable = tbl
+                self.tables.remove(tbl)
+        newSuperTable= None
+        for tbl in self.tables:
+            if(tbl.name == newTblName):
+                if type(tbl) == SuperTable:
+                    newSuperTable = tbl
+        if(oldTable!= None) and (newSuperTable!=None):
+            newSuperTable.subTableList.append(oldTable)
+        elif(oldTable!= None) and (newSuperTable==None):
+            newSuperTable = SuperTable(newTblName)
+            newSuperTable.subTableList.append(oldTable)
+            self.tables.append(newSuperTable)
+        elif(oldTable == None):
+            print("This super mat is already visited from other path")
+
         return 
 
 

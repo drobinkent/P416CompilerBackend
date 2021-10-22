@@ -1,4 +1,4 @@
-import P416JsonParser
+import P4ProgramParser.P416JsonParser
 from utils import JsonParserUtil
 import logging
 import ConfigurationConstants as ConfConst

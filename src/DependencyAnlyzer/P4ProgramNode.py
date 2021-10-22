@@ -1,6 +1,6 @@
 
 from DependencyAnlyzer.DefinitionConstants import P4ProgramNodeType
-from P416JsonParser import PrimitiveOpblock, Expression, PrimitiveField, RegisterArrayPrimitive, HexStr, \
+from P4ProgramParser.P416JsonParser import PrimitiveOpblock, Expression, PrimitiveField, RegisterArrayPrimitive, HexStr, \
     PrimitiveHeader, BoolPrimitive
 
 import networkx as nx
@@ -146,8 +146,12 @@ class MATNode:
         self.nodeType = nodeType
         self.nextNodes= []
         self.name = name
-        self.matchKey = None
-        self.actions= None
+        self.matchKey = []
+        self.actions= []
         self.oriiginalP4node = oriiginalP4node
+        self.isVisitedForDraw=False
+        self.actionObjectList  = []
+        self.isVisitedForTDGProcessing=False
+        self.subTableMatNodes = []
 
         return

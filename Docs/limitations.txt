@@ -1,0 +1,4 @@
+1) our scheme can not handle extern
+2) if ther is a read modify write then it can not handle in one stage. hence it willl create a loop and such scheme is not supported in our sustem. to handle
+this we need to support tnaregister extern.
+3) if in same action two stateful memory is accessed then our scheme can not work. we need to fix this in iterativelyPreprocessMATAccessingStatefuleMemmories function

@@ -4,6 +4,7 @@ from enum import Enum
 class P4ProgramNodeType(Enum):
     ACTION_NODE = "action_node"
     TABLE_NODE = "table_node"
+    SUPER_TABLE_NODE = "super_table_node"
     CONDITIONAL_NODE = "conditionals"
     DUMMY_NODE = "dummy_node"
     PRIMITIVE_OP_NODE = "primitive_op_node"

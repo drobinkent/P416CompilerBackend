@@ -1,7 +1,7 @@
 import logging
 
 import ConfigurationConstants as ConfConst
-from P416JsonParser import ParsedP416ProgramForV1ModelArchitecture
+from P4ProgramParser.P416JsonParser import ParsedP416ProgramForV1ModelArchitecture
 from utils import JsonParserUtil
 
 logger = logging.getLogger('MAIN')

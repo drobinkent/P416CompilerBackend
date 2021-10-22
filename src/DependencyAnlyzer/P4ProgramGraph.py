@@ -50,7 +50,7 @@ class P4ProgramGraph:
                 newPipelineGraph.preProcessPipelineGraph()
 
     def headeranalyzer(self):
-        print(self.parsedP4Program.nameToHeaderTypeObjectMap)
+        # print(self.parsedP4Program.nameToHeaderTypeObjectMap)
         self.parsedP4Program.getTotalHeaderLength()
         print("\n\n Ingress stage header analysis")
         fullListOfHeaderFieldsUsedInThePipeline =self.pipelineIdToPipelineGraphMap.get(PipelineID.INGRESS_PIPELINE).headeranalyzerForSinglePipeline()
