@@ -309,7 +309,7 @@ class PipelineGraph:
         if(node == None):
             # logger.info("No relevant node is found in the pipeline for : " + nodeName)
             return
-        if(node.oriiginalP4node.is_visited_for_conditional_preprocessing == True):
+        if(node.originalP4node.is_visited_for_conditional_preprocessing == True):
             return
 
         else:
@@ -334,7 +334,7 @@ class PipelineGraph:
                     # if(nxtNodeName == "OntasIngress.anony_arp_mac_src_oui_tb") :
                     #     print("The nxtNodeName is OntasIngress.anony_arp_mac_src_oui_tb is coming from node :"+nodeName+" Called from "+callernode)
                     self.preprocessConditionalNodeRecursively(nxtNodeName,nodeName) #inside this function call we have add the headerfield for carrying if-else result
-                    node.oriiginalP4node.is_visited_for_conditional_preprocessing =True
+                    node.originalP4node.is_visited_for_conditional_preprocessing =True
 
         return
 
@@ -484,9 +484,14 @@ class PipelineGraph:
                     self.getNxGraph(a, nxGraph, nodeName, indenter+"\t")
             conditional.is_visited_for_graph_drawing= True
 
-    def loadTDG(self, name, predNode):
-        p4Node = self.getMatNodeForTDGProcessing(name)
+    def loadTDG(self, name, predMatNode):
+        p4MatNode = self.getMatNodeForTDGProcessing(name)
         # find the correct predeccesor of the p4Node and the deendency type it have with that predecessor
+        # if(there is not dependency between the predMatNode and p4MatNode )
+        #     then recursively browse all the predecessors of the pred and ascore them in increasing number.
+        #     then add the most restricited one as the predecessor of the p4MatNode with the dependnency type
+        # otherwise
+        #     add the predMatNode as the predecessor of the p4MatNode with relevent dependemcy type as edge attribute.
 
         # nodeList.append(name)
         # if(p4Node != None) and (p4Node.nodeType== P4ProgramNodeType.TABLE_NODE):
@@ -552,7 +557,6 @@ class PipelineGraph:
                     nodeList = self.getNextNodeForTDG(a, self.pipelineID)
                     p4SubTableNode.nextNodes = p4SubTableNode.nextNodes + nodeList
                 superTblNode.subTableMatNodes.append(p4SubTableNode)
-
             return superTblNode
         elif(conditional != None):
             # print("conditional name is "+name)
@@ -563,6 +567,8 @@ class PipelineGraph:
                 p4teConditionalNode.nextNodes = p4teConditionalNode.nextNodes + nodeList
             return p4teConditionalNode
         pass
+
+
     def getNextNodeForTDG(self, nodeName):
         nextNodeList = []
         for actionEntry in self.actions:
