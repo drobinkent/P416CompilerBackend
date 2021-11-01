@@ -11,6 +11,11 @@ from enum import Enum
 import sys
 from dataclasses import dataclass
 from typing import List, Any, Union, Optional, Dict, TypeVar, Callable, Type, cast
+
+import ConfigurationConstants
+from DependencyAnlyzer.DefinitionConstants import P4ProgramNodeType
+# from DependencyAnlyzer.P4ProgramNode import ExpressionNode
+
 sys.path.append("..")
 sys.path.append("../DependencyAnlyzer/")
 import ConfigurationConstants as confConst
@@ -78,6 +83,10 @@ def from_dict(f: Callable[[Any], T], x: Any) -> Dict[str, T]:
     assert isinstance(x, dict)
     return { k: f(v) for (k, v) in x.items() }
 
+class GraphColor(Enum):
+    WHITE = 1
+    GREY = 2
+    BLACK = 3
 
 class PrimitiveOp(Enum):
     ADD_HEADER = "add_header"
@@ -2187,10 +2196,39 @@ class Conditional:
     expression: Expression
     is_visited_for_conditional_preprocessing: bool
     is_visited_for_stateful_memory_preprocessing: bool
-    is_visited_for_graph_drawing: bool
-    is_visited_for_TDG_processing: bool
+    is_visited_for_graph_drawing: GraphColor
+    is_visited_for_TDG_processing: GraphColor
     true_next: str
     false_next: Optional[str] = None
+
+    def convertToAction(self):
+        #TODO : at this moment we are assuming that an expression of a conditional will be only in a form that can be expressed using an atomic operation.
+        #Later we will handle, expressions in conditional that needs another stage to preprocess the fields reqiured for evaluating the expression
+        # exprNode = ExpressionNode(parsedP4Node = self.expression, name = self.name,  parsedP4NodeType = P4ProgramNodeType.EXPRESSION_NODE, pipelineID=None)
+        # e = exprNode.parsedP4Node
+        # op = e.type
+        # left = e.value.left
+        # right = e.value.right
+        # print("Need to convert the expression to action . exiting")
+        primitiveList = []
+        parameters = []
+        newPrimitive = None
+        if(self.expression.value.op.value == PrimitiveOp.D2_B):
+            newPrimitive = Primitive(op = PrimitiveOp.EQUAL, parameters= parameters, source_info= None)
+            parameters.append(BoolPrimitive("True"))
+            parameters.append(self.expression.value.right)
+            pass
+        else:
+            newPrimitive = Primitive(op = self.expression.value.op.value, parameters= parameters, source_info= None)
+            parameters.append(self.expression.value.left)
+            parameters.append(self.expression.value.right)
+
+        primitiveList.append(newPrimitive)
+        convertedAction = Action(name = ConfigurationConstants.CONVERTED_ACTION_PREFIX, id = self.id, runtime_data= None, primitives= primitiveList )
+        convertedActionList = []
+        convertedActionList.append(convertedAction)
+        print("Must add modification to the extra field used for conditional")
+        return convertedActionList
 
     @staticmethod
     def from_dict(obj: Any) -> 'Conditional':
@@ -2201,7 +2239,7 @@ class Conditional:
         expression = Expression.from_dict(obj.get("expression"))
         true_next = from_str(obj.get("true_next"))
         false_next = from_union([from_none, from_str], obj.get("false_next"))
-        return Conditional(name, id, source_info, expression, False, False,False, False, true_next, false_next)
+        return Conditional(name, id, source_info, expression, False, False,GraphColor.WHITE, GraphColor.WHITE, true_next, false_next)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -2284,8 +2322,8 @@ class SuperTable:
         self.actions= []
         self.is_visited_for_conditional_preprocessing = False
         self.is_visited_for_stateful_memory_preprocessing = False
-        self.is_visited_for_graph_drawing = False
-        self.is_visited_for_TDG_processing = False
+        self.is_visited_for_graph_drawing = GraphColor.WHITE
+        self.is_visited_for_TDG_processing = GraphColor.WHITE
         self.previousNodeToSubTableMap = {}
     def __init__(self,name,subTableList):
         self.name = name
@@ -2293,8 +2331,8 @@ class SuperTable:
         self.subTableList = subTableList
         self.is_visited_for_conditional_preprocessing = False
         self.is_visited_for_stateful_memory_preprocessing = False
-        self.is_visited_for_graph_drawing = False
-        self.is_visited_for_TDG_processing = False
+        self.is_visited_for_graph_drawing = GraphColor.WHITE
+        self.is_visited_for_TDG_processing = GraphColor.WHITE
         self.previousNodeToSubTableMap = {}
     def getAllNextNodes(self):
         nextNodeList = []
@@ -2302,6 +2340,18 @@ class SuperTable:
             for a in list(t.next_tables.values()):
                 nextNodeList.append(a)
         return nextNodeList
+
+    def getAllMatchFields(self):
+        matchFieldsAsList = []
+        for k in self.key:
+            matchKey = ""
+            for t in k.target:
+                if(matchKey == ""):
+                    matchKey = t
+                else:
+                    matchKey = matchKey+"."+t
+            matchFieldsAsList.append(matchKey)
+        return matchFieldsAsList
 
 
 
@@ -2323,8 +2373,8 @@ class Table:
     next_tables: Dict[str, str]
     is_visited_for_conditional_preprocessing: bool
     is_visited_for_stateful_memory_preprocessing: bool
-    is_visited_for_graph_drawing: bool
-    is_visited_for_TDG_processing: bool
+    is_visited_for_graph_drawing: GraphColor
+    is_visited_for_TDG_processing: GraphColor
     direct_meters: Optional[str] = None
     base_default_next: Optional[str] = None
     default_entry: Optional[DefaultEntry] = None
@@ -2365,7 +2415,7 @@ class Table:
         base_default_next = from_union([from_none, from_str], obj.get("base_default_next"))
         default_entry = from_union([DefaultEntry.from_dict, from_none], obj.get("default_entry"))
         action_profile = from_union([from_str, from_none], obj.get("action_profile"))
-        return Table(name, id, source_info, key, match_type, type, max_size, with_counters, support_timeout, action_ids, actions, next_tables, False, False,False, False, direct_meters, base_default_next, default_entry, action_profile)
+        return Table(name, id, source_info, key, match_type, type, max_size, with_counters, support_timeout, action_ids, actions, next_tables, False, False,GraphColor.WHITE, GraphColor.WHITE, direct_meters, base_default_next, default_entry, action_profile)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -2400,36 +2450,36 @@ class Pipeline:
 
     def resetIsVisitedForStatefulMemoryProcessingVariableForGraph(self):
         for t in self.tables:
-            t.is_visited_for_stateful_memory_preprocessing =  False
+            t.is_visited_for_stateful_memory_preprocessing =  GraphColor.WHITE
         for c in self.conditionals:
-            c.is_visited_for_stateful_memory_preprocessing =  False
+            c.is_visited_for_stateful_memory_preprocessing =  GraphColor.WHITE
 
     def resetIsVisitedForConditionalProcessingVariableForGraph(self):
         for t in self.tables:
-            t.is_visited_for_conditional_preprocessing =  False
+            t.is_visited_for_conditional_preprocessing =  GraphColor.WHITE
         for c in self.conditionals:
-            c.is_visited_for_conditional_preprocessing =  False
+            c.is_visited_for_conditional_preprocessing =  GraphColor.WHITE
     def resetIsVisitedVariableForGraphDrawing(self):
         for t in self.tables:
             # print("Reseting graph state for table "+t.name)
             if(type(t) == Table):
-                t.is_visited_for_graph_drawing =  False
+                t.is_visited_for_graph_drawing =  GraphColor.WHITE
             if(type(t) == SuperTable):
                 for subTble in t.subTableList:
-                    subTble.is_visited_for_graph_drawing =  False
+                    subTble.is_visited_for_graph_drawing =  GraphColor.WHITE
         for c in self.conditionals:
-            c.is_visited_for_graph_drawing =  False
+            c.is_visited_for_graph_drawing =  GraphColor.WHITE
     def resetIsVisitedVariableTDGProcessing(self):
         for t in self.tables:
             # print("Reseting graph state for table "+t.name)
             if(type(t) == Table):
-                t.is_visited_for_TDG_processing =  False
+                t.is_visited_for_TDG_processing =  GraphColor.WHITE
             if(type(t) == SuperTable):
                 for subTble in t.subTableList:
-                    subTble.is_visited_for_TDG_processing =  False
-                t.is_visited_for_TDG_processing = False
+                    subTble.is_visited_for_TDG_processing =  GraphColor.WHITE
+                t.is_visited_for_TDG_processing = GraphColor.WHITE
         for c in self.conditionals:
-            c.is_visited_for_TDG_processing =  False
+            c.is_visited_for_TDG_processing =  GraphColor.WHITE
 
     def resetAllIsVisitedVariableForGraph(self):
         self.resetIsVisitedForConditionalProcessingVariableForGraph()

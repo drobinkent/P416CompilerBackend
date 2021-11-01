@@ -142,19 +142,20 @@ class ExpressionNode(P4ProgramNode):
 class MATNode:
     nodeType = None
 
-    def __init__(self, nodeType, name, oriiginalP4node):
+    def __init__(self, nodeType, name, originalP4node):
         self.nodeType = nodeType
         self.nextNodes= []
         self.name = name
         self.matchKey = []
         self.actions= []
-        self.originalP4node = oriiginalP4node
+        self.originalP4node = originalP4node
         self.isVisitedForDraw=False
         self.actionObjectList  = []
         self.isVisitedForTDGProcessing=False
         self.subTableMatNodes = []
-        self.predecessors = []
-        self.ancestors = []
+        self.predecessors = {}
+        self.ancestors = {}
+        self.dependencies = {}
         return
 
 
@@ -165,3 +166,6 @@ class Dependency:
         self.dependencyType = dependencyType
         self.src = src
         self.dst = dst
+
+
+

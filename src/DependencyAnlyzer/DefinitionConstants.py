@@ -22,5 +22,5 @@ class DependencyType(Enum):
     EXPRESSION_DEPENDENCY = "expression_dependency" # WHen an expression requires more than one stage that creates a expression depednecy . such as a+b+c a+b and +c there is a expression
     #dependency between the node represented by (a+b) and c
     STAEFUL_MEMORY_DEPENDENCY = "stateful_memory_dependency" # If 2 nodes access same stateful memory then these 2 have stateful memory dependency
-    DUMMY_DEPENDENCY_TO_START = "dummy_dependency_to_start"
+    DUMMY_DEPENDENCY_FROM_START = "dummy_dependency_to_start"
     DUMMY_DEPENDENCY_TO_END = "dummy_dependency_to_end"

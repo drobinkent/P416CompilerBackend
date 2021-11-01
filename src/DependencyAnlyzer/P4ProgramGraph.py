@@ -74,7 +74,6 @@ class P4ProgramGraph:
         print("Bitwdith wise header count is ",bitWidthByHeadercountForEgress)
         return  bitWidthByHeadercountForEgress
 
-
     def getTotalHeaderLengthForHeaderFieldList(self, headerFieldList):
         total = 0
         for k in headerFieldList:

@@ -2,3 +2,10 @@
 2) if ther is a read modify write then it can not handle in one stage. hence it willl create a loop and such scheme is not supported in our sustem. to handle
 this we need to support tnaregister extern.
 3) if in same action two stateful memory is accessed then our scheme can not work. we need to fix this in iterativelyPreprocessMATAccessingStatefuleMemmories function
+4)  # An action has an op and parameters. Whereas a conditional expression has type = expression, op is a conditioanl op and values are left and right. which are the parameters.
+               # So currently we are assuming ou r hardware can support a> a+b or a+b > c format expression.
+               # so we will use a static methord here which will convert a conditional to
+               # predicate then write a field format.
+               # but in future there will be a a new preprocessor function that will actually pre process the action primitives and do them as
+5) In the convertToAction we have to add support for what type of atom for nested conditionals the hardware support. If a hardware support different kind of operations we can
+add them in this method

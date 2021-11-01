@@ -5,9 +5,9 @@ import sys
 
 from networkx.drawing.nx_agraph import to_agraph
 
-from DependencyAnlyzer.DefinitionConstants import P4ProgramNodeType, PipelineID
-from DependencyAnlyzer.P4ProgramNode import ExpressionNode, MATNode
-from P4ProgramParser.P416JsonParser import Key, SuperTable, Table
+from DependencyAnlyzer.DefinitionConstants import P4ProgramNodeType, PipelineID, DependencyType
+from DependencyAnlyzer.P4ProgramNode import ExpressionNode, MATNode, Dependency
+from P4ProgramParser.P416JsonParser import Key, SuperTable, Table, GraphColor
 
 sys.path.append("..")
 import ConfigurationConstants as confConst
@@ -34,11 +34,14 @@ def common_member(a, b):
     else:
         return None
 
+
 class PipelineGraph:
+
+
     def __init__(self, pipelineID,pipeline, actions):
         self.pipelineID = pipelineID
-        self.dummyStart = None
-        self.dummyEnd = None
+        self.dummyStart = MATNode(nodeType = P4ProgramNodeType.DUMMY_NODE, name = confConst.DUMMY_START_NODE, originalP4node= None)
+        self.dummyEnd = MATNode(nodeType = P4ProgramNodeType.DUMMY_NODE, name = confConst.DUMMY_END_NODE, originalP4node=None)
         self.p4Graph = nx.DiGraph()
         self.p4Graph.add_node(self.dummyStart, label="Start")
         self.p4Graph.add_node(self.dummyEnd, label="End")
@@ -56,6 +59,7 @@ class PipelineGraph:
         self.conditionalNodes = {}
         self.matchActionNodes= {}
         self.swappedTableMapForStatefulMemoryBasedPreprocessing = {}
+
 
     def headeranalyzerForSinglePipeline(self):
         '''
@@ -116,6 +120,7 @@ class PipelineGraph:
         print("Total number of header fields used in the pipeline is "+str(len(fullListOfHeaderFieldsUsedInThePipeline)))
         return fullListOfHeaderFieldsUsedInThePipeline
 
+
     def getAllFieldsModifedInActionsOfTheTable(self, tblName):
         tbl = self.pipeline.getTblByName(tblName)
         if(tbl == None):
@@ -128,39 +133,30 @@ class PipelineGraph:
                 totalFieldList = totalFieldList + newfieldList
         return totalFieldList
 
+
     def getActionByName(self, actName):
         for act in self.actions:
             if(act.name == actName):
                 return act
         return None
 
+
     def preProcessPipelineGraph(self):
-        # self.traverseTDG()
-        # print(len(self.pipeline.tables))
         self.preprocessConditionalNodeRecursively(self.pipeline.init_table, confConst.DUMMY_START_NODE)
-        # print(self.pipeline.tables)
-        # print("Drawing graph after conditiona processing ")
         self.drawPipeline("./"+str(self.pipelineID)+"_afterConditioanlProcessing.png")
-        # # print(len(self.pipeline.tables))
         self.iterativelyPreprocessMATAccessingStatefuleMemmories()
-        # # print(len(self.pipeline.tables))
-        # # print("\n\n\n")
-        # # print(self.pipeline.tables)
-        # # print("Drawing graph after stateful memory processing ")
         self.drawPipeline("./"+str(self.pipelineID)+"_afterStatefulMemoeryProcessing.png")
+        if(self.pipeline.init_table != None):
+            self.loadTDG(self.pipeline.init_table, self.dummyStart)
+
 
     def traverseTDG(self):
         nodeList = []
         self.traverseTDGRecursivelyBeforeCreatingSuperMat(self.pipeline.init_table, nodeList)
         pass
 
+
     def traverseTDGRecursivelyBeforeCreatingSuperMat(self, name, nodeList):
-        # if(name==None):
-        #     print("None")
-        #     # logger.info(nodeList)
-        #     return
-        # else:
-        #     print(name)
         tbl = self.pipeline.getTblByName(name)
         conditional = self.pipeline.getConditionalByName(name)
         nodeList.append(name)
@@ -184,6 +180,7 @@ class PipelineGraph:
                 self.traverseTDGRecursivelyBeforeCreatingSuperMat(nxtNode, newNodeList)
             conditional.is_visited_for_conditional_preprocessing = True
             return
+
 
     def iterativelyPreprocessMATAccessingStatefuleMemmories(self):
         # print("inside iterativelyPreprocessMATAccessingStatefuleMemmories")
@@ -218,7 +215,6 @@ class PipelineGraph:
             self.superTableNameToSubTableListMap[superMatName] = []
             self.registerNameToSuperMatNameMap[regName] = superMatName
             #TODO If any two super mat have common subtable list then it means ehy need to be embedded together. so
-
         for regName in self.registerNameToSuperMatNameMap.keys():
             superMatName = self.registerNameToSuperMatNameMap.get(regName)
             subTableListTobeAdded = []
@@ -273,8 +269,6 @@ class PipelineGraph:
                             superTblObject = self.pipeline.getTblByName(superMatName)
                             superTblObject.previousNodeToSubTableMap[c.name] = regTBLName
                         c.false_next = superMatName
-
-
         for regName in self.registerNameToSuperMatNameMap.keys():
             superMatName = self.registerNameToSuperMatNameMap.get(regName)
             subTblList = self.superTableNameToSubTableListMap.get(superMatName)
@@ -288,22 +282,16 @@ class PipelineGraph:
                     subTableListTobeAdded.append(removedTable)
             superTable = SuperTable(name = superMatName, subTableList = subTableListTobeAdded)
             self.pipeline.tables.append(superTable)
-
-        # #todo#now remove each of the table frm pipeline table list and form rename and create appropriate supertable with sub table list
+        # todo now remove each of the table frm pipeline table list and form rename and create appropriate supertable with sub table list
         # print("Showing all table name in the pipepline 2")
         # self.pipeline.showAllTableName()
         # print("\n\n\n\n\n")
-
         print("Showing all table name in the pipepline 3")
         self.pipeline.showAllTableName()
         print("\n\n\n\n\n")
 
 
-
     def preprocessConditionalNodeRecursively(self, nodeName, callernode, toPrint= True ):
-        if(nodeName == "node_37"):
-            return
-
         node = self.getNodeWithActionsForConditionalPreProcessing(nodeName)
         prevNode = self.getNodeWithActionsForConditionalPreProcessing(callernode)
         if(node == None):
@@ -311,32 +299,14 @@ class PipelineGraph:
             return
         if(node.originalP4node.is_visited_for_conditional_preprocessing == True):
             return
-
         else:
-
             if (len(node.nextNodes)<=0):
                 return
             else:
                 for nxtNodeName in node.nextNodes:
-                    # print("callernode == \""+callernode+"\" and nodeName ==\""+nodeName+"\" and  nxtNodeName == \""+nxtNodeName+"\"")
-                    # if(node.oriiginalP4node.is_visited_for_conditional_preprocessing == True) and (prevNode.oriiginalP4node.is_visited_for_conditional_preprocessing == True):
-                    #     print("callernode == \""+callernode+"\" and nodeName ==\""+nodeName+"\" and  nxtNodeName == \""+nxtNodeName+"\"")
-                        # return
-                    # if nodeName == "node_20" and nxtNodeName == "OntasIngress.hashing_src0_tb":
-                    #     print("callernode == \""+callernode+"\" and nodeName ==\""+nodeName+"\" and  nxtNodeName == \""+nxtNodeName+"\"")
-                    # print("callernode == \""+callernode+"\" and nodeName ==\""+nodeName+"\" and  nxtNodeName == \""+nxtNodeName+"\"")
-                    # if(nxtNodeName == "node_15") :
-                    #     print("The nxtNodeName node_15 is coming from node :"+nodeName+" Called from "+callernode)
-                    # if(nxtNodeName == "OntasIngress.anony_srcip_tb") :
-                    #     print("The nxtNodeName is OntasIngress.anony_srcip_tb is coming from node :"+nodeName+" Called from "+callernode)
-                    # if(nxtNodeName == "node_17") :
-                    #     print("The nxtNodeName node_17 is coming from node :"+nodeName+" Called from "+callernode)
-                    # if(nxtNodeName == "OntasIngress.anony_arp_mac_src_oui_tb") :
-                    #     print("The nxtNodeName is OntasIngress.anony_arp_mac_src_oui_tb is coming from node :"+nodeName+" Called from "+callernode)
-                    self.preprocessConditionalNodeRecursively(nxtNodeName,nodeName) #inside this function call we have add the headerfield for carrying if-else result
                     node.originalP4node.is_visited_for_conditional_preprocessing =True
-
         return
+
 
     def getNodeWithActionsForConditionalPreProcessing(self, name):
         if(name==None):
@@ -347,7 +317,7 @@ class PipelineGraph:
 
         if(tbl != None):
             # print("Table name is "+name)
-            p4teTableNode =MATNode(nodeType= P4ProgramNodeType.TABLE_NODE, name = name, oriiginalP4node = tbl )
+            p4teTableNode =MATNode(nodeType= P4ProgramNodeType.TABLE_NODE, name = name, originalP4node = tbl )
             p4teTableNode.matchKey = tbl.getAllMatchFields()
             p4teTableNode.actions = tbl.actions
             p4teTableNode.actionObjectList = []
@@ -370,7 +340,7 @@ class PipelineGraph:
             return p4teTableNode
         elif(conditional != None):
             # print("conditional name is "+name)
-            p4teConditionalNode =MATNode(nodeType= P4ProgramNodeType.CONDITIONAL_NODE , name = name, oriiginalP4node = conditional)
+            p4teConditionalNode =MATNode(nodeType= P4ProgramNodeType.CONDITIONAL_NODE , name = name, originalP4node = conditional)
             p4teConditionalNode.exprNode = ExpressionNode(parsedP4Node = conditional.expression, name= name,  parsedP4NodeType = P4ProgramNodeType.CONDITIONAL_NODE, pipelineID=self.pipelineID)
             #p4teConditionalNode.actions = self actions  # A conditional is itself an action so its actions are itself own
             # store the action used in the conditional
@@ -383,6 +353,7 @@ class PipelineGraph:
                     p4teConditionalNode.nextNodes = p4teConditionalNode.nextNodes + nodeList
             return p4teConditionalNode
         pass
+
 
     def getNextNodeForStatefulMemoryBasedAnalysis(self, nodeName, isArrivingFromConditional=False):
         nextNodeList = []
@@ -401,6 +372,7 @@ class PipelineGraph:
                     if matchTable.name  == nameSwappedTableName:
                         nextNodeList.append(matchTable.name)
         return nextNodeList
+
 
     def getNextNodeForconditionalPreprocessing(self, nodeName, isArrivingFromConditional=False):
         nextNodeList = []
@@ -428,6 +400,7 @@ class PipelineGraph:
         #                 nextNodeList.append(matchTable.name)
         return nextNodeList
 
+
     def drawPipeline(self,filePath= "./before-conditional"):
         self.pipeline.resetIsVisitedVariableForGraphDrawing()
         nxGraph = nx.DiGraph()
@@ -449,6 +422,7 @@ class PipelineGraph:
         A.draw(filePath)
         pass
 
+
     def getNxGraph(self, nodeName, nxGraph, pred, indenter = "\t", alreadyVisitedNodesMap={}):
         # if(nodeName!=None):
         #     print("Adding node in graph"+ nodeName)
@@ -460,40 +434,73 @@ class PipelineGraph:
         tbl = self.pipeline.getTblByName(nodeName)
         conditional = self.pipeline.getConditionalByName(nodeName)
         if ( tbl != None) and (type(tbl)== SuperTable):
-            if(tbl.is_visited_for_graph_drawing== True):
+            if(tbl.is_visited_for_graph_drawing== GraphColor.BLACK):
                 return
+            if(tbl.is_visited_for_graph_drawing== GraphColor.GREY):
+                logger.info("Cycle found in the TDG graph for node "+nodeName+" Exiting")
+                print("Cycle found in the TDG graph for node "+nodeName+" Exiting")
+                exit(1)
+            tbl.is_visited_for_graph_drawing= GraphColor.GREY
             for t in tbl.subTableList:
-                if(tbl.is_visited_for_graph_drawing== False):
-                    for a in list(t.next_tables.values()):
+                for a in list(t.next_tables.values()):
+                    if(a!=None):
                         self.getNxGraph(a, nxGraph, nodeName, indenter = indenter+"\t")
-                    t.is_visited_for_graph_drawing= True
-            tbl.is_visited_for_graph_drawing= True
+                t.is_visited_for_graph_drawing= True
+            tbl.is_visited_for_graph_drawing= GraphColor.BLACK
         elif ( tbl != None):
-            if(tbl.is_visited_for_graph_drawing== True):
+            if(tbl.is_visited_for_graph_drawing== GraphColor.BLACK):
                 return
+            if(tbl.is_visited_for_graph_drawing== GraphColor.GREY):
+                logger.info("Cycle found in the TDG graph for node "+nodeName+" Exiting")
+                print("Cycle found in the TDG graph for node "+nodeName+" Exiting")
+                exit(1)
+            tbl.is_visited_for_graph_drawing= GraphColor.GREY
             for a in list(tbl.next_tables.values()):
                 if(a!=None):
                     self.getNxGraph(a, nxGraph, nodeName,indenter+"\t")
-            tbl.is_visited_for_graph_drawing= True
+            tbl.is_visited_for_graph_drawing= GraphColor.BLACK
         elif(conditional != None):
-            if(conditional.is_visited_for_graph_drawing== True):
+            if(conditional.is_visited_for_graph_drawing== GraphColor.BLACK):
                 return
+            if(conditional.is_visited_for_graph_drawing== GraphColor.GREY):
+                logger.info("Cycle found in the TDG graph for node "+nodeName+" Exiting")
+                print("Cycle found in the TDG graph for node "+nodeName+" Exiting")
+                exit(1)
             next_tables = [conditional.true_next, conditional.false_next]
+            conditional.is_visited_for_graph_drawing= GraphColor.GREY
             for a in next_tables:
                 if(a!=None):
                     self.getNxGraph(a, nxGraph, nodeName, indenter+"\t")
-            conditional.is_visited_for_graph_drawing= True
+            conditional.is_visited_for_graph_drawing= GraphColor.BLACK
 
-    def loadTDG(self, name, predMatNode):
-        p4MatNode = self.getMatNodeForTDGProcessing(name)
-        # find the correct predeccesor of the p4Node and the deendency type it have with that predecessor
-        # if(there is not dependency between the predMatNode and p4MatNode )
-        #     then recursively browse all the predecessors of the pred and ascore them in increasing number.
-        #     then add the most restricited one as the predecessor of the p4MatNode with the dependnency type
-        # otherwise
-        #     add the predMatNode as the predecessor of the p4MatNode with relevent dependemcy type as edge attribute.
 
-        # nodeList.append(name)
+    def loadTDG(self, name, predMatNode,predOfSubTableName):
+        p4MatNode = self.getMatNodeForTDGProcessing(name,predMatNode)
+        if(p4MatNode == None):
+            logger.info("relevant Matnode is not found for  the child of :"+predMatNode.name+" and the name of node to be searched is "+name+". Severer Error. Debug Exiting ")
+            print("relevant Matnode is not found for  the child of :"+predMatNode.name+" and the name of node to be searched is "+name+". Severer Error. Debug Exiting ")
+            exit(1)
+        if(p4MatNode.originalP4node.is_visited_for_TDG_processing == GraphColor.BLACK):
+            return
+        print("Graph node being processed is :"+name)
+        if(p4MatNode.originalP4node.is_visited_for_TDG_processing == GraphColor.GREY):
+            logger.info("A cycle found in the TDG. The relevant edge is : "+predMatNode.name+"<-- to -->"+p4MatNode.name+". Exiting from the program abruptly without further try")
+            print("A cycle found in the TDG. The relevant edge is : "+predMatNode.name+"<-- to -->"+p4MatNode.name+". Exiting from the program abruptly without further try")
+            exit(1)
+        p4MatNode.originalP4node.is_visited_for_TDG_processing = GraphColor.GREY
+        for nxtNodeName in p4MatNode.nextNodes:
+            if(nxtNodeName == None):
+                self.loadTDG(name = confConst.DUMMY_END_NODE, predMatNode = p4MatNode)
+            elif(nxtNodeName != None):
+                self.loadTDG(name = nxtNodeName.name, predMatNode = p4MatNode)
+        p4MatNode.originalP4node.is_visited_for_TDG_processing = GraphColor.BLACK
+
+
+
+
+
+
+            # nodeList.append(name)
         # if(p4Node != None) and (p4Node.nodeType== P4ProgramNodeType.TABLE_NODE):
         #     if(p4Node.is_visited_for_TDG_processing == True):
         #         return
@@ -523,17 +530,15 @@ class PipelineGraph:
         #     tbl.is_visited_for_graph_drawing= True
 
 
-
-    def getMatNodeForTDGProcessing(self, name):
+    def getMatNodeForTDGProcessing(self, name, predecessorMatNode):
         if(name==None):
             logger.info("Name is None in getNodeWithActionsForTDGProcessing. returning None")
             return None
         tbl = self.pipeline.getTblByName(name)
         conditional = self.pipeline.getConditionalByName(name)
-
         if(tbl != None):
             # print("Table name is "+name)
-            p4TableNode =MATNode(nodeType= P4ProgramNodeType.TABLE_NODE, name = name, oriiginalP4node = tbl )
+            p4TableNode = MATNode(nodeType= P4ProgramNodeType.TABLE_NODE, name = name, originalP4node = tbl )
             p4TableNode.matchKey = tbl.getAllMatchFields()
             p4TableNode.actions = tbl.actions
             # p4teTableNode.actionObjectList = []
@@ -543,37 +548,64 @@ class PipelineGraph:
             for a in list(tbl.next_tables.values()):
                 nodeList = self.getNextNodeForTDG(a)
                 p4TableNode.nextNodes = p4TableNode.nextNodes + nodeList
+            p4TableNode.predecessors[predecessorMatNode.name] = predecessorMatNode
+            predecessorMatNode.ancestors[p4TableNode.name] = p4TableNode
+            p4TableNode.dependencies[predecessorMatNode.name] = self.matToMatDependnecyanlysis(predecessorMatNode, p4TableNode)
             return p4TableNode
         elif(tbl != None) and (type(tbl) == SuperTable):
-            superTblNode = MATNode(nodeType= P4ProgramNodeType.SUPER_TABLE_NODE, name = name, oriiginalP4node = tbl )
+            superTblNode = MATNode(nodeType= P4ProgramNodeType.SUPER_TABLE_NODE, name = name, originalP4node = tbl )
             for t in tbl.subTableList:
-                p4SubTableNode =MATNode(nodeType= P4ProgramNodeType.TABLE_NODE, name = name, oriiginalP4node = tbl )
-                p4SubTableNode.matchKey = tbl.getAllMatchFields()
-                p4SubTableNode.actions = tbl.actions
+                p4SubTableNode =MATNode(nodeType= P4ProgramNodeType.TABLE_NODE, name = name, originalP4node = tbl )
+                p4SubTableNode.matchKey = t.getAllMatchFields()
+                for a in tbl.actions:
+                    actionObject = self.getActionByName(a)
+                    p4SubTableNode.actionObjectList.append(actionObject)
+                p4SubTableNode.actions = p4SubTableNode.actions + t.actions
                 superTblNode.matchKey = superTblNode.matchKey + p4SubTableNode.matchKey
-                superTblNode.actions = superTblNode.actions  + p4SubTableNode.actions
+                superTblNode.actions = superTblNode.actions + t.actions
+                superTblNode.actionObjectList = superTblNode.actionObjectList + p4SubTableNode.actionObjectList
                 for tblKey in list(t.next_tables.keys()):
                     a=t.next_tables.get(tblKey)
                     nodeList = self.getNextNodeForTDG(a, self.pipelineID)
                     p4SubTableNode.nextNodes = p4SubTableNode.nextNodes + nodeList
                 superTblNode.subTableMatNodes.append(p4SubTableNode)
+
+            superTblNode.predecessors[predecessorMatNode.name] = predecessorMatNode
+            predecessorMatNode.ancestors[superTblNode.name] = superTblNode
+            superTblNode.dependencies[predecessorMatNode.name] = self.matToMatDependnecyanlysis(predecessorMatNode, superTblNode)
             return superTblNode
         elif(conditional != None):
             # print("conditional name is "+name)
-            p4teConditionalNode =MATNode(nodeType= P4ProgramNodeType.CONDITIONAL_NODE , name = name, oriiginalP4node = conditional)
+            p4teConditionalNode =MATNode(nodeType= P4ProgramNodeType.CONDITIONAL_NODE , name = name, originalP4node = conditional)
+            # An action has an op and parameters. Whereas a conditional expression has type = expression, op is a conditioanl op and values are left and right. which are the parameters.
+            # So currently we are assuming ou r hardware can support a> a+b or a+b > c format expression.
+            # so we will use a static methord here which will convert a conditional to
+            # predicate then write a field format.
+            # but in future there will be a a new preprocessor function that will actually pre process the action primitives and do them as
+            p4teConditionalNode.actions = conditional.convertToAction()
             p4teConditionalNode.next_tables = [conditional.true_next, conditional.false_next]
             for a in p4teConditionalNode.next_tables:
                 nodeList = self.getNextNodeForTDG(a)
                 p4teConditionalNode.nextNodes = p4teConditionalNode.nextNodes + nodeList
+            p4teConditionalNode.predecessors[predecessorMatNode.name] = predecessorMatNode
+            predecessorMatNode.ancestors[p4teConditionalNode.name] = p4teConditionalNode
+            p4teConditionalNode.dependencies[predecessorMatNode.name] = self.matToMatDependnecyanlysis(predecessorMatNode, p4teConditionalNode)
             return p4teConditionalNode
-        pass
+        else:
+            print("The table may be a subtable of a super table. need to handle this case. we still have not handled this. This will happen if the init_Table is actually mapped to a super table")
+            exit(1)
+            pass
 
 
     def getNextNodeForTDG(self, nodeName):
         nextNodeList = []
+        if(nodeName == confConst.DUMMY_START_NODE):
+            return self.dummyStart
+        if(nodeName == confConst.DUMMY_END_NODE):
+            return self.dummyEnd
         for actionEntry in self.actions:
             if actionEntry.name  == nodeName:
-                nextNodeList.append(nodeName)
+                nextNodeList.append(actionEntry)
         for tbl in self.pipeline.tables:
             if tbl.name  == nodeName:
                 if(type(tbl) == Table):
@@ -582,10 +614,56 @@ class PipelineGraph:
                     nextNodeList = nextNodeList + tbl.getAllNextNodes()
         for cond in self.pipeline.conditionals:
             if cond.name  == nodeName:
-                nextNodeList.append(nodeName)
+                nextNodeList.append(cond)
         return nextNodeList
 
+    def matToMatDependnecyanlysis(self, matNode1, matNode2):
+        # This function will work for both action nodes (which is actually represented by table node in the json prepresentation) and
+        # table nodes (real range, exact, lpm, ternary matches)
+        #For 2 action nodes it will only basically use the 2nd if statement; because in action only nodes there will be no matching keys. so only actions are checked
+        if(matNode1 == None ) or (matNode2 == None):
+            logger.info("Cannot calculate depndency between null nodes. EXITING. Please Debug")
+            exit(1)
+        if(type(matNode1) == MATNode) and (matNode1.name == confConst.DUMMY_START_NODE):
+            dependencyType = Dependency(dependencyType = DependencyType.DUMMY_DEPENDENCY_FROM_START, src = matNode1, dst = matNode2 )
+            return dependencyType
+        if(type(matNode2) == MATNode) and (matNode2.name == confConst.DUMMY_END_NODE):
+            dependencyType = Dependency(dependencyType = DependencyType.DUMMY_DEPENDENCY_TO_END, src = matNode1, dst = matNode2 )
+            return dependencyType
+        if(matNode1.nodeType == P4ProgramNodeType.SUPER_TABLE_NODE):
+            pass
+        else: #For all other types of nodes this will be a single table node
+            pass
 
+
+
+
+            # mat1MatchKeyList = matNode1.getAllMatchFields()
+        # mat2MatchKeyList = matNode2.getAllMatchFields()
+        # filedsModifiedByMat1Actions, filedsUsedByMat1Actions = matNode1.getListOfFieldsModifedAndUsed()
+        # filedsModifiedByMat2Actions, filedsUsedByMat2Actions = matNode2.getListOfFieldsModifedAndUsed()
+        # #todo: this is not totally correct. need to take the action of one table. we are not taking that here
+        # if matNode1 type is normal table
+        # if(matNode1.next_tables.get("__HIT__") != None) and (matNode1.next_tables.get("__HIT__") == matNode2.name) :
+        #     return DependencyType.SUCCESOR_DEPENDENCY
+        # if(matNode1.next_tables.get("__MISS__") != None) and (matNode1.next_tables.get("__MISS__") == matNode2.name) :
+        #     return DependencyType.SUCCESOR_DEPENDENCY
+        # if(mat1 is a conditional and it's true or false next are the mat node 2 then it would be a stirct dependency')
+        #     pass
+        # if matNode1 type is normal supertable then check for each sub table
+        #
+        # if matNode1 type is conditional then we have al ready converted it to mat
+        #
+        #
+        # if (common_member(filedsModifiedByMat1Actions, mat2MatchKeyList)):
+        #     return DependencyType.MATCH_DEPENDENCY # highest priority
+        # if (common_member(filedsModifiedByMat1Actions, filedsModifiedByMat2Actions)):
+        #     return DependencyType.ACTION_DEPENDENCY
+        # if (common_member(mat1MatchKeyList, filedsModifiedByMat2Actions)):
+        #     return DependencyType.REVERSE_MATCH_DEPENDENCY
+
+
+        return None
 
 
 
