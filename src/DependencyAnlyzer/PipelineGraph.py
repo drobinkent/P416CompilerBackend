@@ -143,11 +143,19 @@ class PipelineGraph:
 
     def preProcessPipelineGraph(self):
         self.preprocessConditionalNodeRecursively(self.pipeline.init_table, confConst.DUMMY_START_NODE)
-        self.drawPipeline("./"+str(self.pipelineID)+"_afterConditioanlProcessing.png")
+        # self.drawPipeline("./"+str(self.pipelineID)+"_afterConditioanlProcessing.png")
         self.iterativelyPreprocessMATAccessingStatefuleMemmories()
-        self.drawPipeline("./"+str(self.pipelineID)+"_afterStatefulMemoeryProcessing.png")
-        if(self.pipeline.init_table != None):
-            self.loadTDG(self.pipeline.init_table, self.dummyStart)
+        # self.drawPipeline("./"+str(self.pipelineID)+"_afterStatefulMemoeryProcessing.png")
+        # if(self.pipeline.init_table != None):
+        #     initTableNode = self.getMatNodeForTDGProcessing(name = self.pipeline.init_table, predecessorMatNode= self.dummyStart)
+        #     if(initTableNode == None):
+        #         logger.error("Severe error: Mat node for the init_Table "+self.pipeline.init_table+" is not found. Exiting!!")
+        #         exit(1)
+        #     if(initTableNode.nodeType == P4ProgramNodeType.SUPER_TABLE_NODE):
+        #         self.loadTDG(self.pipeline.init_table, self.dummyStart, self.pipeline.init_table)
+        #     else:
+        #         self.loadTDG(self.pipeline.init_table, self.dummyStart, None)
+        pass
 
 
     def traverseTDG(self):
@@ -209,6 +217,7 @@ class PipelineGraph:
             combinedSubTbleList = combinedRegNameToBeAdded.get(combinedRegName)
             self.registerNameToTableMap[combinedRegName] = combinedSubTbleList
             print("Adding :"+combinedRegName+" and list is "+str(combinedSubTbleList))
+
         #==================================== The previous part is required for handling multiple stateful memory access by multiple  action
         for regName in self.registerNameToTableMap.keys():
             superMatName = confConst.SUPER_MAT_PREFIX+regName
@@ -269,6 +278,7 @@ class PipelineGraph:
                             superTblObject = self.pipeline.getTblByName(superMatName)
                             superTblObject.previousNodeToSubTableMap[c.name] = regTBLName
                         c.false_next = superMatName
+        #Here we are removing the tables from self.pipeline.tables, that were combined to form the superTable
         for regName in self.registerNameToSuperMatNameMap.keys():
             superMatName = self.registerNameToSuperMatNameMap.get(regName)
             subTblList = self.superTableNameToSubTableListMap.get(superMatName)
@@ -282,7 +292,6 @@ class PipelineGraph:
                     subTableListTobeAdded.append(removedTable)
             superTable = SuperTable(name = superMatName, subTableList = subTableListTobeAdded)
             self.pipeline.tables.append(superTable)
-        # todo now remove each of the table frm pipeline table list and form rename and create appropriate supertable with sub table list
         # print("Showing all table name in the pipepline 2")
         # self.pipeline.showAllTableName()
         # print("\n\n\n\n\n")
@@ -304,7 +313,9 @@ class PipelineGraph:
                 return
             else:
                 for nxtNodeName in node.nextNodes:
-                    node.originalP4node.is_visited_for_conditional_preprocessing =True
+                    self.preprocessConditionalNodeRecursively(nodeName = nxtNodeName, callernode = nodeName)
+
+                node.originalP4node.is_visited_for_conditional_preprocessing =True
         return
 
 
@@ -474,9 +485,11 @@ class PipelineGraph:
             conditional.is_visited_for_graph_drawing= GraphColor.BLACK
 
 
-    def loadTDG(self, name, predMatNode,predOfSubTableName):
+    def loadTDG(self, name, predMatNode,nameOfPredOfSubTable):
         p4MatNode = self.getMatNodeForTDGProcessing(name,predMatNode)
         if(p4MatNode == None):
+            if(name == confConst.DUMMY_END_NODE):
+                return self.dummyEnd
             logger.info("relevant Matnode is not found for  the child of :"+predMatNode.name+" and the name of node to be searched is "+name+". Severer Error. Debug Exiting ")
             print("relevant Matnode is not found for  the child of :"+predMatNode.name+" and the name of node to be searched is "+name+". Severer Error. Debug Exiting ")
             exit(1)
@@ -490,9 +503,9 @@ class PipelineGraph:
         p4MatNode.originalP4node.is_visited_for_TDG_processing = GraphColor.GREY
         for nxtNodeName in p4MatNode.nextNodes:
             if(nxtNodeName == None):
-                self.loadTDG(name = confConst.DUMMY_END_NODE, predMatNode = p4MatNode)
+                self.loadTDG(name = confConst.DUMMY_END_NODE, predMatNode = p4MatNode, nameOfPredOfSubTable= None)
             elif(nxtNodeName != None):
-                self.loadTDG(name = nxtNodeName.name, predMatNode = p4MatNode)
+                self.loadTDG(name = nxtNodeName.name, predMatNode = p4MatNode, nameOfPredOfSubTable = None)
         p4MatNode.originalP4node.is_visited_for_TDG_processing = GraphColor.BLACK
 
 
@@ -536,7 +549,7 @@ class PipelineGraph:
             return None
         tbl = self.pipeline.getTblByName(name)
         conditional = self.pipeline.getConditionalByName(name)
-        if(tbl != None):
+        if(tbl != None) and (type(tbl) != SuperTable):
             # print("Table name is "+name)
             p4TableNode = MATNode(nodeType= P4ProgramNodeType.TABLE_NODE, name = name, originalP4node = tbl )
             p4TableNode.matchKey = tbl.getAllMatchFields()
@@ -591,10 +604,33 @@ class PipelineGraph:
             predecessorMatNode.ancestors[p4teConditionalNode.name] = p4teConditionalNode
             p4teConditionalNode.dependencies[predecessorMatNode.name] = self.matToMatDependnecyanlysis(predecessorMatNode, p4teConditionalNode)
             return p4teConditionalNode
-        else:
-            print("The table may be a subtable of a super table. need to handle this case. we still have not handled this. This will happen if the init_Table is actually mapped to a super table")
-            exit(1)
-            pass
+        else: # This branch only works for the cases where the init_table of a pipeline is a supertable
+            for tbl in self.pipeline.tables:
+                if type(tbl) == SuperTable:
+                    for subTbl in tbl.subTableList:
+                        if subTbl.name == name:
+                            superTblNode = MATNode(nodeType= P4ProgramNodeType.SUPER_TABLE_NODE, name = name, originalP4node = tbl )
+                            for t in tbl.subTableList:
+                                p4SubTableNode =MATNode(nodeType= P4ProgramNodeType.TABLE_NODE, name = name, originalP4node = tbl )
+                                p4SubTableNode.matchKey = t.getAllMatchFields()
+                                for a in tbl.actions:
+                                    actionObject = self.getActionByName(a)
+                                    p4SubTableNode.actionObjectList.append(actionObject)
+                                p4SubTableNode.actions = p4SubTableNode.actions + t.actions
+                                superTblNode.matchKey = superTblNode.matchKey + p4SubTableNode.matchKey
+                                superTblNode.actions = superTblNode.actions + t.actions
+                                superTblNode.actionObjectList = superTblNode.actionObjectList + p4SubTableNode.actionObjectList
+                                for tblKey in list(t.next_tables.keys()):
+                                    a=t.next_tables.get(tblKey)
+                                    nodeList = self.getNextNodeForTDG(a, self.pipelineID)
+                                    p4SubTableNode.nextNodes = p4SubTableNode.nextNodes + nodeList
+                                superTblNode.subTableMatNodes.append(p4SubTableNode)
+
+                            superTblNode.predecessors[predecessorMatNode.name] = predecessorMatNode
+                            predecessorMatNode.ancestors[superTblNode.name] = superTblNode
+                            superTblNode.dependencies[predecessorMatNode.name] = self.matToMatDependnecyanlysis(predecessorMatNode, superTblNode)
+                            return superTblNode
+        return None
 
 
     def getNextNodeForTDG(self, nodeName):
@@ -611,7 +647,10 @@ class PipelineGraph:
                 if(type(tbl) == Table):
                     nextNodeList.append(tbl)
                 elif(type(tbl) == SuperTable):
-                    nextNodeList = nextNodeList + tbl.getAllNextNodes()
+                    if tbl.name == nodeName:
+                        nextNodeList.append(tbl)
+                    elif(tbl.isNodeInSubTableList(nodeName)):
+                        nextNodeList.append(tbl)
         for cond in self.pipeline.conditionals:
             if cond.name  == nodeName:
                 nextNodeList.append(cond)

@@ -63,16 +63,25 @@ class P4ProgramGraph:
         bitWidthByHeadercountForEgress = self.getHeaderCountByBitWidthForHeaderFieldList(fullListOfHeaderFieldsUsedInThePipeline)
         print("Bitwdith wise header count is ",bitWidthByHeadercountForEgress)
         mapToAppend = {}
-        for k in bitWidthByHeadercountForEgress.keys():
-            ingressObj = bitWidthByHeadercountForIngress.get(k)
-            if(ingressObj == None):
-                mapToAppend[k] = bitWidthByHeadercountForEgress.get(k)
-            else:
-                bitWidthByHeadercountForEgress[k] = bitWidthByHeadercountForEgress.get(k) + ingressObj
-        for k in mapToAppend.keys():
-            bitWidthByHeadercountForEgress[k] = mapToAppend.get(k)
-        print("Bitwdith wise header count is ",bitWidthByHeadercountForEgress)
-        return  bitWidthByHeadercountForEgress
+        setA = set(bitWidthByHeadercountForEgress.keys())
+        setB = set(bitWidthByHeadercountForIngress.keys())
+        headerWidthSet = setA.union(setB)
+        for k in headerWidthSet:
+            ingressObj = 0
+            if(bitWidthByHeadercountForIngress.get(k) != None):
+                ingressObj = bitWidthByHeadercountForIngress.get(k)
+            egressObj = 0
+            if(bitWidthByHeadercountForEgress.get(k) != None):
+                egressObj = bitWidthByHeadercountForEgress.get(k)
+            mapToAppend[k] = ingressObj+egressObj
+            # if(ingressObj == None):
+            #     mapToAppend[k] = bitWidthByHeadercountForEgress.get(k)
+            # else:
+            #     bitWidthByHeadercountForEgress[k] = bitWidthByHeadercountForEgress.get(k) + ingressObj
+        # for k in mapToAppend.keys():
+        #     bitWidthByHeadercountForEgress[k] = mapToAppend.get(k)
+        print("Bitwdith wise header count is ",mapToAppend)
+        return  mapToAppend
 
     def getTotalHeaderLengthForHeaderFieldList(self, headerFieldList):
         total = 0

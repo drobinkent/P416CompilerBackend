@@ -2341,16 +2341,24 @@ class SuperTable:
                 nextNodeList.append(a)
         return nextNodeList
 
+    def isNodeInSubTableList(self, name):
+        flag = False
+        for tbl in self.subTableList:
+            if tbl.name == name:
+                flag = True
+        return flag
+
     def getAllMatchFields(self):
         matchFieldsAsList = []
-        for k in self.key:
-            matchKey = ""
-            for t in k.target:
-                if(matchKey == ""):
-                    matchKey = t
-                else:
-                    matchKey = matchKey+"."+t
-            matchFieldsAsList.append(matchKey)
+        for tbl in self.subTableList:
+            for k in tbl.key:
+                matchKey = ""
+                for t in k.target:
+                    if(matchKey == ""):
+                        matchKey = t
+                    else:
+                        matchKey = matchKey+"."+t
+                matchFieldsAsList.append(matchKey)
         return matchFieldsAsList
 
 
