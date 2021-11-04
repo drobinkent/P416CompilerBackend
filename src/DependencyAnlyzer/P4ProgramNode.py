@@ -156,7 +156,16 @@ class MATNode:
         self.predecessors = {}
         self.ancestors = {}
         self.dependencies = {}
+        self.statefulMemoryDependencies = []
         return
+
+    def addStatefulMemoryDependency(self, matNode):
+        flag = False
+        for t in self.statefulMemoryDependencies:
+            if (t.name == matNode.name ):
+                flag = True
+        if(flag == False):
+            self.statefulMemoryDependencies.append(matNode)
 
 
 

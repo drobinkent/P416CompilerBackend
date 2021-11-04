@@ -1,0 +1,4 @@
+1) convertToAction Method: Build a specialized promitive that will execute a predicate and set a header field. Currently we only entring the predicate . but not the header setup.
+        -- therefore when we do the conditional processing, we can basically replace the conditional with this action.
+        #TODO : In the newPrimitive we need to add a new op. for example, when the relational op in the conditional expression is a>b, if we want to
+        #Convert it into if a>b then write 1 into header field else write 0 in the header field.

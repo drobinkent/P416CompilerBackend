@@ -24,3 +24,4 @@ class DependencyType(Enum):
     STAEFUL_MEMORY_DEPENDENCY = "stateful_memory_dependency" # If 2 nodes access same stateful memory then these 2 have stateful memory dependency
     DUMMY_DEPENDENCY_FROM_START = "dummy_dependency_to_start"
     DUMMY_DEPENDENCY_TO_END = "dummy_dependency_to_end"
+    DEFAULT_DEPNDENCY = "default_dependency"

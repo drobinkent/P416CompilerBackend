@@ -13,7 +13,8 @@ from dataclasses import dataclass
 from typing import List, Any, Union, Optional, Dict, TypeVar, Callable, Type, cast
 
 import ConfigurationConstants
-from DependencyAnlyzer.DefinitionConstants import P4ProgramNodeType
+from DependencyAnlyzer.DefinitionConstants import P4ProgramNodeType, PipelineID
+
 # from DependencyAnlyzer.P4ProgramNode import ExpressionNode
 
 sys.path.append("..")
@@ -89,6 +90,12 @@ class GraphColor(Enum):
     BLACK = 3
 
 class PrimitiveOp(Enum):
+    GREATER_THAN_EQUAL_WRITE = ">=W"
+    GREATER_THAN_WRITE = ">W"
+    LESS_THAN_WRITE = "<W"
+    LESS_THAN_EQUAL_WRITE = "<=W"
+    NOT_EQUAL_WRITE = "!=W"
+    EQUAL_WRITE = "==W"
     ADD_HEADER = "add_header"
     ASSIGN = "assign"
     CLONE_EGRESS_PKT_TO_EGRESS = "clone_egress_pkt_to_egress"
@@ -125,6 +132,23 @@ class PrimitiveOp(Enum):
     LOG_MSG = "log_msg"
 
     # +, -, *, <<, >>, ==, !=, >, >=, <, <=, and, or, not, &, |, ^, ~, valid
+    @classmethod
+    def getHardwareRelationalPrimitive(obj):
+        #Declare appropriate relationalOp and return them
+        #TODO : for equal the return type should be something like is_equal_and_write_modifiy_header_field
+        if ((obj == PrimitiveOp.EQUAL) ):
+            return PrimitiveOp.EQUAL_WRITE
+        if  (obj == PrimitiveOp.NOT_EQUAL):
+            return PrimitiveOp.NOT_EQUAL_WRITE
+        if (obj == PrimitiveOp.LESS_THAN_EQUAL) :
+            return  PrimitiveOp.LESS_THAN_EQUAL_WRITE
+        if(obj == PrimitiveOp.LESS_THAN):
+            return PrimitiveOp.LESS_THAN_WRITE
+        if (obj == PrimitiveOp.GREATER_THAN):
+            return PrimitiveOp.GREATER_THAN_WRITE
+        if (obj == PrimitiveOp.GREATER_THAN_EQUAL):
+            return PrimitiveOp.GREATER_THAN_EQUAL_WRITE
+
 
 # type-- one of hexstr, runtime_data, header, field, calculation, meter_array, counter_array, register_array, header_stack, expression, extern, string, 'stack_field'
 class ValueType(Enum):
@@ -2201,7 +2225,7 @@ class Conditional:
     true_next: str
     false_next: Optional[str] = None
 
-    def convertToAction(self):
+    def convertToAction(self, pipelineId):
         #TODO : at this moment we are assuming that an expression of a conditional will be only in a form that can be expressed using an atomic operation.
         #Later we will handle, expressions in conditional that needs another stage to preprocess the fields reqiured for evaluating the expression
         # exprNode = ExpressionNode(parsedP4Node = self.expression, name = self.name,  parsedP4NodeType = P4ProgramNodeType.EXPRESSION_NODE, pipelineID=None)
@@ -2214,17 +2238,38 @@ class Conditional:
         parameters = []
         newPrimitive = None
         if(self.expression.value.op.value == PrimitiveOp.D2_B):
-            newPrimitive = Primitive(op = PrimitiveOp.EQUAL, parameters= parameters, source_info= None)
             parameters.append(BoolPrimitive("True"))
             parameters.append(self.expression.value.right)
-            pass
+            if(pipelineId == PipelineID.INGRESS_PIPELINE):
+                parameters.append(HeaderField(name = confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_KEY_NAME,
+                                              bitWidth=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH, isSigned=True))
+                parameters.append(HexStr(hexValue="0x0"))
+                parameters.append(HexStr(hexValue="0x1")) #0 for false , 1 for true
+            elif(pipelineId == PipelineID.EGRESS_PIPELINE):
+                parameters.append(HeaderField(name = confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_KEY_NAME,
+                                              bitWidth=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_BIT_WIDTH, isSigned=True))
+                parameters.append(HexStr(hexValue="0x0"))
+                parameters.append(HexStr(hexValue="0x1")) #0 for false , 1 for true
+            newPrimitive = Primitive(op = PrimitiveOp.getHardwareRelationalPrimitive(PrimitiveOp.EQUAL), parameters= parameters, source_info= None)
+                #TODO : In the newPrimitive we need to add a new op. for example, when the relational op in the conditional expression is a>b, if we want to
+                #Convert it into if a>b then write 1 into header field else write 0 in the header field.
         else:
-            newPrimitive = Primitive(op = self.expression.value.op.value, parameters= parameters, source_info= None)
             parameters.append(self.expression.value.left)
             parameters.append(self.expression.value.right)
+            if(pipelineId == PipelineID.INGRESS_PIPELINE):
+                parameters.append(HeaderField(name = confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_KEY_NAME,
+                                              bitWidth=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH, isSigned=True))
+                parameters.append(HexStr(hexValue="0x0"))
+                parameters.append(HexStr(hexValue="0x1")) #0 for false , 1 for true
+            elif(pipelineId == PipelineID.EGRESS_PIPELINE):
+                parameters.append(HeaderField(name = confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_KEY_NAME,
+                                              bitWidth=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_BIT_WIDTH, isSigned=True))
+                parameters.append(HexStr(hexValue="0x0"))
+                parameters.append(HexStr(hexValue="0x1")) #0 for false , 1 for true
+            newPrimitive = Primitive(op = PrimitiveOp.getHardwareRelationalPrimitive(self.expression.value.op.value), parameters= parameters, source_info= None)
 
         primitiveList.append(newPrimitive)
-        convertedAction = Action(name = ConfigurationConstants.CONVERTED_ACTION_PREFIX, id = self.id, runtime_data= None, primitives= primitiveList )
+        convertedAction = Action(name = ConfigurationConstants.CONVERTED_ACTION_PREFIX+self.name, id = self.id, runtime_data= None, primitives= primitiveList )
         convertedActionList = []
         convertedActionList.append(convertedAction)
         print("Must add modification to the extra field used for conditional")
@@ -2315,51 +2360,51 @@ class TableType(Enum):
     INDIRECT_WS = "indirect_ws"
     SIMPLE = "simple"
 
-class SuperTable:
-    def __init__(self,name):
-        self.name = name
-        self.subTableList = []
-        self.actions= []
-        self.is_visited_for_conditional_preprocessing = False
-        self.is_visited_for_stateful_memory_preprocessing = False
-        self.is_visited_for_graph_drawing = GraphColor.WHITE
-        self.is_visited_for_TDG_processing = GraphColor.WHITE
-        self.previousNodeToSubTableMap = {}
-    def __init__(self,name,subTableList):
-        self.name = name
-        self.actions= []
-        self.subTableList = subTableList
-        self.is_visited_for_conditional_preprocessing = False
-        self.is_visited_for_stateful_memory_preprocessing = False
-        self.is_visited_for_graph_drawing = GraphColor.WHITE
-        self.is_visited_for_TDG_processing = GraphColor.WHITE
-        self.previousNodeToSubTableMap = {}
-    def getAllNextNodes(self):
-        nextNodeList = []
-        for t in self.subTableList:
-            for a in list(t.next_tables.values()):
-                nextNodeList.append(a)
-        return nextNodeList
-
-    def isNodeInSubTableList(self, name):
-        flag = False
-        for tbl in self.subTableList:
-            if tbl.name == name:
-                flag = True
-        return flag
-
-    def getAllMatchFields(self):
-        matchFieldsAsList = []
-        for tbl in self.subTableList:
-            for k in tbl.key:
-                matchKey = ""
-                for t in k.target:
-                    if(matchKey == ""):
-                        matchKey = t
-                    else:
-                        matchKey = matchKey+"."+t
-                matchFieldsAsList.append(matchKey)
-        return matchFieldsAsList
+# class SuperTable:
+#     def __init__(self,name):
+#         self.name = name
+#         self.subTableList = []
+#         self.actions= []
+#         self.is_visited_for_conditional_preprocessing = False
+#         self.is_visited_for_stateful_memory_preprocessing = False
+#         self.is_visited_for_graph_drawing = GraphColor.WHITE
+#         self.is_visited_for_TDG_processing = GraphColor.WHITE
+#         self.previousNodeToSubTableMap = {}
+#     def __init__(self,name,subTableList):
+#         self.name = name
+#         self.actions= []
+#         self.subTableList = subTableList
+#         self.is_visited_for_conditional_preprocessing = False
+#         self.is_visited_for_stateful_memory_preprocessing = False
+#         self.is_visited_for_graph_drawing = GraphColor.WHITE
+#         self.is_visited_for_TDG_processing = GraphColor.WHITE
+#         self.previousNodeToSubTableMap = {}
+#     def getAllNextNodes(self):
+#         nextNodeList = []
+#         for t in self.subTableList:
+#             for a in list(t.next_tables.values()):
+#                 nextNodeList.append(a)
+#         return nextNodeList
+#
+#     def isNodeInSubTableList(self, name):
+#         flag = False
+#         for tbl in self.subTableList:
+#             if tbl.name == name:
+#                 flag = True
+#         return flag
+#
+#     def getAllMatchFields(self):
+#         matchFieldsAsList = []
+#         for tbl in self.subTableList:
+#             for k in tbl.key:
+#                 matchKey = ""
+#                 for t in k.target:
+#                     if(matchKey == ""):
+#                         matchKey = t
+#                     else:
+#                         matchKey = matchKey+"."+t
+#                 matchFieldsAsList.append(matchKey)
+#         return matchFieldsAsList
 
 
 
