@@ -167,6 +167,7 @@ class PipelineGraph:
     def preProcessPipelineGraph(self):
         self.preprocessConditionalNodeRecursively(self.pipeline.init_table, confConst.DUMMY_START_NODE)
         self.loadTDG(self.pipeline.init_table, self.dummyStart)
+        self.addStatefulMemoryDependencies()
 
         pass
 
@@ -202,7 +203,7 @@ class PipelineGraph:
         if(tbl != None):
             # print("Table name is "+name)
             p4teTableNode =MATNode(nodeType= P4ProgramNodeType.TABLE_NODE, name = name, originalP4node = tbl )
-            p4teTableNode.matchKey = tbl.getAllMatchFields()
+            p4teTableNode.matchKeyFields = tbl.getAllMatchFields()
             p4teTableNode.actions = tbl.actions
             p4teTableNode.actionObjectList = []
             for a in p4teTableNode.actions:
@@ -228,7 +229,7 @@ class PipelineGraph:
             p4teConditionalNode.exprNode = ExpressionNode(parsedP4Node = conditional.expression, name= name,  parsedP4NodeType = P4ProgramNodeType.CONDITIONAL_NODE, pipelineID=self.pipelineID)
             #p4teConditionalNode.actions = self actions  # A conditional is itself an action so its actions are itself own
             # store the action used in the conditional
-            p4teConditionalNode.matchKey = None
+            p4teConditionalNode.matchKeyFields = None
             # p4teConditionalNode.actions =
             p4teConditionalNode.next_tables = [conditional.true_next, conditional.false_next]
             for a in p4teConditionalNode.next_tables:
@@ -355,11 +356,17 @@ class PipelineGraph:
         p4MatNode.originalP4node.is_visited_for_TDG_processing = GraphColor.GREY
         for nxtNodeName in p4MatNode.nextNodes:
             if(nxtNodeName == None):
-                self.loadTDG(name = confConst.DUMMY_END_NODE, predMatNode = p4MatNode, nameOfPredOfSubTable= None)
+                self.loadTDG(name = confConst.DUMMY_END_NODE, predMatNode = p4MatNode)
             elif(nxtNodeName != None):
-                self.loadTDG(name = nxtNodeName.name, predMatNode = p4MatNode, nameOfPredOfSubTable = None)
+                self.loadTDG(name = nxtNodeName.name, predMatNode = p4MatNode)
         p4MatNode.originalP4node.is_visited_for_TDG_processing = GraphColor.BLACK
         return
+
+    def getAllActionsOfTable(self,tblObject):
+        actionList = []
+        for a in tblObject.actions:
+            actionList.append(self.getActionByName(a))
+        return actionList
 
     def getMatNodeForTDGProcessing(self, name, predecessorMatNode):
         if(name==None):
@@ -367,11 +374,11 @@ class PipelineGraph:
             return None
         tbl = self.pipeline.getTblByName(name)
         conditional = self.pipeline.getConditionalByName(name)
-        if(tbl != None) and (type(tbl) != Table):
+        if(tbl != None) and (type(tbl) == Table):
             # print("Table name is "+name)
             p4TableNode = MATNode(nodeType= P4ProgramNodeType.TABLE_NODE, name = name, originalP4node = tbl )
-            p4TableNode.matchKey = tbl.getAllMatchFields()
-            p4TableNode.actions = tbl.actions
+            p4TableNode.matchKeyFields = tbl.getAllMatchFields()
+            p4TableNode.actions = self.getAllActionsOfTable(tbl)
             # p4teTableNode.actionObjectList = []
             for a in p4TableNode.actions:
                 actionObject = self.getActionByName(a)
@@ -390,7 +397,7 @@ class PipelineGraph:
             # which are the parameters. So currently we are assuming ou r hardware can support a> a+b or a+b > c format expression.
             # so we will use a static methord here which will convert a conditional to predicate then write a field format.
             # but in future there will be a a new preprocessor function that will actually pre process the action primitives and convert to every hardware specific primitive
-            p4teConditionalNode.actions = conditional.convertToAction()
+            p4teConditionalNode.actions = conditional.convertToAction(self.pipelineID)
             p4teConditionalNode.next_tables = [conditional.true_next, conditional.false_next]
             for a in p4teConditionalNode.next_tables:
                 nodeList = self.getNextNodeForTDG(a)
@@ -450,10 +457,11 @@ class PipelineGraph:
             return DependencyType.ACTION_DEPENDENCY
         elif (common_member(mat1MatchKeyList, filedsModifiedByMat2Actions)):
             return DependencyType.REVERSE_MATCH_DEPENDENCY
-        elif(matNode1.next_tables.get("__HIT__") != None) and (matNode1.next_tables.get("__HIT__") == matNode2.name) :
-            return DependencyType.SUCCESOR_DEPENDENCY
-        elif(matNode1.next_tables.get("__MISS__") != None) and (matNode1.next_tables.get("__MISS__") == matNode2.name) :
-            return DependencyType.SUCCESOR_DEPENDENCY
+        if(matNode1.nodeType== P4ProgramNodeType.TABLE_NODE):
+            if(matNode1.originalP4node.next_tables.get("__HIT__") != None) and (matNode1.originalP4node.next_tables.get("__HIT__") == matNode2.name) :
+                return DependencyType.SUCCESOR_DEPENDENCY
+            elif(matNode1.originalP4node.next_tables.get("__MISS__") != None) and (matNode1.originalP4node.next_tables.get("__MISS__") == matNode2.name) :
+                return DependencyType.SUCCESOR_DEPENDENCY
         elif(matNode1.nodeType== P4ProgramNodeType.CONDITIONAL_NODE):
             if(matNode1.originalP4node.true_next == matNode2.name) or (matNode1.originalP4node.false_next == matNode2.name):
                 return DependencyType.SUCCESOR_DEPENDENCY

@@ -132,7 +132,7 @@ class PrimitiveOp(Enum):
     LOG_MSG = "log_msg"
 
     # +, -, *, <<, >>, ==, !=, >, >=, <, <=, and, or, not, &, |, ^, ~, valid
-    @classmethod
+    @staticmethod
     def getHardwareRelationalPrimitive(obj):
         #Declare appropriate relationalOp and return them
         #TODO : for equal the return type should be something like is_equal_and_write_modifiy_header_field
@@ -2272,7 +2272,7 @@ class Conditional:
         convertedAction = Action(name = ConfigurationConstants.CONVERTED_ACTION_PREFIX+self.name, id = self.id, runtime_data= None, primitives= primitiveList )
         convertedActionList = []
         convertedActionList.append(convertedAction)
-        print("Must add modification to the extra field used for conditional")
+        # print("Must add modification to the extra field used for conditional")
         return convertedActionList
 
     @staticmethod

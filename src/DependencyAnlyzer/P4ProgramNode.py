@@ -1,7 +1,7 @@
 
 from DependencyAnlyzer.DefinitionConstants import P4ProgramNodeType
 from P4ProgramParser.P416JsonParser import PrimitiveOpblock, Expression, PrimitiveField, RegisterArrayPrimitive, HexStr, \
-    PrimitiveHeader, BoolPrimitive
+    PrimitiveHeader, BoolPrimitive, Table
 
 import networkx as nx
 import logging
@@ -146,7 +146,7 @@ class MATNode:
         self.nodeType = nodeType
         self.nextNodes= []
         self.name = name
-        self.matchKey = []
+        self.matchKeyFields = []
         self.actions= []
         self.originalP4node = originalP4node
         self.isVisitedForDraw=False
@@ -166,6 +166,24 @@ class MATNode:
                 flag = True
         if(flag == False):
             self.statefulMemoryDependencies.append(matNode)
+    def getAllMatchFields(self):
+        # if(type(self.originalP4node)== Table):
+        #     self.matchKeyFields = self.originalP4node.getAllMatchfields()
+        '''
+        Maek sure  the mathod is called after a node is propoerly loaded up with its originial P4 node
+        :return:
+        '''
+        return self.matchKeyFields
+
+    def getListOfFieldsModifedAndUsed(self):
+        listOfFieldBeingModifed = []
+        listOfFieldBeingUsed = []
+        for a in self.actions:
+            filedsModifiedInAction, fieldsdUsedInAction = a.getListOfFieldsModifedAndUsed()
+            listOfFieldBeingModifed = listOfFieldBeingModifed + filedsModifiedInAction
+            listOfFieldBeingUsed = listOfFieldBeingUsed + fieldsdUsedInAction
+        return listOfFieldBeingModifed, listOfFieldBeingUsed
+
 
 
 
