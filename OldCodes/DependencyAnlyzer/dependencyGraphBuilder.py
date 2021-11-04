@@ -95,22 +95,22 @@ class PipelineGraph:
                 return act
         return None
 
-    def addDependency(self, node1Name, node2Name, dependencyType):
-        if (dependencyType == DependencyType.MATCH_DEPENDENCY):
-            dependencyMap = self.matchDependencyMap
-        elif (dependencyType == DependencyType.ACTION_DEPENDENCY):
-            dependencyMap = self.actionDependencyMap
-        elif (dependencyType == DependencyType.SUCCESOR_DEPENDENCY):
-            dependencyMap =  self.succesorDependencyMap
-        elif (dependencyType == DependencyType.REVERSE_MATCH_DEPENDENCY):
-            dependencyMap = self.reverseMatchDependencyMap
-        val = dependencyMap[node1Name]
-        if (val ==None):
-            val = []
-            val.append(node2Name)
-            dependencyMap[node1Name] = val
-        else:
-            val.append(node2Name)
+    # def addDependency(self, node1Name, node2Name, dependencyType):
+    #     if (dependencyType == DependencyType.MATCH_DEPENDENCY):
+    #         dependencyMap = self.matchDependencyMap
+    #     elif (dependencyType == DependencyType.ACTION_DEPENDENCY):
+    #         dependencyMap = self.actionDependencyMap
+    #     elif (dependencyType == DependencyType.SUCCESOR_DEPENDENCY):
+    #         dependencyMap =  self.succesorDependencyMap
+    #     elif (dependencyType == DependencyType.REVERSE_MATCH_DEPENDENCY):
+    #         dependencyMap = self.reverseMatchDependencyMap
+    #     val = dependencyMap[node1Name]
+    #     if (val ==None):
+    #         val = []
+    #         val.append(node2Name)
+    #         dependencyMap[node1Name] = val
+    #     else:
+    #         val.append(node2Name)
 
     def getAllFieldsModifedInActionsOfTheTable(self, tblName):
         tbl = self.pipeline.getTblByName(tblName)

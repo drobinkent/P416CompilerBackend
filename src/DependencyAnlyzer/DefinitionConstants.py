@@ -25,3 +25,4 @@ class DependencyType(Enum):
     DUMMY_DEPENDENCY_FROM_START = "dummy_dependency_to_start"
     DUMMY_DEPENDENCY_TO_END = "dummy_dependency_to_end"
     DEFAULT_DEPNDENCY = "default_dependency"
+    NO_DEPNDENCY = "no_dependency"

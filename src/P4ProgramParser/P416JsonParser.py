@@ -2517,9 +2517,6 @@ class Pipeline:
             # print("Reseting graph state for table "+t.name)
             if(type(t) == Table):
                 t.is_visited_for_graph_drawing =  GraphColor.WHITE
-            if(type(t) == SuperTable):
-                for subTble in t.subTableList:
-                    subTble.is_visited_for_graph_drawing =  GraphColor.WHITE
         for c in self.conditionals:
             c.is_visited_for_graph_drawing =  GraphColor.WHITE
     def resetIsVisitedVariableTDGProcessing(self):
@@ -2527,10 +2524,6 @@ class Pipeline:
             # print("Reseting graph state for table "+t.name)
             if(type(t) == Table):
                 t.is_visited_for_TDG_processing =  GraphColor.WHITE
-            if(type(t) == SuperTable):
-                for subTble in t.subTableList:
-                    subTble.is_visited_for_TDG_processing =  GraphColor.WHITE
-                t.is_visited_for_TDG_processing = GraphColor.WHITE
         for c in self.conditionals:
             c.is_visited_for_TDG_processing =  GraphColor.WHITE
 
