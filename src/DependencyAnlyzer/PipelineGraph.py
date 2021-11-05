@@ -2,7 +2,7 @@ import json
 import logging
 from enum import Enum
 import sys
-
+import matplotlib.pyplot as plt
 from networkx.drawing.nx_agraph import to_agraph
 
 from DependencyAnlyzer.DefinitionConstants import P4ProgramNodeType, PipelineID, DependencyType
@@ -171,14 +171,14 @@ class PipelineGraph:
             return
 
     def preProcessPipelineGraph(self):
-        nxGraph = nx.MultiGraph()
+        nxGraph = nx.MultiDiGraph()
         alreadyVisitedNodesMap = {}
         self.getTDGGraphBeforeDependencyAnlaysis(self.pipeline.init_table, nxGraph, pred = confConst.DUMMY_START_NODE, indenter ="", alreadyVisitedNodesMap=alreadyVisitedNodesMap)
         self.drawPipeline(nxGraph = nxGraph, filePath="before-conditional-processing"+str(self.pipelineID)+".jpg")
         self.preprocessConditionalNodeRecursively(self.pipeline.init_table, confConst.DUMMY_START_NODE)
         self.loadTDG(self.pipeline.init_table, self.dummyStart)
         self.addStatefulMemoryDependencies()
-        graphTobedrawn = nx.MultiGraph()
+        graphTobedrawn = nx.MultiDiGraph()
         self.pipeline.resetAllIsVisitedVariableForGraph()
         self.getTDGGraphWithAllDepenedencyAndMatNode(curNode = self.allTDGNode.get(confConst.DUMMY_START_NODE), predNode=None, dependencyBetweenCurAndPred=None, tdgGraph=graphTobedrawn)
         self.drawPipeline(nxGraph = graphTobedrawn, filePath="after-loading-with-all-dependency"+str(self.pipelineID)+".jpg")
@@ -299,6 +299,7 @@ class PipelineGraph:
 
         # print("\n\n\n printing all nodes int he graph ")
         # print(nxGraph.nodes())
+        # nxGraph = nx.planar_layout(nxGraph)
         A = to_agraph(nxGraph)
 
         # print(A)
@@ -311,14 +312,18 @@ class PipelineGraph:
             # n.attr['node_size']=1
         # A.layout(prog="neato", args="-Nshape=circle -Efontsize=20")
         A.layout('dot',args="-Nshape=circle -Efontsize=20")
+
         A.draw(filePath)
+        # n = A.get_node(confConst.DUMMY_START_NODE)
+        # print("My spoeaicla node is "+str(n))
+        # nx.draw(nxGraph)
+        # plt.savefig(filePath)
         pass
 
 
     def getTDGGraphBeforeDependencyAnlaysis(self, nodeName, nxGraph, pred, indenter ="\t", alreadyVisitedNodesMap={}):
         # if(nodeName!=None):
         #     print("Adding node in graph"+ nodeName)
-        flag = False
         if(nodeName==None):
             nxGraph.add_nodes_from([(confConst.DUMMY_END_NODE, {"label" : confConst.DUMMY_END_NODE,"color": "red"})])
             nxGraph.add_edges_from([(pred, confConst.DUMMY_END_NODE)], label="")
@@ -328,6 +333,7 @@ class PipelineGraph:
         conditional = self.pipeline.getConditionalByName(nodeName)
         if ( tbl != None):
             if(tbl.is_visited_for_graph_drawing== GraphColor.BLACK):
+                nxGraph.add_edges_from([(pred, nodeName), {"label" : "","color": "red"}])
                 return
             if(nodeName!=None):
                 nxGraph.add_nodes_from([(nodeName, {"label" : nodeName,"color": "red"})])
@@ -343,6 +349,7 @@ class PipelineGraph:
             tbl.is_visited_for_graph_drawing= GraphColor.BLACK
         elif(conditional != None):
             if(conditional.is_visited_for_graph_drawing== GraphColor.BLACK):
+                nxGraph.add_edges_from([(pred, nodeName), {"label" : "","color": "red"}])
                 return
             if(nodeName!=None):
                 nxGraph.add_nodes_from([(nodeName, {"label" : nodeName,"color": "red"})])
@@ -399,8 +406,20 @@ class PipelineGraph:
         if(name==None):
             logger.info("Name is None in getNodeWithActionsForTDGProcessing. returning None")
             return None
-        tbl = self.pipeline.getTblByName(name)
-        conditional = self.pipeline.getConditionalByName(name)
+        tbl = None
+        conditional = None
+        if (self.allTDGNode.get(name)!=None):
+            # print("rSeving node from alltdg node is "+name)
+            p4TableNode = self.allTDGNode.get(name)
+            p4TableNode.predecessors[predecessorMatNode.name] = predecessorMatNode
+            predecessorMatNode.ancestors[p4TableNode.name] = p4TableNode
+            if(self.matToMatDependnecyAnalysis(predecessorMatNode, p4TableNode) != None):
+                predecessorMatNode.dependencies[p4TableNode.name] = self.matToMatDependnecyAnalysis(predecessorMatNode, p4TableNode)
+            return p4TableNode
+
+        else:
+            tbl = self.pipeline.getTblByName(name)
+            conditional = self.pipeline.getConditionalByName(name)
         if(tbl != None) and (type(tbl) == Table):
             # print("Table name is "+name)
             p4TableNode = MATNode(nodeType= P4ProgramNodeType.TABLE_NODE, name = name, originalP4node = tbl )
@@ -417,6 +436,8 @@ class PipelineGraph:
             predecessorMatNode.ancestors[p4TableNode.name] = p4TableNode
             if(self.matToMatDependnecyAnalysis(predecessorMatNode, p4TableNode) != None):
                 predecessorMatNode.dependencies[p4TableNode.name] = self.matToMatDependnecyAnalysis(predecessorMatNode, p4TableNode)
+                # if(predecessorMatNode.name == "node_11"):
+                #     print("found node_11 and depednecy list size is  "+str(len(predecessorMatNode.dependencies.keys())))
             else:
                 logger.info("severer error. dependy between "+predecessorMatNode.name +" and "+p4TableNode.name +" is none. it can not be. debug.exiting")
                 print("severer error. dependy between "+predecessorMatNode.name +" and "+p4TableNode.name +" is none. it can not be. debug.exiting")
@@ -530,6 +551,7 @@ class PipelineGraph:
                     if (self.matToMatStatefulMemoryDependnecyAnalysis(node1,node2) == True):
                         node1.addStatefulMemoryDependency(node2)
                         node2.addStatefulMemoryDependency(node1)
+                        print("Stateful memory dependency added from -- "+node1.name + " to "+node2.name)
         return
     #====================================== Functions related to loading the TDG ENDS here ==================================================
 
@@ -539,8 +561,8 @@ class PipelineGraph:
             return
         # print("Current node name is :"+curNode.name)
         if(curNode.originalP4node.is_visited_for_graph_drawing== GraphColor.WHITE):
-            # val = tdgGraph.add_nodes_from([(curNode, {"label" : curNode.name,"color": "red"})])
-            val = tdgGraph.add_nodes_from([(curNode)])
+            val = tdgGraph.add_nodes_from([(curNode, {"label" : curNode.name,"color": "red"})])
+            # val = tdgGraph.add_nodes_from([(curNode)])
             # print("Added node ")
         if(predNode!=None):
             # tdgGraph.add_edges_from([(predNode, curNode)], label=str(dependencyBetweenCurAndPred))
@@ -554,7 +576,8 @@ class PipelineGraph:
             if(curNode.originalP4node.is_visited_for_graph_drawing== GraphColor.BLACK):
                 return
         curNode.originalP4node.is_visited_for_graph_drawing= GraphColor.GREY
-
+        # if(curNode.name == "node_11"):
+        #     print("Found node_11 in graph load . depndency size is "+str(len(curNode.dependencies.keys())))
         for depndentNodeName in curNode.dependencies.keys():
             dpndncy= curNode.dependencies.get(depndentNodeName)
             if(dpndncy != None ):
