@@ -1,0 +1,1065 @@
+{
+  "header_types" : [
+    {
+      "name" : "scalars_0",
+      "id" : 0,
+      "fields" : [
+        ["result_0", 16, false],
+        ["result_1", 16, false],
+        ["userMetadata.nsf", 4, false],
+        ["userMetadata.nsf_0", 16, false],
+        ["userMetadata.nsf_1", 8, false],
+        ["userMetadata.nsf_2", 8, false],
+        ["userMetadata.nsf_3", 8, false],
+        ["userMetadata.nsf_4", 8, false],
+        ["userMetadata.nsf_5", 8, false],
+        ["userMetadata.nsf_6", 8, false],
+        ["userMetadata.nsf_7", 8, false],
+        ["userMetadata.nsf_8", 8, false],
+        ["userMetadata.nsf_9", 8, false],
+        ["_padding_0", 4, false]
+      ]
+    },
+    {
+      "name" : "standard_metadata",
+      "id" : 1,
+      "fields" : [
+        ["ingress_port", 9, false],
+        ["egress_spec", 9, false],
+        ["egress_port", 9, false],
+        ["instance_type", 32, false],
+        ["packet_length", 32, false],
+        ["enq_timestamp", 32, false],
+        ["enq_qdepth", 19, false],
+        ["deq_timedelta", 32, false],
+        ["deq_qdepth", 19, false],
+        ["ingress_global_timestamp", 48, false],
+        ["egress_global_timestamp", 48, false],
+        ["mcast_grp", 16, false],
+        ["egress_rid", 16, false],
+        ["checksum_error", 1, false],
+        ["parser_error", 32, false],
+        ["priority", 3, false],
+        ["_padding", 3, false]
+      ]
+    },
+    {
+      "name" : "ethernet_t",
+      "id" : 2,
+      "fields" : [
+        ["dstAddr", 48, false],
+        ["srcAddr", 48, false],
+        ["etherType", 16, false]
+      ]
+    },
+    {
+      "name" : "my_header",
+      "id" : 3,
+      "fields" : [
+        ["nsf_22", 8, false]
+      ]
+    }
+  ],
+  "headers" : [
+    {
+      "name" : "scalars",
+      "id" : 0,
+      "header_type" : "scalars_0",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "standard_metadata",
+      "id" : 1,
+      "header_type" : "standard_metadata",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "ethernet",
+      "id" : 2,
+      "header_type" : "ethernet_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "my_hdr",
+      "id" : 3,
+      "header_type" : "my_header",
+      "metadata" : false,
+      "pi_omit" : true
+    }
+  ],
+  "header_stacks" : [],
+  "header_union_types" : [],
+  "header_unions" : [],
+  "header_union_stacks" : [],
+  "field_lists" : [],
+  "errors" : [
+    ["NoError", 0],
+    ["PacketTooShort", 1],
+    ["NoMatch", 2],
+    ["StackOutOfBounds", 3],
+    ["HeaderTooShort", 4],
+    ["ParserTimeout", 5],
+    ["ParserInvalidArgument", 6]
+  ],
+  "enums" : [],
+  "parsers" : [
+    {
+      "name" : "parser",
+      "id" : 0,
+      "init_state" : "start",
+      "parse_states" : [
+        {
+          "name" : "start",
+          "id" : 0,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "ethernet"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "hexstr",
+              "value" : "0x0800",
+              "mask" : null,
+              "next_state" : "parse_ipv4"
+            },
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : [
+            {
+              "type" : "field",
+              "value" : ["ethernet", "etherType"]
+            }
+          ]
+        },
+        {
+          "name" : "parse_ipv4",
+          "id" : 1,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "my_hdr"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : []
+        }
+      ]
+    }
+  ],
+  "parse_vsets" : [],
+  "deparsers" : [
+    {
+      "name" : "deparser",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "Resources/test.p4",
+        "line" : 181,
+        "column" : 8,
+        "source_fragment" : "MyDeparser"
+      },
+      "order" : ["ethernet", "my_hdr"],
+      "primitives" : []
+    }
+  ],
+  "meter_arrays" : [],
+  "counter_arrays" : [],
+  "register_arrays" : [
+    {
+      "name" : "MyIngress.sf_1",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "Resources/test.p4",
+        "line" : 124,
+        "column" : 28,
+        "source_fragment" : "sf_1"
+      },
+      "size" : 1024,
+      "bitwidth" : 16
+    },
+    {
+      "name" : "MyIngress.sf_2",
+      "id" : 1,
+      "source_info" : {
+        "filename" : "Resources/test.p4",
+        "line" : 125,
+        "column" : 28,
+        "source_fragment" : "sf_2"
+      },
+      "size" : 1024,
+      "bitwidth" : 16
+    },
+    {
+      "name" : "MyIngress.sf_3",
+      "id" : 2,
+      "source_info" : {
+        "filename" : "Resources/test.p4",
+        "line" : 126,
+        "column" : 28,
+        "source_fragment" : "sf_3"
+      },
+      "size" : 1024,
+      "bitwidth" : 16
+    }
+  ],
+  "calculations" : [],
+  "learn_lists" : [],
+  "actions" : [
+    {
+      "name" : "NoAction",
+      "id" : 0,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 1,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "MyIngress.set_nsf_3",
+      "id" : 2,
+      "runtime_data" : [
+        {
+          "name" : "action_param",
+          "bitwidth" : 8
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.nsf_1"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 94,
+            "column" : 7,
+            "source_fragment" : "meta.nsf_3 = action_param"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.set_nsf_6",
+      "id" : 3,
+      "runtime_data" : [
+        {
+          "name" : "action_param",
+          "bitwidth" : 8
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.nsf_4"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 108,
+            "column" : 6,
+            "source_fragment" : "meta.nsf_6 = action_param"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "test131",
+      "id" : 4,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "register_write",
+          "parameters" : [
+            {
+              "type" : "register_array",
+              "value" : "MyIngress.sf_1"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000001"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 131,
+            "column" : 16,
+            "source_fragment" : "sf_1.write((bit<32>)(1), (bit<16>) 0)"
+          }
+        },
+        {
+          "op" : "register_write",
+          "parameters" : [
+            {
+              "type" : "register_array",
+              "value" : "MyIngress.sf_2"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000001"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 132,
+            "column" : 16,
+            "source_fragment" : "sf_2.write((bit<32>)(1), (bit<16>) 0)"
+          }
+        },
+        {
+          "op" : "register_write",
+          "parameters" : [
+            {
+              "type" : "register_array",
+              "value" : "MyIngress.sf_3"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000001"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 133,
+            "column" : 16,
+            "source_fragment" : "sf_3.write((bit<32>)(1), (bit<16>) 0)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "test139",
+      "id" : 5,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.nsf_2"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0a"
+            }
+          ],
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 139,
+            "column" : 16,
+            "source_fragment" : "meta.nsf_4 = 10"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "test137",
+      "id" : 6,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "register_read",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "result_0"]
+            },
+            {
+              "type" : "register_array",
+              "value" : "MyIngress.sf_1"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000002"
+            }
+          ],
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 137,
+            "column" : 12,
+            "source_fragment" : "sf_1.read(result, (bit<32>)2)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "test142",
+      "id" : 7,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.nsf_3"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0a"
+            }
+          ],
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 142,
+            "column" : 16,
+            "source_fragment" : "meta.nsf_5 = 10"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "test144",
+      "id" : 8,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "register_write",
+          "parameters" : [
+            {
+              "type" : "register_array",
+              "value" : "MyIngress.sf_2"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000001"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 144,
+            "column" : 12,
+            "source_fragment" : "sf_2.write((bit<32>)(1), (bit<16>) 0)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "test150",
+      "id" : 9,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "register_write",
+          "parameters" : [
+            {
+              "type" : "register_array",
+              "value" : "MyIngress.sf_3"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000001"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 150,
+            "column" : 16,
+            "source_fragment" : "sf_3.write((bit<32>)(1), (bit<16>) 0)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "test147",
+      "id" : 10,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "register_read",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "result_1"]
+            },
+            {
+              "type" : "register_array",
+              "value" : "MyIngress.sf_1"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000002"
+            }
+          ],
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 147,
+            "column" : 12,
+            "source_fragment" : "sf_1.read(result, (bit<32>)2)"
+          }
+        },
+        {
+          "op" : "register_read",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "result_1"]
+            },
+            {
+              "type" : "register_array",
+              "value" : "MyIngress.sf_2"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000002"
+            }
+          ],
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 148,
+            "column" : 12,
+            "source_fragment" : "sf_2.read(result, (bit<32>)2)"
+          }
+        }
+      ]
+    }
+  ],
+  "pipelines" : [
+    {
+      "name" : "ingress",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "Resources/test.p4",
+        "line" : 90,
+        "column" : 8,
+        "source_fragment" : "MyIngress"
+      },
+      "init_table" : "node_2",
+      "tables" : [
+        {
+          "name" : "MyIngress.mat_nsf2",
+          "id" : 0,
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 97,
+            "column" : 9,
+            "source_fragment" : "mat_nsf2"
+          },
+          "key" : [
+            {
+              "match_type" : "lpm",
+              "name" : "meta.nsf_2",
+              "target" : ["scalars", "userMetadata.nsf_0"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "lpm",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [2, 0],
+          "actions" : ["MyIngress.set_nsf_3", "NoAction"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "__MISS__" : null,
+            "__HIT__" : "tbl_test131"
+          },
+          "default_entry" : {
+            "action_id" : 0,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "tbl_test131",
+          "id" : 1,
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 131,
+            "column" : 16,
+            "source_fragment" : "sf_1.write((bit<32>)(1), (bit<16>) 0); ..."
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [4],
+          "actions" : ["test131"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "test131" : null
+          },
+          "default_entry" : {
+            "action_id" : 4,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_test137",
+          "id" : 2,
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 137,
+            "column" : 12,
+            "source_fragment" : "sf_1.read(result, (bit<32>)2)"
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [6],
+          "actions" : ["test137"],
+          "base_default_next" : "node_7",
+          "next_tables" : {
+            "test137" : "node_7"
+          },
+          "default_entry" : {
+            "action_id" : 6,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_test139",
+          "id" : 3,
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 139,
+            "column" : 27,
+            "source_fragment" : "="
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [5],
+          "actions" : ["test139"],
+          "base_default_next" : "node_9",
+          "next_tables" : {
+            "test139" : "node_9"
+          },
+          "default_entry" : {
+            "action_id" : 5,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_test142",
+          "id" : 4,
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 142,
+            "column" : 27,
+            "source_fragment" : "="
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [7],
+          "actions" : ["test142"],
+          "base_default_next" : "tbl_test144",
+          "next_tables" : {
+            "test142" : "tbl_test144"
+          },
+          "default_entry" : {
+            "action_id" : 7,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_test144",
+          "id" : 5,
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 144,
+            "column" : 12,
+            "source_fragment" : "sf_2.write((bit<32>)(1), (bit<16>) 0)"
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [8],
+          "actions" : ["test144"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "test144" : null
+          },
+          "default_entry" : {
+            "action_id" : 8,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_test147",
+          "id" : 6,
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 147,
+            "column" : 12,
+            "source_fragment" : "sf_1.read(result, (bit<32>)2); ..."
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [10],
+          "actions" : ["test147"],
+          "base_default_next" : "MyIngress.mat_nsf5",
+          "next_tables" : {
+            "test147" : "MyIngress.mat_nsf5"
+          },
+          "default_entry" : {
+            "action_id" : 10,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "MyIngress.mat_nsf5",
+          "id" : 7,
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 110,
+            "column" : 9,
+            "source_fragment" : "mat_nsf5"
+          },
+          "key" : [
+            {
+              "match_type" : "lpm",
+              "name" : "meta.nsf_5",
+              "target" : ["scalars", "userMetadata.nsf_3"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "lpm",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [3, 1],
+          "actions" : ["MyIngress.set_nsf_6", "NoAction"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "__MISS__" : null,
+            "__HIT__" : "tbl_test150"
+          },
+          "default_entry" : {
+            "action_id" : 1,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "tbl_test150",
+          "id" : 8,
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 150,
+            "column" : 16,
+            "source_fragment" : "sf_3.write((bit<32>)(1), (bit<16>) 0)"
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [9],
+          "actions" : ["test150"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "test150" : null
+          },
+          "default_entry" : {
+            "action_id" : 9,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        }
+      ],
+      "action_profiles" : [],
+      "conditionals" : [
+        {
+          "name" : "node_2",
+          "id" : 0,
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 129,
+            "column" : 12,
+            "source_fragment" : "meta.nsf_1 == 1"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata.nsf"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x01"
+              }
+            }
+          },
+          "true_next" : "MyIngress.mat_nsf2",
+          "false_next" : "node_5"
+        },
+        {
+          "name" : "node_5",
+          "id" : 1,
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 135,
+            "column" : 18,
+            "source_fragment" : "meta.nsf_1 == 2"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata.nsf"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x02"
+              }
+            }
+          },
+          "true_next" : "tbl_test137",
+          "false_next" : "node_12"
+        },
+        {
+          "name" : "node_7",
+          "id" : 2,
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 138,
+            "column" : 15,
+            "source_fragment" : "meta.nsf_3 >2"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : ">",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata.nsf_1"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x02"
+              }
+            }
+          },
+          "true_next" : "tbl_test139",
+          "false_next" : "node_9"
+        },
+        {
+          "name" : "node_9",
+          "id" : 3,
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 141,
+            "column" : 15,
+            "source_fragment" : "meta.nsf_4 >2"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : ">",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata.nsf_2"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x02"
+              }
+            }
+          },
+          "true_next" : "tbl_test142",
+          "false_next" : "tbl_test144"
+        },
+        {
+          "name" : "node_12",
+          "id" : 4,
+          "source_info" : {
+            "filename" : "Resources/test.p4",
+            "line" : 145,
+            "column" : 18,
+            "source_fragment" : "meta.nsf_1 == 3"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata.nsf"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x03"
+              }
+            }
+          },
+          "false_next" : null,
+          "true_next" : "tbl_test147"
+        }
+      ]
+    },
+    {
+      "name" : "egress",
+      "id" : 1,
+      "source_info" : {
+        "filename" : "Resources/test.p4",
+        "line" : 161,
+        "column" : 8,
+        "source_fragment" : "MyEgress"
+      },
+      "init_table" : null,
+      "tables" : [],
+      "action_profiles" : [],
+      "conditionals" : []
+    }
+  ],
+  "checksums" : [],
+  "force_arith" : [],
+  "extern_instances" : [],
+  "field_aliases" : [
+    [
+      "queueing_metadata.enq_timestamp",
+      ["standard_metadata", "enq_timestamp"]
+    ],
+    [
+      "queueing_metadata.enq_qdepth",
+      ["standard_metadata", "enq_qdepth"]
+    ],
+    [
+      "queueing_metadata.deq_timedelta",
+      ["standard_metadata", "deq_timedelta"]
+    ],
+    [
+      "queueing_metadata.deq_qdepth",
+      ["standard_metadata", "deq_qdepth"]
+    ],
+    [
+      "intrinsic_metadata.ingress_global_timestamp",
+      ["standard_metadata", "ingress_global_timestamp"]
+    ],
+    [
+      "intrinsic_metadata.egress_global_timestamp",
+      ["standard_metadata", "egress_global_timestamp"]
+    ],
+    [
+      "intrinsic_metadata.mcast_grp",
+      ["standard_metadata", "mcast_grp"]
+    ],
+    [
+      "intrinsic_metadata.egress_rid",
+      ["standard_metadata", "egress_rid"]
+    ],
+    [
+      "intrinsic_metadata.priority",
+      ["standard_metadata", "priority"]
+    ]
+  ],
+  "program" : "Resources/test.p4",
+  "__meta__" : {
+    "version" : [2, 23],
+    "compiler" : "https://github.com/p4lang/p4c"
+  }
+}

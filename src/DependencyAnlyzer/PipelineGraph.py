@@ -178,19 +178,26 @@ class PipelineGraph:
         self.preprocessConditionalNodeRecursively(self.pipeline.init_table, confConst.DUMMY_START_NODE)
         self.loadTDG(self.pipeline.init_table, self.dummyStart)
         self.addStatefulMemoryDependencies()
+        # for n in self.allTDGNode.keys():
+        #     p4Node = self.allTDGNode.get(n)
+        #     print("Node name : "+p4Node.name)
+        #     print("Depnedines are following: ")
+        #     for dp in p4Node.dependencies.keys():
+        #         print("\t"+p4Node.dependencies.get(dp).dst.name)
+
         graphTobedrawn = nx.MultiDiGraph()
         self.pipeline.resetAllIsVisitedVariableForGraph()
         self.getTDGGraphWithAllDepenedencyAndMatNode(curNode = self.allTDGNode.get(confConst.DUMMY_START_NODE), predNode=None, dependencyBetweenCurAndPred=None, tdgGraph=graphTobedrawn)
         self.drawPipeline(nxGraph = graphTobedrawn, filePath="after-loading-with-all-dependency"+str(self.pipelineID)+".jpg")
-        print("\n\ntotal GRaph nodes  after conditional processing "+str(len(nxGraph.nodes())))
-        for n in nxGraph.nodes():
-            print(n)
-        print("\n\ntotal GRaph nodes  after TDG processing "+str(len(graphTobedrawn.nodes())))
-        for n in graphTobedrawn.nodes():
-            if(type(n) == str):
-                print(n)
-            else:
-                print(n.name)
+        print("For piepline"+str(self.pipelineID)+" total GRaph nodes  after conditional processing "+str(len(nxGraph.nodes())))
+        # for n in nxGraph.nodes():
+        #     print(n)
+        print("For piepline"+str(self.pipelineID)+" total GRaph nodes  after TDG processing "+str(len(graphTobedrawn.nodes())))
+        # for n in graphTobedrawn.nodes():
+        #     if(type(n) == str):
+        #         print(n)
+        #     else:
+        #         print(n.name)
         pass
 
 
@@ -314,6 +321,7 @@ class PipelineGraph:
         A.layout('dot',args="-Nshape=circle -Efontsize=20")
 
         A.draw(filePath)
+
         # n = A.get_node(confConst.DUMMY_START_NODE)
         # print("My spoeaicla node is "+str(n))
         # nx.draw(nxGraph)
@@ -333,11 +341,14 @@ class PipelineGraph:
         conditional = self.pipeline.getConditionalByName(nodeName)
         if ( tbl != None):
             if(tbl.is_visited_for_graph_drawing== GraphColor.BLACK):
-                nxGraph.add_edges_from([(pred, nodeName), {"label" : "","color": "red"}])
+                # nxGraph.add_edges_from([(pred, nodeName), {"label" : "","color": "red"}])
+                nxGraph.add_edges_from([(pred, nodeName)])
                 return
             if(nodeName!=None):
-                nxGraph.add_nodes_from([(nodeName, {"label" : nodeName,"color": "red"})])
-                nxGraph.add_edges_from([(pred, nodeName), {"label" : "","color": "red"}])
+                # nxGraph.add_nodes_from([(nodeName, {"label" : nodeName,"color": "red"})])
+                # nxGraph.add_edges_from([(pred, nodeName), {"label" : "","color": "red"}])
+                nxGraph.add_nodes_from([(nodeName)])
+                nxGraph.add_edges_from([(pred, nodeName)])
             if(tbl.is_visited_for_graph_drawing== GraphColor.GREY):
                 logger.info("Cycle found in the TDG graph for node "+nodeName+" Exiting")
                 print("Cycle found in the TDG graph for node "+nodeName+" Exiting")
@@ -349,11 +360,14 @@ class PipelineGraph:
             tbl.is_visited_for_graph_drawing= GraphColor.BLACK
         elif(conditional != None):
             if(conditional.is_visited_for_graph_drawing== GraphColor.BLACK):
-                nxGraph.add_edges_from([(pred, nodeName), {"label" : "","color": "red"}])
+                # nxGraph.add_edges_from([(pred, nodeName), {"label" : "","color": "red"}])
+                nxGraph.add_edges_from([(pred, nodeName)])
                 return
             if(nodeName!=None):
-                nxGraph.add_nodes_from([(nodeName, {"label" : nodeName,"color": "red"})])
-                nxGraph.add_edges_from([(pred, nodeName), {"label" : "","color": "red"}])
+                # nxGraph.add_nodes_from([(nodeName, {"label" : nodeName,"color": "red"})])
+                # nxGraph.add_edges_from([(pred, nodeName), {"label" : "","color": "red"}])
+                nxGraph.add_nodes_from([(nodeName)])
+                nxGraph.add_edges_from([(pred, nodeName)])
             if(conditional.is_visited_for_graph_drawing== GraphColor.GREY):
                 logger.info("Cycle found in the TDG graph for node "+nodeName+" Exiting")
                 print("Cycle found in the TDG graph for node "+nodeName+" Exiting")
@@ -376,9 +390,13 @@ class PipelineGraph:
             if(name == confConst.DUMMY_END_NODE):
                 return self.dummyEnd
             else:
-                logger.info("relevant Matnode is not found for  the child of :"+predMatNode.name+" and the name of node to be searched is "+name+". Severer Error. Debug Exiting ")
-                print("relevant Matnode is not found for  the child of :"+predMatNode.name+" and the name of node to be searched is "+name+". Severer Error. Debug Exiting ")
-                exit(1)
+                if(name == None):
+                    logger.info("Namee for the node is Null. Returning")
+                    return
+                else:
+                    logger.info("relevant Matnode is not found for  the child of :"+predMatNode.name+" and the name of node to be searched is "+name+". Severer Error. Debug Exiting ")
+                    print("relevant Matnode is not found for  the child of :"+predMatNode.name+" and the name of node to be searched is "+name+". Severer Error. Debug Exiting ")
+                    exit(1)
         self.allTDGNode[name] = p4MatNode
         if(p4MatNode.originalP4node.is_visited_for_TDG_processing == GraphColor.BLACK):
             return
@@ -551,7 +569,7 @@ class PipelineGraph:
                     if (self.matToMatStatefulMemoryDependnecyAnalysis(node1,node2) == True):
                         node1.addStatefulMemoryDependency(node2)
                         node2.addStatefulMemoryDependency(node1)
-                        print("Stateful memory dependency added from -- "+node1.name + " to "+node2.name)
+                        # print("Stateful memory dependency added from -- "+node1.name + " to "+node2.name)
         return
     #====================================== Functions related to loading the TDG ENDS here ==================================================
 
@@ -559,16 +577,29 @@ class PipelineGraph:
     def getTDGGraphWithAllDepenedencyAndMatNode(self, curNode, predNode, dependencyBetweenCurAndPred, tdgGraph, arrivedFromStatefulMemoryDependency = False):
         if(curNode == None):
             return
-        # print("Current node name is :"+curNode.name)
+        print("Current node name is :"+curNode.name)
+        #
+        # print("Node name : "+curNode.name)
+        # print("Depnedines are following: ")
+        # for dp in curNode.dependencies.keys():
+        #     print("\t"+curNode.dependencies.get(dp).dst.name)
         if(curNode.originalP4node.is_visited_for_graph_drawing== GraphColor.WHITE):
             val = tdgGraph.add_nodes_from([(curNode, {"label" : curNode.name,"color": "red"})])
             # val = tdgGraph.add_nodes_from([(curNode)])
             # print("Added node ")
         if(predNode!=None):
             # tdgGraph.add_edges_from([(predNode, curNode)], label=str(dependencyBetweenCurAndPred))
-            tdgGraph.add_edges_from([(predNode, curNode)])
-            # print("Edge added between : "+predNode.name+" and "+curNode.name)
+            if( tdgGraph.has_edge(predNode, curNode)):
+                logger.info("duplicate edge exists between "+predNode.name +" and "+curNode.name)
+                logger.info("Depnedines of predNode are following: ")
+                logger.info("Depnedines of predNode are following: ")
+                for dp in predNode.dependencies.keys():
+                    logger.info("\t"+str(predNode.dependencies.get(dp).dst.name))
+                pass
+            else:
+                tdgGraph.add_edges_from([(predNode, curNode)])
 
+            # print("Edge added between : "+predNode.name+" and "+curNode.name)
         if(arrivedFromStatefulMemoryDependency == True):
             if(curNode.originalP4node.is_visited_for_graph_drawing != GraphColor.WHITE):
                 return
@@ -583,58 +614,11 @@ class PipelineGraph:
             if(dpndncy != None ):
                 self.getTDGGraphWithAllDepenedencyAndMatNode(curNode = dpndncy.dst, predNode = curNode, dependencyBetweenCurAndPred=dpndncy.dependencyType,tdgGraph = tdgGraph)
             else:
-                print("severe error")
+                print("Dependency is None in dependency map. severe error.exiting. Please DEBUG!!!")
+                exit(1)
         for neighbourNode in curNode.statefulMemoryDependencies:
             self.getTDGGraphWithAllDepenedencyAndMatNode(curNode = neighbourNode, predNode = curNode, \
                                                          dependencyBetweenCurAndPred=DependencyType.STAEFUL_MEMORY_DEPENDENCY,tdgGraph = tdgGraph, arrivedFromStatefulMemoryDependency = True)
             # neighbourNode.is_visited_for_graph_drawing= GraphColor.GREY
         curNode.originalP4node.is_visited_for_graph_drawing= GraphColor.BLACK
-
-
-
-
-
-
-
-
-
-        # if ( tbl != None):
-        #     if(tbl.is_visited_for_graph_drawing== GraphColor.BLACK):
-        #         return
-        #     if(tbl.is_visited_for_graph_drawing== GraphColor.GREY):
-        #         logger.info("Cycle found in the TDG graph for node "+nodeName+" Exiting")
-        #         print("Cycle found in the TDG graph for node "+nodeName+" Exiting")
-        #         exit(1)
-        #     tbl.is_visited_for_graph_drawing= GraphColor.GREY
-        #     for a in list(tbl.next_tables.values()):
-        #         # if(a!=None):
-        #         self.getTDGGraphBeforeDependencyAnlaysis(a, nxGraph, nodeName, indenter + "\t")
-        #     tbl.is_visited_for_graph_drawing= GraphColor.BLACK
-        # elif(conditional != None):
-        #     if(conditional.is_visited_for_graph_drawing== GraphColor.BLACK):
-        #         return
-        #     if(conditional.is_visited_for_graph_drawing== GraphColor.GREY):
-        #         logger.info("Cycle found in the TDG graph for node "+nodeName+" Exiting")
-        #         print("Cycle found in the TDG graph for node "+nodeName+" Exiting")
-        #         exit(1)
-        #     next_tables = [conditional.true_next, conditional.false_next]
-        #     conditional.is_visited_for_graph_drawing= GraphColor.GREY
-        #     for a in next_tables:
-        #         # if(a!=None):
-        #         self.getTDGGraphBeforeDependencyAnlaysis(a, nxGraph, nodeName, indenter + "\t")
-        #     conditional.is_visited_for_graph_drawing= GraphColor.BLACK
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
