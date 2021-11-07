@@ -156,16 +156,88 @@ class MATNode:
         self.predecessors = {}
         self.ancestors = {}
         self.dependencies = {}
-        self.statefulMemoryDependencies = []
+        self.statefulMemoryDependencies = {}
+        self.levelForStatefulMemory=-1
+        self.finalLevel = -1
+        self.selfStatefulMemoryNameToLevelMap={}
+        self.neighbourAssignedStatefulMemoryNameToLevelMap={}  # TODO : this may not be necessary even . on that tcase we will remove it
         return
 
-    def addStatefulMemoryDependency(self, matNode):
+    def setLevelForStatefulMemeoryBySelf(self, statefulMemeoryName, level):
+        if(self.selfStatefulMemoryNameToLevelMap.get(statefulMemeoryName) == None):
+            self.selfStatefulMemoryNameToLevelMap[statefulMemeoryName] = level
+            return level
+        else:
+            oldLevel =self.selfStatefulMemoryNameToLevelMap.get(statefulMemeoryName)
+            if(oldLevel > level):
+                return oldLevel
+            else:
+                self.selfStatefulMemoryNameToLevelMap[statefulMemeoryName] = level
+                return level
+
+    def setNeighbourAssignedLevelForStatefulMemeory(self, statefulMemeoryName, level):
+        if(self.neighbourAssignedStatefulMemoryNameToLevelMap.get(statefulMemeoryName) == None):
+            self.neighbourAssignedStatefulMemoryNameToLevelMap[statefulMemeoryName] = level
+            return level
+        else:
+            oldLevel =self.neighbourAssignedStatefulMemoryNameToLevelMap.get(statefulMemeoryName)
+            if(oldLevel > level):
+                return oldLevel
+            else:
+                self.neighbourAssignedStatefulMemoryNameToLevelMap[statefulMemeoryName] = level
+                return level
+
+    def getMaxLevelOfSelfStatefulMemories(self):
+        max = -1
+        for k in self.selfStatefulMemoryNameToLevelMap.keys():
+            val = self.selfStatefulMemoryNameToLevelMap.get(k)
+            if val>max:
+                max = val
+        return max
+    def getMaxLevelOfSelfStatefulMemoriesAssignedByNeighbours(self):
+        max = -1
+        for k in self.neighbourAssignedStatefulMemoryNameToLevelMap.keys():
+            val = self.neighbourAssignedStatefulMemoryNameToLevelMap.get(k)
+            if val>max:
+                max = val
+        return max
+    def getMaxLevelOfSelfStatefulMemoryAssignedByNeighbours(self, statefulMemoeryName):
+        if(self.neighbourAssignedStatefulMemoryNameToLevelMap.get(statefulMemoeryName) == None):
+            return -1
+        else:
+            return self.neighbourAssignedStatefulMemoryNameToLevelMap.get(statefulMemoeryName)
+
+    def getMaxLevelOfSelfStatefulMemoryAssignedBySelf(self, statefulMemoeryName):
+        if(self.selfStatefulMemoryNameToLevelMap.get(statefulMemoeryName) == None):
+            return -1
+        else:
+            return self.selfStatefulMemoryNameToLevelMap.get(statefulMemoeryName)
+
+    def getMaxLevelOfAllStatefulMemories(self):
+        val1 = self.getMaxLevelOfSelfStatefulMemories()
+        val2 = self.getMaxLevelOfSelfStatefulMemoriesAssignedByNeighbours()
+        return max(val1, val2)
+    def setLevelOfAllStatefulMemories(self,level):
+        for k in self.selfStatefulMemoryNameToLevelMap.keys():
+            self.selfStatefulMemoryNameToLevelMap[k] = level
+
+
+    def addStatefulMemoryDependency(self, statefulMemoryName, matNode):
         flag = False
-        for t in self.statefulMemoryDependencies:
-            if (t.name == matNode.name ):
-                flag = True
+        # for k in self.statefulMemoryDependencies.keys():
+        #     if (self.statefulMemoryDependencies.get(k).name == matNode.name ):
+        #         flag = True
+        if(self.statefulMemoryDependencies.get(statefulMemoryName) == None):
+            self.statefulMemoryDependencies[statefulMemoryName] = []
+        for depList in self.statefulMemoryDependencies.values():
+            for dep in depList:
+                if dep.name == matNode.name:
+                    flag = True
         if(flag == False):
-            self.statefulMemoryDependencies.append(matNode)
+            depList = self.statefulMemoryDependencies.get(statefulMemoryName)
+            depList.append(matNode)
+            self.statefulMemoryDependencies[statefulMemoryName] = depList
+
     def getAllMatchFields(self):
         # if(type(self.originalP4node)== Table):
         #     self.matchKeyFields = self.originalP4node.getAllMatchfields()

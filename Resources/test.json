@@ -809,15 +809,8 @@
             "column" : 9,
             "source_fragment" : "mat_nsf5"
           },
-          "key" : [
-            {
-              "match_type" : "lpm",
-              "name" : "meta.nsf_5",
-              "target" : ["scalars", "userMetadata.nsf_3"],
-              "mask" : null
-            }
-          ],
-          "match_type" : "lpm",
+          "key" : [],
+          "match_type" : "exact",
           "type" : "simple",
           "max_size" : 1024,
           "with_counters" : false,
