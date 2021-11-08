@@ -2559,6 +2559,7 @@ class Pipeline:
         for c in self.conditionals:
             c.is_visited_for_TDG_processing =  GraphColor.WHITE
 
+
     def resetAllIsVisitedVariableForGraph(self):
         self.resetIsVisitedForConditionalProcessingVariableForGraph()
         self.resetIsVisitedForStatefulMemoryProcessingVariableForGraph()

@@ -157,18 +157,25 @@ class MATNode:
         self.ancestors = {}
         self.dependencies = {}
         self.statefulMemoryDependencies = {}
-        self.levelForStatefulMemory=-1
+        self.levelForStatefulMemoryAssignmentStep=-1
         self.finalLevel = -1
         self.selfStatefulMemoryNameToLevelMap={}
-        self.neighbourAssignedStatefulMemoryNameToLevelMap={}  # TODO : this may not be necessary even . on that tcase we will remove it
+        self.bifurcationCounter = 0
+        # self.neighbourAssignedStatefulMemoryNameToLevelMap={}  # TODO : this may not be necessary even . on that tcase we will remove it
         return
 
     def bifurcateNodeBasedOnStatefulMemeory(self, statefulMemoryNameList, newMatPrefix,pipelineGraph,pipelineID,parsedP4Program ):
+        oldLevel = self.getMaxLevelOfAllStatefulMemories()
+        newMatPrefix=""
+        combinedStatefulMemName = ""
+        for m in statefulMemoryNameList:
+            combinedStatefulMemName = combinedStatefulMemName + "_"+m
         for actionObject in self.actions:
             statefulMemoeryBeingUsed = actionObject.getListOfStatefulMemoriesBeingUsed()
             for statefulMem in statefulMemoeryBeingUsed:
                 if ((self.name in pipelineGraph.registerNameToTableMap.get(statefulMem))):
                     pipelineGraph.registerNameToTableMap.get(statefulMem).remove(self.name)
+
         originalMatNodeActions=[]
         newMatNodeActions=[]
         for a in self.actions:
@@ -186,27 +193,31 @@ class MATNode:
         # then add the node to the pipeline.allTDGNode and then fix the dependencies. Set the next_Tables entries of old table and new table.
         # Also add relevant action obejects
         newP4Node = None
+        newTableName = ""
+        newKey = None
         if(pipelineID == PipelineID.INGRESS_PIPELINE):
             newKey = Key.from_dict(confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS)
             confConst.MAT_DIVIDER_KEY_COUNTER = confConst.MAT_DIVIDER_KEY_COUNTER + 1
+            newTableName = newMatPrefix+self.name+"_"+str(confConst.MAT_DIVIDER_KEY_COUNTER)
             keyName = confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS_NAME+"_"+str(confConst.MAT_DIVIDER_KEY_COUNTER)
             newKey.name = keyName
             newKey.target[1] = newKey.target[1] +"_"+str(confConst.MAT_DIVIDER_KEY_COUNTER)
             parsedP4Program.nameToHeaderTypeObjectMap[keyName] = HeaderField(name = keyName,bitWidth=confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS_BIT_WIDTH, isSigned=True)
-            newP4Node = Table(name = newMatPrefix+self.name, id=self.originalP4node.id, source_info=self.originalP4node.source_info,
+            newP4Node = Table(name = newTableName, id=self.originalP4node.id, source_info=self.originalP4node.source_info,
                               key=[keyName], match_type=MatchType.EXACT, type=TableType, max_size=confConst.DIVIDED_MAT_MAX_ENTRIES,
                               with_counters=True, support_timeout=True, action_ids=[], actions=actionNames,
                               next_tables=self.originalP4node.next_tables, is_visited_for_conditional_preprocessing=False,
                               is_visited_for_stateful_memory_preprocessing=False,is_visited_for_graph_drawing=GraphColor.WHITE,
                               is_visited_for_TDG_processing=GraphColor.WHITE, direct_meters=[], base_default_next=None, default_entry=None, action_profile=None)
         elif(pipelineID == PipelineID.EGRESS_PIPELINE):
+            newTableName = newMatPrefix+self.name+"_"+str(confConst.MAT_DIVIDER_KEY_COUNTER)
             newKey = Key.from_dict(confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_EGRESS)
             confConst.MAT_DIVIDER_KEY_COUNTER = confConst.MAT_DIVIDER_KEY_COUNTER + 1
             keyName = confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_EGRESS_NAME+"_"+str(confConst.MAT_DIVIDER_KEY_COUNTER)
             newKey.name = keyName
             newKey.target[1] = newKey.target[1] +"_"+str(confConst.MAT_DIVIDER_KEY_COUNTER)
             parsedP4Program.nameToHeaderTypeObjectMap[keyName] = HeaderField(name = keyName,bitWidth=confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS_BIT_WIDTH, isSigned=True)
-            newP4Node = Table(name = newMatPrefix+self.name, id=self.originalP4node.id, source_info=self.originalP4node.source_info,
+            newP4Node = Table(name = newTableName, id=self.originalP4node.id, source_info=self.originalP4node.source_info,
                               key=[keyName], match_type=MatchType.EXACT, type=TableType, max_size=confConst.DIVIDED_MAT_MAX_ENTRIES,
                               with_counters=True, support_timeout=True, action_ids=[], actions=actionNames,
                               next_tables=self.originalP4node.next_tables, is_visited_for_conditional_preprocessing=False,
@@ -216,11 +227,18 @@ class MATNode:
         newMatNode = MATNode(nodeType= P4ProgramNodeType.TABLE_NODE, name= newP4Node.name, originalP4node= newP4Node)
         newMatNode.actions = newMatNodeActions
         newMatNode.ancestors = self.ancestors
-        self.ancestors.clear()
+        pipelineGraph.allTDGNode[newMatNode.name] = newMatNode
+        self.ancestors = {}
         self.ancestors[newMatNode.name] = newMatNode
         newMatNode.dependencies = self.dependencies
-        self.dependencies.clear()
+        self.dependencies = {}
         self.dependencies[newMatNode.name] = Dependency(dependencyType = DependencyType.MATCH_DEPENDENCY, src = self, dst = newMatNode )
+        tempActions = self.actions
+        self.actions=newMatNodeActions
+        newMatNode.actions=tempActions
+        for sfName in statefulMemoryNameList:
+            if(self.selfStatefulMemoryNameToLevelMap.get(sfName)!= None):
+                self.selfStatefulMemoryNameToLevelMap.pop(sfName)
         for actionObject in newMatNode.actions:
             statefulMemoeryBeingUsed = actionObject.getListOfStatefulMemoriesBeingUsed()
             for statefulMem in statefulMemoeryBeingUsed:
@@ -228,12 +246,19 @@ class MATNode:
                     pipelineGraph.registerNameToTableMap[statefulMem] = []
                 if (not(newMatNode.name in pipelineGraph.registerNameToTableMap.get(statefulMem))):
                     pipelineGraph.registerNameToTableMap.get(statefulMem).append(newMatNode.name)
+        for actionObject in self.actions:
+            statefulMemoeryBeingUsed = actionObject.getListOfStatefulMemoriesBeingUsed()
+            for statefulMem in statefulMemoeryBeingUsed:
+                if(pipelineGraph.registerNameToTableMap.get(statefulMem) == None):
+                    pipelineGraph.registerNameToTableMap[statefulMem] = []
+                if (not(self.name in pipelineGraph.registerNameToTableMap.get(statefulMem))):
+                    pipelineGraph.registerNameToTableMap.get(statefulMem).append(self.name)
         pipelineGraph.addStatefulMemoryDependencies()
-        graphTobedrawn = nx.MultiDiGraph()
-        pipelineGraph.pipeline.resetAllIsVisitedVariableForGraph()
-        pipelineGraph.getTDGGraphWithAllDepenedencyAndMatNode(curNode = pipelineGraph.allTDGNode.get(confConst.DUMMY_START_NODE), predNode=None, dependencyBetweenCurAndPred=None, tdgGraph=graphTobedrawn)
-        pipelineGraph.drawPipeline(nxGraph = graphTobedrawn, filePath="tempGraph"+str(pipelineGraph.pipelineID)+".jpg")
-
+        # graphTobedrawn = nx.MultiDiGraph()
+        # pipelineGraph.pipeline.resetAllIsVisitedVariableForGraph()
+        # pipelineGraph.getTDGGraphWithAllDepenedencyAndMatNode(curNode = pipelineGraph.allTDGNode.get(confConst.DUMMY_START_NODE), predNode=None, dependencyBetweenCurAndPred=None, tdgGraph=graphTobedrawn)
+        # pipelineGraph.drawPipeline(nxGraph = graphTobedrawn, filePath="tempGraph"+str(pipelineGraph.pipelineID)+".jpg")
+        newMatNode.setLevelOfAllStatefulMemories(oldLevel)
         return newMatNode
 
 
@@ -252,51 +277,63 @@ class MATNode:
                 self.selfStatefulMemoryNameToLevelMap[statefulMemeoryName] = level
                 return level
 
-    def setNeighbourAssignedLevelForStatefulMemeory(self, statefulMemeoryName, level):
-        if(self.neighbourAssignedStatefulMemoryNameToLevelMap.get(statefulMemeoryName) == None):
-            self.neighbourAssignedStatefulMemoryNameToLevelMap[statefulMemeoryName] = level
-            return level
-        else:
-            oldLevel =self.neighbourAssignedStatefulMemoryNameToLevelMap.get(statefulMemeoryName)
-            if(oldLevel > level):
-                return oldLevel
-            else:
-                self.neighbourAssignedStatefulMemoryNameToLevelMap[statefulMemeoryName] = level
-                return level
-
-    def getMaxLevelOfSelfStatefulMemories(self):
-        max = -1
-        for k in self.selfStatefulMemoryNameToLevelMap.keys():
-            val = self.selfStatefulMemoryNameToLevelMap.get(k)
-            if val>max:
-                max = val
-        return max
-    def getMaxLevelOfSelfStatefulMemoriesAssignedByNeighbours(self):
-        max = -1
-        for k in self.neighbourAssignedStatefulMemoryNameToLevelMap.keys():
-            val = self.neighbourAssignedStatefulMemoryNameToLevelMap.get(k)
-            if val>max:
-                max = val
-        return max
-    def getMaxLevelOfSelfStatefulMemoryAssignedByNeighbours(self, statefulMemoeryName):
-        if(self.neighbourAssignedStatefulMemoryNameToLevelMap.get(statefulMemoeryName) == None):
-            return -1
-        else:
-            return self.neighbourAssignedStatefulMemoryNameToLevelMap.get(statefulMemoeryName)
-
-    def getMaxLevelOfSelfStatefulMemoryAssignedBySelf(self, statefulMemoeryName):
-        if(self.selfStatefulMemoryNameToLevelMap.get(statefulMemoeryName) == None):
-            return -1
-        else:
-            return self.selfStatefulMemoryNameToLevelMap.get(statefulMemoeryName)
+    # def setNeighbourAssignedLevelForStatefulMemeory(self, statefulMemeoryName, level):
+    #     if(self.neighbourAssignedStatefulMemoryNameToLevelMap.get(statefulMemeoryName) == None):
+    #         self.neighbourAssignedStatefulMemoryNameToLevelMap[statefulMemeoryName] = level
+    #         return level
+    #     else:
+    #         oldLevel =self.neighbourAssignedStatefulMemoryNameToLevelMap.get(statefulMemeoryName)
+    #         if(oldLevel > level):
+    #             return oldLevel
+    #         else:
+    #             self.neighbourAssignedStatefulMemoryNameToLevelMap[statefulMemeoryName] = level
+    #             return level
 
     def getMaxLevelOfAllStatefulMemories(self):
-        val1 = self.getMaxLevelOfSelfStatefulMemories()
-        val2 = self.getMaxLevelOfSelfStatefulMemoriesAssignedByNeighbours()
-        return max(val1, val2)
+        maxVal = -1
+        for k in self.selfStatefulMemoryNameToLevelMap.keys():
+            val = self.selfStatefulMemoryNameToLevelMap.get(k)
+            if val>maxVal:
+                maxVal = val
+        return max(maxVal, self.levelForStatefulMemoryAssignmentStep)
+    # def getMaxLevelOfSelfStatefulMemoriesAssignedByNeighbours(self):
+    #     max = -1
+    #     for k in self.neighbourAssignedStatefulMemoryNameToLevelMap.keys():
+    #         val = self.neighbourAssignedStatefulMemoryNameToLevelMap.get(k)
+    #         if val>max:
+    #             max = val
+    #     return max
+    # def getMaxLevelOfSelfStatefulMemoryAssignedByNeighbours(self, statefulMemoeryName):
+    #     if(self.neighbourAssignedStatefulMemoryNameToLevelMap.get(statefulMemoeryName) == None):
+    #         return -1
+    #     else:
+    #         return self.neighbourAssignedStatefulMemoryNameToLevelMap.get(statefulMemoeryName)
+
+    # def getMaxLevelOfSelfStatefulMemoryAssignedBySelf(self, statefulMemoeryName):
+    #     if(self.selfStatefulMemoryNameToLevelMap.get(statefulMemoeryName) == None):
+    #         return -1
+    #     else:
+    #         return self.selfStatefulMemoryNameToLevelMap.get(statefulMemoeryName)
+
+    # def getMaxLevelOfAllStatefulMemories(self):
+    #     val1 = self.getMaxLevelOfSelfStatefulMemories()
+    #
+    #     return val1
     def setLevelOfAllStatefulMemories(self,level):
         for k in self.statefulMemoryDependencies.keys():
             self.selfStatefulMemoryNameToLevelMap[k] = level
+        self.levelForStatefulMemoryAssignmentStep = level
+
+    def getStatefulMemoeryNamesInConcatenatedString(self):
+        returnValue = ""
+        for k in self.statefulMemoryDependencies.keys():
+            returnValue = returnValue + "_" + k
+        return returnValue
+    def getStatefulMemoeryNamesAsSet(self):
+        returnValue = []
+        for k in self.statefulMemoryDependencies.keys():
+            returnValue.append(k)
+        return set(returnValue)
 
 
     def addStatefulMemoryDependency(self, statefulMemoryName, matNode):

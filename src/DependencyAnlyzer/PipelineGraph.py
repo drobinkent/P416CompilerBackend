@@ -1,3 +1,4 @@
+import copy
 import json
 import logging
 from enum import Enum
@@ -192,6 +193,15 @@ class PipelineGraph:
         self.drawPipeline(nxGraph = graphTobedrawn, filePath="after-loading-with-all-dependency"+str(self.pipelineID)+".jpg")
         self.pipeline.resetAllIsVisitedVariableForGraph()
         self.assignLevelsToStatefulMemories(curMatNode=self.allTDGNode[confConst.DUMMY_START_NODE], predMatNode=None)
+        self.addStatefulMemoryDependencies()
+        graphTobedrawn = nx.MultiDiGraph()
+        self.pipeline.resetAllIsVisitedVariableForGraph()
+        if(self.allTDGNode.get(confConst.DUMMY_START_NODE) != None):
+            self.allTDGNode.get(confConst.DUMMY_START_NODE).originalP4node.is_visited_for_graph_drawing = GraphColor.WHITE
+        if(self.allTDGNode.get(confConst.DUMMY_END_NODE) != None):
+            self.allTDGNode.get(confConst.DUMMY_END_NODE).originalP4node.is_visited_for_graph_drawing = GraphColor.WHITE
+        self.getTDGGraphWithAllDepenedencyAndMatNode(curNode = self.allTDGNode.get(confConst.DUMMY_START_NODE), predNode=None, dependencyBetweenCurAndPred=None, tdgGraph=graphTobedrawn, printLevel=True)
+        self.drawPipeline(nxGraph = graphTobedrawn, filePath="level-graph"+str(self.pipelineID)+".jpg")
         print("For piepline"+str(self.pipelineID)+" total GRaph nodes  after conditional processing "+str(len(nxGraph.nodes())))
         # for n in nxGraph.nodes():
         #     print(n)
@@ -557,10 +567,13 @@ class PipelineGraph:
             return Dependency(dependencyType = DependencyType.NO_DEPNDENCY, src = matNode1, dst = matNode2 )
 
     def matToMatStatefulMemoryDependnecyAnalysis(self, matNode1, matNode2):
+
         for k in self.registerNameToTableMap:
             tblList = self.registerNameToTableMap.get(k)
             if (matNode1.name in tblList) and (matNode2.name in tblList):
+                print("Stateful memory dependency between "+matNode1.name +" and "+matNode2.name +" is "+str(k))
                 return k
+        print("Stateful memory dependency between "+matNode1.name +" and "+matNode2.name +" is None")
         return None
 
     def addStatefulMemoryDependencies(self):
@@ -581,7 +594,7 @@ class PipelineGraph:
     #====================================== Functions related to loading the TDG ENDS here ==================================================
 
     #====================================== Functions related to drawing the TDG STARTS here ==================================================
-    def getTDGGraphWithAllDepenedencyAndMatNode(self, curNode, predNode, dependencyBetweenCurAndPred, tdgGraph, arrivedFromStatefulMemoryDependency = False):
+    def getTDGGraphWithAllDepenedencyAndMatNode(self, curNode, predNode, dependencyBetweenCurAndPred, tdgGraph, arrivedFromStatefulMemoryDependency = False, printLevel=False):
         if(curNode == None):
             return
         # print("Current node name is :"+curNode.name)
@@ -592,8 +605,12 @@ class PipelineGraph:
         #     print("\t"+curNode.dependencies.get(dp).dst.name)
         if(curNode.originalP4node.is_visited_for_graph_drawing== GraphColor.WHITE):
             # val = tdgGraph.add_node((curNode, {"label" : curNode.name,"color": "red"}))
+
             val = tdgGraph.add_node(curNode)
-            tdgGraph.nodes[curNode]["label"] = curNode.name
+            if(printLevel == True):
+                tdgGraph.nodes[curNode]["label"] = curNode.name+" Level "+str(curNode.getMaxLevelOfAllStatefulMemories()) + curNode.getStatefulMemoeryNamesInConcatenatedString()
+            else:
+                tdgGraph.nodes[curNode]["label"] = curNode.name
             # val = tdgGraph.add_nodes_from([(curNode)])
             # print("Added node ")
         if(predNode!=None):
@@ -625,15 +642,16 @@ class PipelineGraph:
         for depndentNodeName in curNode.dependencies.keys():
             dpndncy= curNode.dependencies.get(depndentNodeName)
             if(dpndncy != None ):
-                self.getTDGGraphWithAllDepenedencyAndMatNode(curNode = dpndncy.dst, predNode = curNode, dependencyBetweenCurAndPred=dpndncy.dependencyType,tdgGraph = tdgGraph)
+                self.getTDGGraphWithAllDepenedencyAndMatNode(curNode = dpndncy.dst, predNode = curNode, dependencyBetweenCurAndPred=dpndncy.dependencyType,tdgGraph = tdgGraph, printLevel=printLevel)
             else:
                 print("Dependency is None in dependency map. severe error.exiting. Please DEBUG!!!")
                 exit(1)
-        for sfMemName in curNode.statefulMemoryDependencies.keys():
-            sfDepList = curNode.statefulMemoryDependencies.get(sfMemName)
-            for neighbourNode in sfDepList:
-                self.getTDGGraphWithAllDepenedencyAndMatNode(curNode = neighbourNode, predNode = curNode, \
-                                                         dependencyBetweenCurAndPred=DependencyType.STAEFUL_MEMORY_DEPENDENCY,tdgGraph = tdgGraph, arrivedFromStatefulMemoryDependency = True)
+        if(printLevel != True):
+            for sfMemName in curNode.statefulMemoryDependencies.keys():
+                sfDepList = curNode.statefulMemoryDependencies.get(sfMemName)
+                for neighbourNode in sfDepList:
+                    self.getTDGGraphWithAllDepenedencyAndMatNode(curNode = neighbourNode, predNode = curNode, \
+                                                             dependencyBetweenCurAndPred=DependencyType.STAEFUL_MEMORY_DEPENDENCY,tdgGraph = tdgGraph, arrivedFromStatefulMemoryDependency = True, printLevel=printLevel)
             # neighbourNode.is_visited_for_graph_drawing= GraphColor.GREY
         curNode.originalP4node.is_visited_for_graph_drawing= GraphColor.BLACK
     #====================================== Functions related to drawing the TDG ENDS here ==================================================
@@ -657,7 +675,8 @@ class PipelineGraph:
         for depKey in curMatNode.dependencies.keys():
             dep = curMatNode.dependencies.get(depKey)
             nxtMatNode = dep.dst
-            childLevelList.append(self.assignLevelsToStatefulMemories(nxtMatNode, curMatNode))
+            levelOfChild = self.assignLevelsToStatefulMemories(nxtMatNode, curMatNode)
+            childLevelList.append(levelOfChild)
         childLevelList.sort()
         maxLevel = -1
         if(len(childLevelList)>0):
@@ -668,25 +687,37 @@ class PipelineGraph:
         curMatNode.setLevelOfAllStatefulMemories(maxLevel)
         sfMemNameToMaxLevelMap = {}
 
-        now the main issue is we are modifying the dictionalry inside the oterationl how to avoid this???
-        for sfMemName in curMatNode.statefulMemoryDependencies.keys():
+        # now the main issue is we are modifying the dictionalry inside the oterationl how to avoid this???
+        sfMemNameList =[]
+        for k in curMatNode.statefulMemoryDependencies.keys():
+            sfMemNameList.append(k)
+
+        # for sfMemName in curMatNode.statefulMemoryDependencies.keys():
+        for sfMemName in sfMemNameList:
             sfMemDepList = curMatNode.statefulMemoryDependencies.get(sfMemName)
-            for sfMemDep in sfMemDepList:
-                if (sfMemDep.getMaxLevelOfAllStatefulMemories() <= -1): #This is special case. This indicates the sfMemDep is no explored ever before. This is first time some one isassginign level to it. So no need to break it
-                    sfMemDep.setLevelOfAllStatefulMemories( maxLevel)
-                elif (sfMemDep.getMaxLevelOfAllStatefulMemories() < maxLevel): # Need to check whether the sfmem's curNode level contradicts with exisintgf levels of sfMemDep.
-                    # Then divide the sfMemdep
-                    # Here all stateful memories used by this mat is of same level. Now we only need to take out all those primitives used by
-                    #the sfMemdep which are also used by curMAtNode. and dvidde the node.
-                    self.biFurcateNodes(sfMemDep, curMatNode)
-                elif (sfMemDep.getMaxLevelOfAllStatefulMemories() == maxLevel):
-                    logger.info("Nothing to do. ")
-                else:
-                    logger.info("This case never happen. Because If some other node has assigned a higher level for the stateful memory it is already updated to "
-                                "other tabels that used the stateful memory. DEBUG> EXIT")
-                    print("This case never happen. Because If some other node has assigned a higher level for the stateful memory it is already updated to "
-                          "other tabels that used the stateful memory. DEBUG> EXIT")
-                    exit(1)
+            if(sfMemDepList == None):
+                continue
+            else:
+                for sfMemDep in sfMemDepList:
+                    if (sfMemDep.getMaxLevelOfAllStatefulMemories() <= -1): #This is special case. This indicates the sfMemDep is no explored ever before. This is first time some one isassginign level to it. So no need to break it
+                        sfMemDep.setLevelOfAllStatefulMemories( maxLevel)
+                    elif (sfMemDep.getMaxLevelOfAllStatefulMemories() < maxLevel): # Need to check whether the sfmem's curNode level contradicts with exisintgf levels of sfMemDep.
+                        # Then divide the sfMemdep
+                        # Here all stateful memories used by this mat is of same level. Now we only need to take out all those primitives used by
+                        #the sfMemdep which are also used by curMAtNode. and dvidde the node.
+                        #if both node have same set up stateful mem then we do not need to bofrcate. WE just need to update the level. Else bifurcate the node
+                        if(len(sfMemDep.getStatefulMemoeryNamesAsSet().difference(curMatNode.getStatefulMemoeryNamesAsSet())) >0):
+                            oldMatNode, newMatNode = self.biFurcateNodes(sfMemDep, curMatNode)
+
+                        curMatNode.setLevelOfAllStatefulMemories( maxLevel)
+                    elif (sfMemDep.getMaxLevelOfAllStatefulMemories() == maxLevel):
+                        logger.info("Nothing to do. ")
+                    else:
+                        logger.info("This case never happen. Because If some other node has assigned a higher level for the stateful memory it is already updated to "
+                                    "other tabels that used the stateful memory. DEBUG> EXIT")
+                        print("This case never happen. Because If some other node has assigned a higher level for the stateful memory it is already updated to "
+                              "other tabels that used the stateful memory. DEBUG> EXIT")
+                        exit(1)
 
 
         curMatNode.originalP4node.is_visited_for_TDG_processing = GraphColor.BLACK
@@ -713,8 +744,8 @@ class PipelineGraph:
             print(regName)
         newMatNode = matNodeTobeBifurcated.bifurcateNodeBasedOnStatefulMemeory(statefulMemoryListOfBaseNode,
                 newMatPrefix=confConst.BIFURCATED_MAT_NAME_PREFIX, pipelineGraph= self, pipelineID = self.pipelineID, parsedP4Program=self.parsedP4Program)
-
-
+        return (matNodeTobeBifurcated, newMatNode)
+        #Keep old mat's level to old and new mat level to current max
         #
         # val = matNodeTobeBifurcated.actions.primitives -- eder majhe jegulo ei stateful memory te thake tader k rakho bakider . arekta te pathao.
         # newMatNode = MATNode(nodeType= P4ProgramNodeType.TABLE_NODE, name= baseMatNode.name+"_divided_part", originalP4node= None) # the original P4Node have to be setup. otherwise graph traersal will not work
