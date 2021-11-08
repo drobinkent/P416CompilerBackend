@@ -38,8 +38,9 @@ def common_member(a, b):
 class PipelineGraph:
 
 
-    def __init__(self, pipelineID,pipeline, actions):
+    def __init__(self, pipelineID,pipeline, actions,parsedP4Program):
         self.pipelineID = pipelineID
+        self.parsedP4Program = parsedP4Program
         self.dummyStart = MATNode(nodeType = P4ProgramNodeType.DUMMY_NODE, name = confConst.DUMMY_START_NODE, \
                                   originalP4node= Table(confConst.DUMMY_START_NODE, confConst.DUMMY_START_NODE, None, [], None, None, 0, False,
                                                         False, [], [], [], False, False,GraphColor.WHITE, GraphColor.WHITE, [], [], [], []))
@@ -668,14 +669,18 @@ class PipelineGraph:
             for sfMemDep in sfMemDepList:
                 if (sfMemDep.getMaxLevelOfAllStatefulMemories() <= -1): #This is special case. This indicates the sfMemDep is no explored ever before. This is first time some one isassginign level to it. So no need to break it
                     sfMemDep.setLevelOfAllStatefulMemories( maxLevel)
-                if (sfMemDep.getMaxLevelOfAllStatefulMemories() <= maxLevel): # Need to check whether the sfmem's curNode level contradicts with exisintgf levels of sfMemDep.
+                elif (sfMemDep.getMaxLevelOfAllStatefulMemories() < maxLevel): # Need to check whether the sfmem's curNode level contradicts with exisintgf levels of sfMemDep.
                     # Then divide the sfMemdep
                     # Here all stateful memories used by this mat is of same level. Now we only need to take out all those primitives used by
                     #the sfMemdep which are also used by curMAtNode. and dvidde the node.
-                    sfMemDep.selfStatefulMemoryNameToLevelMap[sfMemName] = maxLevel
+                    self.biFurcateNodes(sfMemDep, curMatNode)
+                elif (sfMemDep.getMaxLevelOfAllStatefulMemories() == maxLevel):
+                    logger.info("Nothing to do. ")
                 else:
-                    logger.info("This case never happen. Because DEBUG> EXIT")
-                    print("This case never happen. Because DEBUG> EXIT")
+                    logger.info("This case never happen. Because If some other node has assigned a higher level for the stateful memory it is already updated to "
+                                "other tabels that used the stateful memory. DEBUG> EXIT")
+                    print("This case never happen. Because If some other node has assigned a higher level for the stateful memory it is already updated to "
+                          "other tabels that used the stateful memory. DEBUG> EXIT")
                     exit(1)
 
 
@@ -685,6 +690,43 @@ class PipelineGraph:
 
 
     def biFurcateNodes(self, matNodeTobeBifurcated, baseMatNode):
-        newNodesStatefulMemoryDependency = {}
-        for sfMemName in baseMatNode.statefulMemoryDependencies.keys():
-            newNodesStatefulMemoryDependency[sfMemName] = matNodeTobeBifurcated.statefulMemoryDependencies.pop(sfMemName)
+        # newNodesStatefulMemoryDependency = {}
+        # newNodesStatefulMemoryLevels={}
+        # for sfMemName in baseMatNode.statefulMemoryDependencies.keys():
+        #     newNodesStatefulMemoryDependency[sfMemName] = matNodeTobeBifurcated.statefulMemoryDependencies.pop(sfMemName) # The popped element is a list of MATNode
+        #     newNodesStatefulMemoryLevels[sfMemName] = matNodeTobeBifurcated.selfStatefulMemoryNameToLevelMap.pop(sfMemName)
+            # self.st
+            # commonStatefulMemoery = self.matToMatStatefulMemoryDependnecyAnalysis(matNodeTobeBifurcated,baseMatNode)
+            # if (commonStatefulMemoery != None):
+            #     node1.addStatefulMemoryDependency(commonStatefulMemoery,node2)
+            #     node2.addStatefulMemoryDependency(commonStatefulMemoery, node1)
+        #TODO for statefulememory dependency resolving simply update the registerNAmeToTableMap correctly. yhen call the function for stateful memory
+        #depndency analysis. That should do the work. but before that need to divide the node and build two node with dependencies.
+
+        statefulMemoryListOfBaseNode = list(baseMatNode.statefulMemoryDependencies.keys())
+        for regName in statefulMemoryListOfBaseNode:
+            print(regName)
+        newMatNode = matNodeTobeBifurcated.bifurcateNodeBasedOnStatefulMemeory(statefulMemoryListOfBaseNode,
+                newMatPrefix=confConst.BIFURCATED_MAT_NAME_PREFIX, pipeline = self.pipeline, pipelineID = self.pipelineID, parsedP4Program=self.parsedP4Program)
+
+
+        #
+        # val = matNodeTobeBifurcated.actions.primitives -- eder majhe jegulo ei stateful memory te thake tader k rakho bakider . arekta te pathao.
+        # newMatNode = MATNode(nodeType= P4ProgramNodeType.TABLE_NODE, name= baseMatNode.name+"_divided_part", originalP4node= None) # the original P4Node have to be setup. otherwise graph traersal will not work
+        # newMatNode.nextNodes= [matNodeTobeBifurcated]
+        # newMatNode.matchKeyFields = []
+        # newMatNode.actions= []
+        # newMatNode.originalP4node = None
+        # newMatNode.isVisitedForDraw=False
+        # newMatNode.actionObjectList  = []
+        # newMatNode.isVisitedForTDGProcessing=False
+        # newMatNode.subTableMatNodes = []
+        # newMatNode.predecessors = {}
+        # newMatNode.ancestors = {}
+        # newMatNode.dependencies = {}
+        # newMatNode.statefulMemoryDependencies = {}
+        # newMatNode.levelForStatefulMemory=-1
+        # newMatNode.finalLevel = -1
+        # newMatNode.selfStatefulMemoryNameToLevelMap={}
+        # newMatNode.neighbourAssignedStatefulMemoryNameToLevelMap={}
+

@@ -1,7 +1,7 @@
 
-from DependencyAnlyzer.DefinitionConstants import P4ProgramNodeType
+from DependencyAnlyzer.DefinitionConstants import P4ProgramNodeType, PipelineID, DependencyType
 from P4ProgramParser.P416JsonParser import PrimitiveOpblock, Expression, PrimitiveField, RegisterArrayPrimitive, HexStr, \
-    PrimitiveHeader, BoolPrimitive, Table
+    PrimitiveHeader, BoolPrimitive, Table, Key, MatchType, TableType, GraphColor, HeaderField
 
 import networkx as nx
 import logging
@@ -163,6 +163,67 @@ class MATNode:
         self.neighbourAssignedStatefulMemoryNameToLevelMap={}  # TODO : this may not be necessary even . on that tcase we will remove it
         return
 
+    def bifurcateNodeBasedOnStatefulMemeory(self, statefulMemoryNameList, newMatPrefix,pipeline,pipelineID,parsedP4Program ):
+        originalMatNodeActions=[]
+        newMatNodeActions=[]
+        for a in self.actions:
+            newAction = a.bifurcateActionBasedOnStatefulMemeory(statefulMemoryNameList,newActionNamePrefix= newMatPrefix)
+            originalMatNodeActions.append(a)
+            newMatNodeActions.append(newAction)
+        actionNames = []
+        for a in newMatNodeActions:
+            actionNames.append(a.name)
+        #TODO: if any one action is NO-action then the bifurated action pair will also contain another NO-ACTION action. Though it is not really important from
+        #resource reservation perspective, but if we want to generate actual hardware instrutions we have to handle this.
+
+        # add a key to the new mat.
+        # build a table and add to the pipiline.table list
+        # then add the node to the pipeline.allTDGNode and then fix the dependencies. Set the next_Tables entries of old table and new table.
+        # Also add relevant action obejects
+        newP4Node = None
+        if(pipelineID == PipelineID.INGRESS_PIPELINE):
+            newKey = Key.from_dict(confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS)
+            confConst.MAT_DIVIDER_KEY_COUNTER = confConst.MAT_DIVIDER_KEY_COUNTER + 1
+            keyName = confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS_NAME+"_"+str(confConst.MAT_DIVIDER_KEY_COUNTER)
+            newKey.name = keyName
+            newKey.target[1] = newKey.target[1] +"_"+str(confConst.MAT_DIVIDER_KEY_COUNTER)
+            parsedP4Program.nameToHeaderTypeObjectMap[keyName] = HeaderField(name = keyName,bitWidth=confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS_BIT_WIDTH, isSigned=True)
+            newP4Node = Table(name = newMatPrefix+self.name, id=self.originalP4node.id, source_info=self.originalP4node.source_info,
+                              key=[keyName], match_type=MatchType.EXACT, type=TableType, max_size=confConst.DIVIDED_MAT_MAX_ENTRIES,
+                              with_counters=True, support_timeout=True, action_ids=[], actions=actionNames,
+                              next_tables=self.originalP4node.next_tables, is_visited_for_conditional_preprocessing=False,
+                              is_visited_for_stateful_memory_preprocessing=False,is_visited_for_graph_drawing=GraphColor.WHITE,
+                              is_visited_for_TDG_processing=GraphColor.WHITE, direct_meters=[], base_default_next=None, default_entry=None, action_profile=None)
+        elif(pipelineID == PipelineID.EGRESS_PIPELINE):
+            newKey = Key.from_dict(confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_EGRESS)
+            confConst.MAT_DIVIDER_KEY_COUNTER = confConst.MAT_DIVIDER_KEY_COUNTER + 1
+            keyName = confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_EGRESS_NAME+"_"+str(confConst.MAT_DIVIDER_KEY_COUNTER)
+            newKey.name = keyName
+            newKey.target[1] = newKey.target[1] +"_"+str(confConst.MAT_DIVIDER_KEY_COUNTER)
+            parsedP4Program.nameToHeaderTypeObjectMap[keyName] = HeaderField(name = keyName,bitWidth=confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS_BIT_WIDTH, isSigned=True)
+            newP4Node = Table(name = newMatPrefix+self.name, id=self.originalP4node.id, source_info=self.originalP4node.source_info,
+                              key=[keyName], match_type=MatchType.EXACT, type=TableType, max_size=confConst.DIVIDED_MAT_MAX_ENTRIES,
+                              with_counters=True, support_timeout=True, action_ids=[], actions=actionNames,
+                              next_tables=self.originalP4node.next_tables, is_visited_for_conditional_preprocessing=False,
+                              is_visited_for_stateful_memory_preprocessing=False,is_visited_for_graph_drawing=GraphColor.WHITE,
+                              is_visited_for_TDG_processing=GraphColor.WHITE, direct_meters=[], base_default_next=None, default_entry=None, action_profile=None)
+        newMatNode = MATNode(nodeType= P4ProgramNodeType.TABLE_NODE, name= newMatPrefix+self.name, originalP4node= newP4Node)
+        newMatNode.actions = newMatNodeActions
+        newMatNode.ancestors = self.ancestors
+        self.ancestors.clear()
+        self.ancestors[newMatNode.name] = newMatNode
+        newMatNode.dependencies = self.dependencies
+        self.dependencies.clear()
+        self.dependencies[newMatNode.name] = Dependency(dependencyType = DependencyType.MATCH_DEPENDENCY, src = self, dst = newMatNode )
+        Now traverse all node in piupielene.alltdg and change all the nodes who have dependency with self.  Then also change self.originalP4Nodes.next_Tables = newmatnode
+        Then change everyone's statefulmemorydependency'
+        #Now setup the dependencies
+        return newMatNode
+
+
+
+
+
     def setLevelForStatefulMemeoryBySelf(self, statefulMemeoryName, level):
         if(self.selfStatefulMemoryNameToLevelMap.get(statefulMemeoryName) == None):
             self.selfStatefulMemoryNameToLevelMap[statefulMemeoryName] = level
@@ -218,7 +279,7 @@ class MATNode:
         val2 = self.getMaxLevelOfSelfStatefulMemoriesAssignedByNeighbours()
         return max(val1, val2)
     def setLevelOfAllStatefulMemories(self,level):
-        for k in self.selfStatefulMemoryNameToLevelMap.keys():
+        for k in self.statefulMemoryDependencies.keys():
             self.selfStatefulMemoryNameToLevelMap[k] = level
 
 

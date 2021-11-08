@@ -6,6 +6,7 @@ MAX_LOG_FILE_BACKUP_COUNT = 250  # MAximum 25 files will be kept
 
 
 
+BIFURCATED_MAT_NAME_PREFIX = "BIFURCATED_MAT_"
 
 DUMMY_START_NODE = "DUMMY_START_NODE"
 DUMMY_END_NODE = "DUMMY_END_NODE"
@@ -20,6 +21,8 @@ SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS ={
                     "mask" : None
                 }
 SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH = 8
+
+SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_KEY_NAME = "local_metadata.egress_conditioanl_carry"
 SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS ={
                     "match_type" : "exact",
                     "name" : "local_metadata.egress_conditioanl_carry",
@@ -27,6 +30,29 @@ SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS ={
                     "mask" : None
                 }
 SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_BIT_WIDTH = 8
-SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_KEY_NAME = "local_metadata.egress_conditioanl_carry"
+
+
+SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS_NAME = "local_metadata.mat_divider"
+SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS ={
+    "match_type" : "exact",
+    "name" : "local_metadata.mat_divider",
+    "target" : ["local_metadata", "egress_conditioanl_carry"],
+    "mask" : None
+}
+SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS_BIT_WIDTH = 8
+
+
+SPECIAL_KEY_FOR_DIVIDING_MAT_IN_EGRESS_NAME = "local_metadata.mat_divider"
+SPECIAL_KEY_FOR_DIVIDING_MAT_IN_EGRESS ={
+    "match_type" : "exact",
+    "name" : "local_metadata.mat_divider",
+    "target" : ["local_metadata", "egress_conditioanl_carry"],
+    "mask" : None
+}
+SPECIAL_KEY_FOR_DIVIDING_MAT_IN_EGRESS_BIT_WIDTH = 8
+
+MAT_DIVIDER_KEY_COUNTER = 0
+DIVIDED_MAT_MAX_ENTRIES= 64 #Each stage can handle 64 actions, therefore if we divide a MAT and make two MAT then the newly created stage can also habe maximum 65 actions.
+# TODO: in future these should be in hardware deifinition
 
 

@@ -774,6 +774,17 @@ class Primitive:
         self.parameters = parameters
         self.source_info = source_info
 
+    def containsRegister(self,regNames):
+        for rName in regNames:
+            for p in self.parameters:
+                if(type(p) == RegisterArrayPrimitive) and (p.registerArrayName == rName):
+                    return True
+                #TODO: need to cover all other variations of the parameters that match with the register name
+        return False
+
+
+
+
     @staticmethod
     def from_dict(obj: Any) -> 'Primitive':
         assert isinstance(obj, dict)
@@ -1286,6 +1297,27 @@ class Action:
     id: int
     runtime_data: List[RuntimeDatum]
     primitives: List[Primitive]
+
+    def bifurcateActionBasedOnStatefulMemeory(self,regNames, newActionNamePrefix):
+        print("I m here"+str(regNames))
+        index = -1
+        for i in range(0, len(self.primitives)):
+            if( self.primitives[i].containsRegister(regNames)):
+                if(i>index):
+                    index = i
+
+        if(index >= -1):
+            newActionPrimitiveList = self.primitives[0:index+1]
+            oldActionPrimitiveList = self.primitives[index+1:len(self.primitives)]
+            self.primitives = oldActionPrimitiveList
+            newAction = Action(name=newActionNamePrefix+self.name, id=self.id, runtime_data=None, primitives=newActionPrimitiveList)
+            return newAction
+        else:
+            logger.info("This case can nto happen. Because we are trying to divide an action based on solid info. Please debug. Exiting")
+            print("This case can nto happen. Because we are trying to divide an action based on solid info. Please debug. Exiting")
+            exit(1)
+
+
 
     @staticmethod
     def from_dict(obj: Any) -> 'Action':

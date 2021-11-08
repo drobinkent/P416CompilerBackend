@@ -39,12 +39,12 @@ class P4ProgramGraph:
             exit(0)
         for pipeline in self.parsedP4Program.pipelines:
             if(pipeline.name == PipelineID.INGRESS_PIPELINE.value):
-                newPipelineGraph = PipelineGraph(pipelineID=PipelineID.INGRESS_PIPELINE, pipeline = pipeline, actions= self.parsedP4Program.actions)
+                newPipelineGraph = PipelineGraph(pipelineID=PipelineID.INGRESS_PIPELINE, pipeline = pipeline, actions= self.parsedP4Program.actions,parsedP4Program = self.parsedP4Program)
                 self.pipelineIdToPipelineGraphMap[PipelineID.INGRESS_PIPELINE] = newPipelineGraph
                 self.pipelineIdToPipelineMap[PipelineID.INGRESS_PIPELINE] = pipeline
                 newPipelineGraph.preProcessPipelineGraph()
             if(pipeline.name == PipelineID.EGRESS_PIPELINE.value):
-                newPipelineGraph = PipelineGraph(pipelineID=PipelineID.EGRESS_PIPELINE, pipeline = pipeline, actions= self.parsedP4Program.actions)
+                newPipelineGraph = PipelineGraph(pipelineID=PipelineID.EGRESS_PIPELINE, pipeline = pipeline, actions= self.parsedP4Program.actions,parsedP4Program = self.parsedP4Program)
                 self.pipelineIdToPipelineGraphMap[PipelineID.EGRESS_PIPELINE] = newPipelineGraph
                 self.pipelineIdToPipelineMap[PipelineID.EGRESS_PIPELINE] = pipeline
                 newPipelineGraph.preProcessPipelineGraph()
