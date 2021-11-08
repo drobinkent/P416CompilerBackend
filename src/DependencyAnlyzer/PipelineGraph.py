@@ -663,7 +663,7 @@ class PipelineGraph:
             logger.info("Severe error. Mat node can not be None in assignLevelsToStatefulMemories. Debug. exiting. ")
             print("Severe error. Mat node can not be None in assignLevelsToStatefulMemories. Debug. exiting. ")
             exit(1)
-
+        print("CurMAtnode name is "+curMatNode.name)
         if curMatNode.name == confConst.DUMMY_END_NODE:
             return -1
 
@@ -708,8 +708,14 @@ class PipelineGraph:
                         #if both node have same set up stateful mem then we do not need to bofrcate. WE just need to update the level. Else bifurcate the node
                         if(len(sfMemDep.getStatefulMemoeryNamesAsSet().difference(curMatNode.getStatefulMemoeryNamesAsSet())) >0):
                             oldMatNode, newMatNode = self.biFurcateNodes(sfMemDep, curMatNode)
+                            oldMatNode.setLevelForStatefulMemeoryBySelf( sfMemName,maxLevel)
+                        else:
+                            curMatNode.setLevelForStatefulMemeoryBySelf( sfMemName,maxLevel)
+                            sfMemDep.setLevelForStatefulMemeoryBySelf( sfMemName,maxLevel)
 
-                        curMatNode.setLevelOfAllStatefulMemories( maxLevel)
+                        #Here we have to set for which stateful memory we are setting the level
+
+                        print("Temp")
                     elif (sfMemDep.getMaxLevelOfAllStatefulMemories() == maxLevel):
                         logger.info("Nothing to do. ")
                     else:
