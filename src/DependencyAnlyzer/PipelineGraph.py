@@ -565,6 +565,9 @@ class PipelineGraph:
 
     def addStatefulMemoryDependencies(self):
         for name1 in self.allTDGNode.keys():
+            node1 = self.allTDGNode.get(name1)
+            node1.statefulMemoryDependencies.clear()
+        for name1 in self.allTDGNode.keys():
             for name2 in self.allTDGNode.keys():
                 if(name1!= name2):
                     node1 = self.allTDGNode.get(name1)
@@ -664,6 +667,8 @@ class PipelineGraph:
         maxLevel = max(maxLevel, curMatNode.getMaxLevelOfAllStatefulMemories())
         curMatNode.setLevelOfAllStatefulMemories(maxLevel)
         sfMemNameToMaxLevelMap = {}
+
+        now the main issue is we are modifying the dictionalry inside the oterationl how to avoid this???
         for sfMemName in curMatNode.statefulMemoryDependencies.keys():
             sfMemDepList = curMatNode.statefulMemoryDependencies.get(sfMemName)
             for sfMemDep in sfMemDepList:
@@ -707,7 +712,7 @@ class PipelineGraph:
         for regName in statefulMemoryListOfBaseNode:
             print(regName)
         newMatNode = matNodeTobeBifurcated.bifurcateNodeBasedOnStatefulMemeory(statefulMemoryListOfBaseNode,
-                newMatPrefix=confConst.BIFURCATED_MAT_NAME_PREFIX, pipeline = self.pipeline, pipelineID = self.pipelineID, parsedP4Program=self.parsedP4Program)
+                newMatPrefix=confConst.BIFURCATED_MAT_NAME_PREFIX, pipelineGraph= self, pipelineID = self.pipelineID, parsedP4Program=self.parsedP4Program)
 
 
         #

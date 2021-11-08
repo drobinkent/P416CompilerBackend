@@ -163,7 +163,12 @@ class MATNode:
         self.neighbourAssignedStatefulMemoryNameToLevelMap={}  # TODO : this may not be necessary even . on that tcase we will remove it
         return
 
-    def bifurcateNodeBasedOnStatefulMemeory(self, statefulMemoryNameList, newMatPrefix,pipeline,pipelineID,parsedP4Program ):
+    def bifurcateNodeBasedOnStatefulMemeory(self, statefulMemoryNameList, newMatPrefix,pipelineGraph,pipelineID,parsedP4Program ):
+        for actionObject in self.actions:
+            statefulMemoeryBeingUsed = actionObject.getListOfStatefulMemoriesBeingUsed()
+            for statefulMem in statefulMemoeryBeingUsed:
+                if ((self.name in pipelineGraph.registerNameToTableMap.get(statefulMem))):
+                    pipelineGraph.registerNameToTableMap.get(statefulMem).remove(self.name)
         originalMatNodeActions=[]
         newMatNodeActions=[]
         for a in self.actions:
@@ -207,7 +212,8 @@ class MATNode:
                               next_tables=self.originalP4node.next_tables, is_visited_for_conditional_preprocessing=False,
                               is_visited_for_stateful_memory_preprocessing=False,is_visited_for_graph_drawing=GraphColor.WHITE,
                               is_visited_for_TDG_processing=GraphColor.WHITE, direct_meters=[], base_default_next=None, default_entry=None, action_profile=None)
-        newMatNode = MATNode(nodeType= P4ProgramNodeType.TABLE_NODE, name= newMatPrefix+self.name, originalP4node= newP4Node)
+        self.next_tables=[newP4Node.name]
+        newMatNode = MATNode(nodeType= P4ProgramNodeType.TABLE_NODE, name= newP4Node.name, originalP4node= newP4Node)
         newMatNode.actions = newMatNodeActions
         newMatNode.ancestors = self.ancestors
         self.ancestors.clear()
@@ -215,9 +221,19 @@ class MATNode:
         newMatNode.dependencies = self.dependencies
         self.dependencies.clear()
         self.dependencies[newMatNode.name] = Dependency(dependencyType = DependencyType.MATCH_DEPENDENCY, src = self, dst = newMatNode )
-        Now traverse all node in piupielene.alltdg and change all the nodes who have dependency with self.  Then also change self.originalP4Nodes.next_Tables = newmatnode
-        Then change everyone's statefulmemorydependency'
-        #Now setup the dependencies
+        for actionObject in newMatNode.actions:
+            statefulMemoeryBeingUsed = actionObject.getListOfStatefulMemoriesBeingUsed()
+            for statefulMem in statefulMemoeryBeingUsed:
+                if(pipelineGraph.registerNameToTableMap.get(statefulMem) == None):
+                    pipelineGraph.registerNameToTableMap[statefulMem] = []
+                if (not(newMatNode.name in pipelineGraph.registerNameToTableMap.get(statefulMem))):
+                    pipelineGraph.registerNameToTableMap.get(statefulMem).append(newMatNode.name)
+        pipelineGraph.addStatefulMemoryDependencies()
+        graphTobedrawn = nx.MultiDiGraph()
+        pipelineGraph.pipeline.resetAllIsVisitedVariableForGraph()
+        pipelineGraph.getTDGGraphWithAllDepenedencyAndMatNode(curNode = pipelineGraph.allTDGNode.get(confConst.DUMMY_START_NODE), predNode=None, dependencyBetweenCurAndPred=None, tdgGraph=graphTobedrawn)
+        pipelineGraph.drawPipeline(nxGraph = graphTobedrawn, filePath="tempGraph"+str(pipelineGraph.pipelineID)+".jpg")
+
         return newMatNode
 
 
