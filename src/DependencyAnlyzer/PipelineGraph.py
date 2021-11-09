@@ -82,6 +82,7 @@ class PipelineGraph:
         allHeaderFieldUsedInActionsOfAllMAT = []
         for tbl in pipelineObject.tables:
             if(type(tbl) == Table):
+                print("In header analyzer table name is "+tbl.name)
                 allHeaderFieldUsedInOneMAT = tbl.getAllMatchFields()
                 allHeaderFieldUsedInActionsOfOneMAT = self.getAllFieldsModifedInActionsOfTheTable(tbl.name)
                 if len(allHeaderFieldUsedInOneMAT)>0:
@@ -211,10 +212,35 @@ class PipelineGraph:
         #         print(n)
         #     else:
         #         print(n.name)
+        self.addStatefulMemoryDependencies()
+        self.calculateNodeInDegrees()
+        self.calculateLevels( self.allTDGNode.get(confConst.DUMMY_START_NODE))
+        graphTobedrawn = nx.MultiDiGraph()
+        self.pipeline.resetAllIsVisitedVariableForGraph()
+        if(self.allTDGNode.get(confConst.DUMMY_START_NODE) != None):
+            self.allTDGNode.get(confConst.DUMMY_START_NODE).originalP4node.is_visited_for_graph_drawing = GraphColor.WHITE
+        if(self.allTDGNode.get(confConst.DUMMY_END_NODE) != None):
+            self.allTDGNode.get(confConst.DUMMY_END_NODE).originalP4node.is_visited_for_graph_drawing = GraphColor.WHITE
+        self.getTDGGraphWithAllDepenedencyAndMatNode(curNode = self.allTDGNode.get(confConst.DUMMY_START_NODE), predNode=None, dependencyBetweenCurAndPred=None, tdgGraph=graphTobedrawn, printLevel=True)
+        self.drawPipeline(nxGraph = graphTobedrawn, filePath="final-graph"+str(self.pipelineID)+".jpg")
         pass
 
 
-
+    def calculateNodeInDegrees(self):
+        for matNodeName1 in self.allTDGNode.keys():
+            matNode1 = self.allTDGNode.get(matNodeName1)
+            for matNodeName2 in self.allTDGNode.keys():
+                matNode2 = self.allTDGNode.get(matNodeName2)
+                if(matNode1.dependencies.keys().__contains__(matNode2.name)):
+                    matNode2.inDegree = matNode2.inDegree+1
+                for sfMem in matNode1.statefulMemoryDependencies.keys():
+                    depList = matNode1.statefulMemoryDependencies.get(sfMem)
+                    for dep in depList:
+                        if dep.name == matNode2.name:
+                            matNode2.inDegree = matNode2.inDegree+1
+        for matNodeName in self.allTDGNode.keys():
+            matNode = self.allTDGNode.get(matNodeName)
+            print("Indegress of node "+matNode.name+" is : "+str(matNode.inDegree))
     #====================================== Functions related to conditional processing STARTS Here ==================================================
     def preprocessConditionalNodeRecursively(self, nodeName, callernode, toPrint= True ):
         node = self.getNodeWithActionsForConditionalPreProcessing(nodeName)
@@ -750,6 +776,7 @@ class PipelineGraph:
             print(regName)
         newMatNode = matNodeTobeBifurcated.bifurcateNodeBasedOnStatefulMemeory(statefulMemoryListOfBaseNode,
                 newMatPrefix=confConst.BIFURCATED_MAT_NAME_PREFIX, pipelineGraph= self, pipelineID = self.pipelineID, parsedP4Program=self.parsedP4Program)
+        self.addStatefulMemoryDependencies()
         return (matNodeTobeBifurcated, newMatNode)
         #Keep old mat's level to old and new mat level to current max
         #
@@ -771,4 +798,42 @@ class PipelineGraph:
         # newMatNode.finalLevel = -1
         # newMatNode.selfStatefulMemoryNameToLevelMap={}
         # newMatNode.neighbourAssignedStatefulMemoryNameToLevelMap={}
+
+    def calculateLevels(self, curMatNode):
+        if(curMatNode == None):
+            logger.info("Severe error. Mat node can not be None in calculateLevels. Debug. exiting. ")
+            print("Severe error. Mat node can not be None in calculateLevels. Debug. exiting. ")
+            exit(1)
+        print("CurMAtnode name is "+curMatNode.name)
+        if curMatNode.name == confConst.DUMMY_END_NODE:
+            return -1
+        if(curMatNode.name != confConst.DUMMY_START_NODE) and (curMatNode.inDegree <=0):
+            return curMatNode.getMaxLevelOfAllStatefulMemories()
+        curMatNode.inDegree = curMatNode.inDegree -1
+
+
+        childLevelList=[]
+        for depKey in curMatNode.dependencies.keys():
+            dep = curMatNode.dependencies.get(depKey)
+            nxtMatNode = dep.dst
+            levelOfChild = self.calculateLevels(nxtMatNode) + 1
+            childLevelList.append(levelOfChild)
+
+        for sfMemName in curMatNode.statefulMemoryDependencies.keys():
+            sfMemDepList = curMatNode.statefulMemoryDependencies.get(sfMemName)
+            if(sfMemDepList == None):
+                continue
+            else:
+                for sfMemDep in sfMemDepList:
+                    levelOfChild = self.calculateLevels(sfMemDep)
+                    childLevelList.append(levelOfChild)
+        childLevelList.sort()
+        maxLevel = -1
+        if(len(childLevelList)>0):
+            maxLevel = childLevelList[len(childLevelList)-1]
+
+        curMatNode.setLevelOfAllStatefulMemories(maxLevel)
+
+        return maxLevel
+
 

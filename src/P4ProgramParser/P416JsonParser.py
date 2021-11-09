@@ -2600,10 +2600,7 @@ class Pipeline:
         for tbl in self.tables:
             if (type(tbl) == Table):
                 print(tbl.name)
-            elif (type(tbl) == SuperTable):
-                print(tbl.name)
-                for sTbl in tbl.subTableList:
-                    print("\tsubtable:"+sTbl.name)
+
 
 
     def removeTableByName(self,tableName):
@@ -2614,27 +2611,27 @@ class Pipeline:
                 self.tables.remove(tbl)
                 return oldTable
 
-    def swapTableName(self, oldTblName, newTblName):
-        oldTable = None
-        for tbl in self.tables:
-            if(tbl.name == oldTblName):
-                oldTable = tbl
-                self.tables.remove(tbl)
-        newSuperTable= None
-        for tbl in self.tables:
-            if(tbl.name == newTblName):
-                if type(tbl) == SuperTable:
-                    newSuperTable = tbl
-        if(oldTable!= None) and (newSuperTable!=None):
-            newSuperTable.subTableList.append(oldTable)
-        elif(oldTable!= None) and (newSuperTable==None):
-            newSuperTable = SuperTable(newTblName)
-            newSuperTable.subTableList.append(oldTable)
-            self.tables.append(newSuperTable)
-        elif(oldTable == None):
-            print("This super mat is already visited from other path")
-
-        return 
+    # def swapTableName(self, oldTblName, newTblName):
+    #     oldTable = None
+    #     for tbl in self.tables:
+    #         if(tbl.name == oldTblName):
+    #             oldTable = tbl
+    #             self.tables.remove(tbl)
+    #     newSuperTable= None
+    #     for tbl in self.tables:
+    #         if(tbl.name == newTblName):
+    #             if type(tbl) == SuperTable:
+    #                 newSuperTable = tbl
+    #     if(oldTable!= None) and (newSuperTable!=None):
+    #         newSuperTable.subTableList.append(oldTable)
+    #     elif(oldTable!= None) and (newSuperTable==None):
+    #         newSuperTable = SuperTable(newTblName)
+    #         newSuperTable.subTableList.append(oldTable)
+    #         self.tables.append(newSuperTable)
+    #     elif(oldTable == None):
+    #         print("This super mat is already visited from other path")
+    #
+    #     return
 
 
 

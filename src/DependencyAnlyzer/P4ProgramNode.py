@@ -161,6 +161,7 @@ class MATNode:
         self.finalLevel = -1
         self.selfStatefulMemoryNameToLevelMap={}
         self.bifurcationCounter = 0
+        self.inDegree= 0
         # self.neighbourAssignedStatefulMemoryNameToLevelMap={}  # TODO : this may not be necessary even . on that tcase we will remove it
         return
 
@@ -204,7 +205,7 @@ class MATNode:
             newKey.target[1] = newKey.target[1] +"_"+str(confConst.MAT_DIVIDER_KEY_COUNTER)
             parsedP4Program.nameToHeaderTypeObjectMap[keyName] = HeaderField(name = keyName,bitWidth=confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS_BIT_WIDTH, isSigned=True)
             newP4Node = Table(name = newTableName, id=self.originalP4node.id, source_info=self.originalP4node.source_info,
-                              key=[keyName], match_type=MatchType.EXACT, type=TableType, max_size=confConst.DIVIDED_MAT_MAX_ENTRIES,
+                              key=[newKey], match_type=MatchType.EXACT, type=TableType, max_size=confConst.DIVIDED_MAT_MAX_ENTRIES,
                               with_counters=True, support_timeout=True, action_ids=[], actions=actionNames,
                               next_tables=self.originalP4node.next_tables, is_visited_for_conditional_preprocessing=False,
                               is_visited_for_stateful_memory_preprocessing=False,is_visited_for_graph_drawing=GraphColor.WHITE,
@@ -218,13 +219,14 @@ class MATNode:
             newKey.target[1] = newKey.target[1] +"_"+str(confConst.MAT_DIVIDER_KEY_COUNTER)
             parsedP4Program.nameToHeaderTypeObjectMap[keyName] = HeaderField(name = keyName,bitWidth=confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS_BIT_WIDTH, isSigned=True)
             newP4Node = Table(name = newTableName, id=self.originalP4node.id, source_info=self.originalP4node.source_info,
-                              key=[keyName], match_type=MatchType.EXACT, type=TableType, max_size=confConst.DIVIDED_MAT_MAX_ENTRIES,
+                              key=[newKey], match_type=MatchType.EXACT, type=TableType, max_size=confConst.DIVIDED_MAT_MAX_ENTRIES,
                               with_counters=True, support_timeout=True, action_ids=[], actions=actionNames,
                               next_tables=self.originalP4node.next_tables, is_visited_for_conditional_preprocessing=False,
                               is_visited_for_stateful_memory_preprocessing=False,is_visited_for_graph_drawing=GraphColor.WHITE,
                               is_visited_for_TDG_processing=GraphColor.WHITE, direct_meters=[], base_default_next=None, default_entry=None, action_profile=None)
         self.next_tables=[newP4Node.name]
         newMatNode = MATNode(nodeType= P4ProgramNodeType.TABLE_NODE, name= newP4Node.name, originalP4node= newP4Node)
+        pipelineGraph.pipeline.tables.append(newP4Node)
         newMatNode.actions = newMatNodeActions
         newMatNode.ancestors = self.ancestors
         pipelineGraph.allTDGNode[newMatNode.name] = newMatNode
@@ -253,7 +255,7 @@ class MATNode:
                     pipelineGraph.registerNameToTableMap[statefulMem] = []
                 if (not(self.name in pipelineGraph.registerNameToTableMap.get(statefulMem))):
                     pipelineGraph.registerNameToTableMap.get(statefulMem).append(self.name)
-        pipelineGraph.addStatefulMemoryDependencies()
+
         # graphTobedrawn = nx.MultiDiGraph()
         # pipelineGraph.pipeline.resetAllIsVisitedVariableForGraph()
         # pipelineGraph.getTDGGraphWithAllDepenedencyAndMatNode(curNode = pipelineGraph.allTDGNode.get(confConst.DUMMY_START_NODE), predNode=None, dependencyBetweenCurAndPred=None, tdgGraph=graphTobedrawn)

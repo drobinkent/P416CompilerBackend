@@ -36,7 +36,7 @@ SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS_NAME = "local_metadata.mat_divider"
 SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS ={
     "match_type" : "exact",
     "name" : "local_metadata.mat_divider",
-    "target" : ["local_metadata", "egress_conditioanl_carry"],
+    "target" : ["local_metadata", "mat_divider"],
     "mask" : None
 }
 SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS_BIT_WIDTH = 8
@@ -46,7 +46,7 @@ SPECIAL_KEY_FOR_DIVIDING_MAT_IN_EGRESS_NAME = "local_metadata.mat_divider"
 SPECIAL_KEY_FOR_DIVIDING_MAT_IN_EGRESS ={
     "match_type" : "exact",
     "name" : "local_metadata.mat_divider",
-    "target" : ["local_metadata", "egress_conditioanl_carry"],
+    "target" : ["local_metadata", "mat_divider"],
     "mask" : None
 }
 SPECIAL_KEY_FOR_DIVIDING_MAT_IN_EGRESS_BIT_WIDTH = 8
