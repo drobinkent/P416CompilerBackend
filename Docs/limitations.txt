@@ -9,3 +9,16 @@ this we need to support tnaregister extern.
                # but in future there will be a a new preprocessor function that will actually pre process the action primitives and do them as
 5) In the convertToAction we have to add support for what type of atom for nested conditionals the hardware support. If a hardware support different kind of operations we can
 add them in this method
+
+
+
+
+------------------------- Note------------------------
+
+1) at first we have to assign correct levels to the MAt nodes. then we can skip the less stirct dependencies between nodes. But If we drop the less strict dependencies earlier
+and calculate the levels later then, it will cause trouble. Because it is foundamental change in graph.
+
+2) Assume 2 actions . first action access threee stateful memory m-1, m-2 and m-3  in this order . and another action  access these stateful memoeries in the order m-3, m-1 and m-2.
+Now. if if they are not embedded in same stage then, they an not be correctly embedded on a RMT hardware. Moreover, if there are some other stage in betwenn then it is impossbiel.
+Because that will cause loop in the TDG. In out scheme we assume that, the loop checking is already done. we do not handle these kind of loops.
+

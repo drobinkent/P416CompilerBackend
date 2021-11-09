@@ -1299,7 +1299,7 @@ class Action:
     primitives: List[Primitive]
 
     def bifurcateActionBasedOnStatefulMemeory(self,regNames, newActionNamePrefix):
-        print("I m here"+str(regNames))
+        # print("I m here"+str(regNames))
         index = -1
         for i in range(0, len(self.primitives)):
             if( self.primitives[i].containsRegister(regNames)):
@@ -2367,6 +2367,15 @@ class Key:
     name: str
     target: List[str]
     mask: None
+
+    def getHeaderName(self):
+        matchKey = ""
+        for t in self.target:
+            if(matchKey == ""):
+                matchKey = t
+            else:
+                matchKey = matchKey+"."+t
+        return matchKey
 
     @staticmethod
     def from_dict(obj: Any) -> 'Key':

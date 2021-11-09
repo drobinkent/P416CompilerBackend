@@ -82,7 +82,7 @@ class PipelineGraph:
         allHeaderFieldUsedInActionsOfAllMAT = []
         for tbl in pipelineObject.tables:
             if(type(tbl) == Table):
-                print("In header analyzer table name is "+tbl.name)
+                # print("In header analyzer table name is "+tbl.name)
                 allHeaderFieldUsedInOneMAT = tbl.getAllMatchFields()
                 allHeaderFieldUsedInActionsOfOneMAT = self.getAllFieldsModifedInActionsOfTheTable(tbl.name)
                 if len(allHeaderFieldUsedInOneMAT)>0:
@@ -223,6 +223,8 @@ class PipelineGraph:
             self.allTDGNode.get(confConst.DUMMY_END_NODE).originalP4node.is_visited_for_graph_drawing = GraphColor.WHITE
         self.getTDGGraphWithAllDepenedencyAndMatNode(curNode = self.allTDGNode.get(confConst.DUMMY_START_NODE), predNode=None, dependencyBetweenCurAndPred=None, tdgGraph=graphTobedrawn, printLevel=True)
         self.drawPipeline(nxGraph = graphTobedrawn, filePath="final-graph"+str(self.pipelineID)+".jpg")
+        stageWiseMatList = self.calculateStageWiseMatNodes()
+        self.calculateStageWiseTotalReousrceRequirements(stageWiseMatList)
         pass
 
 
@@ -240,7 +242,7 @@ class PipelineGraph:
                             matNode2.inDegree = matNode2.inDegree+1
         for matNodeName in self.allTDGNode.keys():
             matNode = self.allTDGNode.get(matNodeName)
-            print("Indegress of node "+matNode.name+" is : "+str(matNode.inDegree))
+            # print("Indegress of node "+matNode.name+" is : "+str(matNode.inDegree))
     #====================================== Functions related to conditional processing STARTS Here ==================================================
     def preprocessConditionalNodeRecursively(self, nodeName, callernode, toPrint= True ):
         node = self.getNodeWithActionsForConditionalPreProcessing(nodeName)
@@ -597,9 +599,9 @@ class PipelineGraph:
         for k in self.registerNameToTableMap:
             tblList = self.registerNameToTableMap.get(k)
             if (matNode1.name in tblList) and (matNode2.name in tblList):
-                print("Stateful memory dependency between "+matNode1.name +" and "+matNode2.name +" is "+str(k))
+                # print("Stateful memory dependency between "+matNode1.name +" and "+matNode2.name +" is "+str(k))
                 return k
-        print("Stateful memory dependency between "+matNode1.name +" and "+matNode2.name +" is None")
+        # print("Stateful memory dependency between "+matNode1.name +" and "+matNode2.name +" is None")
         return None
 
     def addStatefulMemoryDependencies(self):
@@ -689,7 +691,7 @@ class PipelineGraph:
             logger.info("Severe error. Mat node can not be None in assignLevelsToStatefulMemories. Debug. exiting. ")
             print("Severe error. Mat node can not be None in assignLevelsToStatefulMemories. Debug. exiting. ")
             exit(1)
-        print("CurMAtnode name is "+curMatNode.name)
+        # print("CurMAtnode name is "+curMatNode.name)
         if curMatNode.name == confConst.DUMMY_END_NODE:
             return -1
 
@@ -741,7 +743,7 @@ class PipelineGraph:
 
                         #Here we have to set for which stateful memory we are setting the level
 
-                        print("Temp")
+                        # print("Temp")
                     elif (sfMemDep.getMaxLevelOfAllStatefulMemories() == maxLevel):
                         logger.info("Nothing to do. ")
                     else:
@@ -758,53 +760,21 @@ class PipelineGraph:
 
 
     def biFurcateNodes(self, matNodeTobeBifurcated, baseMatNode):
-        # newNodesStatefulMemoryDependency = {}
-        # newNodesStatefulMemoryLevels={}
-        # for sfMemName in baseMatNode.statefulMemoryDependencies.keys():
-        #     newNodesStatefulMemoryDependency[sfMemName] = matNodeTobeBifurcated.statefulMemoryDependencies.pop(sfMemName) # The popped element is a list of MATNode
-        #     newNodesStatefulMemoryLevels[sfMemName] = matNodeTobeBifurcated.selfStatefulMemoryNameToLevelMap.pop(sfMemName)
-            # self.st
-            # commonStatefulMemoery = self.matToMatStatefulMemoryDependnecyAnalysis(matNodeTobeBifurcated,baseMatNode)
-            # if (commonStatefulMemoery != None):
-            #     node1.addStatefulMemoryDependency(commonStatefulMemoery,node2)
-            #     node2.addStatefulMemoryDependency(commonStatefulMemoery, node1)
-        #TODO for statefulememory dependency resolving simply update the registerNAmeToTableMap correctly. yhen call the function for stateful memory
-        #depndency analysis. That should do the work. but before that need to divide the node and build two node with dependencies.
-
         statefulMemoryListOfBaseNode = list(baseMatNode.statefulMemoryDependencies.keys())
-        for regName in statefulMemoryListOfBaseNode:
-            print(regName)
+        # for regName in statefulMemoryListOfBaseNode:
+        #     print(regName)
         newMatNode = matNodeTobeBifurcated.bifurcateNodeBasedOnStatefulMemeory(statefulMemoryListOfBaseNode,
                 newMatPrefix=confConst.BIFURCATED_MAT_NAME_PREFIX, pipelineGraph= self, pipelineID = self.pipelineID, parsedP4Program=self.parsedP4Program)
         self.addStatefulMemoryDependencies()
         return (matNodeTobeBifurcated, newMatNode)
-        #Keep old mat's level to old and new mat level to current max
-        #
-        # val = matNodeTobeBifurcated.actions.primitives -- eder majhe jegulo ei stateful memory te thake tader k rakho bakider . arekta te pathao.
-        # newMatNode = MATNode(nodeType= P4ProgramNodeType.TABLE_NODE, name= baseMatNode.name+"_divided_part", originalP4node= None) # the original P4Node have to be setup. otherwise graph traersal will not work
-        # newMatNode.nextNodes= [matNodeTobeBifurcated]
-        # newMatNode.matchKeyFields = []
-        # newMatNode.actions= []
-        # newMatNode.originalP4node = None
-        # newMatNode.isVisitedForDraw=False
-        # newMatNode.actionObjectList  = []
-        # newMatNode.isVisitedForTDGProcessing=False
-        # newMatNode.subTableMatNodes = []
-        # newMatNode.predecessors = {}
-        # newMatNode.ancestors = {}
-        # newMatNode.dependencies = {}
-        # newMatNode.statefulMemoryDependencies = {}
-        # newMatNode.levelForStatefulMemory=-1
-        # newMatNode.finalLevel = -1
-        # newMatNode.selfStatefulMemoryNameToLevelMap={}
-        # newMatNode.neighbourAssignedStatefulMemoryNameToLevelMap={}
+
 
     def calculateLevels(self, curMatNode):
         if(curMatNode == None):
             logger.info("Severe error. Mat node can not be None in calculateLevels. Debug. exiting. ")
             print("Severe error. Mat node can not be None in calculateLevels. Debug. exiting. ")
             exit(1)
-        print("CurMAtnode name is "+curMatNode.name)
+        # print("CurMAtnode name is "+curMatNode.name)
         if curMatNode.name == confConst.DUMMY_END_NODE:
             return -1
         if(curMatNode.name != confConst.DUMMY_START_NODE) and (curMatNode.inDegree <=0):
@@ -835,5 +805,69 @@ class PipelineGraph:
         curMatNode.setLevelOfAllStatefulMemories(maxLevel)
 
         return maxLevel
+
+    def calculateStageWiseMatNodes(self):
+        levelWiseMatList = {}
+        for nodeName in self.allTDGNode.keys():
+            matNode = self.allTDGNode.get(nodeName)
+            level = matNode.getMaxLevelOfAllStatefulMemories()
+            if(levelWiseMatList.get(level) == None):
+                levelWiseMatList[level] = []
+            levelMatList = levelWiseMatList.get(level)
+            levelMatList.append(matNode)
+        return levelWiseMatList
+
+    def calculateStageWiseTotalReousrceRequirements(self, stageWiseMatMap):
+        perStageHwRequirementsForThePipeline = {}
+        for k in stageWiseMatMap.keys():
+            print("===============================================================================================================================")
+            print("Stage:------------------"+str(k))
+            if(k==-1):
+                print("This is a dummy stage to handle a dummy node in the TDG. Not really mapped to the hardware. So please skip it. ")
+            stageMatList = stageWiseMatMap.get(k)
+            totalnumberofFieldsBeingModified = 0
+            headerBitWidthOfFieldsBeingModified = 0
+            totalNumberOfFieldsUsedAsParameter = 0
+            totalBitWidthOfFieldsUsedAsParameter = 0
+            totalBitWidthOfTheAction=0
+            maxBitWidthOfAction =0
+            matKeyBitWidth = 0
+            matKeyLength = 0
+            for m in stageMatList:
+                listOfFieldBeingModifedInThisStage = []
+                listOfFieldBeingUsedAsParameterInThisStage = []
+                print("MAT node: "+m.name)
+                print("Match Keys are: ")
+                actionIndex = 0
+                for f in m.originalP4node.key:
+                    matKeyBitWidth =  matKeyBitWidth + self.parsedP4Program.getHeaderBitCount(f.getHeaderName())
+                    print("\t\t *) "+str(f))
+                    matKeyLength = matKeyLength + len(m.originalP4node.key)
+                print("Actions are: ")
+                for a in m.actions:
+                    actionIndex= actionIndex+1
+                    listOfFieldBeingModifed, listOfFieldBeingUsed = a.getListOfFieldsModifedAndUsed()
+                    listOfFieldBeingModifedInThisStage= listOfFieldBeingModifedInThisStage + listOfFieldBeingModifed
+                    listOfFieldBeingUsedAsParameterInThisStage = listOfFieldBeingUsedAsParameterInThisStage + listOfFieldBeingUsed
+                    print("\t "+str(actionIndex)+" Action Nanme: "+a.name)
+                    print("\t Primitives used in action are: ")
+                    for prim in a.primitives:
+                        print("\t\t *) "+str(prim.source_info))
+                    for f in listOfFieldBeingModifed:
+                        totalnumberofFieldsBeingModified  = totalnumberofFieldsBeingModified + 1
+                        # print("Header name is "+f)
+                        hdrBitCount = self.parsedP4Program.getHeaderBitCount(f)
+                        totalBitWidthOfTheAction = totalBitWidthOfTheAction + hdrBitCount
+                        headerBitWidthOfFieldsBeingModified = headerBitWidthOfFieldsBeingModified + hdrBitCount
+                    for f in listOfFieldBeingUsed:
+                        # print("Header name is "+f)
+                        totalNumberOfFieldsUsedAsParameter = totalNumberOfFieldsUsedAsParameter + 1
+                        hdrBitCount = self.parsedP4Program.getHeaderBitCount(f)
+                        totalBitWidthOfFieldsUsedAsParameter = totalBitWidthOfFieldsUsedAsParameter + hdrBitCount
+                        totalBitWidthOfTheAction = totalBitWidthOfTheAction + hdrBitCount
+                    if(totalBitWidthOfTheAction > maxBitWidthOfAction):
+                        maxBitWidthOfAction = totalBitWidthOfTheAction
+            perStageHwRequirementsForThePipeline[k] = (totalnumberofFieldsBeingModified,headerBitWidthOfFieldsBeingModified, totalNumberOfFieldsUsedAsParameter,totalBitWidthOfFieldsUsedAsParameter, listOfFieldBeingModifedInThisStage, listOfFieldBeingUsedAsParameterInThisStage,maxBitWidthOfAction, matKeyLength, matKeyBitWidth)
+
 
 
