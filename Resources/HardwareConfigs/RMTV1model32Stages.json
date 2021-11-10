@@ -1,0 +1,56 @@
+{
+  "Name": "RMTV1Model32Stage",
+  "TotalStages": 32,
+  "ActionCrossbarBitWidth": 1280,
+  "MatchCrossbarBitWidth": 1280,
+  "HeaderVectorSpecs": [
+    {
+    "BitWidth": 8,
+    "Count": 16
+  },
+    {
+      "BitWidth": 16,
+      "Count": 32
+    }
+  ],
+  "StageDescription": [
+    {
+      "Index": 0,
+      "TCAMMatFieldCount": 8,
+      "SRAMMatFieldCount": 8,
+      "SRAMBlockSpecs": {
+        "MemoryPortWidth": 112,
+        "MemoryPortCount": 8,
+        "MemoryBlockCount": 106,
+        "MemoryBlockBitWidth": 112,
+        "MemoroyBlockRowCount": 1024
+      },
+      "TCAMMatSpec": {
+        "Count": 16,
+        "SupportedMatchTypes": {
+          "exact": true,
+          "lpm": true,
+          "range": true,
+          "ternary": true
+        },
+        "PerTCAMMatSpec": {
+          "TCAMBitWidth": 40,
+          "TCAMRowCount": 2048
+        }
+      },
+      "SRAMMatSpec": {
+        "Count": 16,
+        "SupportedMatchTypes": {
+          "exact": true,
+          "lpm": false,
+          "range": false,
+          "ternary": false
+        },
+        "PerSRAMMatSpec": {
+          "SRAMBitWidth": 80,
+          "HashingWay": 4
+        }
+      }
+    }
+  ]
+}

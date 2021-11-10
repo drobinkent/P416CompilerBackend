@@ -224,7 +224,7 @@ class PipelineGraph:
         self.getTDGGraphWithAllDepenedencyAndMatNode(curNode = self.allTDGNode.get(confConst.DUMMY_START_NODE), predNode=None, dependencyBetweenCurAndPred=None, tdgGraph=graphTobedrawn, printLevel=True)
         self.drawPipeline(nxGraph = graphTobedrawn, filePath="final-graph"+str(self.pipelineID)+".jpg")
         stageWiseMatList = self.calculateStageWiseMatNodes()
-        self.calculateStageWiseTotalReousrceRequirements(stageWiseMatList)
+        # self.calculateStageWiseTotalReousrceRequirements(stageWiseMatList)
         pass
 
 
@@ -818,6 +818,8 @@ class PipelineGraph:
         return levelWiseMatList
 
     def calculateStageWiseTotalReousrceRequirements(self, stageWiseMatMap):
+        # TODO This function should not be here. IT should be in the hardware class iteself. Because resources are not part of the parsedP3program. They are part of
+        # the hardware itself. So we should movie it to there.
         perStageHwRequirementsForThePipeline = {}
         for k in stageWiseMatMap.keys():
             print("===============================================================================================================================")

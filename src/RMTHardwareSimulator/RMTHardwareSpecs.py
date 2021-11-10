@@ -9,6 +9,7 @@ class HeaderFieldDefinition:
 
 class RMTV1ModelHardware:
 
+
     def __init__(self, headerFieldSpecs): # headerFieldSpecs map will contain "header field width" : "count" data .
         self.pakcetHeaderVectorFieldSizeVsCountMap= headerFieldSpecs
 
@@ -106,7 +107,7 @@ class RMTV1ModelHardware:
                 total_weight += bin_weight
             print('Total packed weight:', total_weight)
             if(total_weight != totalHeaderWidthRequiredByP4Program):
-                print("The optimed header mapping find process is able to map only: "+str(total_weight)+" bits in the packet header vector of the hardware. whereas the program requires "+str(totalHeaderWidthRequiredByP4Program)+" bits. Hence it is failed. ")
+                print("The optimized header mapping find process is able to map only: "+str(total_weight)+" bits in the packet header vector of the hardware. whereas the program requires "+str(totalHeaderWidthRequiredByP4Program)+" bits. Hence it is failed. ")
                 print("Stopping further execution and exiting")
                 exit(1)
             else:

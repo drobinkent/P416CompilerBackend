@@ -2,3 +2,5 @@
         -- therefore when we do the conditional processing, we can basically replace the conditional with this action.
         #TODO : In the newPrimitive we need to add a new op. for example, when the relational op in the conditional expression is a>b, if we want to
         #Convert it into if a>b then write 1 into header field else write 0 in the header field.
+
+ 2) header bit count a amra shudhu 8 bit aer multiple dekhechei. But amader actually hishab korte hobe hardware er j bit spec deya hoyehe tar upor base kore.

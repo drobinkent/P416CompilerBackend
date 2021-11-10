@@ -1,0 +1,74 @@
+{
+  "Name": "InstructionSet",
+  "ALUInstructions":[
+    {
+      "name": "8BitArithmaticInstruction",
+      "ALUBitwidth": 8,
+      "op": [
+        "+",
+        "-",
+        "*",
+        "/",
+        "<<",
+        ">>",
+        "and",
+        "or",
+        "xor",
+        "<",
+        "<=",
+        ">",
+        ">=",
+        "==",
+        "!=",
+        "&",
+        "|",
+        "^",
+        "assign"
+      ],
+      "parameters":[
+        {
+          "name": "result",
+          "bitwidth": 8
+        },{
+          "name": "left",
+          "bitwidth": 8
+        },{
+          "name": "right",
+          "bitwidth": 8
+        }
+      ]
+    }
+  ],
+  "ExternInstructions":[
+    {
+      "name": "RegisterReadExtern",
+      "op": "register_read",
+      "parameters":[
+        {
+          "name": "result",
+          "bitwidth": 8
+        },{
+          "name": "left",
+          "bitwidth": 8
+        },{
+          "name": "right",
+          "bitwidth": 8
+        }
+      ]
+    },{
+      "name": "RegisterWriteExtern",
+      "op": "register_write",
+      "parameters":[
+        {
+          "name": "result",
+          "bitwidth": 8
+        },{
+          "name": "left",
+          "bitwidth": 8
+        },{
+          "name": "right",
+          "bitwidth": 8
+        }
+        }
+  ]
+}
