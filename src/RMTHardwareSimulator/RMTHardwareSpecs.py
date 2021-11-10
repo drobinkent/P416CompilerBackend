@@ -1,11 +1,6 @@
 from ortools.linear_solver import pywraplp
 
 
-class HeaderFieldDefinition:
-
-    def __init__(self,headerFieldWidth, count):
-        self.headerFieldWidth = headerFieldWidth
-        self.count = count
 
 class RMTV1ModelHardware:
 

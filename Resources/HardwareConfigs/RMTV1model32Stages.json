@@ -4,11 +4,15 @@
   "HeaderVectorSpecs": [
     {
     "BitWidth": 8,
-    "Count": 16
-  },
+    "Count": 64
+    },
     {
       "BitWidth": 16,
-      "Count": 32
+      "Count": 96
+    },
+    {
+      "BitWidth": 32,
+      "Count": 64
     }
   ],
   "StageDescription": [
@@ -54,22 +58,26 @@
       },
       "ALUResources": [
         {
-          "name": "8bitALU",
-          "count": 16
+          "name": "8BitAluInstructions",
+          "count": 64
         },
         {
-          "name": "16bitALU",
-          "count": 16
+          "name": "16BitAluInstructions",
+          "count": 96
+        },
+        {
+          "name": "32BitAluInstructions",
+          "count": 64
         }
       ],
       "ExternResources": [
         {
-          "name": "8bitALU",
-          "count": 16
+          "name": "RegisterReadExtern",
+          "count": 224
         },
         {
-          "name": "16bitALU",
-          "count": 16
+          "name": "RegisterWriteExtern",
+          "count": 224
         }
       ]
     }
