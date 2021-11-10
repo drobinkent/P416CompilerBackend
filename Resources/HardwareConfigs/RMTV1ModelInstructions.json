@@ -45,13 +45,13 @@
       "op": "register_read",
       "parameters":[
         {
-          "name": "result",
+          "name": "register_array",
           "bitwidth": 8
         },{
-          "name": "left",
+          "name": "index",
           "bitwidth": 8
         },{
-          "name": "right",
+          "name": "value",
           "bitwidth": 8
         }
       ]

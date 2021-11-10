@@ -1,8 +1,6 @@
 {
   "Name": "RMTV1Model32Stage",
   "TotalStages": 32,
-  "ActionCrossbarBitWidth": 1280,
-  "MatchCrossbarBitWidth": 1280,
   "HeaderVectorSpecs": [
     {
     "BitWidth": 8,
@@ -15,42 +13,65 @@
   ],
   "StageDescription": [
     {
-      "Index": 0,
-      "TCAMMatFieldCount": 8,
-      "SRAMMatFieldCount": 8,
-      "SRAMBlockSpecs": {
+      "Index": "0-31",
+      "ActionCrossbarBitWidth": 1280,
+      "SRAMResources": {
         "MemoryPortWidth": 112,
         "MemoryPortCount": 8,
         "MemoryBlockCount": 106,
         "MemoryBlockBitWidth": 112,
         "MemoroyBlockRowCount": 1024
       },
-      "TCAMMatSpec": {
-        "Count": 16,
+      "TCAMMatResources": {
+        "TCAMMatFieldCount": 8,
+        "MatchCrossbarBitWidth": 640,
+        "BlockCount": 16,
         "SupportedMatchTypes": {
           "exact": true,
           "lpm": true,
           "range": true,
           "ternary": true
         },
-        "PerTCAMMatSpec": {
+        "PerTCAMMatBlockSpec": {
           "TCAMBitWidth": 40,
           "TCAMRowCount": 2048
         }
       },
-      "SRAMMatSpec": {
-        "Count": 16,
+      "SRAMMatResources": {
+        "SRAMMatFieldCount": 8,
+        "MatchCrossbarBitWidth": 640,
+        "BlockCount": "RetrivableFromSramResources",
         "SupportedMatchTypes": {
           "exact": true,
           "lpm": false,
           "range": false,
           "ternary": false
         },
-        "PerSRAMMatSpec": {
+        "PerSRAMMatBlockSpec": {
           "SRAMBitWidth": 80,
           "HashingWay": 4
         }
-      }
+      },
+      "ALUResources": [
+        {
+          "name": "8bitALU",
+          "count": 16
+        },
+        {
+          "name": "16bitALU",
+          "count": 16
+        }
+      ],
+      "ExternResources": [
+        {
+          "name": "8bitALU",
+          "count": 16
+        },
+        {
+          "name": "16bitALU",
+          "count": 16
+        }
+      ]
     }
   ]
 }
