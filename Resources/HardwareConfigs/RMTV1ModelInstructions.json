@@ -2,7 +2,7 @@
   "Name": "InstructionSet",
   "ALUInstructions":[
     {
-      "name": "8BitArithmaticInstruction",
+      "name": "8BitAluInstructions",
       "ALUBitwidth": 8,
       "op": [
         "+",
@@ -58,6 +58,122 @@
           }
         }
       ]
+    },
+    {
+      "name": "16BitAluInstructions",
+      "ALUBitwidth": 16,
+      "op": [
+        "+",
+        "-",
+        "*",
+        "/",
+        "<<",
+        ">>",
+        "and",
+        "or",
+        "xor",
+        "<",
+        "<=",
+        ">",
+        ">=",
+        "==",
+        "!=",
+        "&",
+        "|",
+        "^",
+        "assign"
+      ],
+      "parameters":[
+        {
+          "name": "result",
+          "bitwidth": 16,
+          "SupportedDataTypes": {
+            "header-field": true,
+            "standard-metadata": true,
+            "local-metadata": true,
+            "constant": true,
+            "register": true
+          }
+        },{
+          "name": "left",
+          "bitwidth": 16,
+          "SupportedDataTypes": {
+            "header-field": true,
+            "standard-metadata": true,
+            "local-metadata": true,
+            "constant": true,
+            "register": true
+          }
+        },{
+          "name": "right",
+          "bitwidth": 16,
+          "SupportedDataTypes": {
+            "header-field": true,
+            "standard-metadata": true,
+            "local-metadata": true,
+            "constant": true,
+            "register": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "32BitAluInstructions",
+      "ALUBitwidth": 32,
+      "op": [
+        "+",
+        "-",
+        "*",
+        "/",
+        "<<",
+        ">>",
+        "and",
+        "or",
+        "xor",
+        "<",
+        "<=",
+        ">",
+        ">=",
+        "==",
+        "!=",
+        "&",
+        "|",
+        "^",
+        "assign"
+      ],
+      "parameters":[
+        {
+          "name": "result",
+          "bitwidth": 32,
+          "SupportedDataTypes": {
+            "header-field": true,
+            "standard-metadata": true,
+            "local-metadata": true,
+            "constant": true,
+            "register": true
+          }
+        },{
+          "name": "left",
+          "bitwidth": 32,
+          "SupportedDataTypes": {
+            "header-field": true,
+            "standard-metadata": true,
+            "local-metadata": true,
+            "constant": true,
+            "register": true
+          }
+        },{
+          "name": "right",
+          "bitwidth": 32,
+          "SupportedDataTypes": {
+            "header-field": true,
+            "standard-metadata": true,
+            "local-metadata": true,
+            "constant": true,
+            "register": true
+          }
+        }
+      ]
     }
   ],
   "ExternInstructions":[
@@ -67,7 +183,7 @@
       "parameters":[
         {
           "name": "register_array",
-          "bitwidth": 8,
+          "bitwidth": "LimitedBySramSpec",
           "SupportedDataTypes": {
             "header-field": true,
             "standard-metadata": true,
@@ -77,7 +193,7 @@
           }
         },{
           "name": "index",
-          "bitwidth": 8,
+          "bitwidth": 32,
           "SupportedDataTypes": {
             "header-field": true,
             "standard-metadata": true,
@@ -87,7 +203,7 @@
           }
         },{
           "name": "value",
-          "bitwidth": 8,
+          "bitwidth": "LimitedBySramSpec",
           "SupportedDataTypes": {
             "header-field": true,
             "standard-metadata": true,
@@ -103,36 +219,36 @@
       "op": "register_write",
       "parameters": [
         {
-          "name": "result",
-          "bitwidth": 8,
+          "name": "register-array",
+          "bitwidth": "LimitedBySramSpec",
           "SupportedDataTypes": {
-            "header-field": true,
-            "standard-metadata": true,
-            "local-metadata": true,
-            "constant": true,
+            "header-field": false,
+            "standard-metadata": false,
+            "local-metadata": false,
+            "constant": false,
             "register": true
           }
         },
         {
-          "name": "left",
-          "bitwidth": 8,
+          "name": "index",
+          "bitwidth": "32",
           "SupportedDataTypes": {
             "header-field": true,
             "standard-metadata": true,
             "local-metadata": true,
             "constant": true,
-            "register": true
+            "register": false
           }
         },
         {
           "name": "right",
-          "bitwidth": 8,
+          "bitwidth": "LimitedBySramSpec",
           "SupportedDataTypes": {
             "header-field": true,
             "standard-metadata": true,
             "local-metadata": true,
             "constant": true,
-            "register": true
+            "register": false
           }
         }
       ]
