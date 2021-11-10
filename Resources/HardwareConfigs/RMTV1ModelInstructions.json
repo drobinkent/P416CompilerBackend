@@ -28,13 +28,34 @@
       "parameters":[
         {
           "name": "result",
-          "bitwidth": 8
+          "bitwidth": 8,
+          "SupportedDataTypes": {
+            "header-field": true,
+            "standard-metadata": true,
+            "local-metadata": true,
+            "constant": true,
+            "register": true
+          }
         },{
           "name": "left",
-          "bitwidth": 8
+          "bitwidth": 8,
+          "SupportedDataTypes": {
+            "header-field": true,
+            "standard-metadata": true,
+            "local-metadata": true,
+            "constant": true,
+            "register": true
+          }
         },{
           "name": "right",
-          "bitwidth": 8
+          "bitwidth": 8,
+          "SupportedDataTypes": {
+            "header-field": true,
+            "standard-metadata": true,
+            "local-metadata": true,
+            "constant": true,
+            "register": true
+          }
         }
       ]
     }
@@ -46,29 +67,75 @@
       "parameters":[
         {
           "name": "register_array",
-          "bitwidth": 8
+          "bitwidth": 8,
+          "SupportedDataTypes": {
+            "header-field": true,
+            "standard-metadata": true,
+            "local-metadata": true,
+            "constant": true,
+            "register": true
+          }
         },{
           "name": "index",
-          "bitwidth": 8
+          "bitwidth": 8,
+          "SupportedDataTypes": {
+            "header-field": true,
+            "standard-metadata": true,
+            "local-metadata": true,
+            "constant": true,
+            "register": true
+          }
         },{
           "name": "value",
-          "bitwidth": 8
+          "bitwidth": 8,
+          "SupportedDataTypes": {
+            "header-field": true,
+            "standard-metadata": true,
+            "local-metadata": true,
+            "constant": true,
+            "register": true
+          }
         }
       ]
-    },{
+    },
+    {
       "name": "RegisterWriteExtern",
       "op": "register_write",
-      "parameters":[
+      "parameters": [
         {
           "name": "result",
-          "bitwidth": 8
-        },{
+          "bitwidth": 8,
+          "SupportedDataTypes": {
+            "header-field": true,
+            "standard-metadata": true,
+            "local-metadata": true,
+            "constant": true,
+            "register": true
+          }
+        },
+        {
           "name": "left",
-          "bitwidth": 8
-        },{
+          "bitwidth": 8,
+          "SupportedDataTypes": {
+            "header-field": true,
+            "standard-metadata": true,
+            "local-metadata": true,
+            "constant": true,
+            "register": true
+          }
+        },
+        {
           "name": "right",
-          "bitwidth": 8
+          "bitwidth": 8,
+          "SupportedDataTypes": {
+            "header-field": true,
+            "standard-metadata": true,
+            "local-metadata": true,
+            "constant": true,
+            "register": true
+          }
         }
-        }
+      ]
+    }
   ]
 }
