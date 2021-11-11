@@ -60,6 +60,7 @@ class RMTV1ModelHardware:
         return data
 
     def convertP4PRogramHeaderFieldSizetoPHVFieldSize(self,p4ProgramHeaderFieldSpecs):
+        # In the buildHeaderVector function we converted the header fields of the p4 orogram to multiple pf 8 bits. so this functions is not necessary.
         phvFieldsSizes = list(self.pakcetHeaderVectorFieldSizeVsCountMap.keys())
         phvFieldsSizes.sort()
         p4ProgramHeaderFieldSpecsConvertedToPHVSpecs = {}
@@ -73,7 +74,7 @@ class RMTV1ModelHardware:
                 for phvFieldSize in phvFieldsSizes:
                     p4ProgramFieldBitWidth = p4ProgramFieldBitWidth - phvFieldSize
                     phvFieldSizeForP4Programfield = phvFieldSizeForP4Programfield +  phvFieldSize
-                    if (p4ProgramFieldBitWidth <0):
+                    if (p4ProgramFieldBitWidth <=0):
                         break
             if(p4ProgramHeaderFieldSpecsConvertedToPHVSpecs.get(phvFieldSizeForP4Programfield) == None):
                 p4ProgramHeaderFieldSpecsConvertedToPHVSpecs[phvFieldSizeForP4Programfield] = count
@@ -86,8 +87,8 @@ class RMTV1ModelHardware:
 
     def mapHeaderFields(self, p4ProgramHeaderFieldSpecs):
         #TODO at first convert the p4 programs header fields size
-        p4ProgramHeaderFieldSpecs= self.convertP4PRogramHeaderFieldSizetoPHVFieldSize(p4ProgramHeaderFieldSpecs)
-        print("The converted header specs of the givne P4 program is ",p4ProgramHeaderFieldSpecs)
+        # p4ProgramHeaderFieldSpecs= self.convertP4PRogramHeaderFieldSizetoPHVFieldSize(p4ProgramHeaderFieldSpecs)
+        # print("The converted header specs of the givne P4 program is ",p4ProgramHeaderFieldSpecs)
         data = self.createDataModelForHeaderMapping(p4ProgramHeaderFieldSpecs)
         # Create the mip solver with the SCIP backend.
         solver = pywraplp.Solver.CreateSolver('BOP_INTEGER_PROGRAMMING')

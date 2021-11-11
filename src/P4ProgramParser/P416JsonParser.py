@@ -2761,8 +2761,8 @@ class ParsedP416ProgramForV1ModelArchitecture:
                 logger.error("Header Type for the header "+ h.get("name")+" is not found. Exiting")
                 exit(1)
             for htf in headerType.fields:
-                # bitWidth = math.ceil(float(htf[1]/8))*8
-                bitWidth = int(htf[1])
+                bitWidth = math.ceil(float(htf[1]/8))*8
+                # bitWidth = int(htf[1])
                 hdrObj = HeaderField(name=h.name+"."+htf[0], bitWidth= bitWidth, isSigned= htf[2])
                 self.nameToHeaderTypeObjectMap[hdrObj.name] = hdrObj
                 pass
