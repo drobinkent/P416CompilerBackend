@@ -4,3 +4,25 @@
         #Convert it into if a>b then write 1 into header field else write 0 in the header field.
 
  2) header bit count a amra shudhu 8 bit aer multiple dekhechei. But amader actually hishab korte hobe hardware er j bit spec deya hoyehe tar upor base kore.
+
+ 3) if there are 16 32b alu in a stage. we will make map of bit to alu list in alu resources map. this list will contain for which bitwdth how many alus are avaiable.
+ this is the available reoource list.
+ 3) assume we want to add a 128 bit header field. this header bit is fullfilled by 4 32 bit phv field. then
+ we will pass 32:4, add op to the stage, the stage will  make a new object, with 32:4, add op and 32:4 alu. it will also move 4 32 b alu s to used alu list.
+
+ -- the
+
+
+ when loading resource, feel availalb resource list, and make an similar type of used resource list which is empty at start. then from the availale resource list we will move to used list.
+
+
+
+ NEED to aDD maximum action per stage in json config
+
+
+
+ 1) assume a request for a 128 but header field. Now if this field was satisfied with 4 32 b phv fields then we weill request for 4 32b alu.
+ if the request can be satisified then these requests will be moved to used resource list. also we will keep track of operation header field and how we satified the operations.
+
+ 2) now assume a registe read for  a header field (this register array also need n number of entries, we will also p ass this). now if this can be satisfied, then
+ we will subtract the total space count and also reduce the avaialble memory port for this request. similarly we will also keep track of how this request was satisfied.

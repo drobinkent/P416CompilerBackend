@@ -1,17 +1,38 @@
 from ortools.linear_solver import pywraplp
 
+from RMTHardwareSimulator.RMTV1HardwareConfigurationParser import RMTV1HardwareConfiguration
+from RMTHardwareSimulator.RMTV1InstrctionSetParser import RMTV1InstrctionSet
+from utils import JsonParserUtil
 
 
 class RMTV1ModelHardware:
 
+    def __init__(self, name, instructionSetConfigurationJsonFile, hardwareSpecConfigurationJsonFile):
+        self.name = name
+        self.instructionSetConfigurationRawJsonObjects = RMTV1InstrctionSet.from_dict(JsonParserUtil.loadRowJsonAsDictFromFile(instructionSetConfigurationJsonFile))
+        self.hardwareSpecRawJsonObjects = RMTV1HardwareConfiguration.from_dict(JsonParserUtil.loadRowJsonAsDictFromFile(hardwareSpecConfigurationJsonFile))
+        self.pakcetHeaderVectorFieldSizeVsCountMap = {}
+        self.totalStages = -1
+        self.stageWiseResources= {}
 
-    def __init__(self, headerFieldSpecs): # headerFieldSpecs map will contain "header field width" : "count" data .
-        self.pakcetHeaderVectorFieldSizeVsCountMap= headerFieldSpecs
+        self.initResourcesFromRawJsonConfigurations()
+        print("Loading device configuration for " + self.name+ " completed" )
+
+
+
+    def initResourcesFromRawJsonConfigurations(self):
+        self.totalStages = self.hardwareSpecRawJsonObjects.total_stages
+
+        for rawPhvSpecsList in self.hardwareSpecRawJsonObjects.header_vector_specs:
+            self.pakcetHeaderVectorFieldSizeVsCountMap[rawPhvSpecsList.bit_width] = rawPhvSpecsList.count
+        print(self.hardwareSpecRawJsonObjects)
+
+
 
     def getPakcetHeaderVectorFieldSizeVsCountMap(self, p4ProgramHeaderFieldSpecs):
         return self.pakcetHeaderVectorFieldSizeVsCountMap
 
-    def createDataModelForHeadreMapping(self, p4ProgramHeaderFieldSpecs): # Here we are doing a reverse multile knapsack. we want to pack the
+    def createDataModelForHeaderMapping(self, p4ProgramHeaderFieldSpecs): # Here we are doing a reverse multile knapsack. we want to pack the
         data = {}
         weights = []
         values = []
@@ -38,8 +59,36 @@ class RMTV1ModelHardware:
         print("Data model is "+str(data))
         return data
 
+    def convertP4PRogramHeaderFieldSizetoPHVFieldSize(self,p4ProgramHeaderFieldSpecs):
+        phvFieldsSizes = list(self.pakcetHeaderVectorFieldSizeVsCountMap.keys())
+        phvFieldsSizes.sort()
+        p4ProgramHeaderFieldSpecsConvertedToPHVSpecs = {}
+        p4ProgramHeaderFieldSpecsbitWidthInSortedOrder = list(p4ProgramHeaderFieldSpecs.keys())
+        p4ProgramHeaderFieldSpecsbitWidthInSortedOrder.sort()
+        for bitwidth in p4ProgramHeaderFieldSpecsbitWidthInSortedOrder:
+            count = p4ProgramHeaderFieldSpecs.get(bitwidth)
+            p4ProgramFieldBitWidth = bitwidth
+            phvFieldSizeForP4Programfield = 0
+            while(p4ProgramFieldBitWidth >0):
+                for phvFieldSize in phvFieldsSizes:
+                    p4ProgramFieldBitWidth = p4ProgramFieldBitWidth - phvFieldSize
+                    phvFieldSizeForP4Programfield = phvFieldSizeForP4Programfield +  phvFieldSize
+                    if (p4ProgramFieldBitWidth <0):
+                        break
+            if(p4ProgramHeaderFieldSpecsConvertedToPHVSpecs.get(phvFieldSizeForP4Programfield) == None):
+                p4ProgramHeaderFieldSpecsConvertedToPHVSpecs[phvFieldSizeForP4Programfield] = count
+            else:
+                oldCount = p4ProgramHeaderFieldSpecsConvertedToPHVSpecs.get(phvFieldSizeForP4Programfield)
+                p4ProgramHeaderFieldSpecsConvertedToPHVSpecs[phvFieldSizeForP4Programfield] = count+oldCount
+        return p4ProgramHeaderFieldSpecsConvertedToPHVSpecs
+
+
+
     def mapHeaderFields(self, p4ProgramHeaderFieldSpecs):
-        data = self.createDataModelForHeadreMapping(p4ProgramHeaderFieldSpecs)
+        #TODO at first convert the p4 programs header fields size
+        p4ProgramHeaderFieldSpecs= self.convertP4PRogramHeaderFieldSizetoPHVFieldSize(p4ProgramHeaderFieldSpecs)
+        print("The converted header specs of the givne P4 program is ",p4ProgramHeaderFieldSpecs)
+        data = self.createDataModelForHeaderMapping(p4ProgramHeaderFieldSpecs)
         # Create the mip solver with the SCIP backend.
         solver = pywraplp.Solver.CreateSolver('BOP_INTEGER_PROGRAMMING')
         # Variables

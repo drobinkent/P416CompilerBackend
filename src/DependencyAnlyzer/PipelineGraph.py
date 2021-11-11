@@ -203,10 +203,10 @@ class PipelineGraph:
             self.allTDGNode.get(confConst.DUMMY_END_NODE).originalP4node.is_visited_for_graph_drawing = GraphColor.WHITE
         self.getTDGGraphWithAllDepenedencyAndMatNode(curNode = self.allTDGNode.get(confConst.DUMMY_START_NODE), predNode=None, dependencyBetweenCurAndPred=None, tdgGraph=graphTobedrawn, printLevel=True)
         self.drawPipeline(nxGraph = graphTobedrawn, filePath="level-graph"+str(self.pipelineID)+".jpg")
-        print("For piepline"+str(self.pipelineID)+" total GRaph nodes  after conditional processing "+str(len(nxGraph.nodes())))
+        print("For piepline"+str(self.pipelineID)+" total Graph nodes  after conditional processing "+str(len(nxGraph.nodes())))
         # for n in nxGraph.nodes():
         #     print(n)
-        print("For piepline"+str(self.pipelineID)+" total GRaph nodes  after TDG processing "+str(len(graphTobedrawn.nodes())))
+        print("For piepline"+str(self.pipelineID)+" total Graph nodes  after TDG processing "+str(len(graphTobedrawn.nodes())))
         # for n in graphTobedrawn.nodes():
         #     if(type(n) == str):
         #         print(n)

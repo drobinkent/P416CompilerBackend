@@ -19,6 +19,7 @@
     {
       "Index": "0-31",
       "ActionCrossbarBitWidth": 1280,
+      "MaximumActionsSupported": 64,
       "SRAMResources": {
         "MemoryPortWidth": 112,
         "MemoryPortCount": 8,

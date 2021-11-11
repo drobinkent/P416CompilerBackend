@@ -2736,6 +2736,18 @@ class ParsedP416ProgramForV1ModelArchitecture:
             return self.nameToHeaderTypeObjectMap
 
 
+    def buildHeaderVectorForGivenStruct(self, headerTypeName, headerType):
+        returnValue = {}
+        headerType = self.getHeaderTypeFromName(headerTypeName)
+        if (headerType == None):
+            logger.error("Header Type for the header "+headerTypeName+" is not found. Exiting")
+            exit(1)
+        for htf in headerType.fields:
+            bitWidth = math.ceil(float(htf[1]/8))*8
+            hdrObj = HeaderField(name=headerTypeName+"."+htf[0], bitWidth= bitWidth, isSigned= htf[2])
+            returnValue[hdrObj.name] = hdrObj
+        return returnValue
+
     def buildHeaderVector(self):
         self.nameToHeaderTypeObjectMap = {}
         for h in self.headers:
@@ -2749,10 +2761,19 @@ class ParsedP416ProgramForV1ModelArchitecture:
                 logger.error("Header Type for the header "+ h.get("name")+" is not found. Exiting")
                 exit(1)
             for htf in headerType.fields:
-                bitWidth = math.ceil(float(htf[1]/8))*8
+                # bitWidth = math.ceil(float(htf[1]/8))*8
+                bitWidth = int(htf[1])
                 hdrObj = HeaderField(name=h.name+"."+htf[0], bitWidth= bitWidth, isSigned= htf[2])
                 self.nameToHeaderTypeObjectMap[hdrObj.name] = hdrObj
                 pass
+        for r in self.register_arrays:
+            #We are passing register, meter and countes because they are not header field. so they do not consume any space in PHV. They are accessed to and from the header fields
+            pass
+        for c in self.counter_arrays:
+            pass
+        for m in self.meter_arrays:
+            pass
+
         # Adding two extra fields for acrrying the results of conditionals
         self.nameToHeaderTypeObjectMap[confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_KEY_NAME] = \
             HeaderField(name = confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_KEY_NAME,
