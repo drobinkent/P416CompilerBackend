@@ -1,5 +1,5 @@
 {
-  "Name": "InstructionSet",
+  "Name": "RMTV1ModelInstructionSet",
   "ALUInstructions":[
     {
       "name": "8BitAluInstructions",

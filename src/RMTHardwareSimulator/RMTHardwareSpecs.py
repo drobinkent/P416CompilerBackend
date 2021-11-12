@@ -1,9 +1,23 @@
+
+
 from ortools.linear_solver import pywraplp
 
 from RMTHardwareSimulator.RMTV1HardwareConfigurationParser import RMTV1HardwareConfiguration
 from RMTHardwareSimulator.RMTV1InstrctionSetParser import RMTV1InstrctionSet
+from RMTHardwareSimulator.StageWiseResources import StageWiseResource
 from utils import JsonParserUtil
 
+import logging
+import ConfigurationConstants as confConst
+logger = logging.getLogger('PipelineGraph')
+hdlr = logging.FileHandler(confConst.LOG_FILE_PATH )
+hdlr.setLevel(logging.INFO)
+# formatter = logging.Formatter('[%(asctime)s] p%(process)s {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s','%m-%d %H:%M:%S')
+formatter = logging.Formatter('%(message)s','%S')
+hdlr.setFormatter(formatter)
+logger.addHandler(hdlr)
+logging.StreamHandler(stream=None)
+logger.setLevel(logging.INFO)
 
 class RMTV1ModelHardware:
 
@@ -14,6 +28,8 @@ class RMTV1ModelHardware:
         self.pakcetHeaderVectorFieldSizeVsCountMap = {}
         self.totalStages = -1
         self.stageWiseResources= {}
+        self.nameToAluInstructionMap={}
+        self.nameToExternInstructionMap={}
 
         self.initResourcesFromRawJsonConfigurations()
         print("Loading device configuration for " + self.name+ " completed" )
@@ -26,6 +42,42 @@ class RMTV1ModelHardware:
         for rawPhvSpecsList in self.hardwareSpecRawJsonObjects.header_vector_specs:
             self.pakcetHeaderVectorFieldSizeVsCountMap[rawPhvSpecsList.bit_width] = rawPhvSpecsList.count
         print(self.hardwareSpecRawJsonObjects)
+        self.loadInstructionSet()
+        self.loadStageWiseResource()
+        # for i in range(0, self.totalStages):
+        #     self.stageWiseResources[i] = self.loadStageResource(i)
+
+    def loadInstructionSet(self):
+        print(self.instructionSetConfigurationRawJsonObjects)
+
+        for instruction in self.instructionSetConfigurationRawJsonObjects.alu_instructions:
+            self.nameToAluInstructionMap[instruction.name] = instruction
+
+        for instruction in self.instructionSetConfigurationRawJsonObjects.extern_instructions:
+            self.nameToExternInstructionMap[instruction.name] = instruction
+
+
+
+    def loadStageWiseResource(self):
+        print("Loading stage wise reousrces")
+        for stageResourceDescription in self.hardwareSpecRawJsonObjects.stage_description:
+            indexStrings  = stageResourceDescription.index.strip().split("-")
+            print(indexStrings)
+            if(len(indexStrings) <2):
+                logger.info("The stage index in the stage wise reosurce description must be in the format \"start_index-\"end_index")
+                print("The stage index in the stage wise reosurce description must be in the format \"start_index-\"end_index")
+                exit(1)
+            stageIndexStart = int(indexStrings[0])
+            stageIndexEnd = int(indexStrings[1])
+            for stageIndex in range(stageIndexStart, stageIndexEnd):
+                self.stageWiseResources[stageIndex] = self.loadSingleStageResource(stageIndex, stageResourceDescription)
+
+        pass
+
+    def loadSingleStageResource(self, stageIndex, stageResourceDescription):
+        print("Loaidng single stage Reousece")
+        stageResource = StageWiseResource(stageIndex,stageResourceDescription, self)
+
 
 
 
@@ -60,6 +112,7 @@ class RMTV1ModelHardware:
         return data
 
     def convertP4PRogramHeaderFieldSizetoPHVFieldSize(self,p4ProgramHeaderFieldSpecs):
+        # This function in ununsed at this moment
         # In the buildHeaderVector function we converted the header fields of the p4 orogram to multiple pf 8 bits. so this functions is not necessary.
         phvFieldsSizes = list(self.pakcetHeaderVectorFieldSizeVsCountMap.keys())
         phvFieldsSizes.sort()
