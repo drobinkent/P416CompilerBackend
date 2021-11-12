@@ -75,7 +75,7 @@ class RMTV1ModelHardware:
         pass
 
     def loadSingleStageResource(self, stageIndex, stageResourceDescription):
-        print("Loaidng single stage Reousece")
+        print("Loaidng  Reourses for stage "+str(stageIndex))
         stageResource = StageWiseResource(stageIndex,stageResourceDescription, self)
 
 

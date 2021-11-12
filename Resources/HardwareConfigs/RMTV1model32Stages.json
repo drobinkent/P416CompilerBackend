@@ -74,11 +74,11 @@
       "ExternResources": [
         {
           "name": "RegisterReadExtern",
-          "count": 224
+          "count": 8
         },
         {
           "name": "RegisterWriteExtern",
-          "count": 224
+          "count": 8
         }
       ]
     }
