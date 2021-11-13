@@ -14,6 +14,8 @@ p4ProgramGraph = P4ProgramGraph(p4program)
 p4ProgramGraph.loadPipelines()
 headerFieldSpecsInP4Program = p4ProgramGraph.headeranalyzer()
 hw.mapHeaderFields(headerFieldSpecsInP4Program)
+hw.embedP4ProgramAccordingToSingleMatrix(p4ProgramGraph)
+
 #===================== Upto here header mappign is done
 
 

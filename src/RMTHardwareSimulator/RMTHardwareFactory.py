@@ -1,4 +1,4 @@
-from RMTHardwareSimulator.RMTHardwareSpecs import RMTV1ModelHardware
+from RMTHardwareSimulator.RMTV1ModelHardware import RMTV1ModelHardware
 
 
 

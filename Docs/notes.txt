@@ -1,0 +1,18 @@
+L.Jose has used 3 metrics for sroting the table in their paper
+
+1) Dependency: Now this is defined by the logical stage levels for the tables. In our system we at first assign appropriate logical stages for the logical MATs.
+It implies that, a table with lengthy chain of ligical tables will have higher logical stage level. hence they will be assigned first. So in logical
+stage level calculation the sorting is already implemented. therefore for the next two types of metrics we need  to do sorting when we embed the logical MAT according
+on the physical stages.
+
+2) Word width:
+
+3) Memory Types:
+
+
+
+our variations
+
+a) only table - level -- no specific ordering of the tables in same level
+b) prioritize tables with wider match fields.. implies both table level and match weidth is conbsidered
+c) then prioritize action width. implies both table level and action weidth is conbsidered. suitable for programs where tables have smaller match width but high action width .

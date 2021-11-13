@@ -68,6 +68,7 @@ class PipelineGraph:
         self.swappedTableMapForStatefulMemoryBasedPreprocessing = {}
         self.allTDGNode = {}
         self.allTDGNode[confConst.DUMMY_START_NODE] = self.dummyStart
+        self.stageWiseLogicalMatList = {}
 
 
     def headeranalyzerForSinglePipeline(self):
@@ -223,7 +224,7 @@ class PipelineGraph:
             self.allTDGNode.get(confConst.DUMMY_END_NODE).originalP4node.is_visited_for_graph_drawing = GraphColor.WHITE
         self.getTDGGraphWithAllDepenedencyAndMatNode(curNode = self.allTDGNode.get(confConst.DUMMY_START_NODE), predNode=None, dependencyBetweenCurAndPred=None, tdgGraph=graphTobedrawn, printLevel=True)
         self.drawPipeline(nxGraph = graphTobedrawn, filePath="final-graph"+str(self.pipelineID)+".jpg")
-        stageWiseMatList = self.calculateStageWiseMatNodes()
+        self.stageWiseLogicalMatList = self.calculateStageWiseMatNodes()
         # self.calculateStageWiseTotalReousrceRequirements(stageWiseMatList)
         pass
 
