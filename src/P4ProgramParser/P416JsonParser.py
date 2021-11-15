@@ -1432,6 +1432,7 @@ class Action:
                 for i in range (1, len(prim.parameters)):
                     param = prim.parameters[i]
                     valuesUsedInTheprimitive = self.getParameterNameAsList(param)
+                    listOfFieldBeingUsed = listOfFieldBeingUsed + valuesUsedInTheprimitive
 
             elif ((prim.op == PrimitiveOp.REMOVE_HEADER) or (prim.op == PrimitiveOp.ADD_HEADER)  or (prim.op == PrimitiveOp.MARK_TO_DROP)):
                 headerTypeName = prim.parameters[0].headerValue
@@ -1486,7 +1487,7 @@ class Action:
             elif (prim.op == PrimitiveOp.COUNT):
                 if(type(prim.parameters[0])==CounterArrayPrimitive):
                     listOfStatefulMemoryBeingAccessed.append(prim.parameters[0].counterArrayName)
-                    #TODO : a piece of caution counter is not well supported in bmv2 json. The json does not provide the counter index as parameter
+                    #TODO : a piece of caution:::  counter is not well supported in bmv2 json. The json does not provide the counter index as parameter
                 else:
                     print("The first parameter in a count operation must have to be a counter. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
                     exit(1)
@@ -1500,9 +1501,101 @@ class Action:
 
         return listOfFieldBeingModifed, listOfFieldBeingUsed
 
-    def getResourceRequirementOfTheAction(self):
-        pass
 
+    def getResourceRequirementOfTheAction(self,parsedP4Program):
+        #This function is used for dependency analysis. Btu when we want to calculate the physical resource (like, bitwidth, sram storage etc) concusmption, we have to use other method
+        listOfFieldBeingModifed = []
+        listOfFieldBeingUsed = []
+        listOfStatefulMemoryBeingAccessed= []
+
+        for prim in self.primitives:
+            if(prim.op == PrimitiveOp.ASSIGN) :
+                param = prim.parameters[0]
+                val = param.header_name + "."+ param.field_memeber_name
+                listOfFieldBeingModifed.append(val)
+                i=1
+                for i in range (1, len(prim.parameters)):
+                    param = prim.parameters[i]
+                    valuesUsedInTheprimitive = self.getParameterNameAsList(param)
+                    listOfFieldBeingUsed = listOfFieldBeingUsed  + valuesUsedInTheprimitive
+            elif(prim.op == PrimitiveOp.GREATER_THAN_EQUAL_WRITE) or  (prim.op == PrimitiveOp.GREATER_THAN_WRITE) \
+                    or (prim.op == PrimitiveOp.LESS_THAN_WRITE) or (prim.op == PrimitiveOp.LESS_THAN_EQUAL_WRITE) \
+                    or (prim.op == PrimitiveOp.NOT_EQUAL_WRITE) or (prim.op == PrimitiveOp.EQUAL_WRITE) \
+                    or (prim.op == PrimitiveOp.AND_WRITE) or (prim.op == PrimitiveOp.OR_WRITE) or \
+                    (prim.op == PrimitiveOp.MODIFY_FIELD_WITH_HASH_BASED_OFFSET):
+                param = prim.parameters[0]
+                listOfFieldBeingModifed = listOfFieldBeingModifed + self.getParameterNameAsList(param)
+                for i in range (1, len(prim.parameters)):
+                    param = prim.parameters[i]
+                    valuesUsedInTheprimitive = self.getParameterNameAsList(param)
+                    listOfFieldBeingUsed = listOfFieldBeingUsed + valuesUsedInTheprimitive
+
+            elif ((prim.op == PrimitiveOp.REMOVE_HEADER) or (prim.op == PrimitiveOp.ADD_HEADER)  or (prim.op == PrimitiveOp.MARK_TO_DROP)):
+                headerTypeName = prim.parameters[0].headerValue
+                listOfFieldBeingModifed = listOfFieldBeingModifed + parsedP4Program.getAllHeaderFieldsForHeaderType(headerTypeName)
+
+            elif ((prim.op == PrimitiveOp.REGISTER_READ)):
+                if(type(prim.parameters[0])==PrimitiveField):
+                    listOfFieldBeingModifed.append(prim.parameters[0].getHeaderFieldName())
+                else:
+                    print("The first parameter in a reigster read operation must have to be a header field. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
+                    exit(1)
+                if(type(prim.parameters[1])==RegisterArrayPrimitive):
+                    listOfStatefulMemoryBeingAccessed.append(prim.parameters[1].registerArrayName)
+                else:
+                    print("The second parameter in a reigster read must have to be a register array. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
+                    exit(1)
+                if(type(prim.parameters[2])==PrimitiveField) or (type(prim.parameters[2])==HexStr):
+                    listOfFieldBeingUsed = listOfFieldBeingUsed + self.getParameterNameAsList(prim.parameters[2])
+                else:
+                    print("The third parameter in a reigster read must have to be a HexStr or header field. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
+                    exit(1)
+
+                pass
+            elif ((prim.op == PrimitiveOp.REGISTER_WRITE) ):
+                if(type(prim.parameters[0])==RegisterArrayPrimitive):
+                    listOfStatefulMemoryBeingAccessed.append(prim.parameters[0].registerArrayName)
+                else:
+                    print("The first parameter in a reigster write must have to be a register array. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
+                    exit(1)
+                for i in range (1, len(prim.parameters)):
+                    param = prim.parameters[i]
+                    valuesUsedInTheprimitive = self.getParameterNameAsList(param)
+                    listOfFieldBeingUsed = listOfFieldBeingUsed  + valuesUsedInTheprimitive
+
+            elif (prim.op == PrimitiveOp.EXIT):
+                pass
+            elif (prim.op == PrimitiveOp.CLONE_EGRESS_PKT_TO_EGRESS) or (prim.op == PrimitiveOp.RECIRCULATE):
+                logger.info("CONING AND RECIRCULATION IS NOT handled yet. BUT they do not immpact the resource consumption of the compiler. Because the recirculation or "+ \
+                            "Cloning is handled by a standard metadata field. We already considered it in header space consumption. We should add a assign operation here though ")
+                pass
+            elif (prim.op == PrimitiveOp.EXECUTE_METER):
+                if(type(prim.parameters[0])==MeterArrayPrimitive):
+                    listOfStatefulMemoryBeingAccessed.append(prim.parameters[0].meterArrayName)
+                    #TODO : a piece of caution counter is not well supported in bmv2 json. The json does not provide the counter index as parameter
+                else:
+                    print("The first parameter in a meter operation must have to be a meter name. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
+                    exit(1)
+                for i in range (1, len(prim.parameters)):
+                    param = prim.parameters[i]
+                    valuesUsedInTheprimitive = self.getParameterNameAsList(param)
+                    listOfFieldBeingUsed = listOfFieldBeingUsed  + valuesUsedInTheprimitive
+            elif (prim.op == PrimitiveOp.COUNT):
+                if(type(prim.parameters[0])==CounterArrayPrimitive):
+                    listOfStatefulMemoryBeingAccessed.append(prim.parameters[0].counterArrayName)
+                    #TODO : a piece of caution:::  counter is not well supported in bmv2 json. The json does not provide the counter index as parameter
+                else:
+                    print("The first parameter in a count operation must have to be a counter. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
+                    exit(1)
+            else:
+                logger.info("Primitive OP:"+ str(prim.op)+" not supported yet.Exiting")
+                print("Primitive OP:"+ str(prim.op)+" not supported yet.Exiting")
+                exit(1)
+
+            #TODO: in the final framework we need to suport meter execution
+
+
+        return listOfFieldBeingModifed, listOfFieldBeingUsed
 
 class ParserOpOp(Enum):
     EXTRACT = "extract"
@@ -2323,11 +2416,15 @@ class Conditional:
 
             if(pipelineId == PipelineID.INGRESS_PIPELINE):
                 parameters.append(HeaderField(name = confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_KEY_NAME,
-                                              bitWidth=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH, isSigned=True))
+                                              bitWidth=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH, isSigned=True,\
+                                              mutlipleOf8Bitwidth= confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH,\
+                                              mappedPhyscialHeaderVectorFieldBitwdith=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH))
 
             elif(pipelineId == PipelineID.EGRESS_PIPELINE):
                 parameters.append(HeaderField(name = confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_KEY_NAME,
-                                              bitWidth=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_BIT_WIDTH, isSigned=True))
+                                              bitWidth=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_BIT_WIDTH, isSigned=True, \
+                                              mutlipleOf8Bitwidth= confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_BIT_WIDTH, \
+                                              mappedPhyscialHeaderVectorFieldBitwdith=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_BIT_WIDTH))
             parameters.append(self.expression.value.right)
             parameters.append(HexStr(hexValue="0x0"))
             parameters.append(HexStr(hexValue="0x1")) #0 for false , 1 for true
@@ -2337,10 +2434,14 @@ class Conditional:
         else:
             if(pipelineId == PipelineID.INGRESS_PIPELINE):
                 parameters.append(HeaderField(name = confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_KEY_NAME,
-                                              bitWidth=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH, isSigned=True))
+                                              bitWidth=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH, isSigned=True, \
+                                              mutlipleOf8Bitwidth= confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH, \
+                                              mappedPhyscialHeaderVectorFieldBitwdith=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH))
             elif(pipelineId == PipelineID.EGRESS_PIPELINE):
                 parameters.append(HeaderField(name = confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_KEY_NAME,
-                                              bitWidth=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_BIT_WIDTH, isSigned=True))
+                                              bitWidth=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_BIT_WIDTH, isSigned=True, \
+                                              mutlipleOf8Bitwidth= confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_BIT_WIDTH, \
+                                              mappedPhyscialHeaderVectorFieldBitwdith=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_BIT_WIDTH))
             parameters.append(self.expression.value.left)
             parameters.append(self.expression.value.right)
             parameters.append(HexStr(hexValue="0x0"))
@@ -2732,16 +2833,24 @@ class RegisterArray:
 
 class HeaderField:
 
-    def __init__(self, name, bitWidth, isSigned):
+    def __init__(self, name, bitWidth, isSigned, mutlipleOf8Bitwidth=0,mappedPhyscialHeaderVectorFieldBitwdith=0):
         self.name = name
         self.bitWidth = bitWidth
         self.isSigned = isSigned
-        self.opList = []
+        self.mutlipleOf8Bitwidth = mutlipleOf8Bitwidth
+        self.mappedPhyscialHeaderVectorFieldBitwdith =mappedPhyscialHeaderVectorFieldBitwdith
+
+    def setMappedPhyscialHeaderVectorFieldBitwdith(self, mappedPhyscialHeaderVectorFieldBitwdith):
+        self.mappedPhyscialHeaderVectorFieldBitwdith = mappedPhyscialHeaderVectorFieldBitwdith
+
+    def setMutlipleOf8Bitwidth(self, mutlipleOf8Bitwidth):
+        self.mutlipleOf8Bitwidth = mutlipleOf8Bitwidth
 
     def __str__(self):
         val = ""
         val = val + "Header field Name: "+self.name+" Bitwidth: "+str(self.bitWidth)
         return val
+
 
 
 @dataclass
@@ -2807,12 +2916,11 @@ class ParsedP416ProgramForV1ModelArchitecture:
             exit(1)
         for htf in headerType.fields:
             bitWidth = math.ceil(float(htf[1]/8))*8
-            hdrObj = HeaderField(name=headerTypeName+"."+htf[0], bitWidth= bitWidth, isSigned= htf[2])
+            hdrObj = HeaderField(name=headerTypeName+"."+htf[0], bitWidth= float(htf[1]), isSigned= htf[2],  mutlipleOf8Bitwidth= bitWidth)
             returnValue[hdrObj.name] = hdrObj
         return returnValue
 
     def buildHeaderVector(self):
-        self.nameToHeaderTypeObjectMap = {}
         for h in self.headers:
             headerTypeName = h.header_type
             # headertypeNameUsedInSource =
@@ -2826,7 +2934,7 @@ class ParsedP416ProgramForV1ModelArchitecture:
             for htf in headerType.fields:
                 bitWidth = math.ceil(float(htf[1]/8))*8
                 # bitWidth = int(htf[1])
-                hdrObj = HeaderField(name=h.name+"."+htf[0], bitWidth= bitWidth, isSigned= htf[2])
+                hdrObj = HeaderField(name=h.name+"."+htf[0], bitWidth= float(htf[1]), isSigned= htf[2], mutlipleOf8Bitwidth= bitWidth)
                 self.nameToHeaderTypeObjectMap[hdrObj.name] = hdrObj
                 pass
         for r in self.register_arrays:
@@ -2839,11 +2947,16 @@ class ParsedP416ProgramForV1ModelArchitecture:
 
         # Adding two extra fields for acrrying the results of conditionals
         self.nameToHeaderTypeObjectMap[confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_KEY_NAME] = \
-            HeaderField(name = confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_KEY_NAME,
-                        bitWidth=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH, isSigned=True)
+            HeaderField(name = confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_KEY_NAME,\
+                        bitWidth=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH, isSigned=True \
+                        , mutlipleOf8Bitwidth= confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH, \
+                        mappedPhyscialHeaderVectorFieldBitwdith= confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH)
         self.nameToHeaderTypeObjectMap[confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_KEY_NAME] = \
             HeaderField(name = confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_KEY_NAME,
-                        bitWidth=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_BIT_WIDTH, isSigned=True)
+                        bitWidth=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_BIT_WIDTH, isSigned=True \
+                        , mutlipleOf8Bitwidth= confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH, \
+                        mappedPhyscialHeaderVectorFieldBitwdith= confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH)
+
         return self.nameToHeaderTypeObjectMap
 
 

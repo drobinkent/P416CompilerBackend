@@ -204,7 +204,9 @@ class MATNode:
             keyName = confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS_NAME+"_"+str(confConst.MAT_DIVIDER_KEY_COUNTER)
             newKey.name = keyName
             newKey.target[1] = newKey.target[1] +"_"+str(confConst.MAT_DIVIDER_KEY_COUNTER)
-            parsedP4Program.nameToHeaderTypeObjectMap[keyName] = HeaderField(name = keyName,bitWidth=confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS_BIT_WIDTH, isSigned=True)
+            parsedP4Program.nameToHeaderTypeObjectMap[keyName] = HeaderField(name = keyName,bitWidth=confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS_BIT_WIDTH, isSigned=True, \
+                                                                             mutlipleOf8Bitwidth= confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH, \
+                                                                             mappedPhyscialHeaderVectorFieldBitwdith=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH)
             newP4Node = Table(name = newTableName, id=self.originalP4node.id, source_info=self.originalP4node.source_info,
                               key=[newKey], match_type=MatchType.EXACT, type=TableType, max_size=confConst.DIVIDED_MAT_MAX_ENTRIES,
                               with_counters=True, support_timeout=True, action_ids=[], actions=actionNames,
@@ -218,7 +220,9 @@ class MATNode:
             keyName = confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_EGRESS_NAME+"_"+str(confConst.MAT_DIVIDER_KEY_COUNTER)
             newKey.name = keyName
             newKey.target[1] = newKey.target[1] +"_"+str(confConst.MAT_DIVIDER_KEY_COUNTER)
-            parsedP4Program.nameToHeaderTypeObjectMap[keyName] = HeaderField(name = keyName,bitWidth=confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS_BIT_WIDTH, isSigned=True)
+            parsedP4Program.nameToHeaderTypeObjectMap[keyName] = HeaderField(name = keyName,bitWidth=confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_EGRESS_BIT_WIDTH, isSigned=True, \
+                    mutlipleOf8Bitwidth= confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_EGRESS_BIT_WIDTH, \
+                                         mappedPhyscialHeaderVectorFieldBitwdith=confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_EGRESS_BIT_WIDTH)
             newP4Node = Table(name = newTableName, id=self.originalP4node.id, source_info=self.originalP4node.source_info,
                               key=[newKey], match_type=MatchType.EXACT, type=TableType, max_size=confConst.DIVIDED_MAT_MAX_ENTRIES,
                               with_counters=True, support_timeout=True, action_ids=[], actions=actionNames,
@@ -375,6 +379,10 @@ class MATNode:
             filedsModifiedInAction, fieldsdUsedInAction = a.getListOfFieldsModifedAndUsedByTheAction(parsedP4Program)
             listOfFieldBeingModifed = listOfFieldBeingModifed + filedsModifiedInAction
             listOfFieldBeingUsed = listOfFieldBeingUsed + fieldsdUsedInAction
+        listOfFieldBeingModifed = set(listOfFieldBeingModifed)
+        listOfFieldBeingModifed = list(listOfFieldBeingModifed)
+        listOfFieldBeingUsed = set(listOfFieldBeingUsed)
+        listOfFieldBeingUsed = list(listOfFieldBeingUsed)
         return listOfFieldBeingModifed, listOfFieldBeingUsed
 
 

@@ -9,7 +9,7 @@ p4ProgramParserFactory = P4ProgramParserFactory()
 hw = RMTHardwareFactory.createRmtHardware(rmtHardwaRemodelName = "RMT_V1",
     instructionSetConfigurationJsonFile= "../Resources/HardwareConfigs/RMTV1ModelInstructions.json",
     hardwareSpecConfigurationJsonFile = "../Resources/HardwareConfigs/RMTV1model32Stages.json")
-p4program = p4ProgramParserFactory.getParsedP4Program(p4JsonFile="../Resources/p4anony.json",p4VersionAndArchitecture="P416_V1_Model")
+p4program = p4ProgramParserFactory.getParsedP4Program(p4JsonFile="../Resources/spine.json",p4VersionAndArchitecture="P416_V1_Model")
 p4ProgramGraph = P4ProgramGraph(p4program)
 p4ProgramGraph.loadAndEmbedPipelines(hw)
 headerFieldSpecsInP4Program = p4ProgramGraph.headeranalyzer()

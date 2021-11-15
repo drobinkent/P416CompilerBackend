@@ -53,23 +53,32 @@ class P4ProgramGraph:
 
     def headeranalyzer(self):
         # print(self.parsedP4Program.nameToHeaderTypeObjectMap)
+        headerfieldListOfMetadata = None
+        for hdrtype in self.parsedP4Program.header_types:
+            if hdrtype.name == "standard_metadata":
+                headerfieldListOfMetadata = self.parsedP4Program.buildHeaderVectorForGivenStruct(hdrtype.name, hdrtype)
+
         bitWidthByHeadercountForIngress = None
         bitWidthByHeadercountForEgress= None
         self.parsedP4Program.getTotalHeaderLength()
         if(self.pipelineIdToPipelineGraphMap.get(PipelineID.INGRESS_PIPELINE)  != None):
             print("\n\n Ingress stage header analysis")
-            fullListOfHeaderFieldsUsedInIngressPipeline =self.pipelineIdToPipelineGraphMap.get(PipelineID.INGRESS_PIPELINE).headeranalyzerForSinglePipeline()
+            fullListOfHeaderFieldsUsedInIngressPipeline =set(self.pipelineIdToPipelineGraphMap.get(PipelineID.INGRESS_PIPELINE).headeranalyzerForSinglePipeline())
+            headerFeildInStandardMEtadta = set(headerfieldListOfMetadata.keys())
+            fullListOfHeaderFieldsUsedInIngressPipeline = fullListOfHeaderFieldsUsedInIngressPipeline.union(headerFeildInStandardMEtadta)
             self.getTotalHeaderLengthForHeaderFieldList(fullListOfHeaderFieldsUsedInIngressPipeline)
             bitWidthByHeadercountForIngress = self.getHeaderCountByBitWidthForHeaderFieldList(fullListOfHeaderFieldsUsedInIngressPipeline)
             print("Bitwdith wise header count is ",bitWidthByHeadercountForIngress)
 
         if(self.pipelineIdToPipelineGraphMap.get(PipelineID.EGRESS_PIPELINE)  != None):
             print("\n\n Egress stage header analysis")
-            fullListOfHeaderFieldsUsedInEgressPipeline = self.pipelineIdToPipelineGraphMap.get(PipelineID.EGRESS_PIPELINE).headeranalyzerForSinglePipeline()
+            fullListOfHeaderFieldsUsedInEgressPipeline = set(self.pipelineIdToPipelineGraphMap.get(PipelineID.EGRESS_PIPELINE).headeranalyzerForSinglePipeline())
+            headerFeildInStandardMEtadta = set(headerfieldListOfMetadata.keys())
+            fullListOfHeaderFieldsUsedInEgressPipeline = fullListOfHeaderFieldsUsedInEgressPipeline.union(headerFeildInStandardMEtadta)
             self.getTotalHeaderLengthForHeaderFieldList(fullListOfHeaderFieldsUsedInEgressPipeline)
             bitWidthByHeadercountForEgress = self.getHeaderCountByBitWidthForHeaderFieldList(fullListOfHeaderFieldsUsedInEgressPipeline)
             print("Bitwdith wise header count is ",bitWidthByHeadercountForEgress)
-            print("total header count in nameToHeaderTypeObjectMap is : "+str(len(self.parsedP4Program.nameToHeaderTypeObjectMap.keys())))
+        print("total header count in nameToHeaderTypeObjectMap is : "+str(len(self.parsedP4Program.nameToHeaderTypeObjectMap.keys())))
 
         mapToAppend = {}
         headerWidthSet = set()
@@ -80,11 +89,7 @@ class P4ProgramGraph:
 
         bitWidthByHeadercountForStandardMetadata = {}
         setC= None
-        for hdrtype in self.parsedP4Program.header_types:
-            if hdrtype.name == "standard_metadata":
-                bitWidthByHeadercountForStandardMetadata = self.parsedP4Program.buildHeaderVectorForGivenStruct(hdrtype.name, hdrtype)
-                bitWidthByHeadercountForStandardMetadata = self.getHeaderCountByBitWidthForHeaderFieldList(list(bitWidthByHeadercountForStandardMetadata.values()))
-                headerWidthSet = headerWidthSet.union(set(bitWidthByHeadercountForStandardMetadata.keys()))
+
 
 
         for k in headerWidthSet:
@@ -141,15 +146,15 @@ class P4ProgramGraph:
                 logger.info("Field not found in map . The field is "+str(k))
             else:
                 if(type(k)!=str):
-                    if(bitWidthByHeadercount.get(self.parsedP4Program.nameToHeaderTypeObjectMap.get(k.name).bitWidth) == None):
-                        bitWidthByHeadercount[self.parsedP4Program.nameToHeaderTypeObjectMap.get(k.name).bitWidth] = 1
+                    if(bitWidthByHeadercount.get(self.parsedP4Program.nameToHeaderTypeObjectMap.get(k.name).mutlipleOf8Bitwidth) == None):
+                        bitWidthByHeadercount[self.parsedP4Program.nameToHeaderTypeObjectMap.get(k.name).mutlipleOf8Bitwidth] = 1
                     else:
-                        bitWidthByHeadercount[self.parsedP4Program.nameToHeaderTypeObjectMap.get(k.name).bitWidth] = \
-                            bitWidthByHeadercount[self.parsedP4Program.nameToHeaderTypeObjectMap.get(k.name).bitWidth] + 1
+                        bitWidthByHeadercount[self.parsedP4Program.nameToHeaderTypeObjectMap.get(k.name).mutlipleOf8Bitwidth] = \
+                            bitWidthByHeadercount[self.parsedP4Program.nameToHeaderTypeObjectMap.get(k.name).mutlipleOf8Bitwidth] + 1
 
                 else:
-                    if (bitWidthByHeadercount.get(self.parsedP4Program.nameToHeaderTypeObjectMap.get(k).bitWidth) == None):
-                        bitWidthByHeadercount[self.parsedP4Program.nameToHeaderTypeObjectMap.get(k).bitWidth] = 1
+                    if (bitWidthByHeadercount.get(self.parsedP4Program.nameToHeaderTypeObjectMap.get(k).mutlipleOf8Bitwidth) == None):
+                        bitWidthByHeadercount[self.parsedP4Program.nameToHeaderTypeObjectMap.get(k).mutlipleOf8Bitwidth] = 1
                     else:
-                        bitWidthByHeadercount[self.parsedP4Program.nameToHeaderTypeObjectMap.get(k).bitWidth] = bitWidthByHeadercount[self.parsedP4Program.nameToHeaderTypeObjectMap.get(k).bitWidth] + 1
+                        bitWidthByHeadercount[self.parsedP4Program.nameToHeaderTypeObjectMap.get(k).mutlipleOf8Bitwidth] = bitWidthByHeadercount[self.parsedP4Program.nameToHeaderTypeObjectMap.get(k).mutlipleOf8Bitwidth] + 1
         return bitWidthByHeadercount
