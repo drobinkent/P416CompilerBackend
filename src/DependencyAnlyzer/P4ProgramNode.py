@@ -146,7 +146,7 @@ class MATNode:
         self.nodeType = nodeType
         self.nextNodes= []
         self.name = name
-        self.matchKeyFields = []
+        self.matchKeyFields = None
         self.actions= []
         self.originalP4node = originalP4node
         self.isVisitedForDraw=False
@@ -164,6 +164,7 @@ class MATNode:
         self.inDegree= 0
         # self.neighbourAssignedStatefulMemoryNameToLevelMap={}  # TODO : this may not be necessary even . on that tcase we will remove it
         return
+
 
     def bifurcateNodeBasedOnStatefulMemeory(self, statefulMemoryNameList, newMatPrefix,pipelineGraph,pipelineID,parsedP4Program ):
         oldLevel = self.getMaxLevelOfAllStatefulMemories()
@@ -361,13 +362,17 @@ class MATNode:
         Maek sure  the mathod is called after a node is propoerly loaded up with its originial P4 node
         :return:
         '''
+        if(self.matchKeyFields == None) and (self.nodeType == P4ProgramNodeType.TABLE_NODE):
+            return  self.originalP4node.getAllMatchFieldsOfRawP4Table()
+        elif(self.matchKeyFields == None) and (self.nodeType == P4ProgramNodeType.CONDITIONAL_NODE):
+            self.matchKeyFields = []
         return self.matchKeyFields
 
-    def getListOfFieldsModifedAndUsed(self):
+    def getListOfFieldsModifedAndUsed(self, parsedP4Program):
         listOfFieldBeingModifed = []
         listOfFieldBeingUsed = []
         for a in self.actions:
-            filedsModifiedInAction, fieldsdUsedInAction = a.getListOfFieldsModifedAndUsed()
+            filedsModifiedInAction, fieldsdUsedInAction = a.getListOfFieldsModifedAndUsedByTheAction(parsedP4Program)
             listOfFieldBeingModifed = listOfFieldBeingModifed + filedsModifiedInAction
             listOfFieldBeingUsed = listOfFieldBeingUsed + fieldsdUsedInAction
         return listOfFieldBeingModifed, listOfFieldBeingUsed

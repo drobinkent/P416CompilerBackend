@@ -135,7 +135,7 @@ class ExternResource:
         self.availableBitwidthToExternInstructionMap= {}
         self.usedBitwidthToExternInstructionMap= {}
         for externRsrcDes in externResourcesDescription:
-            print(externRsrcDes)
+            # print(externRsrcDes)
             instructionSpec = rmtHWSpec.nameToExternInstructionMap.get(externRsrcDes.name)
             if(instructionSpec == None):
                 logger.info("Instruction specification for instruction type: "+externRsrcDes.name+ " is not found in hardware specification. Exiting")

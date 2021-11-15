@@ -68,12 +68,12 @@ class RMTV1ModelHardware:
             stageIndexEnd = int(indexStrings[1])
             for stageIndex in range(stageIndexStart, stageIndexEnd):
                 self.stageWiseResources[stageIndex] = self.loadSingleStageResource(stageIndex, stageResourceDescription)
-                print(self.stageWiseResources[stageIndex])
+                # print(self.stageWiseResources[stageIndex])
 
         pass
 
     def loadSingleStageResource(self, stageIndex, stageResourceDescription):
-        print("Loaidng  Reourses for stage "+str(stageIndex))
+        # print("Loaidng  Reourses for stage "+str(stageIndex))
         stageResource = StageWiseResource(stageIndex,stageResourceDescription, self)
         return stageResource
 
@@ -240,13 +240,15 @@ class RMTV1ModelHardware:
         self.sanityCheckingOfTheLogicalMats(logicalStageNumbersAsList, pipelineGraph)
 
         for logicalStageIndex in logicalStageNumbersAsList:
-            if(pipelineGraph.stageWiseLogicalMatList.get(logicalStageNumbersAsList[logicalStageIndex])[0].name != confConst.DUMMY_END_NODE) \
-                or (pipelineGraph.stageWiseLogicalMatList.get(logicalStageNumbersAsList[logicalStageIndex])[0].name != confConst.DUMMY_START_NODE):
+            if(pipelineGraph.stageWiseLogicalMatList.get(logicalStageIndex)[0].name == confConst.DUMMY_END_NODE) \
+                or (pipelineGraph.stageWiseLogicalMatList.get(logicalStageIndex)[0].name == confConst.DUMMY_START_NODE):
                 continue
             else:
-                logicalMatList = pipelineGraph.stageWiseLogicalMatList.get(logicalStageNumbersAsList[logicalStageIndex])
+                logicalMatList = pipelineGraph.stageWiseLogicalMatList.get(logicalStageIndex)
                 for logicalMat in logicalMatList:
-                    print(logicalMat)
+                    # print(logicalMat)
+                    totalKeysTobeMatched, matKeyBitWidth, headerFieldWiseBitwidthOfMatKeys = p4ProgramGraph.parsedP4Program.getMatchKeyResourceRequirementForMatNode(logicalMat)
+                    p4ProgramGraph.parsedP4Program.getActionResourceRequirementForMatNode(logicalMat)
                     #Embed logicalMat
 
 

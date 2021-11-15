@@ -1,5 +1,0 @@
-read all actions into a orderred map
-
-build the graph.
-While building the graph pull data from action map.
-

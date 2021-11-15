@@ -16,3 +16,11 @@ our variations
 a) only table - level -- no specific ordering of the tables in same level
 b) prioritize tables with wider match fields.. implies both table level and match weidth is conbsidered
 c) then prioritize action width. implies both table level and action weidth is conbsidered. suitable for programs where tables have smaller match width but high action width .
+
+
+
+Resources used by an action :
+
+a) header field being modified, being used and their bit width
+b) number of stateful memories and their bitwodth
+c) we will assume that, the extern also uses the same action crossbar

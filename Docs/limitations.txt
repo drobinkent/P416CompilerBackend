@@ -10,6 +10,9 @@ this we need to support tnaregister extern.
 5) In the convertToAction we have to add support for what type of atom for nested conditionals the hardware support. If a hardware support different kind of operations we can
 add them in this method
 
+6) currently we are not supporting indirect meters. because indirect meters can be accessed in same way as stateful memoery, we need to anlyze them similar to stateful memories.
+on the other hand direct meters, are only accessed through table entires. so we do not need to analyze them seratately.
+
 
 
 

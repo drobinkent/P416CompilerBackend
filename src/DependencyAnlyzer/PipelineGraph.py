@@ -84,7 +84,7 @@ class PipelineGraph:
         for tbl in pipelineObject.tables:
             if(type(tbl) == Table):
                 # print("In header analyzer table name is "+tbl.name)
-                allHeaderFieldUsedInOneMAT = tbl.getAllMatchFields()
+                allHeaderFieldUsedInOneMAT = tbl.getAllMatchFieldsOfRawP4Table()
                 allHeaderFieldUsedInActionsOfOneMAT = self.getAllFieldsModifedInActionsOfTheTable(tbl.name)
                 if len(allHeaderFieldUsedInOneMAT)>0:
                     for e in allHeaderFieldUsedInOneMAT:
@@ -132,7 +132,7 @@ class PipelineGraph:
         for a in tbl.actions:
             act = self.getActionByName(a)
             if (act != None):
-                newfieldList = act.getListOfFieldsModifedAndUsed()[0]
+                newfieldList = act.getListOfFieldsModifedAndUsedByTheAction(self.parsedP4Program)[0]
                 totalFieldList = totalFieldList + newfieldList
         return totalFieldList
 
@@ -274,7 +274,7 @@ class PipelineGraph:
         if(tbl != None):
             # print("Table name is "+name)
             p4teTableNode =MATNode(nodeType= P4ProgramNodeType.TABLE_NODE, name = name, originalP4node = tbl )
-            p4teTableNode.matchKeyFields = tbl.getAllMatchFields()
+            p4teTableNode.matchKeyFields = tbl.getAllMatchFieldsOfRawP4Table()
             p4teTableNode.actions = tbl.actions
             p4teTableNode.actionObjectList = []
             for a in p4teTableNode.actions:
@@ -321,11 +321,13 @@ class PipelineGraph:
                 if(self.pipeline.name == PipelineID.INGRESS_PIPELINE.value) and (isArrivingFromConditional == True):
                     # json_object = json.loads(confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS)
                     obj = Key.from_dict(confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS)
-                    matchTable.key.append(obj)
+                    if(matchTable.containsKey(obj)==False):
+                        matchTable.key.append(obj)
                 elif (self.pipeline.name == PipelineID.EGRESS_PIPELINE.value)  and (isArrivingFromConditional == True):
                     # json_object = json.loads(confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS)
                     obj = Key.from_dict(confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS)
-                    matchTable.key.append(obj)
+                    if(matchTable.containsKey(obj)==False):
+                        matchTable.key.append(obj)
                 nextNodeList.append(nodeName)
         for cond in self.pipeline.conditionals:
             if cond.name  == nodeName:
@@ -483,7 +485,7 @@ class PipelineGraph:
         if(tbl != None) and (type(tbl) == Table):
             # print("Table name is "+name)
             p4TableNode = MATNode(nodeType= P4ProgramNodeType.TABLE_NODE, name = name, originalP4node = tbl )
-            p4TableNode.matchKeyFields = tbl.getAllMatchFields()
+            p4TableNode.matchKeyFields = tbl.getAllMatchFieldsOfRawP4Table()
             p4TableNode.actions = self.getAllActionsOfTable(tbl)
             # p4teTableNode.actionObjectList = []
             for a in p4TableNode.actions:
@@ -506,10 +508,8 @@ class PipelineGraph:
         elif(conditional != None):
             # print("conditional name is "+name)
             p4teConditionalNode =MATNode(nodeType= P4ProgramNodeType.CONDITIONAL_NODE , name = name, originalP4node = conditional)
-            # An action has an op and parameters. Whereas a conditional expression has type = expression, op is a conditioanl op and values are left and right.
-            # which are the parameters. So currently we are assuming ou r hardware can support a> a+b or a+b > c format expression.
-            # so we will use a static methord here which will convert a conditional to predicate then write a field format.
-            # but in future there will be a a new preprocessor function that will actually pre process the action primitives and convert to every hardware specific primitive
+            #The previous function to preprocess the conditional node adds and extra key to next node in the pipeline. And this function adds an extra primitive
+            # in the conditional action here. So if a conditional is a>b then it convert the action if a>b then updates  the extra field to value 1 else 0
             p4teConditionalNode.actions = conditional.convertToAction(self.pipelineID)
             p4teConditionalNode.next_tables = [conditional.true_next, conditional.false_next]
             for a in p4teConditionalNode.next_tables:
@@ -526,6 +526,7 @@ class PipelineGraph:
             return p4teConditionalNode
         else:
             if(name == confConst.DUMMY_END_NODE):
+                predecessorMatNode.dependencies[confConst.DUMMY_END_NODE] = self.matToMatDependnecyAnalysis(predecessorMatNode, self.dummyEnd)
                 return self.dummyEnd
             else:
                 logger.info("There is no relevent node found for nodename: "+name+" Debig please. Exiting.")
@@ -572,8 +573,8 @@ class PipelineGraph:
             return dependencyType
         mat1MatchKeyList = matNode1.getAllMatchFields()
         mat2MatchKeyList = matNode2.getAllMatchFields()
-        filedsModifiedByMat1Actions, filedsUsedByMat1Actions = matNode1.getListOfFieldsModifedAndUsed()
-        filedsModifiedByMat2Actions, filedsUsedByMat2Actions = matNode2.getListOfFieldsModifedAndUsed()
+        filedsModifiedByMat1Actions, filedsUsedByMat1Actions = matNode1.getListOfFieldsModifedAndUsed(self.parsedP4Program)
+        filedsModifiedByMat2Actions, filedsUsedByMat2Actions = matNode2.getListOfFieldsModifedAndUsed(self.parsedP4Program)
         if (common_member(filedsModifiedByMat1Actions, mat2MatchKeyList)):
             return Dependency(dependencyType = DependencyType.MATCH_DEPENDENCY, src = matNode1, dst = matNode2 )
         elif (common_member(filedsModifiedByMat1Actions, filedsModifiedByMat2Actions)):
@@ -776,7 +777,8 @@ class PipelineGraph:
             print("Severe error. Mat node can not be None in calculateLevels. Debug. exiting. ")
             exit(1)
         # print("CurMAtnode name is "+curMatNode.name)
-        if curMatNode.name == confConst.DUMMY_END_NODE:
+        if (curMatNode.name == confConst.DUMMY_END_NODE)  and (curMatNode.inDegree <=0):
+            curMatNode.inDegree = curMatNode.inDegree -1
             return -1
         if(curMatNode.name != confConst.DUMMY_START_NODE) and (curMatNode.inDegree <=0):
             return curMatNode.getMaxLevelOfAllStatefulMemories()
@@ -818,59 +820,59 @@ class PipelineGraph:
             levelMatList.append(matNode)
         return levelWiseMatList
 
-    def calculateStageWiseTotalReousrceRequirements(self, stageWiseMatMap):
-        # TODO This function should not be here. IT should be in the hardware class iteself. Because resources are not part of the parsedP3program. They are part of
-        # the hardware itself. So we should movie it to there.
-        perStageHwRequirementsForThePipeline = {}
-        for k in stageWiseMatMap.keys():
-            print("===============================================================================================================================")
-            print("Stage:------------------"+str(k))
-            if(k==-1):
-                print("This is a dummy stage to handle a dummy node in the TDG. Not really mapped to the hardware. So please skip it. ")
-            stageMatList = stageWiseMatMap.get(k)
-            totalnumberofFieldsBeingModified = 0
-            headerBitWidthOfFieldsBeingModified = 0
-            totalNumberOfFieldsUsedAsParameter = 0
-            totalBitWidthOfFieldsUsedAsParameter = 0
-            totalBitWidthOfTheAction=0
-            maxBitWidthOfAction =0
-            matKeyBitWidth = 0
-            matKeyLength = 0
-            for m in stageMatList:
-                listOfFieldBeingModifedInThisStage = []
-                listOfFieldBeingUsedAsParameterInThisStage = []
-                print("MAT node: "+m.name)
-                print("Match Keys are: ")
-                actionIndex = 0
-                for f in m.originalP4node.key:
-                    matKeyBitWidth =  matKeyBitWidth + self.parsedP4Program.getHeaderBitCount(f.getHeaderName())
-                    print("\t\t *) "+str(f))
-                    matKeyLength = matKeyLength + len(m.originalP4node.key)
-                print("Actions are: ")
-                for a in m.actions:
-                    actionIndex= actionIndex+1
-                    listOfFieldBeingModifed, listOfFieldBeingUsed = a.getListOfFieldsModifedAndUsed()
-                    listOfFieldBeingModifedInThisStage= listOfFieldBeingModifedInThisStage + listOfFieldBeingModifed
-                    listOfFieldBeingUsedAsParameterInThisStage = listOfFieldBeingUsedAsParameterInThisStage + listOfFieldBeingUsed
-                    print("\t "+str(actionIndex)+" Action Nanme: "+a.name)
-                    print("\t Primitives used in action are: ")
-                    for prim in a.primitives:
-                        print("\t\t *) "+str(prim.source_info))
-                    for f in listOfFieldBeingModifed:
-                        totalnumberofFieldsBeingModified  = totalnumberofFieldsBeingModified + 1
-                        # print("Header name is "+f)
-                        hdrBitCount = self.parsedP4Program.getHeaderBitCount(f)
-                        totalBitWidthOfTheAction = totalBitWidthOfTheAction + hdrBitCount
-                        headerBitWidthOfFieldsBeingModified = headerBitWidthOfFieldsBeingModified + hdrBitCount
-                    for f in listOfFieldBeingUsed:
-                        # print("Header name is "+f)
-                        totalNumberOfFieldsUsedAsParameter = totalNumberOfFieldsUsedAsParameter + 1
-                        hdrBitCount = self.parsedP4Program.getHeaderBitCount(f)
-                        totalBitWidthOfFieldsUsedAsParameter = totalBitWidthOfFieldsUsedAsParameter + hdrBitCount
-                        totalBitWidthOfTheAction = totalBitWidthOfTheAction + hdrBitCount
-                    if(totalBitWidthOfTheAction > maxBitWidthOfAction):
-                        maxBitWidthOfAction = totalBitWidthOfTheAction
-            perStageHwRequirementsForThePipeline[k] = (totalnumberofFieldsBeingModified,headerBitWidthOfFieldsBeingModified, totalNumberOfFieldsUsedAsParameter,totalBitWidthOfFieldsUsedAsParameter, listOfFieldBeingModifedInThisStage, listOfFieldBeingUsedAsParameterInThisStage,maxBitWidthOfAction, matKeyLength, matKeyBitWidth)
+    # def calculateStageWiseTotalReousrceRequirements(self, stageWiseMatMap):
+    #     # TODO This function should not be here. IT should be in the hardware class iteself. Because resources are not part of the parsedP3program. They are part of
+    #     # the hardware itself. So we should movie it to there.
+    #     perStageHwRequirementsForThePipeline = {}
+    #     for k in stageWiseMatMap.keys():
+    #         print("===============================================================================================================================")
+    #         print("Stage:------------------"+str(k))
+    #         if(k==-1):
+    #             print("This is a dummy stage to handle a dummy node in the TDG. Not really mapped to the hardware. So please skip it. ")
+    #         stageMatList = stageWiseMatMap.get(k)
+    #         totalnumberofFieldsBeingModified = 0
+    #         headerBitWidthOfFieldsBeingModified = 0
+    #         totalNumberOfFieldsUsedAsParameter = 0
+    #         totalBitWidthOfFieldsUsedAsParameter = 0
+    #         totalBitWidthOfTheAction=0
+    #         maxBitWidthOfAction =0
+    #         matKeyBitWidth = 0
+    #         matKeyLength = 0
+    #         for m in stageMatList:
+    #             listOfFieldBeingModifedInThisStage = []
+    #             listOfFieldBeingUsedAsParameterInThisStage = []
+    #             print("MAT node: "+m.name)
+    #             print("Match Keys are: ")
+    #             actionIndex = 0
+    #             for f in m.originalP4node.key:
+    #                 matKeyBitWidth =  matKeyBitWidth + self.parsedP4Program.getHeaderBitCount(f.getHeaderName())
+    #                 print("\t\t *) "+str(f))
+    #                 matKeyLength = matKeyLength + len(m.originalP4node.key)
+    #             print("Actions are: ")
+    #             for a in m.actions:
+    #                 actionIndex= actionIndex+1
+    #                 listOfFieldBeingModifed, listOfFieldBeingUsed = a.getListOfFieldsModifedAndUsedByTheAction()
+    #                 listOfFieldBeingModifedInThisStage= listOfFieldBeingModifedInThisStage + listOfFieldBeingModifed
+    #                 listOfFieldBeingUsedAsParameterInThisStage = listOfFieldBeingUsedAsParameterInThisStage + listOfFieldBeingUsed
+    #                 print("\t "+str(actionIndex)+" Action Nanme: "+a.name)
+    #                 print("\t Primitives used in action are: ")
+    #                 for prim in a.primitives:
+    #                     print("\t\t *) "+str(prim.source_info))
+    #                 for f in listOfFieldBeingModifed:
+    #                     totalnumberofFieldsBeingModified  = totalnumberofFieldsBeingModified + 1
+    #                     # print("Header name is "+f)
+    #                     hdrBitCount = self.parsedP4Program.getHeaderBitCount(f)
+    #                     totalBitWidthOfTheAction = totalBitWidthOfTheAction + hdrBitCount
+    #                     headerBitWidthOfFieldsBeingModified = headerBitWidthOfFieldsBeingModified + hdrBitCount
+    #                 for f in listOfFieldBeingUsed:
+    #                     # print("Header name is "+f)
+    #                     totalNumberOfFieldsUsedAsParameter = totalNumberOfFieldsUsedAsParameter + 1
+    #                     hdrBitCount = self.parsedP4Program.getHeaderBitCount(f)
+    #                     totalBitWidthOfFieldsUsedAsParameter = totalBitWidthOfFieldsUsedAsParameter + hdrBitCount
+    #                     totalBitWidthOfTheAction = totalBitWidthOfTheAction + hdrBitCount
+    #                 if(totalBitWidthOfTheAction > maxBitWidthOfAction):
+    #                     maxBitWidthOfAction = totalBitWidthOfTheAction
+    #         perStageHwRequirementsForThePipeline[k] = (totalnumberofFieldsBeingModified,headerBitWidthOfFieldsBeingModified, totalNumberOfFieldsUsedAsParameter,totalBitWidthOfFieldsUsedAsParameter, listOfFieldBeingModifedInThisStage, listOfFieldBeingUsedAsParameterInThisStage,maxBitWidthOfAction, matKeyLength, matKeyBitWidth)
 
 
 

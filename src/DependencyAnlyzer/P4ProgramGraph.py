@@ -33,7 +33,7 @@ class P4ProgramGraph:
         self.pipelineIdToPipelineMap = {}
         self.parsedP4Program = parsedP4Program
 
-    def loadPipelines(self):
+    def loadAndEmbedPipelines(self, hw):
         logger.info("Loading pipelines")
         if (len(self.parsedP4Program.pipelines) <= 0):
             logger.info("There is no pipelines found in the parsed Json representation. Exiting")
@@ -44,6 +44,7 @@ class P4ProgramGraph:
                 self.pipelineIdToPipelineGraphMap[PipelineID.INGRESS_PIPELINE] = newPipelineGraph
                 self.pipelineIdToPipelineMap[PipelineID.INGRESS_PIPELINE] = pipeline
                 newPipelineGraph.preProcessPipelineGraph()
+                # hw.embedP4ProgramAccordingToSingleMatrix(self)
             if(pipeline.name == PipelineID.EGRESS_PIPELINE.value):
                 newPipelineGraph = PipelineGraph(pipelineID=PipelineID.EGRESS_PIPELINE, pipeline = pipeline, actions= self.parsedP4Program.actions,parsedP4Program = self.parsedP4Program)
                 self.pipelineIdToPipelineGraphMap[PipelineID.EGRESS_PIPELINE] = newPipelineGraph
@@ -52,23 +53,31 @@ class P4ProgramGraph:
 
     def headeranalyzer(self):
         # print(self.parsedP4Program.nameToHeaderTypeObjectMap)
+        bitWidthByHeadercountForIngress = None
+        bitWidthByHeadercountForEgress= None
         self.parsedP4Program.getTotalHeaderLength()
-        print("\n\n Ingress stage header analysis")
-        fullListOfHeaderFieldsUsedInThePipeline =self.pipelineIdToPipelineGraphMap.get(PipelineID.INGRESS_PIPELINE).headeranalyzerForSinglePipeline()
-        self.getTotalHeaderLengthForHeaderFieldList(fullListOfHeaderFieldsUsedInThePipeline)
-        bitWidthByHeadercountForIngress = self.getHeaderCountByBitWidthForHeaderFieldList(fullListOfHeaderFieldsUsedInThePipeline)
-        print("Bitwdith wise header count is ",bitWidthByHeadercountForIngress)
-        print("\n\n Egress stage header analysis")
-        fullListOfHeaderFieldsUsedInThePipeline = self.pipelineIdToPipelineGraphMap.get(PipelineID.EGRESS_PIPELINE).headeranalyzerForSinglePipeline()
-        self.getTotalHeaderLengthForHeaderFieldList(fullListOfHeaderFieldsUsedInThePipeline)
-        bitWidthByHeadercountForEgress = self.getHeaderCountByBitWidthForHeaderFieldList(fullListOfHeaderFieldsUsedInThePipeline)
-        print("Bitwdith wise header count is ",bitWidthByHeadercountForEgress)
-        print("total header count in nameToHeaderTypeObjectMap is : "+str(len(self.parsedP4Program.nameToHeaderTypeObjectMap.keys())))
+        if(self.pipelineIdToPipelineGraphMap.get(PipelineID.INGRESS_PIPELINE)  != None):
+            print("\n\n Ingress stage header analysis")
+            fullListOfHeaderFieldsUsedInIngressPipeline =self.pipelineIdToPipelineGraphMap.get(PipelineID.INGRESS_PIPELINE).headeranalyzerForSinglePipeline()
+            self.getTotalHeaderLengthForHeaderFieldList(fullListOfHeaderFieldsUsedInIngressPipeline)
+            bitWidthByHeadercountForIngress = self.getHeaderCountByBitWidthForHeaderFieldList(fullListOfHeaderFieldsUsedInIngressPipeline)
+            print("Bitwdith wise header count is ",bitWidthByHeadercountForIngress)
+
+        if(self.pipelineIdToPipelineGraphMap.get(PipelineID.EGRESS_PIPELINE)  != None):
+            print("\n\n Egress stage header analysis")
+            fullListOfHeaderFieldsUsedInEgressPipeline = self.pipelineIdToPipelineGraphMap.get(PipelineID.EGRESS_PIPELINE).headeranalyzerForSinglePipeline()
+            self.getTotalHeaderLengthForHeaderFieldList(fullListOfHeaderFieldsUsedInEgressPipeline)
+            bitWidthByHeadercountForEgress = self.getHeaderCountByBitWidthForHeaderFieldList(fullListOfHeaderFieldsUsedInEgressPipeline)
+            print("Bitwdith wise header count is ",bitWidthByHeadercountForEgress)
+            print("total header count in nameToHeaderTypeObjectMap is : "+str(len(self.parsedP4Program.nameToHeaderTypeObjectMap.keys())))
 
         mapToAppend = {}
-        setA = set(bitWidthByHeadercountForEgress.keys())
-        setB = set(bitWidthByHeadercountForIngress.keys())
-        headerWidthSet = setA.union(setB)
+        headerWidthSet = set()
+        if(bitWidthByHeadercountForEgress != None):
+            headerWidthSet = headerWidthSet.union(set(bitWidthByHeadercountForEgress.keys()))
+        if(bitWidthByHeadercountForIngress != None):
+            headerWidthSet = headerWidthSet.union(bitWidthByHeadercountForIngress.keys())
+
         bitWidthByHeadercountForStandardMetadata = {}
         setC= None
         for hdrtype in self.parsedP4Program.header_types:
@@ -80,11 +89,13 @@ class P4ProgramGraph:
 
         for k in headerWidthSet:
             ingressObj = 0
-            if(bitWidthByHeadercountForIngress.get(k) != None):
-                ingressObj = bitWidthByHeadercountForIngress.get(k)
+            if(bitWidthByHeadercountForIngress != None):
+                if(bitWidthByHeadercountForIngress.get(k) != None):
+                    ingressObj = bitWidthByHeadercountForIngress.get(k)
             egressObj = 0
-            if(bitWidthByHeadercountForEgress.get(k) != None):
-                egressObj = bitWidthByHeadercountForEgress.get(k)
+            if(bitWidthByHeadercountForEgress != None):
+                if(bitWidthByHeadercountForEgress.get(k) != None):
+                    egressObj = bitWidthByHeadercountForEgress.get(k)
             standardMEtadaObj = 0
             if(bitWidthByHeadercountForStandardMetadata.get(k) != None):
                 standardMEtadaObj = bitWidthByHeadercountForStandardMetadata.get(k)
@@ -114,7 +125,7 @@ class P4ProgramGraph:
                     logger.info("Field not found in map . The field is "+str(k))
             else:
                 total = total + int(self.parsedP4Program.nameToHeaderTypeObjectMap.get(k).bitWidth)
-        # print("Total header legnth for given headerfield list is ",total)
+        print("Total header legnth for given headerfield list is ",total)
         return total
 
     def getHeaderCountByBitWidthForHeaderFieldList(self, headerFieldList):

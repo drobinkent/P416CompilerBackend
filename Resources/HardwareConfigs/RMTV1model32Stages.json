@@ -4,15 +4,15 @@
   "HeaderVectorSpecs": [
     {
     "BitWidth": 8,
-    "Count": 64
+    "Count": 100
     },
     {
       "BitWidth": 16,
-      "Count": 96
+      "Count": 124
     },
     {
       "BitWidth": 32,
-      "Count": 64
+      "Count": 96
     }
   ],
   "StageDescription": [

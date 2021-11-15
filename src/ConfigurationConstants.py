@@ -13,40 +13,40 @@ DUMMY_END_NODE = "DUMMY_END_NODE"
 # SUPER_MAT_PREFIX = "SUPER_MAT_"
 CONVERTED_ACTION_PREFIX = "CONVERTED_ACTION_FOR_"
 
-SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_KEY_NAME = "local_metadata.ingress_conditioanl_carry"
+SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_KEY_NAME = "scalars.userMetadata.ingress_conditioanl_carry"
 SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS ={
                     "match_type" : "exact",
-                    "name" : "local_metadata.ingress_conditioanl_carry",
-                    "target" : ["local_metadata", "ingress_conditioanl_carry"],
+                    "name" : "scalars.userMetadata.ingress_conditioanl_carry",
+                    "target" : ["scalars.userMetadata", "ingress_conditioanl_carry"],
                     "mask" : None
                 }
 SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH = 8
 
-SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_KEY_NAME = "local_metadata.egress_conditioanl_carry"
+SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_KEY_NAME = "scalars.userMetadata.egress_conditioanl_carry"
 SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS ={
                     "match_type" : "exact",
-                    "name" : "local_metadata.egress_conditioanl_carry",
-                    "target" : ["local_metadata", "egress_conditioanl_carry"],
+                    "name" : "scalars.userMetadata.egress_conditioanl_carry",
+                    "target" : ["scalars.userMetadata", "egress_conditioanl_carry"],
                     "mask" : None
                 }
 SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_BIT_WIDTH = 8
 
 
-SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS_NAME = "local_metadata.mat_divider"
+SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS_NAME = "scalars.userMetadata.mat_divider"
 SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS ={
     "match_type" : "exact",
-    "name" : "local_metadata.mat_divider",
-    "target" : ["local_metadata", "mat_divider"],
+    "name" : "scalars.userMetadata.mat_divider",
+    "target" : ["scalars.userMetadata", "mat_divider"],
     "mask" : None
 }
 SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS_BIT_WIDTH = 8
 
 
-SPECIAL_KEY_FOR_DIVIDING_MAT_IN_EGRESS_NAME = "local_metadata.mat_divider"
+SPECIAL_KEY_FOR_DIVIDING_MAT_IN_EGRESS_NAME = "scalars.userMetadata.mat_divider"
 SPECIAL_KEY_FOR_DIVIDING_MAT_IN_EGRESS ={
     "match_type" : "exact",
-    "name" : "local_metadata.mat_divider",
-    "target" : ["local_metadata", "mat_divider"],
+    "name" : "scalars.userMetadata.mat_divider",
+    "target" : ["scalars.userMetadata", "mat_divider"],
     "mask" : None
 }
 SPECIAL_KEY_FOR_DIVIDING_MAT_IN_EGRESS_BIT_WIDTH = 8

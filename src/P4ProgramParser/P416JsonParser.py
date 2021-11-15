@@ -123,8 +123,11 @@ class PrimitiveOp(Enum):
     GREATER_THAN_EQUAL = ">="
     LESS_THAN_EQUAL = "<="
     AND = "and"
+    AND_WRITE = "andW"
     OR = "or"
+    OR_WRITE = "orW"
     NOT = "not"
+    NOT_WRITE = "notW"
     BITWISE_AND = "&"
     BITWISE_OR = "|"
     BITWISE_XOR = "^"
@@ -138,16 +141,22 @@ class PrimitiveOp(Enum):
         #TODO : for equal the return type should be something like is_equal_and_write_modifiy_header_field
         if ((obj == PrimitiveOp.EQUAL) ):
             return PrimitiveOp.EQUAL_WRITE
-        if  (obj == PrimitiveOp.NOT_EQUAL):
+        elif  (obj == PrimitiveOp.NOT_EQUAL):
             return PrimitiveOp.NOT_EQUAL_WRITE
-        if (obj == PrimitiveOp.LESS_THAN_EQUAL) :
+        elif (obj == PrimitiveOp.LESS_THAN_EQUAL) :
             return  PrimitiveOp.LESS_THAN_EQUAL_WRITE
-        if(obj == PrimitiveOp.LESS_THAN):
+        elif(obj == PrimitiveOp.LESS_THAN):
             return PrimitiveOp.LESS_THAN_WRITE
-        if (obj == PrimitiveOp.GREATER_THAN):
+        elif (obj == PrimitiveOp.GREATER_THAN):
             return PrimitiveOp.GREATER_THAN_WRITE
-        if (obj == PrimitiveOp.GREATER_THAN_EQUAL):
+        elif (obj == PrimitiveOp.GREATER_THAN_EQUAL):
             return PrimitiveOp.GREATER_THAN_EQUAL_WRITE
+        elif (obj == PrimitiveOp.AND):
+            return PrimitiveOp.AND_WRITE
+        elif (obj == PrimitiveOp.OR):
+            return PrimitiveOp.OR_WRITE
+        else:
+            return None
 
 
 # type-- one of hexstr, runtime_data, header, field, calculation, meter_array, counter_array, register_array, header_stack, expression, extern, string, 'stack_field'
@@ -561,6 +570,9 @@ class PrimitiveField:
         header_name = str(valueList[0])
         field_memeber_name = str(valueList[1])
         return PrimitiveField(header_name, field_memeber_name)
+
+    def getHeaderFieldName(self):
+        return self.header_name+"."+self.field_memeber_name
 
 @dataclass
 class PrimitiveRuntimeData:
@@ -1317,8 +1329,6 @@ class Action:
             print("This case can nto happen. Because we are trying to divide an action based on solid info. Please debug. Exiting")
             exit(1)
 
-
-
     @staticmethod
     def from_dict(obj: Any) -> 'Action':
         assert isinstance(obj, dict)
@@ -1336,35 +1346,24 @@ class Action:
         result["primitives"] = from_list(lambda x: to_class(Primitive, x), self.primitives)
         return result
 
-    def getStatefulMemoryNameFromAction(self):
-        for prim in self.primitives:
-            if(prim.op == PrimitiveOp.REGISTER_READ):
-                param = prim.parameters[1]
-                val = param.registerArrayName
-                return val
-            if (prim.op == PrimitiveOp.REGISTER_WRITE) :
-                param = prim.parameters[0]
-                val = param.registerArrayName
-                return val
-
-
-
-    def getParameterValueAsList(self, obj):
+    def getParameterNameAsList(self, obj):
         fieldList = []
         t = type(obj)
         # print("type is "+str(t))
-        if(t == PrimitiveField):
-            if (t  == CounterArrayPrimitive)  or (t  == PrimitiveHeader) or (t  == HexStr) or (t  == MeterArrayPrimitive) \
-                    or (t  == RegisterArrayPrimitive) or (t  == BoolPrimitive) or (t  == str) or (t == PrimitiveField):
-                val = obj.header_name + "."+ obj.field_memeber_name
-                fieldList.append(val)
-            else:
-                print("Unknonw primitive. Must debug")
-
-        # t = ValueType(obj.get("type"))
-        if (t == ValueType.CALCULATION):
+        # if(t == PrimitiveField):
+        if (t  == CounterArrayPrimitive)  or (t  == PrimitiveHeader)  or (t  == MeterArrayPrimitive) \
+                or (t  == BoolPrimitive) or (t  == str) or (t == PrimitiveField):
+            val = obj.header_name + "."+ obj.field_memeber_name
+            fieldList.append(val)
+        elif(t==HeaderField):
+            val = obj.name
+            fieldList.append(val)
+        elif (t  == HexStr):
             pass
-
+        elif (t == ValueType.CALCULATION):
+            pass
+        elif (t == RegisterArrayPrimitive):
+            pass
         elif (t  == Expression):
             # get the value
             # from the value get left and right
@@ -1372,12 +1371,12 @@ class Action:
             # collect their result and merge the lists
             # print(obj)
             if (type(obj.value == Expression)):
-                fieldList = self.getParameterValueAsList(obj.value)
+                fieldList = self.getParameterNameAsList(obj.value)
             elif (type(obj.value == PrimitiveOpblock)):
                 if (obj.value.left != None):
-                    leftFieldList = self.getParameterValueAsList(obj.value.left)
+                    leftFieldList = self.getParameterNameAsList(obj.value.left)
                 if (obj.value.right != None):
-                    rightFieldList = self.getParameterValueAsList(obj.value.right)
+                    rightFieldList = self.getParameterNameAsList(obj.value.right)
                 fieldList = fieldList + leftFieldList + rightFieldList
         elif (t  == PrimitiveRuntimeData):
             logger.info("Runtime data is not needed to be parsed in our system. passing it ")
@@ -1407,51 +1406,102 @@ class Action:
                 listOfStatefulMemoeriesBeingUsed.append(val)
         return  listOfStatefulMemoeriesBeingUsed
 
-
-    def getListOfFieldsModifedAndUsed(self):
+    def getListOfFieldsModifedAndUsedByTheAction(self,parsedP4Program):
+        #This function is used for dependency analysis. Btu when we want to calculate the physical resource (like, bitwidth, sram storage etc) concusmption, we have to use other method
         listOfFieldBeingModifed = []
         listOfFieldBeingUsed = []
+        listOfStatefulMemoryBeingAccessed= []
+
         for prim in self.primitives:
-            if(prim.op == PrimitiveOp.ASSIGN) or (prim.op == PrimitiveOp.REGISTER_READ) or (prim.op == PrimitiveOp.MODIFY_FIELD_WITH_HASH_BASED_OFFSET) :
+            if(prim.op == PrimitiveOp.ASSIGN) :
                 param = prim.parameters[0]
                 val = param.header_name + "."+ param.field_memeber_name
                 listOfFieldBeingModifed.append(val)
                 i=1
                 for i in range (1, len(prim.parameters)):
                     param = prim.parameters[i]
-                    valuesUsedInTheprimitive = self.getParameterValueAsList(param)
+                    valuesUsedInTheprimitive = self.getParameterNameAsList(param)
                     listOfFieldBeingUsed = listOfFieldBeingUsed  + valuesUsedInTheprimitive
-            elif ((prim.op == PrimitiveOp.REMOVE_HEADER) or (prim.op == PrimitiveOp.ADD_HEADER)  or (prim.op == PrimitiveOp.MARK_TO_DROP)):
-                val = prim.parameters[0].headerValue
-                listOfFieldBeingModifed.append(val)
-
-            elif ((prim.op == PrimitiveOp.REGISTER_WRITE) or (prim.op == PrimitiveOp.REGISTER_READ)):
-                # We are skipping this because this is not actualy a field which needs to be modified .
-                # For P4TE we only need to calculate how many fields are required to be modifieed in
-                # a single stage
-                # param = prim.parameters[0]
-                # val = param.header_name + "."+ param.field_memeber_name
-                # listOfFieldBeingModifed.append(val)
-                # print("Found register op")
+            elif(prim.op == PrimitiveOp.GREATER_THAN_EQUAL_WRITE) or  (prim.op == PrimitiveOp.GREATER_THAN_WRITE) \
+                    or (prim.op == PrimitiveOp.LESS_THAN_WRITE) or (prim.op == PrimitiveOp.LESS_THAN_EQUAL_WRITE) \
+                    or (prim.op == PrimitiveOp.NOT_EQUAL_WRITE) or (prim.op == PrimitiveOp.EQUAL_WRITE) \
+                    or (prim.op == PrimitiveOp.AND_WRITE) or (prim.op == PrimitiveOp.OR_WRITE) or \
+                    (prim.op == PrimitiveOp.MODIFY_FIELD_WITH_HASH_BASED_OFFSET):
                 param = prim.parameters[0]
-                val = param.registerArrayName
-                listOfFieldBeingModifed.append(val)
-                i=1
+                listOfFieldBeingModifed = listOfFieldBeingModifed + self.getParameterNameAsList(param)
                 for i in range (1, len(prim.parameters)):
                     param = prim.parameters[i]
-                    valuesUsedInTheprimitive = self.getParameterValueAsList(param)
-                    listOfFieldBeingUsed = listOfFieldBeingUsed  + valuesUsedInTheprimitive
+                    valuesUsedInTheprimitive = self.getParameterNameAsList(param)
+
+            elif ((prim.op == PrimitiveOp.REMOVE_HEADER) or (prim.op == PrimitiveOp.ADD_HEADER)  or (prim.op == PrimitiveOp.MARK_TO_DROP)):
+                headerTypeName = prim.parameters[0].headerValue
+                listOfFieldBeingModifed = listOfFieldBeingModifed + parsedP4Program.getAllHeaderFieldsForHeaderType(headerTypeName)
+
+            elif ((prim.op == PrimitiveOp.REGISTER_READ)):
+                if(type(prim.parameters[0])==PrimitiveField):
+                    listOfFieldBeingModifed.append(prim.parameters[0].getHeaderFieldName())
+                else:
+                    print("The first parameter in a reigster read operation must have to be a header field. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
+                    exit(1)
+                if(type(prim.parameters[1])==RegisterArrayPrimitive):
+                    listOfStatefulMemoryBeingAccessed.append(prim.parameters[1].registerArrayName)
+                else:
+                    print("The second parameter in a reigster read must have to be a register array. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
+                    exit(1)
+                if(type(prim.parameters[2])==PrimitiveField) or (type(prim.parameters[2])==HexStr):
+                    listOfFieldBeingUsed = listOfFieldBeingUsed + self.getParameterNameAsList(prim.parameters[2])
+                else:
+                    print("The third parameter in a reigster read must have to be a HexStr or header field. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
+                    exit(1)
 
                 pass
+            elif ((prim.op == PrimitiveOp.REGISTER_WRITE) ):
+                if(type(prim.parameters[0])==RegisterArrayPrimitive):
+                    listOfStatefulMemoryBeingAccessed.append(prim.parameters[0].registerArrayName)
+                else:
+                    print("The first parameter in a reigster write must have to be a register array. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
+                    exit(1)
+                for i in range (1, len(prim.parameters)):
+                    param = prim.parameters[i]
+                    valuesUsedInTheprimitive = self.getParameterNameAsList(param)
+                    listOfFieldBeingUsed = listOfFieldBeingUsed  + valuesUsedInTheprimitive
+
+            elif (prim.op == PrimitiveOp.EXIT):
+                pass
+            elif (prim.op == PrimitiveOp.CLONE_EGRESS_PKT_TO_EGRESS) or (prim.op == PrimitiveOp.RECIRCULATE):
+                logger.info("CONING AND RECIRCULATION IS NOT handled yet. BUT they do not immpact the resource consumption of the compiler. Because the recirculation or "+\
+                            "Cloning is handled by a standard metadata field. We already considered it in header space consumption. We should add a assign operation here though ")
+                pass
+            elif (prim.op == PrimitiveOp.EXECUTE_METER):
+                if(type(prim.parameters[0])==MeterArrayPrimitive):
+                    listOfStatefulMemoryBeingAccessed.append(prim.parameters[0].meterArrayName)
+                    #TODO : a piece of caution counter is not well supported in bmv2 json. The json does not provide the counter index as parameter
+                else:
+                    print("The first parameter in a meter operation must have to be a meter name. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
+                    exit(1)
+                for i in range (1, len(prim.parameters)):
+                    param = prim.parameters[i]
+                    valuesUsedInTheprimitive = self.getParameterNameAsList(param)
+                    listOfFieldBeingUsed = listOfFieldBeingUsed  + valuesUsedInTheprimitive
+            elif (prim.op == PrimitiveOp.COUNT):
+                if(type(prim.parameters[0])==CounterArrayPrimitive):
+                    listOfStatefulMemoryBeingAccessed.append(prim.parameters[0].counterArrayName)
+                    #TODO : a piece of caution counter is not well supported in bmv2 json. The json does not provide the counter index as parameter
+                else:
+                    print("The first parameter in a count operation must have to be a counter. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
+                    exit(1)
+            else:
+                logger.info("Primitive OP:"+ str(prim.op)+" not supported yet.Exiting")
+                print("Primitive OP:"+ str(prim.op)+" not supported yet.Exiting")
+                exit(1)
+
             #TODO: in the final framework we need to suport meter execution
 
-            # for param in prim.parameters:
-            #     if( type(param) == PrimitiveField):
-            #         val = param.header_name + "."+ param.field_memeber_name
-            #         listOfFieldBeingModifed.append(val)
-            # listOfFieldBeingModifed = list(set(listOfFieldBeingModifed))
-            # listOfFieldBeingUsed = list(set(listOfFieldBeingUsed))
+
         return listOfFieldBeingModifed, listOfFieldBeingUsed
+
+    def getResourceRequirementOfTheAction(self):
+        pass
 
 
 class ParserOpOp(Enum):
@@ -2269,36 +2319,33 @@ class Conditional:
         primitiveList = []
         parameters = []
         newPrimitive = None
-        if(self.expression.value.op.value == PrimitiveOp.D2_B):
-            parameters.append(BoolPrimitive("True"))
-            parameters.append(self.expression.value.right)
+        if(self.expression.value.op == PrimitiveOp.D2_B):
+
             if(pipelineId == PipelineID.INGRESS_PIPELINE):
                 parameters.append(HeaderField(name = confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_KEY_NAME,
                                               bitWidth=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH, isSigned=True))
-                parameters.append(HexStr(hexValue="0x0"))
-                parameters.append(HexStr(hexValue="0x1")) #0 for false , 1 for true
+
             elif(pipelineId == PipelineID.EGRESS_PIPELINE):
-                parameters.append(HeaderField(name = confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_KEY_NAME,
+                parameters.append(HeaderField(name = confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_KEY_NAME,
                                               bitWidth=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_BIT_WIDTH, isSigned=True))
-                parameters.append(HexStr(hexValue="0x0"))
-                parameters.append(HexStr(hexValue="0x1")) #0 for false , 1 for true
+            parameters.append(self.expression.value.right)
+            parameters.append(HexStr(hexValue="0x0"))
+            parameters.append(HexStr(hexValue="0x1")) #0 for false , 1 for true
             newPrimitive = Primitive(op = PrimitiveOp.getHardwareRelationalPrimitive(PrimitiveOp.EQUAL), parameters= parameters, source_info= None)
                 #TODO : In the newPrimitive we need to add a new op. for example, when the relational op in the conditional expression is a>b, if we want to
                 #Convert it into if a>b then write 1 into header field else write 0 in the header field.
         else:
-            parameters.append(self.expression.value.left)
-            parameters.append(self.expression.value.right)
             if(pipelineId == PipelineID.INGRESS_PIPELINE):
                 parameters.append(HeaderField(name = confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_KEY_NAME,
                                               bitWidth=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH, isSigned=True))
-                parameters.append(HexStr(hexValue="0x0"))
-                parameters.append(HexStr(hexValue="0x1")) #0 for false , 1 for true
             elif(pipelineId == PipelineID.EGRESS_PIPELINE):
-                parameters.append(HeaderField(name = confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_KEY_NAME,
+                parameters.append(HeaderField(name = confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_KEY_NAME,
                                               bitWidth=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_BIT_WIDTH, isSigned=True))
-                parameters.append(HexStr(hexValue="0x0"))
-                parameters.append(HexStr(hexValue="0x1")) #0 for false , 1 for true
-            newPrimitive = Primitive(op = PrimitiveOp.getHardwareRelationalPrimitive(self.expression.value.op.value), parameters= parameters, source_info= None)
+            parameters.append(self.expression.value.left)
+            parameters.append(self.expression.value.right)
+            parameters.append(HexStr(hexValue="0x0"))
+            parameters.append(HexStr(hexValue="0x1")) #0 for false , 1 for true
+            newPrimitive = Primitive(op = PrimitiveOp.getHardwareRelationalPrimitive(self.expression.value.op), parameters= parameters, source_info= None)
 
         primitiveList.append(newPrimitive)
         convertedAction = Action(name = ConfigurationConstants.CONVERTED_ACTION_PREFIX+self.name, id = self.id, runtime_data= None, primitives= primitiveList )
@@ -2474,8 +2521,14 @@ class Table:
     default_entry: Optional[DefaultEntry] = None
     action_profile: Optional[str] = None
 
+    def containsKey(self, obj):
+        flag = False
+        for k in self.key:
+            if(k.name == obj.name):
+                flag = True
+        return flag
 
-    def getAllMatchFields(self):
+    def getAllMatchFieldsOfRawP4Table(self):
         matchFieldsAsList = []
         for k in self.key:
             matchKey = ""
@@ -2720,6 +2773,16 @@ class ParsedP416ProgramForV1ModelArchitecture:
     meta: Meta
     nameToHeaderTypeObjectMap : {}
 
+    def getAllHeaderFieldsForHeaderType(self, headerTypeName):
+        fieldList = []
+        for hdr in self.headers:
+            if hdr.name == headerTypeName:
+                for hdrType in self.header_types:
+                    if(hdrType.name == hdr.header_type):
+                        for fld in hdrType.fields:
+                            fieldList.append(hdr.name+"."+fld[0])
+        return  fieldList
+
     def getTotalHeaderLength(self):
         total = 0
         for k in self.nameToHeaderTypeObjectMap.keys():
@@ -2855,11 +2918,12 @@ class ParsedP416ProgramForV1ModelArchitecture:
         return result
 
     def getHeaderBitCount(self, headerName):
+        print("ALARM ALARAM ALRAM ALRAM ALRAM ALRAM ALRAM ALARMA. We have to find bitwidth of a hedader filed from the headerFieldMap found from the optimization tool.")
 
         # if("local_metadata" in headerName):
         # print("header name is"+headerName)
         if headerName.endswith("$valid$"):
-            return 8 # assuming the minimum number of bits. But need to recheck with hardware configurations
+            return 8 # all header have a valid bit associated with it. so assuming setting one bit needs only one operation and paddin it needs 8 bit.
         else:
             hdrObj = self.nameToHeaderTypeObjectMap.get(headerName)
             if hdrObj == None:
@@ -2879,6 +2943,54 @@ class ParsedP416ProgramForV1ModelArchitecture:
         # print("header not found "+headerName)
         return None
 
+    def getMatchKeyResourceRequirementForMatNode(self, matNode):
+        matKeyBitWidth = 0
+        headerFieldWiseBitwidthOfMatKeys = {}
+        for k in matNode.matchKeyFields:
+            fieldBitWidth = self.getHeaderBitCount(k)
+            headerFieldWiseBitwidthOfMatKeys[k] = fieldBitWidth
+            matKeyBitWidth =  matKeyBitWidth + fieldBitWidth
+        totalKeysTobeMatched = len(matNode.matchKeyFields)
+        return totalKeysTobeMatched, matKeyBitWidth, headerFieldWiseBitwidthOfMatKeys
+
+    def getActionResourceRequirementForMatNode(self, matNode):
+        # Need to maintain a list or map for which header field is using how manu bytes
+        #     for each action buidl a method that will calculate, fields being modified, fields being used as parameter, stateful memory .
+        #     count and bitwidth and also their mapping of name to bitwidth.
+
+        # calculate total reousrce usage by a table including stram tcam bitwidth etc.
+        # for each action at first find the header fields that are used as parameter, that are modified and the staeful memories used.
+        #     then find their bit width
+
+        for a in matNode.actions:
+            self.getResourceRequirementForAction(matNode,a)
+            # listOfFieldBeingModifed, listOfFieldBeingUsed = a.getListOfFieldsModifedAndUsed()
+            # listOfFieldBeingModifedInThisStage= listOfFieldBeingModifedInThisStage + listOfFieldBeingModifed
+            # listOfFieldBeingUsedAsParameterInThisStage = listOfFieldBeingUsedAsParameterInThisStage + listOfFieldBeingUsed
+            # act = self.getActionByName(a)
+            # print("\t "+str(actionIndex)+" Action Nanme: "+act.name)
+            # print("\t Primitives used in action are: ")
+            # for prim in act.primitives:
+            #     print("\t\t *) "+str(prim.source_info))
+            # for f in listOfFieldBeingModifed:
+            #     totalnumberofFieldsBeingModified  = totalnumberofFieldsBeingModified + 1
+            #     # print("Header name is "+f)
+            #     hdrBitCount = self.getHeaderBitCount(f)
+            #     totalBitWidthOfTheAction = totalBitWidthOfTheAction + hdrBitCount
+            #     headerBitWidthOfFieldsBeingModified = headerBitWidthOfFieldsBeingModified + hdrBitCount
+            # for f in listOfFieldBeingUsed:
+            #     # print("Header name is "+f)
+            #     totalNumberOfFieldsUsedAsParameter = totalNumberOfFieldsUsedAsParameter + 1
+            #     hdrBitCount = self.getHeaderBitCount(f)
+            #     totalBitWidthOfFieldsUsedAsParameter = totalBitWidthOfFieldsUsedAsParameter + hdrBitCount
+            #     totalBitWidthOfTheAction = totalBitWidthOfTheAction + hdrBitCount
+            # if(totalBitWidthOfTheAction > maxBitWidthOfAction):
+            #     maxBitWidthOfAction = totalBitWidthOfTheAction
+
+    def getResourceRequirementForAction(self, matNode, action):
+        print(action)
+        action.getResourceRequirementOfTheAction()
+        pass
 
 # def ParsedP416Program_from_dict(s: Any) -> ParsedP416ProgramForV1ModelArchitecture:
 #     return ParsedP416ProgramForV1ModelArchitecture.from_dict(s)
