@@ -13,9 +13,8 @@ p4program = p4ProgramParserFactory.getParsedP4Program(p4JsonFile="../Resources/s
 p4ProgramGraph = P4ProgramGraph(p4program)
 p4ProgramGraph.loadAndEmbedPipelines(hw)
 headerFieldSpecsInP4Program = p4ProgramGraph.headeranalyzer()
-
-
-hw.mapHeaderFields(headerFieldSpecsInP4Program)
+mappedPacketHeaderVector = hw.mapHeaderFields(headerFieldSpecsInP4Program)
+p4ProgramGraph.storePHVFieldMappingForHeaderFields(mappedPacketHeaderVector=mappedPacketHeaderVector)
 
 
 

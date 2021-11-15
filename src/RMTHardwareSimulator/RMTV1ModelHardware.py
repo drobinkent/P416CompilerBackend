@@ -207,6 +207,7 @@ class RMTV1ModelHardware:
                 print("For each X-bit wide header field this output lists all the hardwared header fields used. So assume in a P4 program you need 2 32 bit field. If it shows 8 x8 bit wide header fields. that means to fill"
                       "the 2x 32 bit header fields of the program we can use 8x8 bit wide header fields available in the hardware")
                 print(str(mappedacketHeaderVector))
+                return mappedacketHeaderVector
         else:
             print('The problem does not have an optimal solution.')
             pass

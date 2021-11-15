@@ -2839,7 +2839,12 @@ class HeaderField:
         self.isSigned = isSigned
         self.mutlipleOf8Bitwidth = mutlipleOf8Bitwidth
         self.mappedPhyscialHeaderVectorFieldBitwdith =mappedPhyscialHeaderVectorFieldBitwdith
+        self.pipelineIDToPHVListMap = {}
 
+    def setPipelineIDToPHVListMap(self, pipelineID, phvList):
+        self.pipelineIDToPHVListMap[pipelineID] = phvList
+    def getPipelineIDToPHVListMap(self, pipelineID):
+        return self.pipelineIDToPHVListMap.get(pipelineID)
     def setMappedPhyscialHeaderVectorFieldBitwdith(self, mappedPhyscialHeaderVectorFieldBitwdith):
         self.mappedPhyscialHeaderVectorFieldBitwdith = mappedPhyscialHeaderVectorFieldBitwdith
 
