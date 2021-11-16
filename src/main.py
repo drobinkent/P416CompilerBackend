@@ -11,10 +11,11 @@ hw = RMTHardwareFactory.createRmtHardware(rmtHardwaRemodelName = "RMT_V1",
     hardwareSpecConfigurationJsonFile = "../Resources/HardwareConfigs/RMTV1model32Stages.json")
 p4program = p4ProgramParserFactory.getParsedP4Program(p4JsonFile="../Resources/spine.json",p4VersionAndArchitecture="P416_V1_Model")
 p4ProgramGraph = P4ProgramGraph(p4program)
-p4ProgramGraph.loadAndEmbedPipelines(hw)
+p4ProgramGraph.loadPipelines(hw)
 headerFieldSpecsInP4Program = p4ProgramGraph.headeranalyzer()
 mappedPacketHeaderVector = hw.mapHeaderFields(headerFieldSpecsInP4Program)
 p4ProgramGraph.storePHVFieldMappingForHeaderFields(mappedPacketHeaderVector=mappedPacketHeaderVector)
+p4ProgramGraph.embedPipelines(hw)
 
 
 

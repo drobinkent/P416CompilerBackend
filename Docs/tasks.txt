@@ -26,3 +26,25 @@
 
  2) now assume a registe read for  a header field (this register array also need n number of entries, we will also p ass this). now if this can be satisfied, then
  we will subtract the total space count and also reduce the avaialble memory port for this request. similarly we will also keep track of how this request was satisfied.
+
+
+ calculate statewise leveles function a arekta map rakhte hobe jeta kon stateful memory kon level a rakha hoiche r kon phjysical stage a map kjora hoche setar track rakhbe.
+
+
+ how many entries a table requre also return that, with how many fields and bit width of the fields
+
+ action : how many fields are passed as action param?
+ how much space required to store tham in sram
+
+ how many differrent actions a table need
+
+ --actions has a field runtime_data, it contains the parameters passed by the control plane.
+ if any primitive uses them, then they will be in parameter of a primitive, with type runtime_data and value as th index of the runtime_data of the action
+
+
+
+ ----------- resource req of action a parametyeraslist function ta kono use e korbo na
+
+
+
+

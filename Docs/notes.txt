@@ -24,3 +24,17 @@ Resources used by an action :
 a) header field being modified, being used and their bit width
 b) number of stateful memories and their bitwodth
 c) we will assume that, the extern also uses the same action crossbar
+
+
+
+Another point :
+
+if we have maximum 8 field matching capability in each stage, that means, we can continue at most 8 branch (resulted from conditional) in one stage
+so ity should enough to store 8  bit in the pecial key for carrying the result of a conditional. so if we reserve 8 bits in this field, then whern we are embedding, at most
+8 branches can be mapped on a stage. so assume we are embedding 8 conditionals, then we can index them from 1 to 8. then we can use this index to see which bit should be mapped
+to which conditional.
+
+
+Now assiging this bit to conditional is the task of a compiler. we lave it for future work.
+
+also instead of full 8 bit match key, we should go for 1 bit + other keys of the table. that is also our future goal.

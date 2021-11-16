@@ -563,6 +563,9 @@ class PrimitiveField:
     header_name: str
     field_memeber_name : str
 
+    def getName(self):
+        return self.header_name+"."+self.field_memeber_name
+
     @staticmethod
     def from_dict(obj: Any) -> 'PrimitiveField':
         assert isinstance(obj, dict)
@@ -1310,6 +1313,23 @@ class Action:
     runtime_data: List[RuntimeDatum]
     primitives: List[Primitive]
 
+    def getBitwidthOfRuntimeData(self, index):
+        if (index >= len(self.runtime_data)):
+            logger.info("Can not retrieve the bitwidth of the "+str(index)+" th parameter of the action: "+self.name+". Because it has only "+str(len(self.runtime_data))+" items. Debug Exiting")
+            print("Can not retrieve the "+str(index)+" th parameter of the action: "+self.name+". Because it has only "+str(len(self.runtime_data))+" items. Debug Exiting")
+            exit(1)
+        else:
+            return self.runtime_data[index].bitwidth
+
+    def getNameOfRuntimeData(self, index):
+        if (index >= len(self.runtime_data)):
+            logger.info("Can not retrieve the name of the "+str(index)+" th parameter of the action: "+self.name+". Because it has only "+str(len(self.runtime_data))+" items. Debug Exiting")
+            print("Can not retrieve the "+str(index)+" th parameter of the action: "+self.name+". Because it has only "+str(len(self.runtime_data))+" items. Debug Exiting")
+            exit(1)
+        else:
+            return self.runtime_data[index].name
+
+
     def bifurcateActionBasedOnStatefulMemeory(self,regNames, newActionNamePrefix):
         # print("I m here"+str(regNames))
         index = -1
@@ -1352,9 +1372,11 @@ class Action:
         # print("type is "+str(t))
         # if(t == PrimitiveField):
         if (t  == CounterArrayPrimitive)  or (t  == PrimitiveHeader)  or (t  == MeterArrayPrimitive) \
-                or (t  == BoolPrimitive) or (t  == str) or (t == PrimitiveField):
+                or (t  == str) or (t == PrimitiveField):
             val = obj.header_name + "."+ obj.field_memeber_name
             fieldList.append(val)
+        elif  (t  == BoolPrimitive):
+            pass #BEcause for bool primitive we do not need think about whather there is dependency or not
         elif(t==HeaderField):
             val = obj.name
             fieldList.append(val)
@@ -1370,16 +1392,15 @@ class Action:
             # for both of them call the getParameterValueAsList function
             # collect their result and merge the lists
             # print(obj)
-            if (type(obj.value == Expression)):
-                fieldList = self.getParameterNameAsList(obj.value)
-            elif (type(obj.value == PrimitiveOpblock)):
+            if (type(obj.value) == Expression):
+                fieldList = fieldList + self.getParameterNameAsList(obj.value)
+            elif (type(obj.value) == PrimitiveOpblock):
                 if (obj.value.left != None):
-                    leftFieldList = self.getParameterNameAsList(obj.value.left)
+                    fieldList = fieldList + self.getParameterNameAsList(obj.value.left)
                 if (obj.value.right != None):
-                    rightFieldList = self.getParameterNameAsList(obj.value.right)
-                fieldList = fieldList + leftFieldList + rightFieldList
+                    fieldList  = fieldList + self.getParameterNameAsList(obj.value.right)
         elif (t  == PrimitiveRuntimeData):
-            logger.info("Runtime data is not needed to be parsed in our system. passing it ")
+            logger.info("Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it ")
             pass
         elif (t  == Extern):
             logger.info("Extern is not suuported in our system. Exisiting!!")
@@ -1407,7 +1428,8 @@ class Action:
         return  listOfStatefulMemoeriesBeingUsed
 
     def getListOfFieldsModifedAndUsedByTheAction(self,parsedP4Program):
-        #This function is used for dependency analysis. Btu when we want to calculate the physical resource (like, bitwidth, sram storage etc) concusmption, we have to use other method
+        #This function is used for dependency analysis. But when we want to calculate the physical
+        # resource (like, bitwidth, sram storage etc) consumption, we have to use other method
         listOfFieldBeingModifed = []
         listOfFieldBeingUsed = []
         listOfStatefulMemoryBeingAccessed= []
@@ -1499,75 +1521,111 @@ class Action:
             #TODO: in the final framework we need to suport meter execution
 
 
-        return listOfFieldBeingModifed, listOfFieldBeingUsed
+        return listOfFieldBeingModifed, listOfFieldBeingUsed,listOfStatefulMemoryBeingAccessed
 
+    def getParamaterBitWidth(self,p4ProgramGraph, param,pipelineID):
+        if(type(param) == HeaderField):
+            headerObject = p4ProgramGraph.parsedP4Program.nameToHeaderTypeObjectMap.get(param.name)
+            return headerObject.getPHVBitWidth(pipelineID)
+        elif(type(param) == PrimitiveField):
+            if ("$valid$" in param.field_memeber_name):
+                return 1
+            else:
+                headerObject = p4ProgramGraph.parsedP4Program.nameToHeaderTypeObjectMap.get(param.getName())
+                return headerObject.getPHVBitWidth(pipelineID)
+        elif(type(param) == HexStr):
+            return 8
+        elif (type(param)   == PrimitiveRuntimeData):
+            return self.getBitwidthOfRuntimeData(int(param.value))
+        elif (type(param)   == BoolPrimitive):
+            return 1
+        elif (type(param)   == CalculationPrimitive):
+            #TODO: if the type is calculation primitive it means , this is a parameter of hash calculation. We are already calculating the parameters for hash unit.
+            # So no need to check this.
+            return 0
+        elif (type(param)   == Expression):
+            if (type(param.value) == Expression):
+                return self.getParamaterBitWidth(p4ProgramGraph,param.value,pipelineID)
+            elif (type(param.value == PrimitiveOpblock)):
+                leftWidth = 0
+                rightWidth = 0
+                if (param.value.left != None):
+                    leftWidth = self.getParamaterBitWidth(p4ProgramGraph,param.value.left,pipelineID)
+                if (param.value.right != None):
+                    rightWidth = self.getParamaterBitWidth(p4ProgramGraph,param.value.right,pipelineID)
+                return leftWidth+rightWidth
+        else:
+            print("Parameter type "+str(type(param))+"not supported in getParamaterBitWidth. exiting")
+            exit(1)
 
-    def getResourceRequirementOfTheAction(self,parsedP4Program):
-        #This function is used for dependency analysis. Btu when we want to calculate the physical resource (like, bitwidth, sram storage etc) concusmption, we have to use other method
+    def getResourceRequirementOfTheAction(self,p4ProgramGraph,pipelineID):
+        #For each header field must retrieve it from the parsedP4PRogram.nametoheaderobjectmap. that value contains the actual bitwidth.
         listOfFieldBeingModifed = []
         listOfFieldBeingUsed = []
         listOfStatefulMemoryBeingAccessed= []
+        actionCrossbarBitwidth= 0
 
         for prim in self.primitives:
             if(prim.op == PrimitiveOp.ASSIGN) :
-                param = prim.parameters[0]
-                val = param.header_name + "."+ param.field_memeber_name
-                listOfFieldBeingModifed.append(val)
-                i=1
+                actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[0],pipelineID)
+                listOfFieldBeingModifed.append(prim.parameters[0])
                 for i in range (1, len(prim.parameters)):
-                    param = prim.parameters[i]
-                    valuesUsedInTheprimitive = self.getParameterNameAsList(param)
-                    listOfFieldBeingUsed = listOfFieldBeingUsed  + valuesUsedInTheprimitive
+                    actionCrossbarBitwidth = actionCrossbarBitwidth +  self.getParamaterBitWidth(p4ProgramGraph, prim.parameters[i],pipelineID)
+                    listOfFieldBeingUsed.append(prim.parameters[i])
             elif(prim.op == PrimitiveOp.GREATER_THAN_EQUAL_WRITE) or  (prim.op == PrimitiveOp.GREATER_THAN_WRITE) \
                     or (prim.op == PrimitiveOp.LESS_THAN_WRITE) or (prim.op == PrimitiveOp.LESS_THAN_EQUAL_WRITE) \
                     or (prim.op == PrimitiveOp.NOT_EQUAL_WRITE) or (prim.op == PrimitiveOp.EQUAL_WRITE) \
                     or (prim.op == PrimitiveOp.AND_WRITE) or (prim.op == PrimitiveOp.OR_WRITE) or \
                     (prim.op == PrimitiveOp.MODIFY_FIELD_WITH_HASH_BASED_OFFSET):
-                param = prim.parameters[0]
-                listOfFieldBeingModifed = listOfFieldBeingModifed + self.getParameterNameAsList(param)
+                # first param should be one 8 bit special field.
+                # others are as usual, from the expression.
+                # so effectively we are assuming that, ifperdicate is true, the atom will a 8 bit field.
+                actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[0],pipelineID)
+                listOfFieldBeingModifed.append(prim.parameters[0])
                 for i in range (1, len(prim.parameters)):
-                    param = prim.parameters[i]
-                    valuesUsedInTheprimitive = self.getParameterNameAsList(param)
-                    listOfFieldBeingUsed = listOfFieldBeingUsed + valuesUsedInTheprimitive
+                    actionCrossbarBitwidth = actionCrossbarBitwidth +  self.getParamaterBitWidth(p4ProgramGraph, prim.parameters[i],pipelineID)
+                    listOfFieldBeingUsed.append(prim.parameters[i])
 
             elif ((prim.op == PrimitiveOp.REMOVE_HEADER) or (prim.op == PrimitiveOp.ADD_HEADER)  or (prim.op == PrimitiveOp.MARK_TO_DROP)):
-                headerTypeName = prim.parameters[0].headerValue
-                listOfFieldBeingModifed = listOfFieldBeingModifed + parsedP4Program.getAllHeaderFieldsForHeaderType(headerTypeName)
-
+                # only 8 bit feild need to be modified.
+                # in field list only keep the header name
+                listOfFieldBeingModifed.append(prim.parameters[0])
+                actionCrossbarBitwidth = actionCrossbarBitwidth +  1 #Because if we want to set the vlaid to false we need to write only one false  in thr valid bit.
             elif ((prim.op == PrimitiveOp.REGISTER_READ)):
+                # read op, reads somthing from memory and writes  it into header field. so it only consumes bitwdith for index and header field in crossbar
+                #For statefulmemory consumption we will use other method
                 if(type(prim.parameters[0])==PrimitiveField):
-                    listOfFieldBeingModifed.append(prim.parameters[0].getHeaderFieldName())
+                    listOfFieldBeingModifed.append(prim.parameters[0])
+                    actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[0],pipelineID)
                 else:
                     print("The first parameter in a reigster read operation must have to be a header field. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
                     exit(1)
-                if(type(prim.parameters[1])==RegisterArrayPrimitive):
-                    listOfStatefulMemoryBeingAccessed.append(prim.parameters[1].registerArrayName)
-                else:
-                    print("The second parameter in a reigster read must have to be a register array. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
-                    exit(1)
-                if(type(prim.parameters[2])==PrimitiveField) or (type(prim.parameters[2])==HexStr):
-                    listOfFieldBeingUsed = listOfFieldBeingUsed + self.getParameterNameAsList(prim.parameters[2])
-                else:
-                    print("The third parameter in a reigster read must have to be a HexStr or header field. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
-                    exit(1)
-
-                pass
+                # if(type(prim.parameters[1])==RegisterArrayPrimitive):
+                #     listOfStatefulMemoryBeingAccessed.append(prim.parameters[1].registerArrayName)
+                # else:
+                #     print("The second parameter in a reigster read must have to be a register array. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
+                #     exit(1)
+                if(type(prim.parameters[2])==PrimitiveField):
+                    actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[2],pipelineID)
+                    listOfFieldBeingUsed.append(prim.parameters[2])
+                if (type(prim.parameters[2])==HexStr):
+                    actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[2],pipelineID)
+                    listOfFieldBeingUsed.append(prim.parameters[2])
             elif ((prim.op == PrimitiveOp.REGISTER_WRITE) ):
-                if(type(prim.parameters[0])==RegisterArrayPrimitive):
-                    listOfStatefulMemoryBeingAccessed.append(prim.parameters[0].registerArrayName)
-                else:
-                    print("The first parameter in a reigster write must have to be a register array. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
-                    exit(1)
+                # if(type(prim.parameters[0])==RegisterArrayPrimitive):
+                #     listOfStatefulMemoryBeingAccessed.append(prim.parameters[0].registerArrayName)
+                # else:
+                #     print("The first parameter in a reigster write must have to be a register array. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
+                #     exit(1)
                 for i in range (1, len(prim.parameters)):
-                    param = prim.parameters[i]
-                    valuesUsedInTheprimitive = self.getParameterNameAsList(param)
-                    listOfFieldBeingUsed = listOfFieldBeingUsed  + valuesUsedInTheprimitive
-
+                    actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[i],pipelineID)
+                    listOfFieldBeingUsed.append(prim.parameters[i])
             elif (prim.op == PrimitiveOp.EXIT):
                 pass
             elif (prim.op == PrimitiveOp.CLONE_EGRESS_PKT_TO_EGRESS) or (prim.op == PrimitiveOp.RECIRCULATE):
-                logger.info("CONING AND RECIRCULATION IS NOT handled yet. BUT they do not immpact the resource consumption of the compiler. Because the recirculation or "+ \
-                            "Cloning is handled by a standard metadata field. We already considered it in header space consumption. We should add a assign operation here though ")
+                #TODO: in future add more types of recirculation and also automate the bitwidth
+                logger.info("CONING AND RECIRCULATION need to write only one field in standard_metadata to indicate what is the type of operation. To write a vlaue in that filed we need two parmameters")
+                actionCrossbarBitwidth = actionCrossbarBitwidth + 2*8
                 pass
             elif (prim.op == PrimitiveOp.EXECUTE_METER):
                 if(type(prim.parameters[0])==MeterArrayPrimitive):
@@ -1577,9 +1635,8 @@ class Action:
                     print("The first parameter in a meter operation must have to be a meter name. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
                     exit(1)
                 for i in range (1, len(prim.parameters)):
-                    param = prim.parameters[i]
-                    valuesUsedInTheprimitive = self.getParameterNameAsList(param)
-                    listOfFieldBeingUsed = listOfFieldBeingUsed  + valuesUsedInTheprimitive
+                    actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[i],pipelineID)
+                    listOfFieldBeingUsed.append(prim.parameters[i])
             elif (prim.op == PrimitiveOp.COUNT):
                 if(type(prim.parameters[0])==CounterArrayPrimitive):
                     listOfStatefulMemoryBeingAccessed.append(prim.parameters[0].counterArrayName)
@@ -1595,7 +1652,7 @@ class Action:
             #TODO: in the final framework we need to suport meter execution
 
 
-        return listOfFieldBeingModifed, listOfFieldBeingUsed
+        return listOfFieldBeingModifed, listOfFieldBeingUsed,listOfStatefulMemoryBeingAccessed
 
 class ParserOpOp(Enum):
     EXTRACT = "extract"
@@ -2845,6 +2902,17 @@ class HeaderField:
         self.pipelineIDToPHVListMap[pipelineID] = phvList
     def getPipelineIDToPHVListMap(self, pipelineID):
         return self.pipelineIDToPHVListMap.get(pipelineID)
+
+    def getPHVBitWidth(self,pipelineID):
+        phvfieldList = self.pipelineIDToPHVListMap.get(pipelineID)
+        totalBitWidth = 0
+        if(phvfieldList == None):
+            print("Mapped PHV field list not found for "+self.name+"For pipeline "+str(pipelineID))
+            exit(1)
+        for phvField in phvfieldList:
+            totalBitWidth = totalBitWidth+phvField
+        return totalBitWidth
+
     def setMappedPhyscialHeaderVectorFieldBitwdith(self, mappedPhyscialHeaderVectorFieldBitwdith):
         self.mappedPhyscialHeaderVectorFieldBitwdith = mappedPhyscialHeaderVectorFieldBitwdith
 
@@ -3035,11 +3103,7 @@ class ParsedP416ProgramForV1ModelArchitecture:
         result["__meta__"] = to_class(Meta, self.meta)
         return result
 
-    def getHeaderBitCount(self, headerName):
-        print("ALARM ALARAM ALRAM ALRAM ALRAM ALRAM ALRAM ALARMA. We have to find bitwidth of a hedader filed from the headerFieldMap found from the optimization tool.")
-
-        # if("local_metadata" in headerName):
-        # print("header name is"+headerName)
+    def getHeaderBitCount(self, headerName,pipelineId):
         if headerName.endswith("$valid$"):
             return 8 # all header have a valid bit associated with it. so assuming setting one bit needs only one operation and paddin it needs 8 bit.
         else:
@@ -3048,30 +3112,51 @@ class ParsedP416ProgramForV1ModelArchitecture:
                 for hf in self.headers:
                     if(hf.name == headerName):
                         return 8  # This means the primitie was set valid/invalid or chekcing a headers validity. Therefore the whole header was used. So return onlyn 8
-                for regArray in self.register_arrays:
-                    if(regArray.name == headerName):
-                        # return regArray.bitwidth
-                        return math.ceil(float(regArray.bitwidth/8))*8  # We are estimating here it as a header field. But when we do memmory read write we havve to count actual bitwidth
             else:
-                if("temp_src_addr" in headerName): # skiipping this header field because, this fileds are used for swapping two ipv6 addresses. now for swapping in RMT we do not need tmp in real hardware
-                    return  0
-                else:
-                    bitWidth = math.ceil(float(hdrObj.bitWidth/8))*8
-                    return bitWidth
-        # print("header not found "+headerName)
-        return None
+                bitWidth = hdrObj.getPHVBitWidth(pipelineId)
+                if(bitWidth<=0):
+                    logger.info("bitwidth for header field : "+ headerName+" is found 0. This can not happen. Debug please . Exiting !!!!")
+                    print("bitwidth for header field : "+ headerName+" is found 0. This can not happen. Debug please . Exiting !!!!")
+                    exit(1)
+                return bitWidth
 
-    def getMatchKeyResourceRequirementForMatNode(self, matNode):
+    # def getHeaderBitCountOld(self, headerName):
+    #     print("ALARM ALARAM ALRAM ALRAM ALRAM ALRAM ALRAM ALARMA. We have to find bitwidth of a hedader filed from the headerFieldMap found from the optimization tool.")
+    #
+    #     # if("local_metadata" in headerName):
+    #     # print("header name is"+headerName)
+    #     if headerName.endswith("$valid$"):
+    #         return 8 # all header have a valid bit associated with it. so assuming setting one bit needs only one operation and paddin it needs 8 bit.
+    #     else:
+    #         hdrObj = self.nameToHeaderTypeObjectMap.get(headerName)
+    #         if hdrObj == None:
+    #             for hf in self.headers:
+    #                 if(hf.name == headerName):
+    #                     return 8  # This means the primitie was set valid/invalid or chekcing a headers validity. Therefore the whole header was used. So return onlyn 8
+    #             for regArray in self.register_arrays:
+    #                 if(regArray.name == headerName):
+    #                     # return regArray.bitwidth
+    #                     return math.ceil(float(regArray.bitwidth/8))*8  # We are estimating here it as a header field. But when we do memmory read write we havve to count actual bitwidth
+    #         else:
+    #             if("temp_src_addr" in headerName): # skiipping this header field because, this fileds are used for swapping two ipv6 addresses. now for swapping in RMT we do not need tmp in real hardware
+    #                 return  0
+    #             else:
+    #                 bitWidth = math.ceil(float(hdrObj.bitWidth/8))*8
+    #                 return bitWidth
+    #     # print("header not found "+headerName)
+    #     return None
+
+    def getMatchKeyResourceRequirementForMatNode(self, matNode,pipelineId):
         matKeyBitWidth = 0
         headerFieldWiseBitwidthOfMatKeys = {}
         for k in matNode.matchKeyFields:
-            fieldBitWidth = self.getHeaderBitCount(k)
+            fieldBitWidth = self.getHeaderBitCount(k,pipelineId)
             headerFieldWiseBitwidthOfMatKeys[k] = fieldBitWidth
             matKeyBitWidth =  matKeyBitWidth + fieldBitWidth
         totalKeysTobeMatched = len(matNode.matchKeyFields)
         return totalKeysTobeMatched, matKeyBitWidth, headerFieldWiseBitwidthOfMatKeys
 
-    def getActionResourceRequirementForMatNode(self, matNode):
+    def getActionResourceRequirementForMatNode(self, matNode,p4ProgramGraph,pipelineID):
         # Need to maintain a list or map for which header field is using how manu bytes
         #     for each action buidl a method that will calculate, fields being modified, fields being used as parameter, stateful memory .
         #     count and bitwidth and also their mapping of name to bitwidth.
@@ -3081,7 +3166,7 @@ class ParsedP416ProgramForV1ModelArchitecture:
         #     then find their bit width
 
         for a in matNode.actions:
-            self.getResourceRequirementForAction(matNode,a)
+            a.getResourceRequirementOfTheAction(p4ProgramGraph,pipelineID)
             # listOfFieldBeingModifed, listOfFieldBeingUsed = a.getListOfFieldsModifedAndUsed()
             # listOfFieldBeingModifedInThisStage= listOfFieldBeingModifedInThisStage + listOfFieldBeingModifed
             # listOfFieldBeingUsedAsParameterInThisStage = listOfFieldBeingUsedAsParameterInThisStage + listOfFieldBeingUsed
@@ -3105,10 +3190,10 @@ class ParsedP416ProgramForV1ModelArchitecture:
             # if(totalBitWidthOfTheAction > maxBitWidthOfAction):
             #     maxBitWidthOfAction = totalBitWidthOfTheAction
 
-    def getResourceRequirementForAction(self, matNode, action):
-        print(action)
-        action.getResourceRequirementOfTheAction()
-        pass
+    # def getResourceRequirementForAction(self, matNode, action):
+    #     print(action)
+    #     action.getResourceRequirementOfTheAction()
+    #     pass
 
 # def ParsedP416Program_from_dict(s: Any) -> ParsedP416ProgramForV1ModelArchitecture:
 #     return ParsedP416ProgramForV1ModelArchitecture.from_dict(s)

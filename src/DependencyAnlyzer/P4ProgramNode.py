@@ -376,7 +376,7 @@ class MATNode:
         listOfFieldBeingModifed = []
         listOfFieldBeingUsed = []
         for a in self.actions:
-            filedsModifiedInAction, fieldsdUsedInAction = a.getListOfFieldsModifedAndUsedByTheAction(parsedP4Program)
+            filedsModifiedInAction, fieldsdUsedInAction , listOfStatefulMemoryBeingAccessed= a.getListOfFieldsModifedAndUsedByTheAction(parsedP4Program)
             listOfFieldBeingModifed = listOfFieldBeingModifed + filedsModifiedInAction
             listOfFieldBeingUsed = listOfFieldBeingUsed + fieldsdUsedInAction
         listOfFieldBeingModifed = set(listOfFieldBeingModifed)

@@ -231,9 +231,9 @@ class RMTV1ModelHardware:
             print("The MAT node: "+ pipelineGraph.stageWiseLogicalMatList.get(logicalStageNumbersAsList[0])[0].name +" with highest logical stage number :"+str(logicalStageNumbersAsList[0])+ " must have to be DUMMY End node. Debug please Exiting")
         return
 
-    def embedP4ProgramAccordingToSingleMatrix(self, p4ProgramGraph):
+    def embedP4ProgramAccordingToSingleMatrix(self, p4ProgramGraph,pipelineID):
         print("Starting embedding the P4 Program graph on to the hardware")
-        pipelineGraph = p4ProgramGraph.pipelineIdToPipelineGraphMap.get(PipelineID.INGRESS_PIPELINE)
+        pipelineGraph = p4ProgramGraph.pipelineIdToPipelineGraphMap.get(pipelineID)
         logicalStageNumbersAsList = list(pipelineGraph.stageWiseLogicalMatList.keys())
         logicalStageNumbersAsList.sort(reverse=True) # We are sorting the logical stage numbers in descending order. Because we have calculated the levels in reverse order due to use of DFS
         #The first element in this list will be the logical stage number for the dummy start node.
@@ -248,8 +248,8 @@ class RMTV1ModelHardware:
                 logicalMatList = pipelineGraph.stageWiseLogicalMatList.get(logicalStageIndex)
                 for logicalMat in logicalMatList:
                     # print(logicalMat)
-                    totalKeysTobeMatched, matKeyBitWidth, headerFieldWiseBitwidthOfMatKeys = p4ProgramGraph.parsedP4Program.getMatchKeyResourceRequirementForMatNode(logicalMat)
-                    p4ProgramGraph.parsedP4Program.getActionResourceRequirementForMatNode(logicalMat)
+                    totalKeysTobeMatched, matKeyBitWidth, headerFieldWiseBitwidthOfMatKeys = p4ProgramGraph.parsedP4Program.getMatchKeyResourceRequirementForMatNode(logicalMat,pipelineID)
+                    p4ProgramGraph.parsedP4Program.getActionResourceRequirementForMatNode(logicalMat,p4ProgramGraph,pipelineID)
                     #Embed logicalMat
 
 

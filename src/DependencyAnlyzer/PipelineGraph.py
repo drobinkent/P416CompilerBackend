@@ -133,8 +133,8 @@ class PipelineGraph:
         for a in tbl.actions:
             act = self.getActionByName(a)
             if (act != None):
-                newfieldList = act.getListOfFieldsModifedAndUsedByTheAction(self.parsedP4Program)[0]
-                totalFieldList = totalFieldList + newfieldList
+                listOfFieldBeingModifed, listOfFieldBeingUsed,listOfStatefulMemoryBeingAccessed = act.getListOfFieldsModifedAndUsedByTheAction(self.parsedP4Program)
+                totalFieldList = totalFieldList + listOfFieldBeingModifed + listOfFieldBeingUsed
         return totalFieldList
 
 
