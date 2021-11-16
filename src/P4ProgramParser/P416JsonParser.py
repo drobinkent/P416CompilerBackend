@@ -185,6 +185,18 @@ class PurpleType(Enum):
     LOCAL = "local"
 
 
+class MatchType(Enum):
+    EXACT = "exact"
+    LPM = "lpm"
+    RANGE = "range"
+    TERNARY = "ternary"
+
+
+class TableType(Enum):
+    INDIRECT_WS = "indirect_ws"
+    SIMPLE = "simple"
+
+
 @dataclass
 class Element:
     type: ValueType
@@ -2441,6 +2453,38 @@ class StickyValue:
         result["right"] = to_class(PurpleRight, self.right)
         return result
 
+@dataclass
+class Key:
+    match_type: MatchType
+    name: str
+    target: List[str]
+    mask: None
+
+    def getHeaderName(self):
+        matchKey = ""
+        for t in self.target:
+            if(matchKey == ""):
+                matchKey = t
+            else:
+                matchKey = matchKey+"."+t
+        return matchKey
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'Key':
+        assert isinstance(obj, dict)
+        match_type = MatchType(obj.get("match_type"))
+        name = from_str(obj.get("name"))
+        target = from_list(from_str, obj.get("target"))
+        mask = from_none(obj.get("mask"))
+        return Key(match_type, name, target, mask)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        result["match_type"] = to_enum(MatchType, self.match_type)
+        result["name"] = from_str(self.name)
+        result["target"] = from_list(from_str, self.target)
+        result["mask"] = from_none(self.mask)
+        return result
 
 
 
@@ -2454,8 +2498,28 @@ class Conditional:
     is_visited_for_stateful_memory_preprocessing: bool
     is_visited_for_graph_drawing: GraphColor
     is_visited_for_TDG_processing: GraphColor
+    key: List[Key]
     true_next: str
     false_next: Optional[str] = None
+
+    def containsKey(self, obj):
+        flag = False
+        for k in self.key:
+            if(k.name == obj.name):
+                flag = True
+        return flag
+
+    def getAllMatchFieldsOfRawP4Conditional(self):
+        matchFieldsAsList = []
+        for k in self.key:
+            matchKey = ""
+            for t in k.target:
+                if(matchKey == ""):
+                    matchKey = t
+                else:
+                    matchKey = matchKey+"."+t
+            matchFieldsAsList.append(matchKey)
+        return matchFieldsAsList
 
     def convertToAction(self, pipelineId):
         #TODO : at this moment we are assuming that an expression of a conditional will be only in a form that can be expressed using an atomic operation.
@@ -2521,7 +2585,7 @@ class Conditional:
         expression = Expression.from_dict(obj.get("expression"))
         true_next = from_str(obj.get("true_next"))
         false_next = from_union([from_none, from_str], obj.get("false_next"))
-        return Conditional(name, id, source_info, expression, False, False,GraphColor.WHITE, GraphColor.WHITE, true_next, false_next)
+        return Conditional(name, id, source_info, expression, False, False,GraphColor.WHITE, GraphColor.WHITE, [], true_next, false_next)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -2559,52 +2623,6 @@ class DefaultEntry:
         return result
 
 
-class MatchType(Enum):
-    EXACT = "exact"
-    LPM = "lpm"
-    RANGE = "range"
-    TERNARY = "ternary"
-
-
-@dataclass
-class Key:
-    match_type: MatchType
-    name: str
-    target: List[str]
-    mask: None
-
-    def getHeaderName(self):
-        matchKey = ""
-        for t in self.target:
-            if(matchKey == ""):
-                matchKey = t
-            else:
-                matchKey = matchKey+"."+t
-        return matchKey
-
-    @staticmethod
-    def from_dict(obj: Any) -> 'Key':
-        assert isinstance(obj, dict)
-        match_type = MatchType(obj.get("match_type"))
-        name = from_str(obj.get("name"))
-        target = from_list(from_str, obj.get("target"))
-        mask = from_none(obj.get("mask"))
-        return Key(match_type, name, target, mask)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["match_type"] = to_enum(MatchType, self.match_type)
-        result["name"] = from_str(self.name)
-        result["target"] = from_list(from_str, self.target)
-        result["mask"] = from_none(self.mask)
-        return result
-    
-    
-
-
-class TableType(Enum):
-    INDIRECT_WS = "indirect_ws"
-    SIMPLE = "simple"
 
 # class SuperTable:
 #     def __init__(self,name):

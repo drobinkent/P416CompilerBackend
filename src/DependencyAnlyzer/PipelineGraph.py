@@ -109,7 +109,12 @@ class PipelineGraph:
 
         #Now analyzig the conditionals of the pipeline
         allHeaderFieldUsedInConditionCheckingPartOfAllConditionals = []
+
         for conditionalObj in pipelineObject.conditionals:
+            allHeaderFieldUsedInOneMAT = conditionalObj.getAllMatchFieldsOfRawP4Conditional()
+            if len(allHeaderFieldUsedInOneMAT)>0:
+                for e in allHeaderFieldUsedInOneMAT:
+                    allHeaderFieldUsedInMatchPartAllMAT.add(e)
             exprNode = ExpressionNode(parsedP4Node = conditionalObj.expression, name =conditionalObj.name,  parsedP4NodeType = P4ProgramNodeType.CONDITIONAL_NODE, pipelineID=self.pipelineID)
             allHeaderFieldUsedInConditionCheckingPartOfOneConditionals = exprNode.getAllFieldList()
             if len(allHeaderFieldUsedInConditionCheckingPartOfOneConditionals)>0:
@@ -120,7 +125,7 @@ class PipelineGraph:
         print("After removing duplicate member of conditional checking of all the conditional  "+str(len(allHeaderFieldUsedInConditionCheckingPartOfAllConditionals)))
         #Condtioanls have either true or false. they do not have own action. their true_next or false_next is an action. These acrions are analyzed with match-action tables.
         #So need to proces them again
-        fullListOfHeaderFieldsUsedInThePipeline = allHeaderFieldUsedInConditionCheckingPartOfAllConditionals.union(fullListOfHeaderFieldsUsedInThePipeline)
+        fullListOfHeaderFieldsUsedInThePipeline = allHeaderFieldUsedInConditionCheckingPartOfAllConditionals.union(fullListOfHeaderFieldsUsedInThePipeline).union(allHeaderFieldUsedInMatchPartAllMAT)
         print("Total number of header fields used in the pipeline is "+str(len(fullListOfHeaderFieldsUsedInThePipeline)))
         return fullListOfHeaderFieldsUsedInThePipeline
 
@@ -248,7 +253,7 @@ class PipelineGraph:
     #====================================== Functions related to conditional processing STARTS Here ==================================================
     def preprocessConditionalNodeRecursively(self, nodeName, callernode, toPrint= True ):
         node = self.getNodeWithActionsForConditionalPreProcessing(nodeName)
-        prevNode = self.getNodeWithActionsForConditionalPreProcessing(callernode)
+        # prevNode = self.getNodeWithActionsForConditionalPreProcessing(callernode)
         if(node == None):
             # logger.info("No relevant node is found in the pipeline for : " + nodeName)
             return
@@ -301,7 +306,7 @@ class PipelineGraph:
             p4teConditionalNode.exprNode = ExpressionNode(parsedP4Node = conditional.expression, name= name,  parsedP4NodeType = P4ProgramNodeType.CONDITIONAL_NODE, pipelineID=self.pipelineID)
             #p4teConditionalNode.actions = self actions  # A conditional is itself an action so its actions are itself own
             # store the action used in the conditional
-            p4teConditionalNode.matchKeyFields = None
+            p4teConditionalNode.matchKeyFields = conditional.getAllMatchFieldsOfRawP4Conditional()
             # p4teConditionalNode.actions =
             p4teConditionalNode.next_tables = [conditional.true_next, conditional.false_next]
             for a in p4teConditionalNode.next_tables:
@@ -332,6 +337,16 @@ class PipelineGraph:
                 nextNodeList.append(nodeName)
         for cond in self.pipeline.conditionals:
             if cond.name  == nodeName:
+                if(self.pipeline.name == PipelineID.INGRESS_PIPELINE.value) and (isArrivingFromConditional == True):
+                    # json_object = json.loads(confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS)
+                    obj = Key.from_dict(confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS)
+                    if(cond.containsKey(obj)==False):
+                        cond.key.append(obj)
+                elif (self.pipeline.name == PipelineID.EGRESS_PIPELINE.value)  and (isArrivingFromConditional == True):
+                    # json_object = json.loads(confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS)
+                    obj = Key.from_dict(confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS)
+                    if(cond.containsKey(obj)==False):
+                        cond.key.append(obj)
                 nextNodeList.append(nodeName)
         # for nameSwappedTableName in self.swappedTableMapForStatefulMemoryBasedPreprocessing.keys():
         #     if(nameSwappedTableName == nodeName):
@@ -512,6 +527,7 @@ class PipelineGraph:
             #The previous function to preprocess the conditional node adds and extra key to next node in the pipeline. And this function adds an extra primitive
             # in the conditional action here. So if a conditional is a>b then it convert the action if a>b then updates  the extra field to value 1 else 0
             p4teConditionalNode.actions = conditional.convertToAction(self.pipelineID)
+            p4teConditionalNode.matchKeyFields = conditional.getAllMatchFieldsOfRawP4Conditional()
             p4teConditionalNode.next_tables = [conditional.true_next, conditional.false_next]
             for a in p4teConditionalNode.next_tables:
                 nodeList = self.getNextNodeForTDG(a)

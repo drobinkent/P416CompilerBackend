@@ -249,6 +249,10 @@ class RMTV1ModelHardware:
                 for logicalMat in logicalMatList:
                     # print(logicalMat)
                     totalKeysTobeMatched, matKeyBitWidth, headerFieldWiseBitwidthOfMatKeys = p4ProgramGraph.parsedP4Program.getMatchKeyResourceRequirementForMatNode(logicalMat,pipelineID)
+                    print(" For Mat: "+logicalMat.name+" resource Requirement is follwoing : ")
+                    print("\t \t totalKeysTobeMatched: "+str(totalKeysTobeMatched))
+                    print("\t \t matKeyBitWidth: "+str(matKeyBitWidth))
+                    print("\t \t headerFieldWiseBitwidthOfMatKeys: "+str(headerFieldWiseBitwidthOfMatKeys))
                     p4ProgramGraph.parsedP4Program.getActionResourceRequirementForMatNode(logicalMat,p4ProgramGraph,pipelineID)
                     #Embed logicalMat
 

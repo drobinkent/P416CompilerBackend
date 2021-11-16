@@ -66,6 +66,7 @@ class P4ProgramGraph:
                 # newPipelineGraph.preProcessPipelineGraph()
                 hw.embedP4ProgramAccordingToSingleMatrix(self,pipelineID=PipelineID.INGRESS_PIPELINE)
             if(pipeline.name == PipelineID.EGRESS_PIPELINE.value):
+                hw.embedP4ProgramAccordingToSingleMatrix(self,pipelineID=PipelineID.EGRESS_PIPELINE)
                 pass
 
     def headeranalyzer(self):
