@@ -5,6 +5,7 @@
 # and then, to convert JSON from a string, do
 #
 #     result = welcome_from_dict(json.loads(json_string))
+import copy
 import logging
 import math
 from enum import Enum
@@ -1366,7 +1367,7 @@ class Action:
             newActionPrimitiveList = self.primitives[0:index+1]
             oldActionPrimitiveList = self.primitives[index+1:len(self.primitives)]
             self.primitives = oldActionPrimitiveList
-            newAction = Action(name=newActionNamePrefix+self.name, id=self.id, runtime_data=None, primitives=newActionPrimitiveList)
+            newAction = Action(name=newActionNamePrefix+self.name, id=self.id, runtime_data=copy.deepcopy(self.runtime_data), primitives=newActionPrimitiveList)
             return newAction
         else:
             logger.info("This case can nto happen. Because we are trying to divide an action based on solid info. Please debug. Exiting")
@@ -2614,7 +2615,7 @@ class Conditional:
             newPrimitive = Primitive(op = PrimitiveOp.getHardwareRelationalPrimitive(self.expression.value.op), parameters= parameters, source_info= None)
 
         primitiveList.append(newPrimitive)
-        convertedAction = Action(name = ConfigurationConstants.CONVERTED_ACTION_PREFIX+self.name, id = self.id, runtime_data= None, primitives= primitiveList )
+        convertedAction = Action(name = ConfigurationConstants.CONVERTED_ACTION_PREFIX+self.name, id = self.id, runtime_data= [], primitives= primitiveList )
         convertedActionList = []
         convertedActionList.append(convertedAction)
         # print("Must add modification to the extra field used for conditional")

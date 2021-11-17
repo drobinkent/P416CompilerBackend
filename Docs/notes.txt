@@ -38,3 +38,29 @@ to which conditional.
 Now assiging this bit to conditional is the task of a compiler. we lave it for future work.
 
 also instead of full 8 bit match key, we should go for 1 bit + other keys of the table. that is also our future goal.
+
+
+Stateful memory:
+
+Assume, in each stage we have 32b wide memory port.
+ Also assume we have a 32 bit wide register array and each stage can accomodate 2 Mb sram. Then each stage can accomodate 65K entries.
+Now if we need 100K entries, then the device can spread the register array (which uses sram,) to  2 stages. first stage will contain 65k
+and 2nd stage contain 35K. As the register is maintained as extern, it will maintain a range of index iteself. So basically we still need 32b
+wide memory port, but the data structure spreads over 2 stages. Now in 2nd stage we have 30K*32b space remaining but the memory port of 2nd stage
+is still unused. so another talble can use that.
+
+In this way we can expand the register array to multiple stages.
+
+
+but the inly concern here is, in the Fast forwarding metamorphosis paper, it says sram is attached to each stage. so the first stage can not access 2nd stage.
+Now that is a trouble. we need to understand that.
+
+
+--------------------- This trouble only happens in the case of indirect memory.
+
+But if we use direct memory, then it is easy, it means each table entry has associated direct memory. so when we divide the table over multiple stages
+we also automatically dividing the direct memory in same way.
+
+
+
+---- The tofiuno hardware do not divide the indirect registers across stages. but direct registersns can be. we will support the direct registers later.

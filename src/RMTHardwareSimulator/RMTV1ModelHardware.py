@@ -216,6 +216,8 @@ class RMTV1ModelHardware:
     #================================================= The menthods for mebedding starts here
 
     def sanityCheckingOfTheLogicalMats(self,logicalStageNumbersAsList,pipelineGraph):
+        #The first element in this list will be the logical stage number for the dummy start node.
+        # And the last number will be the logical stage number for the dummy end node. The logical stage number  must should be -1
         if(len(pipelineGraph.stageWiseLogicalMatList.get(logicalStageNumbersAsList[0]))>1 ):
             logger.info("The largest logical stage should only contain the dummy Start node. hence only one node can exist in this stage. But we have more than one MAT node in ths list.So there are some problem. Please DEBUG> Exiting")
             print("The largest logical stage should only contain the dummy Start node. hence only one node can exist in this stage. But we have more than one MAT node in ths list.So there are some problem. Please DEBUG> Exiting")
@@ -240,8 +242,6 @@ class RMTV1ModelHardware:
         pipelineGraph = p4ProgramGraph.pipelineIdToPipelineGraphMap.get(pipelineID)
         logicalStageNumbersAsList = list(pipelineGraph.stageWiseLogicalMatList.keys())
         logicalStageNumbersAsList.sort(reverse=True) # We are sorting the logical stage numbers in descending order. Because we have calculated the levels in reverse order due to use of DFS
-        #The first element in this list will be the logical stage number for the dummy start node.
-        # And the last number will be the logical stage number for the dummy end node. The logical stage number  must should be -1
         self.sanityCheckingOfTheLogicalMats(logicalStageNumbersAsList, pipelineGraph)
 
         for logicalStageIndex in logicalStageNumbersAsList:
@@ -260,3 +260,22 @@ class RMTV1ModelHardware:
     # if -1 is dummy end and maximum is only dummy start then it is okay. otherwise something is wrong. we will stop there.
     # Write two seprate cionditions for checking these two.
     # Then fropm dmmy start we will start processing.
+
+    #
+    # Assume that previous part already converted the indirect register based nodes and bifurcated them. If we want to handle direct register or counter or meter, then we do not need tyo
+    # bifurcate them. When we want to handle them in our system keep it in mind.
+    #
+    # precondition: find the levels of each stateful memory and store it in some place. while finding this, make a crosscheck of whether a statefuyl mem is getting assigned to multiple
+    #     level or not
+    #
+    # algo
+    # 1) divide the set of Mat in 2 part. one part deals with indirect stateful mem. another part does not need stateful mem.
+    # 2) if the register array requiment of the tables are not accomdatable in one stage then halt (we will show some good halping messages here).
+    # Because the p4 program is not embedable in hardware.
+    # Now, there may be a case, when we are assginigng two indirect statefl mem in one stage, but practically they need resource more than one stage and they
+    # can be assigned in two separate stages. we need to handl ethis in our stategul memory based bifurcation part.
+    # 3) after the stateful mem based tables are embedded in one stage, we can embed the rest of the mat's (2nd set of mat which do not need any stateful mem)
+    # in one or more than mat according to necessity.
+    # 4) while embedding a table, if a table's resource requirement need to be expanded over multiple stages (given that it does not need indirect stateful mem),
+    # we will spread it over multiple stages.
+    # 5) keep track of the stages where the levels are assigned.

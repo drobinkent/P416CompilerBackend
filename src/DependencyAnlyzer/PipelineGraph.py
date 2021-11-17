@@ -69,6 +69,7 @@ class PipelineGraph:
         self.allTDGNode = {}
         self.allTDGNode[confConst.DUMMY_START_NODE] = self.dummyStart
         self.stageWiseLogicalMatList = {}
+        self.sfMemNameWiseLevelList = {}
 
 
     def headeranalyzerForSinglePipeline(self):
@@ -231,7 +232,8 @@ class PipelineGraph:
         self.getTDGGraphWithAllDepenedencyAndMatNode(curNode = self.allTDGNode.get(confConst.DUMMY_START_NODE), predNode=None, dependencyBetweenCurAndPred=None, tdgGraph=graphTobedrawn, printLevel=True)
         self.drawPipeline(nxGraph = graphTobedrawn, filePath="final-graph"+str(self.pipelineID)+".jpg")
         self.stageWiseLogicalMatList = self.calculateStageWiseMatNodes()
-        # self.calculateStageWiseTotalReousrceRequirements(stageWiseMatList)
+        # self.sfMemNameWiseLevelList = self.gatherLevelsOfStatefulMemories()
+        # self.calculateStageWiseTotalReousrceRequirements(self.stageWiseLogicalMatList)
         pass
 
 
@@ -838,6 +840,34 @@ class PipelineGraph:
             levelMatList = levelWiseMatList.get(level)
             levelMatList.append(matNode)
         return levelWiseMatList
+
+    def gatherLevelsOfStatefulMemories(self):
+        sfMemNameWiseLevelList = {}
+        for nodeName in self.allTDGNode.keys():
+            print("In gatherLevelsOfStatefulMemories node name is "+nodeName)
+            matNode = self.allTDGNode.get(nodeName)
+            statefulMemoryNameToLevelMap = matNode.getStatefulMemoryNameToLevelMap()
+            for sfMemName in statefulMemoryNameToLevelMap.keys():
+                if(sfMemNameWiseLevelList.get(sfMemName) == None):
+                    levelList = []
+                    levelList.append((statefulMemoryNameToLevelMap.get(sfMemName),nodeName))
+                    sfMemNameWiseLevelList[sfMemName] = levelList
+                else:
+                    levelList = sfMemNameWiseLevelList.get(sfMemName)
+                    newLevel = statefulMemoryNameToLevelMap.get(sfMemName)
+                    for namelevelTuple in levelList:
+                        oldMatName = namelevelTuple[1]
+                        level = namelevelTuple[0]
+                        if level != newLevel:
+                            print("The stateful Memoery: "+sfMemName+" was assinged level : "+str(level)+" in some previous stage for mat node: "+oldMatName+". And for current mat : "+nodeName+" it is being assgined a different level "+str(newLevel))
+                            print("This can not happen. Exiting")
+                            exit(1)
+
+                    levelList.append((statefulMemoryNameToLevelMap.get(sfMemName),nodeName))
+                    sfMemNameWiseLevelList[sfMemName] = levelList
+        print("Returning from gatherLevelsOfStatefulMemories")
+        return sfMemNameWiseLevelList
+
 
     # def calculateStageWiseTotalReousrceRequirements(self, stageWiseMatMap):
     #     # TODO This function should not be here. IT should be in the hardware class iteself. Because resources are not part of the parsedP3program. They are part of

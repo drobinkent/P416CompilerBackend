@@ -217,7 +217,8 @@ class MATNode:
 
     def bifurcateNodeBasedOnStatefulMemeory(self, statefulMemoryNameList, newMatPrefix,pipelineGraph,pipelineID,parsedP4Program ):
         oldLevel = self.getMaxLevelOfAllStatefulMemories()
-        newMatPrefix=""
+        confConst.MAT_DIVIDER_KEY_COUNTER = confConst.MAT_DIVIDER_KEY_COUNTER + 1
+        newMatPrefix= newMatPrefix+"_"+str(confConst.MAT_DIVIDER_KEY_COUNTER)
         combinedStatefulMemName = ""
         for m in statefulMemoryNameList:
             combinedStatefulMemName = combinedStatefulMemName + "_"+m
@@ -229,26 +230,25 @@ class MATNode:
 
         originalMatNodeActions=[]
         newMatNodeActions=[]
+        newAction = None
         for a in self.actions:
             newAction = a.bifurcateActionBasedOnStatefulMemeory(statefulMemoryNameList,newActionNamePrefix= newMatPrefix)
             originalMatNodeActions.append(a)
             newMatNodeActions.append(newAction)
+            parsedP4Program.actions.append(newAction)
         actionNames = []
         for a in newMatNodeActions:
             actionNames.append(a.name)
         #TODO: if any one action is NO-action then the bifurated action pair will also contain another NO-ACTION action. Though it is not really important from
+        #TODO check whther we are adding the new actions into parsedP4Program.actions list
         #resource reservation perspective, but if we want to generate actual hardware instrutions we have to handle this.
 
-        # add a key to the new mat.
-        # build a table and add to the pipiline.table list
-        # then add the node to the pipeline.allTDGNode and then fix the dependencies. Set the next_Tables entries of old table and new table.
-        # Also add relevant action obejects
+
         newP4Node = None
         newTableName = ""
         newKey = None
         if(pipelineID == PipelineID.INGRESS_PIPELINE):
             newKey = Key.from_dict(confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS)
-            confConst.MAT_DIVIDER_KEY_COUNTER = confConst.MAT_DIVIDER_KEY_COUNTER + 1
             newTableName = newMatPrefix+self.name+"_"+str(confConst.MAT_DIVIDER_KEY_COUNTER)
             keyName = confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS_NAME+"_"+str(confConst.MAT_DIVIDER_KEY_COUNTER)
             newKey.name = keyName
@@ -272,7 +272,6 @@ class MATNode:
         elif(pipelineID == PipelineID.EGRESS_PIPELINE):
             newTableName = newMatPrefix+self.name+"_"+str(confConst.MAT_DIVIDER_KEY_COUNTER)
             newKey = Key.from_dict(confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_EGRESS)
-            confConst.MAT_DIVIDER_KEY_COUNTER = confConst.MAT_DIVIDER_KEY_COUNTER + 1
             keyName = confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_EGRESS_NAME+"_"+str(confConst.MAT_DIVIDER_KEY_COUNTER)
             newKey.name = keyName
             newKey.target[1] = newKey.target[1] +"_"+str(confConst.MAT_DIVIDER_KEY_COUNTER)
@@ -308,9 +307,9 @@ class MATNode:
         tempActions = self.actions
         self.actions=newMatNodeActions
         newMatNode.actions=tempActions
-        for sfName in statefulMemoryNameList:
-            if(self.selfStatefulMemoryNameToLevelMap.get(sfName)!= None):
-                self.selfStatefulMemoryNameToLevelMap.pop(sfName)
+        # for sfName in statefulMemoryNameList:
+        #     if(self.selfStatefulMemoryNameToLevelMap.get(sfName)!= None):
+        #         self.selfStatefulMemoryNameToLevelMap.pop(sfName)
         for actionObject in newMatNode.actions:
             statefulMemoeryBeingUsed = actionObject.getListOfStatefulMemoriesBeingUsed()
             for statefulMem in statefulMemoeryBeingUsed:
@@ -331,6 +330,8 @@ class MATNode:
         # pipelineGraph.getTDGGraphWithAllDepenedencyAndMatNode(curNode = pipelineGraph.allTDGNode.get(confConst.DUMMY_START_NODE), predNode=None, dependencyBetweenCurAndPred=None, tdgGraph=graphTobedrawn)
         # pipelineGraph.drawPipeline(nxGraph = graphTobedrawn, filePath="tempGraph"+str(pipelineGraph.pipelineID)+".jpg")
         newMatNode.setLevelOfAllStatefulMemories(oldLevel)
+        removedLevelMap = self.keepStatefulMemoryLevelsAndDeleteRests(regNameList=statefulMemoryNameList)
+        newMatNode.selfStatefulMemoryNameToLevelMap = removedLevelMap
         return newMatNode
 
 
@@ -361,13 +362,32 @@ class MATNode:
     #             self.neighbourAssignedStatefulMemoryNameToLevelMap[statefulMemeoryName] = level
     #             return level
 
+    def getStatefulMemoryNameToLevelMap(self):
+        return self.selfStatefulMemoryNameToLevelMap
     def getMaxLevelOfAllStatefulMemories(self):
         maxVal = -1
+
         for k in self.selfStatefulMemoryNameToLevelMap.keys():
             val = self.selfStatefulMemoryNameToLevelMap.get(k)
             if val>maxVal:
                 maxVal = val
         return max(maxVal, self.levelForStatefulMemoryAssignmentStep)
+    def keepStatefulMemoryLevelsAndDeleteRests(self, regNameList):
+        '''
+        This fuinction only keeps the register name to level for the registers provided in regnameList. and remove the other mappings. and also return the deleted mappings
+        :param regNameList:
+        :return:
+        '''
+        listOfRegNameTobeDeleted= []
+        for k in self.selfStatefulMemoryNameToLevelMap.keys():
+            if k not in regNameList:
+                listOfRegNameTobeDeleted.append(k)
+        deletedLevelMap = {}
+        for regNameTobeDeleted in listOfRegNameTobeDeleted:
+            poppedelemenet = self.selfStatefulMemoryNameToLevelMap.pop(regNameTobeDeleted)
+            deletedLevelMap[regNameTobeDeleted] = poppedelemenet
+        return deletedLevelMap
+
     # def getMaxLevelOfSelfStatefulMemoriesAssignedByNeighbours(self):
     #     max = -1
     #     for k in self.neighbourAssignedStatefulMemoryNameToLevelMap.keys():
