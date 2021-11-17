@@ -1325,6 +1325,17 @@ class Action:
     runtime_data: List[RuntimeDatum]
     primitives: List[Primitive]
 
+    def getTotalBitwidthOfRuntimeData(self):
+        '''
+        This function returns the total bitwidth of all the  runtime data (parameters passed by CP as action parameter).
+        :return:
+        '''
+        total = 0
+        if(self.runtime_data!=None):
+            for rnTimeDt in self.runtime_data:
+                total = total + rnTimeDt.bitwidth
+        return total
+
     def getBitwidthOfRuntimeData(self, index):
         if (index >= len(self.runtime_data)):
             logger.info("Can not retrieve the bitwidth of the "+str(index)+" th parameter of the action: "+self.name+". Because it has only "+str(len(self.runtime_data))+" items. Debug Exiting")
@@ -1572,10 +1583,12 @@ class Action:
 
     def getResourceRequirementOfTheAction(self,p4ProgramGraph,pipelineID):
         #For each header field must retrieve it from the parsedP4PRogram.nametoheaderobjectmap. that value contains the actual bitwidth.
+
         listOfFieldBeingModifed = []
         listOfFieldBeingUsed = []
         listOfStatefulMemoryBeingAccessed= []
         actionCrossbarBitwidth= 0
+        allActionParameterSizeInBits = self.getTotalBitwidthOfRuntimeData()
 
         for prim in self.primitives:
             if(prim.op == PrimitiveOp.ASSIGN) :
@@ -1612,11 +1625,11 @@ class Action:
                 else:
                     print("The first parameter in a reigster read operation must have to be a header field. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
                     exit(1)
-                # if(type(prim.parameters[1])==RegisterArrayPrimitive):
-                #     listOfStatefulMemoryBeingAccessed.append(prim.parameters[1].registerArrayName)
-                # else:
-                #     print("The second parameter in a reigster read must have to be a register array. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
-                #     exit(1)
+                if(type(prim.parameters[1])==RegisterArrayPrimitive):
+                    listOfStatefulMemoryBeingAccessed.append(prim.parameters[1].registerArrayName)
+                else:
+                    print("The second parameter in a reigster read must have to be a register array. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
+                    exit(1)
                 if(type(prim.parameters[2])==PrimitiveField):
                     actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[2],pipelineID)
                     listOfFieldBeingUsed.append(prim.parameters[2])
@@ -1624,11 +1637,11 @@ class Action:
                     actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[2],pipelineID)
                     listOfFieldBeingUsed.append(prim.parameters[2])
             elif ((prim.op == PrimitiveOp.REGISTER_WRITE) ):
-                # if(type(prim.parameters[0])==RegisterArrayPrimitive):
-                #     listOfStatefulMemoryBeingAccessed.append(prim.parameters[0].registerArrayName)
-                # else:
-                #     print("The first parameter in a reigster write must have to be a register array. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
-                #     exit(1)
+                if(type(prim.parameters[0])==RegisterArrayPrimitive):
+                    listOfStatefulMemoryBeingAccessed.append(prim.parameters[0].registerArrayName)
+                else:
+                    print("The first parameter in a reigster write must have to be a register array. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
+                    exit(1)
                 for i in range (1, len(prim.parameters)):
                     actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[i],pipelineID)
                     listOfFieldBeingUsed.append(prim.parameters[i])
@@ -1664,7 +1677,21 @@ class Action:
             #TODO: in the final framework we need to suport meter execution
 
 
-        return listOfFieldBeingModifed, listOfFieldBeingUsed,listOfStatefulMemoryBeingAccessed
+        return ActionResourceConsumptionStatistics(listOfFieldBeingModifed, listOfFieldBeingUsed,listOfStatefulMemoryBeingAccessed, actionCrossbarBitwidth,allActionParameterSizeInBits)
+
+
+class ActionResourceConsumptionStatistics:
+    def __init__(self,listOfFieldBeingModifed, listOfFieldBeingUsed,listOfStatefulMemoryBeingAccessed, actionCrossbarBitwidth,allActionParameterSizeInBits):
+        self.listOfFieldBeingModifed = listOfFieldBeingModifed
+        self.listOfFieldBeingUsed = listOfFieldBeingUsed
+        self.listOfStatefulMemoryBeingAccessed= listOfStatefulMemoryBeingAccessed
+        self.actionCrossbarBitwidth = actionCrossbarBitwidth
+        self.allActionParameterSizeInBits = allActionParameterSizeInBits
+
+    def __str__(self):
+        val = "field being modified: "+str(self.listOfFieldBeingModifed)+" used: "+str(self.listOfFieldBeingUsed) + " actionCrossbarBitwidth "+str(self.actionCrossbarBitwidth)
+        val = val + " allActionParameterSizeInBits: "+str(self.allActionParameterSizeInBits)+ " listOfStatefulMemoryBeingAccessed: "+str(self.listOfStatefulMemoryBeingAccessed)
+        return val
 
 class ParserOpOp(Enum):
     EXTRACT = "extract"
@@ -2499,6 +2526,7 @@ class Conditional:
     is_visited_for_graph_drawing: GraphColor
     is_visited_for_TDG_processing: GraphColor
     key: List[Key]
+    max_size: int
     true_next: str
     false_next: Optional[str] = None
 
@@ -2585,7 +2613,7 @@ class Conditional:
         expression = Expression.from_dict(obj.get("expression"))
         true_next = from_str(obj.get("true_next"))
         false_next = from_union([from_none, from_str], obj.get("false_next"))
-        return Conditional(name, id, source_info, expression, False, False,GraphColor.WHITE, GraphColor.WHITE, [], true_next, false_next)
+        return Conditional(name, id, source_info, expression, False, False,GraphColor.WHITE, GraphColor.WHITE, [], 0, true_next, false_next)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -2972,6 +3000,24 @@ class ParsedP416ProgramForV1ModelArchitecture:
     program: Program
     meta: Meta
     nameToHeaderTypeObjectMap : {}
+    nameToRegisterArrayMap: {}
+
+    def buildRegisterVector(self):
+        for r in self.register_arrays:
+            self.nameToRegisterArrayMap[r.name] = r
+
+    def getRegisterArraysResourceRequirment(self, registerArrayName):
+        totalSramRequirement = 0
+        totalBitWidth = 0
+        regArrObj = self.nameToRegisterArrayMap.get(registerArrayName)
+        if(regArrObj == None):
+            print("RegisterArray object is not found in nameToRegisterArrayMap. Sever error. Exiting ")
+            exit(1)
+        else:
+            totalSramRequirement = regArrObj.bitwidth * regArrObj.size
+            totalBitWidth = regArrObj.bitwidth
+            return totalSramRequirement, totalBitWidth
+
 
     def getAllHeaderFieldsForHeaderType(self, headerTypeName):
         fieldList = []
@@ -3047,7 +3093,7 @@ class ParsedP416ProgramForV1ModelArchitecture:
                         bitWidth=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_BIT_WIDTH, isSigned=True \
                         , mutlipleOf8Bitwidth= confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH, \
                         mappedPhyscialHeaderVectorFieldBitwdith= confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH)
-
+        self.buildRegisterVector()
         return self.nameToHeaderTypeObjectMap
 
 
@@ -3088,7 +3134,7 @@ class ParsedP416ProgramForV1ModelArchitecture:
         field_aliases = from_list(lambda x: from_list(lambda x: from_union([lambda x: from_list(from_str, x), from_str], x), x), obj.get("field_aliases"))
         program = Program.from_dict(obj.get("program"))
         meta = Meta.from_dict(obj.get("__meta__"))
-        parsedP4Program =  ParsedP416ProgramForV1ModelArchitecture(header_types, headers, header_stacks, header_union_types, header_unions, header_union_stacks, field_lists, errors, enums, parsers, parse_vsets, deparsers, meter_arrays, counter_arrays, register_arrays, calculations, learn_lists, actions, pipelines, checksums, force_arith, extern_instances, field_aliases, program, meta, {})
+        parsedP4Program =  ParsedP416ProgramForV1ModelArchitecture(header_types, headers, header_stacks, header_union_types, header_unions, header_union_stacks, field_lists, errors, enums, parsers, parse_vsets, deparsers, meter_arrays, counter_arrays, register_arrays, calculations, learn_lists, actions, pipelines, checksums, force_arith, extern_instances, field_aliases, program, meta, {}, {})
         parsedP4Program.buildHeaderVector()
         return parsedP4Program
 
@@ -3167,6 +3213,9 @@ class ParsedP416ProgramForV1ModelArchitecture:
     def getMatchKeyResourceRequirementForMatNode(self, matNode,pipelineId):
         matKeyBitWidth = 0
         headerFieldWiseBitwidthOfMatKeys = {}
+        if(matNode.matchKeyFields == None):
+            print("severe error match key is none for node "+matNode.name+" Exiting")
+            exit(1)
         for k in matNode.matchKeyFields:
             fieldBitWidth = self.getHeaderBitCount(k,pipelineId)
             headerFieldWiseBitwidthOfMatKeys[k] = fieldBitWidth
@@ -3174,44 +3223,27 @@ class ParsedP416ProgramForV1ModelArchitecture:
         totalKeysTobeMatched = len(matNode.matchKeyFields)
         return totalKeysTobeMatched, matKeyBitWidth, headerFieldWiseBitwidthOfMatKeys
 
-    def getActionResourceRequirementForMatNode(self, matNode,p4ProgramGraph,pipelineID):
+    def getMatchActionResourceRequirementForMatNode(self, matNode,p4ProgramGraph,pipelineID):
         # Need to maintain a list or map for which header field is using how manu bytes
         #     for each action buidl a method that will calculate, fields being modified, fields being used as parameter, stateful memory .
         #     count and bitwidth and also their mapping of name to bitwidth.
 
-        # calculate total reousrce usage by a table including stram tcam bitwidth etc.
-        # for each action at first find the header fields that are used as parameter, that are modified and the staeful memories used.
-        #     then find their bit width
+        # max bitwidth of the actions
+        # Maximum number of fields modified and used in action
+        # total action entries = max_size
+        # total storage for storing action info -- runtime_Data bitwidth * total action entries
+        # total entries for mat entries = same as max_size
+        # total sram by register
+        # sram's level finding
 
+        matNode.totalKeysTobeMatched, matNode.matKeyBitWidth, matNode.headerFieldWiseBitwidthOfMatKeys = p4ProgramGraph.parsedP4Program.getMatchKeyResourceRequirementForMatNode(matNode,pipelineID)
+        print(" For Mat: "+matNode.name+" resource Requirement is follwoing : ")
+        print("\t \t totalKeysTobeMatched: "+str(matNode.totalKeysTobeMatched))
+        print("\t \t matKeyBitWidth: "+str(matNode.matKeyBitWidth))
+        print("\t \t headerFieldWiseBitwidthOfMatKeys: "+str(matNode.headerFieldWiseBitwidthOfMatKeys))
         for a in matNode.actions:
-            a.getResourceRequirementOfTheAction(p4ProgramGraph,pipelineID)
-            # listOfFieldBeingModifed, listOfFieldBeingUsed = a.getListOfFieldsModifedAndUsed()
-            # listOfFieldBeingModifedInThisStage= listOfFieldBeingModifedInThisStage + listOfFieldBeingModifed
-            # listOfFieldBeingUsedAsParameterInThisStage = listOfFieldBeingUsedAsParameterInThisStage + listOfFieldBeingUsed
-            # act = self.getActionByName(a)
-            # print("\t "+str(actionIndex)+" Action Nanme: "+act.name)
-            # print("\t Primitives used in action are: ")
-            # for prim in act.primitives:
-            #     print("\t\t *) "+str(prim.source_info))
-            # for f in listOfFieldBeingModifed:
-            #     totalnumberofFieldsBeingModified  = totalnumberofFieldsBeingModified + 1
-            #     # print("Header name is "+f)
-            #     hdrBitCount = self.getHeaderBitCount(f)
-            #     totalBitWidthOfTheAction = totalBitWidthOfTheAction + hdrBitCount
-            #     headerBitWidthOfFieldsBeingModified = headerBitWidthOfFieldsBeingModified + hdrBitCount
-            # for f in listOfFieldBeingUsed:
-            #     # print("Header name is "+f)
-            #     totalNumberOfFieldsUsedAsParameter = totalNumberOfFieldsUsedAsParameter + 1
-            #     hdrBitCount = self.getHeaderBitCount(f)
-            #     totalBitWidthOfFieldsUsedAsParameter = totalBitWidthOfFieldsUsedAsParameter + hdrBitCount
-            #     totalBitWidthOfTheAction = totalBitWidthOfTheAction + hdrBitCount
-            # if(totalBitWidthOfTheAction > maxBitWidthOfAction):
-            #     maxBitWidthOfAction = totalBitWidthOfTheAction
-
-    # def getResourceRequirementForAction(self, matNode, action):
-    #     print(action)
-    #     action.getResourceRequirementOfTheAction()
-    #     pass
+            matNode.actionNameToResourceConsumptionStatisticsMap[a.name] = a.getResourceRequirementOfTheAction(p4ProgramGraph, pipelineID)
+            print("\t\t\t\t"+str(matNode.actionNameToResourceConsumptionStatisticsMap[a.name]))
 
 # def ParsedP416Program_from_dict(s: Any) -> ParsedP416ProgramForV1ModelArchitecture:
 #     return ParsedP416ProgramForV1ModelArchitecture.from_dict(s)

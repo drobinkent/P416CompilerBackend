@@ -1,7 +1,8 @@
 
 from DependencyAnlyzer.DefinitionConstants import P4ProgramNodeType, PipelineID, DependencyType
 from P4ProgramParser.P416JsonParser import PrimitiveOpblock, Expression, PrimitiveField, RegisterArrayPrimitive, HexStr, \
-    PrimitiveHeader, BoolPrimitive, Table, Key, MatchType, TableType, GraphColor, HeaderField
+    PrimitiveHeader, BoolPrimitive, Table, Key, MatchType, TableType, GraphColor, HeaderField, \
+    ActionResourceConsumptionStatistics
 
 import networkx as nx
 import logging
@@ -162,9 +163,57 @@ class MATNode:
         self.selfStatefulMemoryNameToLevelMap={}
         self.bifurcationCounter = 0
         self.inDegree= 0
+        self.actionNameToResourceConsumptionStatisticsMap={}
+        self.totalKeysTobeMatched = 0
+        self.matKeyBitWidth =0
+        self.headerFieldWiseBitwidthOfMatKeys = {}
         # self.neighbourAssignedStatefulMemoryNameToLevelMap={}  # TODO : this may not be necessary even . on that tcase we will remove it
         return
 
+    # listOfFieldBeingModifed, listOfFieldBeingUsed,listOfStatefulMemoryBeingAccessed, actionCrossbarBitwidth
+
+    def getTotalAmountOfActionMemoryRequiredInBits(self):
+        '''
+        Key point to remeber: here we are assuming that, all action will need all action parameter. But in reality different action will need different number of parmaters.
+        Hence their action memory requirement will be different
+        :return:
+        '''
+        return self.originalP4node.max_size * self.getMaxBitwidthOfActionParameter()
+
+    def getTotalMatEntries(self):
+        return self.originalP4node.max_size
+
+    def getMaxBitwidthOfActionParameter(self):
+        maxValue = -1
+        for actionName in self.actionNameToResourceConsumptionStatisticsMap.keys():
+            actionResourceConsumptionStatistics = self.actionNameToResourceConsumptionStatisticsMap.get(actionName)
+            if(actionResourceConsumptionStatistics.allActionParameterSizeInBits >maxValue ):
+                maxValue = actionResourceConsumptionStatistics.allActionParameterSizeInBits
+        return  maxValue
+
+    def getMaxNumberOfFieldsUsedAndModifedByAnyAction(self):
+        '''
+        This function returns the maxinum number of fields  used by any action.
+        :return:
+        '''
+        maxValue = -1
+        for actionName in self.actionNameToResourceConsumptionStatisticsMap.keys():
+            actionResourceConsumptionStatistics = self.actionNameToResourceConsumptionStatisticsMap.get(actionName)
+            if(len(actionResourceConsumptionStatistics.listOfFieldBeingUsed) + len(actionResourceConsumptionStatistics.listOfFieldBeingModifed) >maxValue ):
+                maxValue = len(actionResourceConsumptionStatistics.listOfFieldBeingUsed) + len(actionResourceConsumptionStatistics.listOfFieldBeingModifed)
+        return  maxValue
+    def getMaxActionCrossbarBitwidthRequiredByAnyAction(self):
+        '''
+        This function returns the maxinum number of fields  used by any action.
+        :return:
+        '''
+        maxValue = -1
+        for actionName in self.actionNameToResourceConsumptionStatisticsMap.keys():
+            # actionResourceConsumptionStatistics = ActionResourceConsumptionStatistics()
+            actionResourceConsumptionStatistics = self.actionNameToResourceConsumptionStatisticsMap.get(actionName)
+            if(actionResourceConsumptionStatistics.actionCrossbarBitwidth >maxValue ):
+                maxValue = actionResourceConsumptionStatistics.actionCrossbarBitwidth
+        return  maxValue
 
     def bifurcateNodeBasedOnStatefulMemeory(self, statefulMemoryNameList, newMatPrefix,pipelineGraph,pipelineID,parsedP4Program ):
         oldLevel = self.getMaxLevelOfAllStatefulMemories()
@@ -207,8 +256,15 @@ class MATNode:
             parsedP4Program.nameToHeaderTypeObjectMap[keyName] = HeaderField(name = keyName,bitWidth=confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_INGRESS_BIT_WIDTH, isSigned=True, \
                                                                              mutlipleOf8Bitwidth= confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH, \
                                                                              mappedPhyscialHeaderVectorFieldBitwdith=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH)
+            #If we want to add the spcial key for at divider then add this. other wise the next version where key is null
+            # newP4Node = Table(name = newTableName, id=self.originalP4node.id, source_info=self.originalP4node.source_info,
+            #                   key=[newKey], match_type=MatchType.EXACT, type=TableType, max_size=confConst.DIVIDED_MAT_MAX_ENTRIES,
+            #                   with_counters=True, support_timeout=True, action_ids=[], actions=actionNames,
+            #                   next_tables=self.originalP4node.next_tables, is_visited_for_conditional_preprocessing=False,
+            #                   is_visited_for_stateful_memory_preprocessing=False,is_visited_for_graph_drawing=GraphColor.WHITE,
+            #                   is_visited_for_TDG_processing=GraphColor.WHITE, direct_meters=[], base_default_next=None, default_entry=None, action_profile=None)
             newP4Node = Table(name = newTableName, id=self.originalP4node.id, source_info=self.originalP4node.source_info,
-                              key=[newKey], match_type=MatchType.EXACT, type=TableType, max_size=confConst.DIVIDED_MAT_MAX_ENTRIES,
+                              key=[], match_type=MatchType.EXACT, type=TableType, max_size=confConst.DIVIDED_MAT_MAX_ENTRIES,
                               with_counters=True, support_timeout=True, action_ids=[], actions=actionNames,
                               next_tables=self.originalP4node.next_tables, is_visited_for_conditional_preprocessing=False,
                               is_visited_for_stateful_memory_preprocessing=False,is_visited_for_graph_drawing=GraphColor.WHITE,
@@ -223,14 +279,23 @@ class MATNode:
             parsedP4Program.nameToHeaderTypeObjectMap[keyName] = HeaderField(name = keyName,bitWidth=confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_EGRESS_BIT_WIDTH, isSigned=True, \
                     mutlipleOf8Bitwidth= confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_EGRESS_BIT_WIDTH, \
                                          mappedPhyscialHeaderVectorFieldBitwdith=confConst.SPECIAL_KEY_FOR_DIVIDING_MAT_IN_EGRESS_BIT_WIDTH)
+            #If we want to add the spcial key for at divider then add this. other wise the next version where key is null
+            # newP4Node = Table(name = newTableName, id=self.originalP4node.id, source_info=self.originalP4node.source_info,
+            #                   key=[newKey], match_type=MatchType.EXACT, type=TableType, max_size=confConst.DIVIDED_MAT_MAX_ENTRIES,
+            #                   with_counters=True, support_timeout=True, action_ids=[], actions=actionNames,
+            #                   next_tables=self.originalP4node.next_tables, is_visited_for_conditional_preprocessing=False,
+            #                   is_visited_for_stateful_memory_preprocessing=False,is_visited_for_graph_drawing=GraphColor.WHITE,
+            #                   is_visited_for_TDG_processing=GraphColor.WHITE, direct_meters=[], base_default_next=None, default_entry=None, action_profile=None)
             newP4Node = Table(name = newTableName, id=self.originalP4node.id, source_info=self.originalP4node.source_info,
-                              key=[newKey], match_type=MatchType.EXACT, type=TableType, max_size=confConst.DIVIDED_MAT_MAX_ENTRIES,
+                              key=[], match_type=MatchType.EXACT, type=TableType, max_size=confConst.DIVIDED_MAT_MAX_ENTRIES,
                               with_counters=True, support_timeout=True, action_ids=[], actions=actionNames,
                               next_tables=self.originalP4node.next_tables, is_visited_for_conditional_preprocessing=False,
                               is_visited_for_stateful_memory_preprocessing=False,is_visited_for_graph_drawing=GraphColor.WHITE,
                               is_visited_for_TDG_processing=GraphColor.WHITE, direct_meters=[], base_default_next=None, default_entry=None, action_profile=None)
         self.next_tables=[newP4Node.name]
         newMatNode = MATNode(nodeType= P4ProgramNodeType.TABLE_NODE, name= newP4Node.name, originalP4node= newP4Node)
+        # newMatNode.matchKeyFields = [newKey.name] #If we want to use the new special key as a key field
+        newMatNode.matchKeyFields = []
         pipelineGraph.pipeline.tables.append(newP4Node)
         newMatNode.actions = newMatNodeActions
         newMatNode.ancestors = self.ancestors

@@ -224,6 +224,10 @@ class RMTV1ModelHardware:
             logger.info("The smallest logical stage should only contain the dummy END node. hence only one node can exist in this stage. But we have more than one MAT node in ths list.So there are some problem. Please DEBUG> Exiting")
             print("The smallest logical stage should only contain the dummy END node. hence only one node can exist in this stage. But we have more than one MAT node in ths list.So there are some problem. Please DEBUG> Exiting")
             (1)
+        if(len(logicalStageNumbersAsList) == 1):
+            print("there is only one level required for the nodes in piepieline : "+str(pipelineGraph.pipelineID)+ " The name of the node is "+pipelineGraph.stageWiseLogicalMatList.get(logicalStageNumbersAsList[len(logicalStageNumbersAsList)-1])[0].name )
+            print("The pipeline have no element to embedd. So returning.")
+            return
         if(pipelineGraph.stageWiseLogicalMatList.get(logicalStageNumbersAsList[len(logicalStageNumbersAsList)-1])[0].name != confConst.DUMMY_END_NODE):
             print("The MAT node: "+ pipelineGraph.stageWiseLogicalMatList.get(logicalStageNumbersAsList[len(logicalStageNumbersAsList)-1])[0].name +" with smallest logical stage number :"+str(logicalStageNumbersAsList[len(logicalStageNumbersAsList)-1])+ " must have to be DUMMY End node. Debug please Exiting")
             exit(1)
@@ -247,13 +251,7 @@ class RMTV1ModelHardware:
             else:
                 logicalMatList = pipelineGraph.stageWiseLogicalMatList.get(logicalStageIndex)
                 for logicalMat in logicalMatList:
-                    # print(logicalMat)
-                    totalKeysTobeMatched, matKeyBitWidth, headerFieldWiseBitwidthOfMatKeys = p4ProgramGraph.parsedP4Program.getMatchKeyResourceRequirementForMatNode(logicalMat,pipelineID)
-                    print(" For Mat: "+logicalMat.name+" resource Requirement is follwoing : ")
-                    print("\t \t totalKeysTobeMatched: "+str(totalKeysTobeMatched))
-                    print("\t \t matKeyBitWidth: "+str(matKeyBitWidth))
-                    print("\t \t headerFieldWiseBitwidthOfMatKeys: "+str(headerFieldWiseBitwidthOfMatKeys))
-                    p4ProgramGraph.parsedP4Program.getActionResourceRequirementForMatNode(logicalMat,p4ProgramGraph,pipelineID)
+                    p4ProgramGraph.parsedP4Program.getMatchActionResourceRequirementForMatNode(logicalMat,p4ProgramGraph,pipelineID)
                     #Embed logicalMat
 
 
