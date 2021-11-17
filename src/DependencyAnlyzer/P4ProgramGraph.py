@@ -101,6 +101,10 @@ class P4ProgramGraph:
             self.pipelineIdToMultipleOf8BitWidthByHeadercount[PipelineID.EGRESS_PIPELINE] = bitWidthByHeadercountForEgress
             print("Bitwdith wise header count is ",bitWidthByHeadercountForEgress)
         print("total header count in nameToHeaderTypeObjectMap is : "+str(len(self.parsedP4Program.nameToHeaderTypeObjectMap.keys())))
+        print("All elements in  nameToHeaderTypeObjectMap are: ")
+        for hf in self.parsedP4Program.nameToHeaderTypeObjectMap.keys():
+            print("\t\t "+str(hf))
+
 
         mapToAppend = {}
         headerWidthSet = set()

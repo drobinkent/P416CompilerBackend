@@ -735,7 +735,7 @@ def typeValueParser(obj):
     elif (type == ValueType.RUNTIME_DATA):
         value = PrimitiveRuntimeData.from_dict(obj)
     elif (type == ValueType.EXTERN):
-        logger.info("Extern is not suuported in our system. Exisiting!!")
+        logger.info(" Generic Extern is not suuported in our system. For each new Extern you have to add explicit support Exisiting!!")
         # value = RuntimeData()
         exit(1)
     elif (type == ValueType.STRING):
@@ -1157,50 +1157,51 @@ class Expression:
         result["value"] = to_class(Expression, self.value)
         return result
 
-    def getParameterValueAsList(self, obj):
-        fieldList = []
-        t = type(obj)
-        # print("type is "+str(t))
-        if(t == PrimitiveField):
-            if (t  == CounterArrayPrimitive)  or (t  == PrimitiveHeader) or (t  == HexStr) or (t  == MeterArrayPrimitive) \
-                    or (t  == RegisterArrayPrimitive) or (t  == BoolPrimitive) or (t  == str) or (t == PrimitiveField):
-                val = obj.header_name + "."+ obj.field_memeber_name
-                fieldList.append(val)
-            else:
-                print("Unknonw primitive. Must debug")
-
-        # t = ValueType(obj.get("type"))
-        if (t == ValueType.CALCULATION):
-            pass
-
-        elif (t  == Expression):
-            # get the value
-            # from the value get left and right
-            # for both of them call the getParameterValueAsList function
-            # collect their result and merge the lists
-            # print(obj)
-            if (type(obj.value == Expression)):
-                fieldList = self.getParameterValueAsList(obj.value)
-            elif (type(obj.value == PrimitiveOpblock)):
-                if (obj.value.left != None):
-                    leftFieldList = self.getParameterValueAsList(obj.value.left)
-                if (obj.value.right != None):
-                    rightFieldList = self.getParameterValueAsList(obj.value.right)
-                fieldList = fieldList + leftFieldList + rightFieldList
-        elif (t  == PrimitiveRuntimeData):
-            logger.info("Runtime data is not needed to be parsed in our system. passing it ")
-            pass
-        elif (t  == Extern):
-            logger.info("Extern is not suuported in our system. Exisiting!!")
-            # value = RuntimeData()
-            exit(1)
-        elif (t  == ValueType.STACK_FIELD):
-            logger.info("STACK_FIELD is not suuported in our system. Exisiting!!")
-            exit(1)
-        elif (t  == ValueType.LOCAL):
-            logger.info("Local is not suuported in our system. Exisiting!!")
-            exit(1)
-        return fieldList
+    # def getParameterValueAsList(self, obj):
+    #     fieldList = []
+    #     t = type(obj)
+    #     # print("type is "+str(t))
+    #     if(t == PrimitiveField):
+    #         if (t  == CounterArrayPrimitive)  or (t  == PrimitiveHeader) or (t  == HexStr) or (t  == MeterArrayPrimitive) \
+    #                 or (t  == RegisterArrayPrimitive) or (t  == BoolPrimitive) or (t  == str) or (t == PrimitiveField):
+    #             val = obj.header_name + "."+ obj.field_memeber_name
+    #             fieldList.append(val)
+    #         else:
+    #             print("Unknonw primitive. Must debug. Exit")
+    #             exit(1)
+    #
+    #     # t = ValueType(obj.get("type"))
+    #     if (t == ValueType.CALCULATION):
+    #         pass
+    #
+    #     elif (t  == Expression):
+    #         # get the value
+    #         # from the value get left and right
+    #         # for both of them call the getParameterValueAsList function
+    #         # collect their result and merge the lists
+    #         # print(obj)
+    #         if (type(obj.value == Expression)):
+    #             fieldList = self.getParameterValueAsList(obj.value)
+    #         elif (type(obj.value == PrimitiveOpblock)):
+    #             if (obj.value.left != None):
+    #                 leftFieldList = self.getParameterValueAsList(obj.value.left)
+    #             if (obj.value.right != None):
+    #                 rightFieldList = self.getParameterValueAsList(obj.value.right)
+    #             fieldList = fieldList + leftFieldList + rightFieldList
+    #     elif (t  == PrimitiveRuntimeData):
+    #         logger.info("Runtime data is not needed to be parsed in our system. passing it ")
+    #         pass
+    #     elif (t  == Extern):
+    #         logger.info("Extern is not suuported in our system. Exisiting!!")
+    #         # value = RuntimeData()
+    #         exit(1)
+    #     elif (t  == ValueType.STACK_FIELD):
+    #         logger.info("STACK_FIELD is not suuported in our system. Exisiting!!")
+    #         exit(1)
+    #     elif (t  == ValueType.LOCAL):
+    #         logger.info("Local is not suuported in our system. Exisiting!!")
+    #         exit(1)
+    #     return fieldList
 
     # def getFields(self,fieldList):
     #     # if (e == None):
@@ -1426,14 +1427,20 @@ class Action:
             logger.info("Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it ")
             pass
         elif (t  == Extern):
-            logger.info("Extern is not suuported in our system. Exisiting!!")
+            logger.info("Generic Extern is not suuported in our system. For each extern you want to add, you have to add them here explicitly.  Exiiting!!")
             # value = RuntimeData()
             exit(1)
         elif (t  == ValueType.STACK_FIELD):
-            logger.info("STACK_FIELD is not suuported in our system. Exisiting!!")
+            logger.info("STACK_FIELD is not suuported in our system. Exiiting!!")
             exit(1)
-        elif (t  == ValueType.LOCAL):
-            logger.info("Local is not suuported in our system. Exisiting!!")
+        elif (t  == LocalPrimitive):
+            logger.info("Local primitive does not impact on dependency anlysis. so skiping")
+            pass
+        elif (t  == CalculationPrimitive):
+            logger.info("CalculationPrimitive primitive does not impact on dependency anlysis. so skiping")
+            pass
+        else:
+            logger.info("The type"+str(t)+" is not suuported in our system. Exiiting!!")
             exit(1)
         return fieldList
 
@@ -1546,7 +1553,7 @@ class Action:
 
         return listOfFieldBeingModifed, listOfFieldBeingUsed,listOfStatefulMemoryBeingAccessed
 
-    def getParamaterBitWidth(self,p4ProgramGraph, param,pipelineID):
+    def getParamaterBitWidth(self,p4ProgramGraph, param,pipelineID, parentAction = None):
         if(type(param) == HeaderField):
             headerObject = p4ProgramGraph.parsedP4Program.nameToHeaderTypeObjectMap.get(param.name)
             return headerObject.getPHVBitWidth(pipelineID)
@@ -1565,18 +1572,24 @@ class Action:
         elif (type(param)   == CalculationPrimitive):
             #TODO: if the type is calculation primitive it means , this is a parameter of hash calculation. We are already calculating the parameters for hash unit.
             # So no need to check this.
+            logger.info("the type is calculation primitive it means , this is a parameter of hash calculation. We are already calculating the parameters for hash unit.")
             return 0
         elif (type(param)   == Expression):
             if (type(param.value) == Expression):
-                return self.getParamaterBitWidth(p4ProgramGraph,param.value,pipelineID)
+                return self.getParamaterBitWidth(p4ProgramGraph,param.value,pipelineID,parentAction)
             elif (type(param.value == PrimitiveOpblock)):
                 leftWidth = 0
                 rightWidth = 0
                 if (param.value.left != None):
-                    leftWidth = self.getParamaterBitWidth(p4ProgramGraph,param.value.left,pipelineID)
+                    leftWidth = self.getParamaterBitWidth(p4ProgramGraph,param.value.left,pipelineID,parentAction)
                 if (param.value.right != None):
-                    rightWidth = self.getParamaterBitWidth(p4ProgramGraph,param.value.right,pipelineID)
+                    rightWidth = self.getParamaterBitWidth(p4ProgramGraph,param.value.right,pipelineID,parentAction)
                 return leftWidth+rightWidth
+        elif (type(param)   == LocalPrimitive):
+            return parentAction.getBitwidthOfRuntimeData(int(param.localValue))
+        elif (type(param)   == Extern):
+            logger.info("Generic Extern is not supported yet in our syste. If you want to add any explicit extern, yo have to add it here. Exiting")
+            exit(1)
         else:
             print("Parameter type "+str(type(param))+"not supported in getParamaterBitWidth. exiting")
             exit(1)
@@ -1592,10 +1605,10 @@ class Action:
 
         for prim in self.primitives:
             if(prim.op == PrimitiveOp.ASSIGN) :
-                actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[0],pipelineID)
+                actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[0],pipelineID,self)
                 listOfFieldBeingModifed.append(prim.parameters[0])
                 for i in range (1, len(prim.parameters)):
-                    actionCrossbarBitwidth = actionCrossbarBitwidth +  self.getParamaterBitWidth(p4ProgramGraph, prim.parameters[i],pipelineID)
+                    actionCrossbarBitwidth = actionCrossbarBitwidth +  self.getParamaterBitWidth(p4ProgramGraph, prim.parameters[i],pipelineID,self)
                     listOfFieldBeingUsed.append(prim.parameters[i])
             elif(prim.op == PrimitiveOp.GREATER_THAN_EQUAL_WRITE) or  (prim.op == PrimitiveOp.GREATER_THAN_WRITE) \
                     or (prim.op == PrimitiveOp.LESS_THAN_WRITE) or (prim.op == PrimitiveOp.LESS_THAN_EQUAL_WRITE) \
@@ -1605,10 +1618,10 @@ class Action:
                 # first param should be one 8 bit special field.
                 # others are as usual, from the expression.
                 # so effectively we are assuming that, ifperdicate is true, the atom will a 8 bit field.
-                actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[0],pipelineID)
+                actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[0],pipelineID,self)
                 listOfFieldBeingModifed.append(prim.parameters[0])
                 for i in range (1, len(prim.parameters)):
-                    actionCrossbarBitwidth = actionCrossbarBitwidth +  self.getParamaterBitWidth(p4ProgramGraph, prim.parameters[i],pipelineID)
+                    actionCrossbarBitwidth = actionCrossbarBitwidth +  self.getParamaterBitWidth(p4ProgramGraph, prim.parameters[i],pipelineID,self)
                     listOfFieldBeingUsed.append(prim.parameters[i])
 
             elif ((prim.op == PrimitiveOp.REMOVE_HEADER) or (prim.op == PrimitiveOp.ADD_HEADER)  or (prim.op == PrimitiveOp.MARK_TO_DROP)):
@@ -1621,7 +1634,7 @@ class Action:
                 #For statefulmemory consumption we will use other method
                 if(type(prim.parameters[0])==PrimitiveField):
                     listOfFieldBeingModifed.append(prim.parameters[0])
-                    actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[0],pipelineID)
+                    actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[0],pipelineID,self)
                 else:
                     print("The first parameter in a reigster read operation must have to be a header field. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
                     exit(1)
@@ -1631,10 +1644,10 @@ class Action:
                     print("The second parameter in a reigster read must have to be a register array. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
                     exit(1)
                 if(type(prim.parameters[2])==PrimitiveField):
-                    actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[2],pipelineID)
+                    actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[2],pipelineID,self)
                     listOfFieldBeingUsed.append(prim.parameters[2])
                 if (type(prim.parameters[2])==HexStr):
-                    actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[2],pipelineID)
+                    actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[2],pipelineID,self)
                     listOfFieldBeingUsed.append(prim.parameters[2])
             elif ((prim.op == PrimitiveOp.REGISTER_WRITE) ):
                 if(type(prim.parameters[0])==RegisterArrayPrimitive):
@@ -1643,7 +1656,7 @@ class Action:
                     print("The first parameter in a reigster write must have to be a register array. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
                     exit(1)
                 for i in range (1, len(prim.parameters)):
-                    actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[i],pipelineID)
+                    actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[i],pipelineID,self)
                     listOfFieldBeingUsed.append(prim.parameters[i])
             elif (prim.op == PrimitiveOp.EXIT):
                 pass
@@ -1660,7 +1673,7 @@ class Action:
                     print("The first parameter in a meter operation must have to be a meter name. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
                     exit(1)
                 for i in range (1, len(prim.parameters)):
-                    actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[i],pipelineID)
+                    actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[i],pipelineID,self)
                     listOfFieldBeingUsed.append(prim.parameters[i])
             elif (prim.op == PrimitiveOp.COUNT):
                 if(type(prim.parameters[0])==CounterArrayPrimitive):
@@ -1689,8 +1702,11 @@ class ActionResourceConsumptionStatistics:
         self.allActionParameterSizeInBits = allActionParameterSizeInBits
 
     def __str__(self):
-        val = "field being modified: "+str(self.listOfFieldBeingModifed)+" used: "+str(self.listOfFieldBeingUsed) + " actionCrossbarBitwidth "+str(self.actionCrossbarBitwidth)
-        val = val + " allActionParameterSizeInBits: "+str(self.allActionParameterSizeInBits)+ " listOfStatefulMemoryBeingAccessed: "+str(self.listOfStatefulMemoryBeingAccessed)
+        val = ""
+        # val = "field being modified: "+str(self.listOfFieldBeingModifed)+" used: "+str(self.listOfFieldBeingUsed)
+        val = val + " actionCrossbarBitwidth "+str(self.actionCrossbarBitwidth)
+        val = val + " allActionParameterSizeInBits: "+str(self.allActionParameterSizeInBits)
+        # val = val + " listOfStatefulMemoryBeingAccessed: "+str(self.listOfStatefulMemoryBeingAccessed)
         return val
 
 class ParserOpOp(Enum):
