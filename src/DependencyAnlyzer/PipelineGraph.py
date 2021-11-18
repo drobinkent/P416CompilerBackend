@@ -68,7 +68,7 @@ class PipelineGraph:
         self.swappedTableMapForStatefulMemoryBasedPreprocessing = {}
         self.allTDGNode = {}
         self.allTDGNode[confConst.DUMMY_START_NODE] = self.dummyStart
-        self.stageWiseLogicalMatList = {}
+        self.levelWiseLogicalMatList = {}
         self.sfMemNameWiseLevelList = {}
 
 
@@ -231,7 +231,7 @@ class PipelineGraph:
             self.allTDGNode.get(confConst.DUMMY_END_NODE).originalP4node.is_visited_for_graph_drawing = GraphColor.WHITE
         self.getTDGGraphWithAllDepenedencyAndMatNode(curNode = self.allTDGNode.get(confConst.DUMMY_START_NODE), predNode=None, dependencyBetweenCurAndPred=None, tdgGraph=graphTobedrawn, printLevel=True)
         self.drawPipeline(nxGraph = graphTobedrawn, filePath="final-graph"+str(self.pipelineID)+".jpg")
-        self.stageWiseLogicalMatList = self.calculateStageWiseMatNodes()
+        self.levelWiseLogicalMatList = self.calculateStageWiseMatNodes()
         self.sfMemNameWiseLevelList = self.gatherLevelsOfStatefulMemories()
         # self.calculateStageWiseTotalReousrceRequirements(self.stageWiseLogicalMatList)
         pass

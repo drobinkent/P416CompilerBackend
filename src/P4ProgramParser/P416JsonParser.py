@@ -2762,6 +2762,8 @@ class Table:
         return matchFieldsAsList
 
 
+
+
             
             
     @staticmethod
@@ -3033,7 +3035,7 @@ class ParsedP416ProgramForV1ModelArchitecture:
         else:
             totalSramRequirement = regArrObj.bitwidth * regArrObj.size
             totalBitWidth = regArrObj.bitwidth
-            return totalSramRequirement, totalBitWidth
+        return totalSramRequirement, totalBitWidth
 
 
     def getAllHeaderFieldsForHeaderType(self, headerTypeName):

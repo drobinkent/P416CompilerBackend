@@ -428,10 +428,15 @@ class MATNode:
         return set(returnValue)
 
     def getListOfStatefulMemoriesBeingUsedByMatNodeAsSet(self):
-        if type(self.originalP4node) == Table:
-            return set(self.originalP4node.getListOfStatefulMemoriesBeingUsed())
-        else:
-            return set([])
+        # if type(self.originalP4node) == Table:
+        #     for a in self.actions
+        # else:
+        #     return set([])
+        stafeulMemorySet= set()
+        for a in self.actions:
+            stafeulMemorySet = stafeulMemorySet.union(set(a.getListOfStatefulMemoriesBeingUsed()))
+        return stafeulMemorySet
+
 
 
     def addStatefulMemoryDependency(self, statefulMemoryName, matNode):

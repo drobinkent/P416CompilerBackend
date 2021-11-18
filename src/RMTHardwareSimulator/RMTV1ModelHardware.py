@@ -218,42 +218,57 @@ class RMTV1ModelHardware:
     def sanityCheckingOfTheLogicalMats(self,logicalStageNumbersAsList,pipelineGraph):
         #The first element in this list will be the logical stage number for the dummy start node.
         # And the last number will be the logical stage number for the dummy end node. The logical stage number  must should be -1
-        if(len(pipelineGraph.stageWiseLogicalMatList.get(logicalStageNumbersAsList[0]))>1 ):
+        if(len(pipelineGraph.levelWiseLogicalMatList.get(logicalStageNumbersAsList[0]))>1):
             logger.info("The largest logical stage should only contain the dummy Start node. hence only one node can exist in this stage. But we have more than one MAT node in ths list.So there are some problem. Please DEBUG> Exiting")
             print("The largest logical stage should only contain the dummy Start node. hence only one node can exist in this stage. But we have more than one MAT node in ths list.So there are some problem. Please DEBUG> Exiting")
             (1)
-        if(len(pipelineGraph.stageWiseLogicalMatList.get(logicalStageNumbersAsList[len(logicalStageNumbersAsList)-1]))>1 ):
+        if(len(pipelineGraph.levelWiseLogicalMatList.get(logicalStageNumbersAsList[len(logicalStageNumbersAsList) - 1]))>1):
             logger.info("The smallest logical stage should only contain the dummy END node. hence only one node can exist in this stage. But we have more than one MAT node in ths list.So there are some problem. Please DEBUG> Exiting")
             print("The smallest logical stage should only contain the dummy END node. hence only one node can exist in this stage. But we have more than one MAT node in ths list.So there are some problem. Please DEBUG> Exiting")
             (1)
         if(len(logicalStageNumbersAsList) == 1):
-            print("there is only one level required for the nodes in piepieline : "+str(pipelineGraph.pipelineID)+ " The name of the node is "+pipelineGraph.stageWiseLogicalMatList.get(logicalStageNumbersAsList[len(logicalStageNumbersAsList)-1])[0].name )
+            print("there is only one level required for the nodes in piepieline : " + str(pipelineGraph.pipelineID) + " The name of the node is " + pipelineGraph.levelWiseLogicalMatList.get(logicalStageNumbersAsList[len(logicalStageNumbersAsList) - 1])[0].name)
             print("The pipeline have no element to embedd. So returning.")
             return
-        if(pipelineGraph.stageWiseLogicalMatList.get(logicalStageNumbersAsList[len(logicalStageNumbersAsList)-1])[0].name != confConst.DUMMY_END_NODE):
-            print("The MAT node: "+ pipelineGraph.stageWiseLogicalMatList.get(logicalStageNumbersAsList[len(logicalStageNumbersAsList)-1])[0].name +" with smallest logical stage number :"+str(logicalStageNumbersAsList[len(logicalStageNumbersAsList)-1])+ " must have to be DUMMY End node. Debug please Exiting")
+        if(pipelineGraph.levelWiseLogicalMatList.get(logicalStageNumbersAsList[len(logicalStageNumbersAsList) - 1])[0].name != confConst.DUMMY_END_NODE):
+            print("The MAT node: " + pipelineGraph.levelWiseLogicalMatList.get(logicalStageNumbersAsList[len(logicalStageNumbersAsList) - 1])[0].name + " with smallest logical stage number :" + str(logicalStageNumbersAsList[len(logicalStageNumbersAsList) - 1]) + " must have to be DUMMY End node. Debug please Exiting")
             exit(1)
-        if(pipelineGraph.stageWiseLogicalMatList.get(logicalStageNumbersAsList[0])[0].name != confConst.DUMMY_START_NODE):
-            print("The MAT node: "+ pipelineGraph.stageWiseLogicalMatList.get(logicalStageNumbersAsList[0])[0].name +" with highest logical stage number :"+str(logicalStageNumbersAsList[0])+ " must have to be DUMMY End node. Debug please Exiting")
+        if(pipelineGraph.levelWiseLogicalMatList.get(logicalStageNumbersAsList[0])[0].name != confConst.DUMMY_START_NODE):
+            print("The MAT node: " + pipelineGraph.levelWiseLogicalMatList.get(logicalStageNumbersAsList[0])[0].name + " with highest logical stage number :" + str(logicalStageNumbersAsList[0]) + " must have to be DUMMY End node. Debug please Exiting")
         return
 
-    def embedP4ProgramAccordingToSingleMatrix(self, p4ProgramGraph,pipelineID):
+    def embedP4ProgramAccordingToSingleMatrix(self, p4ProgramGraph,pipelineID,hardware):
         print("Starting embedding the P4 Program graph on to the hardware")
         pipelineGraph = p4ProgramGraph.pipelineIdToPipelineGraphMap.get(pipelineID)
-        logicalStageNumbersAsList = list(pipelineGraph.stageWiseLogicalMatList.keys())
+        logicalStageNumbersAsList = list(pipelineGraph.levelWiseLogicalMatList.keys())
         logicalStageNumbersAsList.sort(reverse=True) # We are sorting the logical stage numbers in descending order. Because we have calculated the levels in reverse order due to use of DFS
         self.sanityCheckingOfTheLogicalMats(logicalStageNumbersAsList, pipelineGraph)
+        startingPhyicalStage = min(self.stageWiseResources.keys())
 
+        #TODO: make a check here to understand how many stages does this program need. if it needs more than available stages then we can halt earlier.
         for logicalStageIndex in logicalStageNumbersAsList:
-            if(pipelineGraph.stageWiseLogicalMatList.get(logicalStageIndex)[0].name == confConst.DUMMY_END_NODE) \
-                or (pipelineGraph.stageWiseLogicalMatList.get(logicalStageIndex)[0].name == confConst.DUMMY_START_NODE):
+            if(pipelineGraph.levelWiseLogicalMatList.get(logicalStageIndex)[0].name == confConst.DUMMY_END_NODE) \
+                or (pipelineGraph.levelWiseLogicalMatList.get(logicalStageIndex)[0].name == confConst.DUMMY_START_NODE):
                 continue
             else:
-                logicalMatList = pipelineGraph.stageWiseLogicalMatList.get(logicalStageIndex)
-                for logicalMat in logicalMatList:
-                    p4ProgramGraph.parsedP4Program.getMatchActionResourceRequirementForMatNode(logicalMat,p4ProgramGraph,pipelineID)
-                    #Embed logicalMat
+                logicalMatList = pipelineGraph.levelWiseLogicalMatList.get(logicalStageIndex)
+                matListUsingStatefulMem, matListNotUsingStatefulMem, usedStatefulMemSet = self.divideMatNodeListInStatefulMemoryUserAndNonUser(p4ProgramGraph, logicalMatList)
+                self.isStatefulMemorySetAccomodatables(p4ProgramGraph,pipelineID, usedStatefulMemSet,hardware)
+                # Now check step by step whether the startingPhyicalStage can accomodate the stateful memoery or not
 
+
+    def isStatefulMemorySetAccomodatables(self, p4ProgramGraph,pipelineID, statefulMemSet,hardware, startingStage):
+        print("Test")
+        pipelineGraph= p4ProgramGraph.pipelineIdToPipelineGraphMap.get(pipelineID)
+        totalSramRequirement=0
+        totalBitWidth = 0
+        for regName in statefulMemSet:
+            totalSramRequirementForOneReg, totalBitWidthForOneReg = p4ProgramGraph.getRegisterArraysResourceRequirment(regName)
+            totalSramRequirement = totalSramRequirement + totalSramRequirementForOneReg
+            totalBitWidth = totalBitWidth + totalBitWidthForOneReg
+
+# deep copy a hardware stage resource. then from starting stage check whether each of the stateful memoryu is embeddable in one stage or not. if it
+#     can not be embedded on the remaining part of a stage, go to next stage
 
     def divideMatNodeListInStatefulMemoryUserAndNonUser(self,p4ProgramGraph, matNodeList):
         '''
