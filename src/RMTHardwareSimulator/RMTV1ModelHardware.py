@@ -255,17 +255,36 @@ class RMTV1ModelHardware:
                     #Embed logicalMat
 
 
+    def divideMatNodeListInStatefulMemoryUserAndNonUser(self,p4ProgramGraph, matNodeList):
+        '''
+        This function divides the given matNodelist into two subsets. First set contains all the nodes that uses a stateful memoery. Second set contains the MAtnodes that do not uses a stateful memeory in its action
+        :param p4ProgramGraph:
+        :param matNodeList:
+        :return:
+        '''
+        usedStatefulMemSet = set()
+        matListNotUsingStatefulMem= []
+        matListUsingStatefulMem= []
+        for matNode in matNodeList:
+            if(len(matNode.getStatefulMemoeryNamesAsSet()) >0):
+                usedStatefulMemSet = usedStatefulMemSet.union(matNode.getListOfStatefulMemoriesBeingUsedByMatNodeAsSet())
+                matListUsingStatefulMem.append(matNode)
+            else:
+                matListNotUsingStatefulMem.append(matNode)
+        return  matListUsingStatefulMem, matListNotUsingStatefulMem, usedStatefulMemSet
+    # logicalmatlist er protita element kon stateful element use korche seta pacchi. okhan theke dui set a vag korte pari.
+    # tarpo okhan theke jara stateful memoery use korche, sei element gulor set nibo. tahole unique stateful memoery gulor name pacchi.
+    # tarpor sei unique element gulor level list ta niye setar set bananbo. setate ekta e level thaka uchit.
 
-    # get the levels in sorted order.
-    # if -1 is dummy end and maximum is only dummy start then it is okay. otherwise something is wrong. we will stop there.
-    # Write two seprate cionditions for checking these two.
-    # Then fropm dmmy start we will start processing.
+
 
     #
-    # Assume that previous part already converted the indirect register based nodes and bifurcated them. If we want to handle direct register or counter or meter, then we do not need tyo
+    # Assume that previous part already converted the indirect register based nodes and bifurcated them.
+    # If we want to handle direct register or counter or meter, then we do not need to
     # bifurcate them. When we want to handle them in our system keep it in mind.
     #
-    # precondition: find the levels of each stateful memory and store it in some place. while finding this, make a crosscheck of whether a statefuyl mem is getting assigned to multiple
+    # precondition: find the levels of each stateful memory and store it in some place. while finding this, make a crosscheck of whether a statefuyl
+    # mem is getting assigned to multiple
     #     level or not
     #
     # algo
@@ -273,9 +292,21 @@ class RMTV1ModelHardware:
     # 2) if the register array requiment of the tables are not accomdatable in one stage then halt (we will show some good halping messages here).
     # Because the p4 program is not embedable in hardware.
     # Now, there may be a case, when we are assginigng two indirect statefl mem in one stage, but practically they need resource more than one stage and they
-    # can be assigned in two separate stages. we need to handl ethis in our stategul memory based bifurcation part.
+    # can be assigned in two separate stages. we need to handl ethis in our stategul memory based bifurcation part. To handle this, we can calculate
+    # the list of stateful memory accessed in each level. Now assume a level is accessing two stateful memories, then from the statefulMemoryToLevepMap, we can find
+    # which stateful memories are mapped to this level. If we find more than one levels are mapped here, then we can divide them over multiple stages. done.
+    # now there remains a question what if the order of access of these stateful memories are conflicting, we assume that this is alreadychecked by the syntax analysis part.
+    # we will also do a anlysis in our embedding scheme.
     # 3) after the stateful mem based tables are embedded in one stage, we can embed the rest of the mat's (2nd set of mat which do not need any stateful mem)
     # in one or more than mat according to necessity.
     # 4) while embedding a table, if a table's resource requirement need to be expanded over multiple stages (given that it does not need indirect stateful mem),
     # we will spread it over multiple stages.
     # 5) keep track of the stages where the levels are assigned.
+
+
+    #TODO we will implement this later. 
+    # write a function to find the order of stateful memory access of different mat.
+    #
+    # for each mat, find its order of stateful mem access, reuse the code of  the fubnction which finbds the stateful memory access of a mat.
+    # that function, only find the stateful memory uses, here we need to keep them in exact order.
+    # for next table, pass that order and if it not maintains same order then there is a problem. show error message. simple,

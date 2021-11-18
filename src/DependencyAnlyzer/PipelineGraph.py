@@ -232,7 +232,7 @@ class PipelineGraph:
         self.getTDGGraphWithAllDepenedencyAndMatNode(curNode = self.allTDGNode.get(confConst.DUMMY_START_NODE), predNode=None, dependencyBetweenCurAndPred=None, tdgGraph=graphTobedrawn, printLevel=True)
         self.drawPipeline(nxGraph = graphTobedrawn, filePath="final-graph"+str(self.pipelineID)+".jpg")
         self.stageWiseLogicalMatList = self.calculateStageWiseMatNodes()
-        # self.sfMemNameWiseLevelList = self.gatherLevelsOfStatefulMemories()
+        self.sfMemNameWiseLevelList = self.gatherLevelsOfStatefulMemories()
         # self.calculateStageWiseTotalReousrceRequirements(self.stageWiseLogicalMatList)
         pass
 

@@ -427,6 +427,12 @@ class MATNode:
             returnValue.append(k)
         return set(returnValue)
 
+    def getListOfStatefulMemoriesBeingUsedByMatNodeAsSet(self):
+        if type(self.originalP4node) == Table:
+            return set(self.originalP4node.getListOfStatefulMemoriesBeingUsed())
+        else:
+            return set([])
+
 
     def addStatefulMemoryDependency(self, statefulMemoryName, matNode):
         flag = False
