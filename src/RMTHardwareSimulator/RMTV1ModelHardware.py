@@ -252,20 +252,72 @@ class RMTV1ModelHardware:
                 continue
             else:
                 logicalMatList = pipelineGraph.levelWiseLogicalMatList.get(logicalStageIndex)
-                matListUsingStatefulMem, matListNotUsingStatefulMem, usedStatefulMemSet = self.divideMatNodeListInStatefulMemoryUserAndNonUser(p4ProgramGraph, logicalMatList)
-                self.isStatefulMemorySetAccomodatables(p4ProgramGraph,pipelineID, usedStatefulMemSet,hardware)
-                # Now check step by step whether the startingPhyicalStage can accomodate the stateful memoery or not
+                statefulMemoryNameToUserMatListMap, matListNotUsingStatefulMem, usedStatefulMemSet = self.divideMatNodeListInStatefulMemoryUserAndNonUser(p4ProgramGraph, logicalMatList)
+                # Now check whther all the table in each stateful memories list can satisfy memory requirement.
+                # At this moment we will write a menthod that will consider all the stateful memories in one stage.
+                # later we will add support for mat bifurcation.
+                #     Add this note to todo list. we can deep copy a matnode and bifurcate it
+                print(hardware)
+                deepCopiedResourcesOfStage = hardware.stageWiseResources.get(startingPhyicalStage)
+                if(deepCopiedResourcesOfStage == None):
+                    print("The deepcopied resrurces for stage "+str(startingPhyicalStage)+" of the hardware is none. Severe error. Exiting")
+                    exit(1)
+                if(self.isStatefulMemorySetAccomodatableInStage(p4ProgramGraph, pipelineID, statefulMemoryNameToUserMatListMap.keys(), hardware, deepCopiedResourcesOfStage)):
+                    #the Stateul memories can be embedded on this stage. Now we need to find can we embed all the MAtnodes of statefulMemoryNameToUserMatListMap on this same stage
+                    # Now all the MAt nodes in same level matches on differnt fields. But they are from different paths of the TDG. Hence they will never match together.
+                    #It implies only one of the matnodes will find a matching entry. Hence onyl one of their action will be executed. Therefore the resource requirement of the
+                    #Actions will be the highest of the actions from all the tables. Means, we have to reserve the maximum bitwidth of action for the crossbar,
+                    #maximum bitwidth for memory port.
+                    #But we have to reserve the full amount of space for TCAM/SRAM based mat entries and their actions.
+                    matNodeListThatusesStatefulMemory = []
+                    for k in statefulMemoryNameToUserMatListMap:
+                        for matNode in statefulMemoryNameToUserMatListMap.get(k):
+                            matNodeListThatusesStatefulMemory.append(matNode)
+
+                    self.isMatNodesEmbeddableOnThisStage(p4ProgramGraph,pipelineID, matNodeListThatusesStatefulMemory,hardware, deepCopiedResourcesOfStage)
+
+                else:
+                    print("The resource requirement for the indirect stateful memories can not be fulfilled by the availalbe resources of stage: "+str(deepCopiedResourcesOfStage.index))
+                    print("Halintg the embedding process here")
 
 
-    def isStatefulMemorySetAccomodatables(self, p4ProgramGraph,pipelineID, statefulMemSet,hardware, startingStage):
+    def isMatNodesEmbeddableOnThisStage(self, p4ProgramGraph,pipelineID, matNodeList,hardware, stageHardwareResource):
+        '''This node returns true if all the MAt nodes in matNodeList is embaddable over the stageHardwareResource. If true it also allocates resources in stageHardwareResource.
+        Else it returns False.'''
+        isEmbeddable = True
+        #The follwoing loop claculates Each mat node's resource requirement and saves in the same object.
+        for matNode in matNodeList:
+            p4ProgramGraph.parsedP4Program.getMatchActionResourceRequirementForMatNode(matNode, p4ProgramGraph, pipelineID)
+
+        # if total mat entriy rewuirement is okay, if total mat entry fields count and crossbar bitwidth requirement is okay ,
+        # total sram requiree dby actions is okay , the action crossbar bitwidth is okay
+        #
+        # then the set of nodes are embeddable. otherwise not.
+        #
+        # writre a seperate function for each one of them and that will return true . then write a predicate combining all of them.
+        # then do the actual allocations.
+
+
+
+    def isStatefulMemorySetAccomodatableInStage(self, p4ProgramGraph,pipelineID, statefulMemSet,hardware, stageHardwareResource):
         print("Test")
         pipelineGraph= p4ProgramGraph.pipelineIdToPipelineGraphMap.get(pipelineID)
         totalSramRequirement=0
         totalBitWidth = 0
+        isEmbeddable = True
         for regName in statefulMemSet:
-            totalSramRequirementForOneReg, totalBitWidthForOneReg = p4ProgramGraph.getRegisterArraysResourceRequirment(regName)
+            totalSramRequirementForOneReg, totalBitWidthForOneReg = p4ProgramGraph.parsedP4Program.getRegisterArraysResourceRequirment(regName)
             totalSramRequirement = totalSramRequirement + totalSramRequirementForOneReg
             totalBitWidth = totalBitWidth + totalBitWidthForOneReg
+            totalSramBlockRequired = stageHardwareResource.sramRequirementToBlockSizeConversion(totalSramRequirement)
+            if(stageHardwareResource.allocateSramBlockForIndirectStatefulMemory( totalSramBlockRequired = totalSramBlockRequired,
+                            totalSramPortWidthRequired = totalBitWidthForOneReg, indirectStatefulMemoryName=regName) == True):
+                isEmbeddable = True
+            else:
+                isEmbeddable = False
+                print("The resource requirement for the indirect stateful memory: "+regName + " can not be fulfilled with the available resources in stage  "+str(stageHardwareResource.stageIndex))
+                return  isEmbeddable
+        return  isEmbeddable
 
 # deep copy a hardware stage resource. then from starting stage check whether each of the stateful memoryu is embeddable in one stage or not. if it
 #     can not be embedded on the remaining part of a stage, go to next stage
@@ -280,13 +332,19 @@ class RMTV1ModelHardware:
         usedStatefulMemSet = set()
         matListNotUsingStatefulMem= []
         matListUsingStatefulMem= []
+        statefulMemoryNameToUserMatListMap={}
         for matNode in matNodeList:
             if(len(matNode.getStatefulMemoeryNamesAsSet()) >0):
                 usedStatefulMemSet = usedStatefulMemSet.union(matNode.getListOfStatefulMemoriesBeingUsedByMatNodeAsSet())
-                matListUsingStatefulMem.append(matNode)
+                for sfMemName in usedStatefulMemSet:
+                    if(statefulMemoryNameToUserMatListMap.get(sfMemName) == None):
+                        statefulMemoryNameToUserMatListMap[sfMemName] = []
+                    matList = statefulMemoryNameToUserMatListMap.get(sfMemName)
+                    matList.append(matNode)
+                    statefulMemoryNameToUserMatListMap[sfMemName] = matList
             else:
                 matListNotUsingStatefulMem.append(matNode)
-        return  matListUsingStatefulMem, matListNotUsingStatefulMem, usedStatefulMemSet
+        return  statefulMemoryNameToUserMatListMap, matListNotUsingStatefulMem, usedStatefulMemSet
     # logicalmatlist er protita element kon stateful element use korche seta pacchi. okhan theke dui set a vag korte pari.
     # tarpo okhan theke jara stateful memoery use korche, sei element gulor set nibo. tahole unique stateful memoery gulor name pacchi.
     # tarpor sei unique element gulor level list ta niye setar set bananbo. setate ekta e level thaka uchit.

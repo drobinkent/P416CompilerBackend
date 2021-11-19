@@ -25,3 +25,6 @@ and calculate the levels later then, it will cause trouble. Because it is founda
 Now. if if they are not embedded in same stage then, they an not be correctly embedded on a RMT hardware. Moreover, if there are some other stage in betwenn then it is impossbiel.
 Because that will cause loop in the TDG. In out scheme we assume that, the loop checking is already done. we do not handle these kind of loops.
 
+
+3) in an action, we are assuming that all action will use all rutime_data (action parameters passed by the CP), which is not true always. So basically we are over
+estinating. Need it to be fixed.

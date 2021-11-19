@@ -1326,6 +1326,8 @@ class Action:
     id: int
     runtime_data: List[RuntimeDatum]
     primitives: List[Primitive]
+    #Point to remember: in this class runtime_data indicates te fields passed by cp as parameter of the action
+    #On the other hand, in the other functions of this class, when we use parameter that indicates the parameters of a primitive used in the action.
 
     def getTotalBitwidthOfRuntimeData(self):
         '''
@@ -1689,18 +1691,25 @@ class Action:
                 exit(1)
 
             #TODO: in the final framework we need to suport meter execution
+        setOfStatefulMemoryBeingAccessed = set(listOfStatefulMemoryBeingAccessed) #We are taking set, because the same register can be read and write. but we are not handling it here.
+        #So by default every register will be once in the list
+        listOfStatefulMemoryBeingAccessed = list(listOfStatefulMemoryBeingAccessed)
+        totalMemoryBitwdithRequired = 0
+        for sfMem in listOfStatefulMemoryBeingAccessed:
+            totalSramRequirement, totalBitWidth = p4ProgramGraph.parsedP4Program.getRegisterArraysResourceRequirment(sfMem)
+            totalMemoryBitwdithRequired = totalMemoryBitwdithRequired + totalBitWidth
 
-
-        return ActionResourceConsumptionStatistics(listOfFieldBeingModifed, listOfFieldBeingUsed,listOfStatefulMemoryBeingAccessed, actionCrossbarBitwidth,allActionParameterSizeInBits)
+        return ActionResourceConsumptionStatistics(listOfFieldBeingModifed, listOfFieldBeingUsed,listOfStatefulMemoryBeingAccessed, actionCrossbarBitwidth,allActionParameterSizeInBits, totalMemoryBitwdithRequired)
 
 
 class ActionResourceConsumptionStatistics:
-    def __init__(self,listOfFieldBeingModifed, listOfFieldBeingUsed,listOfStatefulMemoryBeingAccessed, actionCrossbarBitwidth,allActionParameterSizeInBits):
+    def __init__(self,listOfFieldBeingModifed, listOfFieldBeingUsed,listOfStatefulMemoryBeingAccessed, actionCrossbarBitwidth,allActionParameterSizeInBits, totalMemoryBitwdithRequired):
         self.listOfFieldBeingModifed = listOfFieldBeingModifed
         self.listOfFieldBeingUsed = listOfFieldBeingUsed
         self.listOfStatefulMemoryBeingAccessed= listOfStatefulMemoryBeingAccessed
         self.actionCrossbarBitwidth = actionCrossbarBitwidth
         self.allActionParameterSizeInBits = allActionParameterSizeInBits
+        self.totalMemoryBitwdithRequired = totalMemoryBitwdithRequired
 
     def __str__(self):
         val = ""

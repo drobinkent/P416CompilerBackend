@@ -1,5 +1,6 @@
 import logging
 import ConfigurationConstants as confConst
+import math
 logger = logging.getLogger('StageWiseResource')
 hdlr = logging.FileHandler(confConst.LOG_FILE_PATH )
 hdlr.setLevel(logging.INFO)
@@ -27,9 +28,21 @@ class StageWiseResource:
         self.aluResource = AluResource(stageResourceDescription.alu_resources, self.rmtHWSpec)
         self.externResource = ExternResource(stageResourceDescription.extern_resources, self.rmtHWSpec)
 
+    def sramRequirementToBlockSizeConversion(self, sramRequirementInBits):
+        #TODO: a little bit problem here in this callucation. Assume we have 32x28 sram rows in a block. and we need 17 bit wide register entry to be accomodated in this stage.
+        # Now at the end of one block we may have only 2 bits remaining. So dor a sepcific entry we have to look at two blocks. this case is not handled here
+        totalSramBlockRequired = math.ceil(sramRequirementInBits/(self.sramResource.availalbeSramBlockBitwidth*self.sramResource.availableSramRows))
+        return  totalSramBlockRequired
+    def allocateSramBlockForIndirectStatefulMemory(self, totalSramBlockRequired, totalSramPortWidthRequired, indirectStatefulMemoryName):
+        if (self.sramResource.availableSramPortBitwidth >= totalSramPortWidthRequired) and (self.sramResource.availableSramBlocks >= totalSramBlockRequired):
+            #TODO : record here which stateful register array (indirectStatefulMemoryName) is using these blocks
+            self.sramResource.availableSramBlocks = self.sramResource.availableSramBlocks - totalSramBlockRequired
+            self.sramResource.usedSramBlocks = self.sramResource.usedSramBlocks + totalSramBlockRequired
+            self.sramResource.availableSramPortBitwidth = self.sramResource.availableSramPortBitwidth - totalSramPortWidthRequired
+            self.sramResource.usedSramPortBitwidth = self.sramResource.usedSramPortBitwidth + totalSramPortWidthRequired
+            return True
+        return False
 
-
-        pass
 
 
 #==================================== TODO Read following
@@ -95,9 +108,12 @@ class SRAMResource:
         self.unprocessedSramResourceSpec = sram_resources
         self.availableSramPorts = sram_resources.memory_port_count
         self.usedSramPorts = 0
-        self.availableSramPortBitwidth = sram_resources.memory_port_width
+        self.availableSramPortBitwidth = sram_resources.memory_port_width * sram_resources.memory_port_count
         self.usedSramPortBitwidth = 0
+        self.availableActionMemoryBitwidth = sram_resources.memory_port_width * sram_resources.memory_port_count
+        self.usedActionMemoryBitwidth = 0
         self.availableSramBlocks = sram_resources.memory_block_count
+        self.usedSramBlocks = sram_resources.memory_block_count
         self.availalbeSramBlockBitwidth = sram_resources.memory_block_bit_width
         self.usedSramBlockBitwidth=0
         self.availableSramRows = self.availableSramBlocks * sram_resources.memoroy_block_row_count
