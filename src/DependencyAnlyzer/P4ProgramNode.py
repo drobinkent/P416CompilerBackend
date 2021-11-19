@@ -25,7 +25,7 @@ class P4ProgramNode:
         self.isAssignedFlag = False
         self.isAnalyzed = False
         self.name = name
-        self.stageIndex = None
+        # self.stageIndex = None
         self.processedData = None
         self.addExtraBitInMatchKey = False
 

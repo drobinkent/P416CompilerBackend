@@ -1049,13 +1049,13 @@
           },
           "key" : [
             {
-              "match_type" : "lpm",
+              "match_type" : "exact",
               "name" : "meta.nsf_1",
               "target" : ["scalars", "userMetadata.nsf"],
               "mask" : null
             }
           ],
-          "match_type" : "lpm",
+          "match_type" : "exact",
           "type" : "simple",
           "max_size" : 1024,
           "with_counters" : false,

@@ -20,6 +20,8 @@ class StageWiseResource:
         self.unprocessedStageResourceDescription = stageResourceDescription
         self.availableActionCrossbarBitWidth = stageResourceDescription.action_crossbar_bit_width
         self.usedActionCrossbarBitWidth = 0
+        self.availableActionMemoryBitWidth = stageResourceDescription.action_crossbar_bit_width
+        self.usedActionMemoryBitWidth = 0
         self.availableNumberOfActions = stageResourceDescription.maximum_actions_supported
         self.usedNumberOfActions = 0
         self.sramResource = SRAMResource(stageResourceDescription.sram_resources, self.rmtHWSpec)
@@ -28,11 +30,64 @@ class StageWiseResource:
         self.aluResource = AluResource(stageResourceDescription.alu_resources, self.rmtHWSpec)
         self.externResource = ExternResource(stageResourceDescription.extern_resources, self.rmtHWSpec)
 
+    def getAvailableSRAMMatKeyBitwidth(self):
+        return self.sramMatResource.availableSramMatCrossbarBitwidth
+
+    def getAvailableSRAMMatKeyCount(self):
+        return self.sramMatResource.availableSramMatFields
+
+    def getAvailableSRAMMatEntrieCountforGivenWidth(self, keyWidth):
+        '''Assuming that, the kwywidth is already converted into the necessary width for the SRAM based MAT using convertMatKeyBitWidthLengthToSRAMMatKeyLength.
+        So the whole keywidth will be of multiple in terms of SRAM Mat blocks.'''
+        requiredNumberOfSRAMblockForTheKey = int(keyWidth/self.sramMatResource.sramMatBitWidth)
+        #Now how many entries of this width the available sram can support? nned to keep another
+        return self.sramMatResource.availableSramMatFields
+
+    def getAvailableTCAMMatKeyBitwidth(self):
+        return self.tcamMatResource.availableTcamMatCrossbarBitwidth
+
+    def getAvailableTCAMMatKeyCount(self):
+        return self.tcamMatResource.availableTcamMatFields
+
+    def convertMatKeyBitWidthLengthToSRAMMatKeyLength(self, matKeysBitWidth):
+        requiredSRAMMatBitwidth = math.ceil(matKeysBitWidth/self.sramMatResource.sramMatBitWidth) * self.sramMatResource.sramMatBitWidth
+        return requiredSRAMMatBitwidth
+
+    def convertMatKeyBitWidthLengthToTCAMMatKeyLength(self, matKeysBitWidth):
+        requiredTCAMMatBitwidth = math.ceil(matKeysBitWidth/self.tcamMatResource.tcamMatResource) * self.tcamMatResource.tcamMatResource
+        return requiredTCAMMatBitwidth
+
+    def getAvailableActionMemoryBitwidth(self):
+        return self.availableActionMemoryBitWidth
+
+    def getAvailableActionCrossbarBitwidth(self):
+        return self.availableActionCrossbarBitWidth
+
+    def allocateActionMemoryBitwidth(self, actionMemoryBitwidth):
+        self.availableActionMemoryBitWidth = self.availableActionMemoryBitWidth - actionMemoryBitwidth
+        self.usedActionMemoryBitWidth = self.usedActionMemoryBitWidth + actionMemoryBitwidth
+        pass
+
+    def allocateActionCrossbarBitwidth(self, actionCrossbarBitwidth):
+        self.availableActionCrossbarBitWidth = self.availableActionCrossbarBitWidth - actionCrossbarBitwidth
+        self.usedActionCrossbarBitWidth = self.usedActionCrossbarBitWidth + actionCrossbarBitwidth
+        pass
+
+    def isMatNodeEmbeddableOnTCAMMats(self, matNode):
+        print("In isMatNodeEmbeddableOnTCAMMats.still unimplemented")
+        exit(1)
+
+    def isMatNodeEmbeddableOnSRAMMats(self, matNode):
+        print("In isMatNodeEmbeddableOnSRAMMats.still unimplemented")
+        exit(1)
+
+
     def sramRequirementToBlockSizeConversion(self, sramRequirementInBits):
         #TODO: a little bit problem here in this callucation. Assume we have 32x28 sram rows in a block. and we need 17 bit wide register entry to be accomodated in this stage.
         # Now at the end of one block we may have only 2 bits remaining. So dor a sepcific entry we have to look at two blocks. this case is not handled here
         totalSramBlockRequired = math.ceil(sramRequirementInBits/(self.sramResource.availalbeSramBlockBitwidth*self.sramResource.availableSramRows))
         return  totalSramBlockRequired
+
     def allocateSramBlockForIndirectStatefulMemory(self, totalSramBlockRequired, totalSramPortWidthRequired, indirectStatefulMemoryName):
         if (self.sramResource.availableSramPortBitwidth >= totalSramPortWidthRequired) and (self.sramResource.availableSramBlocks >= totalSramBlockRequired):
             #TODO : record here which stateful register array (indirectStatefulMemoryName) is using these blocks

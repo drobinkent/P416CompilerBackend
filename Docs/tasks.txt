@@ -47,4 +47,11 @@
 
 
 
+ -- how to find processing delay.
+
+ start with the program graph in dfs. if a node and it's predecessor have depndency, then based on the dependency there will be dealy. a nodes' delay will be maximun of
+ it's child's delay.
+
+
+
 

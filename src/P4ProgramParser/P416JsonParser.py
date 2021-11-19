@@ -2977,6 +2977,8 @@ class HeaderField:
     def getPipelineIDToPHVListMap(self, pipelineID):
         return self.pipelineIDToPHVListMap.get(pipelineID)
 
+    def getOriginalbitwidth(self):
+        return self.bitWidth
     def getPHVBitWidth(self,pipelineID):
         phvfieldList = self.pipelineIDToPHVListMap.get(pipelineID)
         totalBitWidth = 0
@@ -3195,22 +3197,23 @@ class ParsedP416ProgramForV1ModelArchitecture:
         result["__meta__"] = to_class(Meta, self.meta)
         return result
 
-    def getHeaderBitCount(self, headerName,pipelineId):
-        if headerName.endswith("$valid$"):
-            return 8 # all header have a valid bit associated with it. so assuming setting one bit needs only one operation and paddin it needs 8 bit.
+    def getHeaderBitCountForMatching(self, headerName, pipelineId):
+        '''
+        For matching a field, it's exact bitwidths are used. But when the same field is used as action we have to match it with the aLU bitwidths.
+        This function only provides the actual bitwidth to calculate the matchkeywidths of a table
+        '''
+
+        hdrObj = self.nameToHeaderTypeObjectMap.get(headerName)
+        if hdrObj == None:
+            print("The match key: "+headerName+" is not found in the nameToHeaderTypeObjectMap. Severe error. Exiting. ")
+            exit(1)
         else:
-            hdrObj = self.nameToHeaderTypeObjectMap.get(headerName)
-            if hdrObj == None:
-                for hf in self.headers:
-                    if(hf.name == headerName):
-                        return 8  # This means the primitie was set valid/invalid or chekcing a headers validity. Therefore the whole header was used. So return onlyn 8
-            else:
-                bitWidth = hdrObj.getPHVBitWidth(pipelineId)
-                if(bitWidth<=0):
-                    logger.info("bitwidth for header field : "+ headerName+" is found 0. This can not happen. Debug please . Exiting !!!!")
-                    print("bitwidth for header field : "+ headerName+" is found 0. This can not happen. Debug please . Exiting !!!!")
-                    exit(1)
-                return bitWidth
+            bitWidth = hdrObj.getOriginalbitwidth()
+            if(bitWidth<=0):
+                logger.info("bitwidth for header field : "+ headerName+" is found 0. This can not happen. Debug please . Exiting !!!!")
+                print("bitwidth for header field : "+ headerName+" is found 0. This can not happen. Debug please . Exiting !!!!")
+                exit(1)
+            return bitWidth
 
     # def getHeaderBitCountOld(self, headerName):
     #     print("ALARM ALARAM ALRAM ALRAM ALRAM ALRAM ALRAM ALARMA. We have to find bitwidth of a hedader filed from the headerFieldMap found from the optimization tool.")
@@ -3245,7 +3248,7 @@ class ParsedP416ProgramForV1ModelArchitecture:
             print("severe error match key is none for node "+matNode.name+" Exiting")
             exit(1)
         for k in matNode.matchKeyFields:
-            fieldBitWidth = self.getHeaderBitCount(k,pipelineId)
+            fieldBitWidth = self.getHeaderBitCountForMatching(k, pipelineId)
             headerFieldWiseBitwidthOfMatKeys[k] = fieldBitWidth
             matKeyBitWidth =  matKeyBitWidth + fieldBitWidth
         totalKeysTobeMatched = len(matNode.matchKeyFields)

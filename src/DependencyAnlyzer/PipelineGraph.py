@@ -844,7 +844,7 @@ class PipelineGraph:
     def gatherLevelsOfStatefulMemories(self):
         sfMemNameWiseLevelList = {}
         for nodeName in self.allTDGNode.keys():
-            print("In gatherLevelsOfStatefulMemories node name is "+nodeName)
+            # print("In gatherLevelsOfStatefulMemories node name is "+nodeName)
             matNode = self.allTDGNode.get(nodeName)
             statefulMemoryNameToLevelMap = matNode.getStatefulMemoryNameToLevelMap()
             for sfMemName in statefulMemoryNameToLevelMap.keys():

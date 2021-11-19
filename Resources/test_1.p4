@@ -168,7 +168,7 @@ control MyIngress(inout headers hdr,
 
     table mat_sf123 {
        key = {
-           meta.nsf_1: lpm;
+           meta.nsf_1: exact;
        }
        actions = {
            set_sf_123;

@@ -3,6 +3,7 @@
 from ortools.linear_solver import pywraplp
 
 from DependencyAnlyzer.DefinitionConstants import PipelineID
+from P416JsonParser import MatchType
 from RMTHardwareSimulator.RMTV1HardwareConfigurationParser import RMTV1HardwareConfiguration
 from RMTHardwareSimulator.RMTV1InstrctionSetParser import RMTV1InstrctionSet
 from RMTHardwareSimulator.StageWiseResources import StageWiseResource
@@ -260,7 +261,7 @@ class RMTV1ModelHardware:
                 print(hardware)
                 deepCopiedResourcesOfStage = hardware.stageWiseResources.get(startingPhyicalStage)
                 if(deepCopiedResourcesOfStage == None):
-                    print("The deepcopied resrurces for stage "+str(startingPhyicalStage)+" of the hardware is none. Severe error. Exiting")
+                    print("The deepcopied resrurces for stage "+str(startingPhyicalStage)+" of the hardware is Empty. Severe error. Exiting")
                     exit(1)
                 if(self.isStatefulMemorySetAccomodatableInStage(p4ProgramGraph, pipelineID, statefulMemoryNameToUserMatListMap.keys(), hardware, deepCopiedResourcesOfStage)):
                     #the Stateul memories can be embedded on this stage. Now we need to find can we embed all the MAtnodes of statefulMemoryNameToUserMatListMap on this same stage
@@ -273,21 +274,66 @@ class RMTV1ModelHardware:
                     for k in statefulMemoryNameToUserMatListMap:
                         for matNode in statefulMemoryNameToUserMatListMap.get(k):
                             matNodeListThatusesStatefulMemory.append(matNode)
-
+                    matNodeListThatusesStatefulMemory = self.sortNodesBasedOnMatchType(matNodeListThatusesStatefulMemory) # sorted the matnodes according to their matching type. Exact matching got least priority so that they are embedded at last and TCAM's are used at first
                     self.isMatNodesEmbeddableOnThisStage(p4ProgramGraph,pipelineID, matNodeListThatusesStatefulMemory,hardware, deepCopiedResourcesOfStage)
 
                 else:
                     print("The resource requirement for the indirect stateful memories can not be fulfilled by the availalbe resources of stage: "+str(deepCopiedResourcesOfStage.index))
                     print("Halintg the embedding process here")
 
+    def sortNodesBasedOnMatchType(self, matNodeList):
+        '''We give highest priority to matchtype that is not exact, so that TCAM's are at first used for non-exact matching '''
+        sortedMatNodeList = []
+        for matNode in matNodeList:
+            if (matNode.originalP4node.match_type.value == MatchType.EXACT):
+                sortedMatNodeList.append(matNode)
+            else:
+                sortedMatNodeList = [matNode] + sortedMatNodeList
+        return sortedMatNodeList
 
     def isMatNodesEmbeddableOnThisStage(self, p4ProgramGraph,pipelineID, matNodeList,hardware, stageHardwareResource):
         '''This node returns true if all the MAt nodes in matNodeList is embaddable over the stageHardwareResource. If true it also allocates resources in stageHardwareResource.
         Else it returns False.'''
         isEmbeddable = True
         #The follwoing loop claculates Each mat node's resource requirement and saves in the same object.
+        maxActionMemoryBitwidth = 0
+        maxActionCrossbarBitwidth = 0
         for matNode in matNodeList:
+            #Calculate individual resource consumption of rach mat node
             p4ProgramGraph.parsedP4Program.getMatchActionResourceRequirementForMatNode(matNode, p4ProgramGraph, pipelineID)
+            # calculate max action memory bitwidth and action crossbar bitwidth-- they are maximum of any table. Because at any time a packet will go through one path in our system.
+            # so we only need to accomodate about the maximum action memory bitwidth anc crossbarr
+            if (matNode.getMaxBitwidthOfActionParameter() > maxActionMemoryBitwidth):
+                print("Old maxActionMemoryBitwidth = "+str(maxActionMemoryBitwidth))
+                maxActionMemoryBitwidth = matNode.getMaxBitwidthOfActionParameter()
+                print("New maxActionMemoryBitwidth = "+str(maxActionMemoryBitwidth))
+            if (matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction() > maxActionCrossbarBitwidth):
+                print("Old maxActionCrossbarBitwidth = "+str(maxActionCrossbarBitwidth))
+                maxActionCrossbarBitwidth = matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction()
+                print("new maxActionCrossbarBitwidth = "+str(maxActionCrossbarBitwidth))
+
+        if (stageHardwareResource.getAvailableActionMemoryBitwidth() >= maxActionMemoryBitwidth) and \
+            (stageHardwareResource.getAvailableActionCrossbarBitwidth() > maxActionCrossbarBitwidth):
+            stageHardwareResource.allocateActionMemoryBitwidth(maxActionMemoryBitwidth)
+            stageHardwareResource.allocateActionCrossbarBitwidth(maxActionCrossbarBitwidth)
+            for matNode in matNodeList:
+                print("pass")
+                if(matNode.originalP4node.match_type.value != MatchType.EXACT):
+                    #try to embed the matnode in tcam
+                    if(stageHardwareResource.isMatNodeEmbeddableOnTCAMMats(matNode)):
+                        stageHardwareResource.allocateMatNodeOverTCAMMat(matNode)
+                    else:
+                        isEmbeddable = False
+                else:
+                    if(stageHardwareResource.isMatNodeEmbeddableOnSRAMMats(matNode)):
+                        stageHardwareResource.allocateMatNodeOverSRAMMat(matNode)
+                    elif(stageHardwareResource.isMatNodeEmbeddableOnTCAMMats(matNode)):
+                        stageHardwareResource.allocateMatNodeOverTCAMMat(matNode)
+                    else:
+                        isEmbeddable = False
+
+            # mat key bidwidth , mat key count, mat entries -- are these things embeddable?
+            # then action field count, action crossbar bitwidth, then action memory -- are these thing feasible
 
         # if total mat entriy rewuirement is okay, if total mat entry fields count and crossbar bitwidth requirement is okay ,
         # total sram requiree dby actions is okay , the action crossbar bitwidth is okay
