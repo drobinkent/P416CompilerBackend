@@ -54,7 +54,7 @@ class StageWiseResource:
         return requiredSRAMMatBitwidth
 
     def convertMatKeyBitWidthLengthToTCAMMatKeyLength(self, matKeysBitWidth):
-        requiredTCAMMatBitwidth = math.ceil(matKeysBitWidth/self.tcamMatResource.tcamMatResource) * self.tcamMatResource.tcamMatResource
+        requiredTCAMMatBitwidth = math.ceil(matKeysBitWidth/self.tcamMatResource.perTcamBlockBitWidth) * self.tcamMatResource.perTcamBlockBitWidth
         return requiredTCAMMatBitwidth
 
     def getAvailableActionMemoryBitwidth(self):
@@ -72,10 +72,44 @@ class StageWiseResource:
         self.availableActionCrossbarBitWidth = self.availableActionCrossbarBitWidth - actionCrossbarBitwidth
         self.usedActionCrossbarBitWidth = self.usedActionCrossbarBitWidth + actionCrossbarBitwidth
         pass
+    def getTotalAccomodatableTcamBasedMATEntriesForGivenKeyBitwidth(self, matKeyBitWidth):
+        matKeyTcamBlockWidth = int(matKeyBitWidth/self.tcamMatResource.perTcamBlockBitWidth) # Means how many blocks we need to merge to form a key. For example: for 80 bit mat key we need 2 40 bit tcam block
+        requiredBlock = math.floor(self.tcamMatResource.availableTcamMatBlocks/matKeyTcamBlockWidth) # if we need 3 blocks to form a mat key and we have 5 tcam block then we can accomodate only 1 block for the matkey
+        accomodatableTcamEntries = requiredBlock * self.tcamMatResource.perTcamBlockRowCount
+        return  matKeyTcamBlockWidth, requiredBlock, accomodatableTcamEntries
+
+    def getTotalAccomodatableActionEntriesForGivenKeyBitwidth(self, actionEntryBitwidth):
+        actionEntrySRAMBlockwidth = int(actionEntryBitwidth/self.sramResource.availalbeSramBlockBitwidth) # Means how many blocks we need to merge to form a key. For example: for 180 bit action entry key we need at least 2 112 bit wide sram block
+        requiredSRAMBlock = math.floor(self.sramResource.availableSramBlocks/matKeyTcamBlockWidth) # if we need 3 blocks to form a mat key and we have 5 tcam block then we can accomodate only 1 block for the matkey
+        accomodatableTcamEntries = requiredBlock * self.tcamMatResource.perTcamBlockRowCount
+        return  matKeyTcamBlockWidth, requiredBlock, accomodatableTcamEntries
 
     def isMatNodeEmbeddableOnTCAMMats(self, matNode):
-        print("In isMatNodeEmbeddableOnTCAMMats.still unimplemented")
-        exit(1)
+
+        # check whther, the key bit width and lengths are within available bitwdth and range
+        # Then check, number of entries is accomodatable or not
+        # then check total action memory is accomodatable or not
+        isEmbeddable = False
+
+        if(matNode.totalKeysTobeMatched <= self.getAvailableTCAMMatKeyCount()) and \
+                (self.convertMatKeyBitWidthLengthToTCAMMatKeyLength(matNode.matKeyBitWidth) <= self.getAvailableTCAMMatKeyBitwidth()):
+            isEmbeddable=True # The key count and bit width is conformant with available resource
+        else:
+            print("The mat node: "+matNode.name+" requires total "+str(matNode.totalKeysTobeMatched)+" match keys and their bitwidth is "+str(self.convertMatKeyBitWidthLengthToTCAMMatKeyLength(matNode.matKeyBitWidth)))
+            print("But the TCAM at stage "+str(self.stageIndex)+" can accomodate "+str(self.getAvailableTCAMMatKeyCount())+" MAT keys and their bttwidth is "+str(self.getAvailableTCAMMatKeyBitwidth()))
+            isEmbeddable = False
+            return isEmbeddable
+        matKeyTcamBlockWidth, requiredBlock, accomodatableTcamEntries = self.getTotalAccomodatableTcamBasedMATEntriesForGivenKeyBitwidth(self.convertMatKeyBitWidthLengthToTCAMMatKeyLength(matNode.matKeyBitWidth))
+        if(accomodatableTcamEntries >= matNode.getRequiredNumberOfMatEntries()):
+            print("Test")
+            pass
+        else:
+            print("The mat node: "+matNode.name+" requires total "+str(matNode.getRequiredNumberOfMatEntries())+" match entries in the TCAM based table")
+            print("But the TCAM at stage "+str(self.stageIndex)+" can accomodate "+str(accomodatableTcamEntries)+" MAT entries.")
+            isEmbeddable = False
+            return isEmbeddable
+
+
 
     def isMatNodeEmbeddableOnSRAMMats(self, matNode):
         print("In isMatNodeEmbeddableOnSRAMMats.still unimplemented")

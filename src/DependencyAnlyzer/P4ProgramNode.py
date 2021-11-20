@@ -167,6 +167,7 @@ class MATNode:
         self.totalKeysTobeMatched = 0
         self.matKeyBitWidth =0
         self.headerFieldWiseBitwidthOfMatKeys = {}
+
         # self.neighbourAssignedStatefulMemoryNameToLevelMap={}  # TODO : this may not be necessary even . on that tcase we will remove it
         return
 
@@ -180,7 +181,7 @@ class MATNode:
         '''
         return self.originalP4node.max_size * self.getMaxBitwidthOfActionParameter()
 
-    def getTotalMatEntries(self):
+    def getRequiredNumberOfMatEntries(self):
         return self.originalP4node.max_size
 
     def getMaxBitwidthOfActionParameter(self):

@@ -276,6 +276,7 @@ class RMTV1ModelHardware:
                             matNodeListThatusesStatefulMemory.append(matNode)
                     matNodeListThatusesStatefulMemory = self.sortNodesBasedOnMatchType(matNodeListThatusesStatefulMemory) # sorted the matnodes according to their matching type. Exact matching got least priority so that they are embedded at last and TCAM's are used at first
                     self.isMatNodesEmbeddableOnThisStage(p4ProgramGraph,pipelineID, matNodeListThatusesStatefulMemory,hardware, deepCopiedResourcesOfStage)
+                    #then embed the mat nodes that does not use stateful memory one by one
 
                 else:
                     print("The resource requirement for the indirect stateful memories can not be fulfilled by the availalbe resources of stage: "+str(deepCopiedResourcesOfStage.index))
@@ -290,6 +291,12 @@ class RMTV1ModelHardware:
             else:
                 sortedMatNodeList = [matNode] + sortedMatNodeList
         return sortedMatNodeList
+
+    def isMatNodeEmbeddableOnThisStage(self, p4ProgramGraph,pipelineID, matNode,hardware, stageHardwareResource):
+        '''This function checks whether a single mat node is accomodatable or not. It reuses the function for checking embeddability of a set of node.'''
+        matNodeList = [matNode]
+        return  self.isMatNodesEmbeddableOnThisStage(p4ProgramGraph,pipelineID, matNodeList,hardware, stageHardwareResource)
+
 
     def isMatNodesEmbeddableOnThisStage(self, p4ProgramGraph,pipelineID, matNodeList,hardware, stageHardwareResource):
         '''This node returns true if all the MAt nodes in matNodeList is embaddable over the stageHardwareResource. If true it also allocates resources in stageHardwareResource.
@@ -342,8 +349,6 @@ class RMTV1ModelHardware:
         #
         # writre a seperate function for each one of them and that will return true . then write a predicate combining all of them.
         # then do the actual allocations.
-
-
 
     def isStatefulMemorySetAccomodatableInStage(self, p4ProgramGraph,pipelineID, statefulMemSet,hardware, stageHardwareResource):
         print("Test")
