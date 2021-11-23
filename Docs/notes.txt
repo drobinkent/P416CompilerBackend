@@ -64,3 +64,7 @@ we also automatically dividing the direct memory in same way.
 
 
 ---- The tofiuno hardware do not divide the indirect registers across stages. but direct registersns can be. we will support the direct registers later.
+
+
+--- currently we are assigning memory blocks entriely to some register or action emmory. but in reality it can be fractional. we will handle it later
+

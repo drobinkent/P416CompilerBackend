@@ -1693,11 +1693,11 @@ class Action:
             #TODO: in the final framework we need to suport meter execution
         setOfStatefulMemoryBeingAccessed = set(listOfStatefulMemoryBeingAccessed) #We are taking set, because the same register can be read and write. but we are not handling it here.
         #So by default every register will be once in the list
-        listOfStatefulMemoryBeingAccessed = list(listOfStatefulMemoryBeingAccessed)
-        totalMemoryBitwdithRequired = 0
-        for sfMem in listOfStatefulMemoryBeingAccessed:
-            totalSramRequirement, totalBitWidth = p4ProgramGraph.parsedP4Program.getRegisterArraysResourceRequirment(sfMem)
-            totalMemoryBitwdithRequired = totalMemoryBitwdithRequired + totalBitWidth
+        # listOfStatefulMemoryBeingAccessed = list(listOfStatefulMemoryBeingAccessed)
+        # totalMemoryBitwdithRequired = 0
+        # for sfMem in listOfStatefulMemoryBeingAccessed:
+        #     totalSramRequirement, totalBitWidth = p4ProgramGraph.parsedP4Program.getRegisterArraysResourceRequirment(sfMem)
+        #     totalMemoryBitwdithRequired = totalMemoryBitwdithRequired + totalBitWidth
 
         return ActionResourceConsumptionStatistics(listOfFieldBeingModifed, listOfFieldBeingUsed,listOfStatefulMemoryBeingAccessed, actionCrossbarBitwidth,allActionParameterSizeInBits, totalMemoryBitwdithRequired)
 
@@ -3036,6 +3036,14 @@ class ParsedP416ProgramForV1ModelArchitecture:
         for r in self.register_arrays:
             self.nameToRegisterArrayMap[r.name] = r
 
+    def getRegisterArrayLength(self,registerArrayName):
+        regArrObj = self.nameToRegisterArrayMap.get(registerArrayName)
+        if(regArrObj == None):
+            print("In getRegisterArrayLength function. RegisterArray object is not found in nameToRegisterArrayMap. Sever error. Exiting ")
+            exit(1)
+        else:
+            return regArrObj.size
+
     def getRegisterArraysResourceRequirment(self, registerArrayName):
         totalSramRequirement = 0
         totalBitWidth = 0
@@ -3044,9 +3052,8 @@ class ParsedP416ProgramForV1ModelArchitecture:
             print("RegisterArray object is not found in nameToRegisterArrayMap. Sever error. Exiting ")
             exit(1)
         else:
-            totalSramRequirement = regArrObj.bitwidth * regArrObj.size
-            totalBitWidth = regArrObj.bitwidth
-        return totalSramRequirement, totalBitWidth
+            return regArrObj.bitwidth, regArrObj.size
+
 
 
     def getAllHeaderFieldsForHeaderType(self, headerTypeName):

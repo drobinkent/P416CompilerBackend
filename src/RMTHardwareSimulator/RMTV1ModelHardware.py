@@ -263,7 +263,7 @@ class RMTV1ModelHardware:
                 if(deepCopiedResourcesOfStage == None):
                     print("The deepcopied resrurces for stage "+str(startingPhyicalStage)+" of the hardware is Empty. Severe error. Exiting")
                     exit(1)
-                if(deepCopiedResourcesOfStage.isStatefulMemorySetAccomodatableInStage(p4ProgramGraph, pipelineID, statefulMemoryNameToUserMatListMap.keys(), hardware)):
+                if(deepCopiedResourcesOfStage.allocateStatefulMemoerySetOnStage(p4ProgramGraph, pipelineID, statefulMemoryNameToUserMatListMap.keys(), hardware)):
                     #the Stateul memories can be embedded on this stage. Now we need to find can we embed all the MAtnodes of statefulMemoryNameToUserMatListMap on this same stage
                     # Now all the MAt nodes in same level matches on differnt fields. But they are from different paths of the TDG. Hence they will never match together.
                     #It implies only one of the matnodes will find a matching entry. Hence onyl one of their action will be executed. Therefore the resource requirement of the
