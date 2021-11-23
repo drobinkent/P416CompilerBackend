@@ -1,4 +1,4 @@
-
+import copy
 
 from ortools.linear_solver import pywraplp
 
@@ -259,11 +259,11 @@ class RMTV1ModelHardware:
                 # later we will add support for mat bifurcation.
                 #     Add this note to todo list. we can deep copy a matnode and bifurcate it
                 print(hardware)
-                deepCopiedResourcesOfStage = hardware.stageWiseResources.get(startingPhyicalStage)
+                deepCopiedResourcesOfStage = copy.deepcopy(hardware.stageWiseResources.get(startingPhyicalStage))
                 if(deepCopiedResourcesOfStage == None):
                     print("The deepcopied resrurces for stage "+str(startingPhyicalStage)+" of the hardware is Empty. Severe error. Exiting")
                     exit(1)
-                if(self.isStatefulMemorySetAccomodatableInStage(p4ProgramGraph, pipelineID, statefulMemoryNameToUserMatListMap.keys(), hardware, deepCopiedResourcesOfStage)):
+                if(deepCopiedResourcesOfStage.isStatefulMemorySetAccomodatableInStage(p4ProgramGraph, pipelineID, statefulMemoryNameToUserMatListMap.keys(), hardware)):
                     #the Stateul memories can be embedded on this stage. Now we need to find can we embed all the MAtnodes of statefulMemoryNameToUserMatListMap on this same stage
                     # Now all the MAt nodes in same level matches on differnt fields. But they are from different paths of the TDG. Hence they will never match together.
                     #It implies only one of the matnodes will find a matching entry. Hence onyl one of their action will be executed. Therefore the resource requirement of the
@@ -275,7 +275,7 @@ class RMTV1ModelHardware:
                         for matNode in statefulMemoryNameToUserMatListMap.get(k):
                             matNodeListThatusesStatefulMemory.append(matNode)
                     matNodeListThatusesStatefulMemory = self.sortNodesBasedOnMatchType(matNodeListThatusesStatefulMemory) # sorted the matnodes according to their matching type. Exact matching got least priority so that they are embedded at last and TCAM's are used at first
-                    self.isMatNodesEmbeddableOnThisStage(p4ProgramGraph,pipelineID, matNodeListThatusesStatefulMemory,hardware, deepCopiedResourcesOfStage)
+                    deepCopiedResourcesOfStage.isMatNodeListEmbeddableOnThisStage(p4ProgramGraph,pipelineID, matNodeListThatusesStatefulMemory,hardware)
                     #then embed the mat nodes that does not use stateful memory one by one
 
                 else:
@@ -295,80 +295,12 @@ class RMTV1ModelHardware:
     def isMatNodeEmbeddableOnThisStage(self, p4ProgramGraph,pipelineID, matNode,hardware, stageHardwareResource):
         '''This function checks whether a single mat node is accomodatable or not. It reuses the function for checking embeddability of a set of node.'''
         matNodeList = [matNode]
-        return  self.isMatNodesEmbeddableOnThisStage(p4ProgramGraph,pipelineID, matNodeList,hardware, stageHardwareResource)
+        return  stageHardwareResource.isMatNodeListEmbeddableOnThisStage(p4ProgramGraph,pipelineID, matNodeList,hardware, stageHardwareResource)
 
 
-    def isMatNodesEmbeddableOnThisStage(self, p4ProgramGraph,pipelineID, matNodeList,hardware, stageHardwareResource):
-        '''This node returns true if all the MAt nodes in matNodeList is embaddable over the stageHardwareResource. If true it also allocates resources in stageHardwareResource.
-        Else it returns False.'''
-        isEmbeddable = True
-        #The follwoing loop claculates Each mat node's resource requirement and saves in the same object.
-        maxActionMemoryBitwidth = 0
-        maxActionCrossbarBitwidth = 0
-        for matNode in matNodeList:
-            #Calculate individual resource consumption of rach mat node
-            p4ProgramGraph.parsedP4Program.getMatchActionResourceRequirementForMatNode(matNode, p4ProgramGraph, pipelineID)
-            # calculate max action memory bitwidth and action crossbar bitwidth-- they are maximum of any table. Because at any time a packet will go through one path in our system.
-            # so we only need to accomodate about the maximum action memory bitwidth anc crossbarr
-            if (matNode.getMaxBitwidthOfActionParameter() > maxActionMemoryBitwidth):
-                print("Old maxActionMemoryBitwidth = "+str(maxActionMemoryBitwidth))
-                maxActionMemoryBitwidth = matNode.getMaxBitwidthOfActionParameter()
-                print("New maxActionMemoryBitwidth = "+str(maxActionMemoryBitwidth))
-            if (matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction() > maxActionCrossbarBitwidth):
-                print("Old maxActionCrossbarBitwidth = "+str(maxActionCrossbarBitwidth))
-                maxActionCrossbarBitwidth = matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction()
-                print("new maxActionCrossbarBitwidth = "+str(maxActionCrossbarBitwidth))
 
-        if (stageHardwareResource.getAvailableActionMemoryBitwidth() >= maxActionMemoryBitwidth) and \
-            (stageHardwareResource.getAvailableActionCrossbarBitwidth() > maxActionCrossbarBitwidth):
-            stageHardwareResource.allocateActionMemoryBitwidth(maxActionMemoryBitwidth)
-            stageHardwareResource.allocateActionCrossbarBitwidth(maxActionCrossbarBitwidth)
-            for matNode in matNodeList:
-                print("pass")
-                if(matNode.originalP4node.match_type.value != MatchType.EXACT):
-                    #try to embed the matnode in tcam
-                    if(stageHardwareResource.isMatNodeEmbeddableOnTCAMMats(matNode)):
-                        stageHardwareResource.allocateMatNodeOverTCAMMat(matNode)
-                    else:
-                        isEmbeddable = False
-                else:
-                    if(stageHardwareResource.isMatNodeEmbeddableOnSRAMMats(matNode)):
-                        stageHardwareResource.allocateMatNodeOverSRAMMat(matNode)
-                    elif(stageHardwareResource.isMatNodeEmbeddableOnTCAMMats(matNode)):
-                        stageHardwareResource.allocateMatNodeOverTCAMMat(matNode)
-                    else:
-                        isEmbeddable = False
 
-            # mat key bidwidth , mat key count, mat entries -- are these things embeddable?
-            # then action field count, action crossbar bitwidth, then action memory -- are these thing feasible
 
-        # if total mat entriy rewuirement is okay, if total mat entry fields count and crossbar bitwidth requirement is okay ,
-        # total sram requiree dby actions is okay , the action crossbar bitwidth is okay
-        #
-        # then the set of nodes are embeddable. otherwise not.
-        #
-        # writre a seperate function for each one of them and that will return true . then write a predicate combining all of them.
-        # then do the actual allocations.
-
-    def isStatefulMemorySetAccomodatableInStage(self, p4ProgramGraph,pipelineID, statefulMemSet,hardware, stageHardwareResource):
-        print("Test")
-        pipelineGraph= p4ProgramGraph.pipelineIdToPipelineGraphMap.get(pipelineID)
-        totalSramRequirement=0
-        totalBitWidth = 0
-        isEmbeddable = True
-        for regName in statefulMemSet:
-            totalSramRequirementForOneReg, totalBitWidthForOneReg = p4ProgramGraph.parsedP4Program.getRegisterArraysResourceRequirment(regName)
-            totalSramRequirement = totalSramRequirement + totalSramRequirementForOneReg
-            totalBitWidth = totalBitWidth + totalBitWidthForOneReg
-            totalSramBlockRequired = stageHardwareResource.sramRequirementToBlockSizeConversion(totalSramRequirement)
-            if(stageHardwareResource.allocateSramBlockForIndirectStatefulMemory( totalSramBlockRequired = totalSramBlockRequired,
-                            totalSramPortWidthRequired = totalBitWidthForOneReg, indirectStatefulMemoryName=regName) == True):
-                isEmbeddable = True
-            else:
-                isEmbeddable = False
-                print("The resource requirement for the indirect stateful memory: "+regName + " can not be fulfilled with the available resources in stage  "+str(stageHardwareResource.stageIndex))
-                return  isEmbeddable
-        return  isEmbeddable
 
 # deep copy a hardware stage resource. then from starting stage check whether each of the stateful memoryu is embeddable in one stage or not. if it
 #     can not be embedded on the remaining part of a stage, go to next stage

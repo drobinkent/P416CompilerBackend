@@ -227,7 +227,8 @@ class TCAMMatResources:
 class StageDescription:
     index: str
     action_crossbar_bit_width: int
-    action_memory_bit_width: int
+    action_memory_blocks: int
+    action_memory_block_bit_width: int
     maximum_actions_supported:int
     sram_resources: SRAMResources
     tcam_mat_resources: TCAMMatResources
@@ -240,20 +241,22 @@ class StageDescription:
         assert isinstance(obj, dict)
         index = from_str(obj.get("Index"))
         action_crossbar_bit_width = from_int(obj.get("ActionCrossbarBitWidth"))
-        action_memory_bit_width = from_int(obj.get("ActionMemoryBitwdith"))
+        action_memory_blocks = from_int(obj.get("ActionMemoryBlocks"))
+        action_memory_block_bit_width = from_int(obj.get("ActionMemoryBlockBitwdith"))
         maximum_actions_supported = from_int(obj.get("MaximumActionsSupported"))
         sram_resources = SRAMResources.from_dict(obj.get("SRAMResources"))
         tcam_mat_resources = TCAMMatResources.from_dict(obj.get("TCAMMatResources"))
         sram_mat_resources = SRAMMatResources.from_dict(obj.get("SRAMMatResources"))
         alu_resources = from_list(Resource.from_dict, obj.get("ALUResources"))
         extern_resources = from_list(Resource.from_dict, obj.get("ExternResources"))
-        return StageDescription(index, action_crossbar_bit_width, action_memory_bit_width, maximum_actions_supported, sram_resources, tcam_mat_resources, sram_mat_resources, alu_resources, extern_resources)
+        return StageDescription(index, action_crossbar_bit_width, action_memory_block_bit_width, action_memory_blocks, maximum_actions_supported, sram_resources, tcam_mat_resources, sram_mat_resources, alu_resources, extern_resources)
 
     def to_dict(self) -> dict:
         result: dict = {}
         result["Index"] = from_str(self.index)
         result["ActionCrossbarBitWidth"] = from_int(self.action_crossbar_bit_width)
-        result["ActionMemoryBitwdith"] = from_int(self.action_memory_bit_width)
+        result["ActionMemoryBlocks"] = from_int(self.action_memory_blocks)
+        result["ActionMemoryBlockBitwdith"] = from_int(self.action_memory_bit_width)
         result["MaximumActionsSupported"] = from_int(self.maximum_actions_supported)
         result["SRAMResources"] = to_class(SRAMResources, self.sram_resources)
         result["TCAMMatResources"] = to_class(TCAMMatResources, self.tcam_mat_resources)
