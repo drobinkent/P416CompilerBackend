@@ -278,6 +278,7 @@ class RMTV1ModelHardware:
                     deepCopiedResourcesOfStage.isMatNodeListEmbeddableOnThisStage(p4ProgramGraph,pipelineID, matNodeListThatusesStatefulMemory,hardware)
                     #then embed the mat nodes that does not use stateful memory one by one
 
+
                 else:
                     print("The resource requirement for the indirect stateful memories can not be fulfilled by the availalbe resources of stage: "+str(deepCopiedResourcesOfStage.index))
                     print("Halintg the embedding process here")

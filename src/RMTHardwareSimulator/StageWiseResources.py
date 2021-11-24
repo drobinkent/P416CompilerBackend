@@ -46,7 +46,7 @@ class StageWiseResource:
     def getAvailableSRAMMatEntrieCountforGivenWidth(self, keyWidth):
         '''Assuming that, the kwywidth is already converted into the necessary width for the SRAM based MAT using convertMatKeyBitWidthLengthToSRAMMatKeyLength.
         So the whole keywidth will be of multiple in terms of SRAM Mat blocks.'''
-        requiredNumberOfSRAMblockForTheKey = int(keyWidth/self.sramMatResource.sramMatBitWidth)
+        requiredNumberOfSRAMblockForTheKey = int(keyWidth / self.sramMatResource.perSramMatBitWidth)
         #Now how many entries of this width the available sram can support? nned to keep another
         return self.sramMatResource.availableSramMatFields
 
@@ -55,6 +55,10 @@ class StageWiseResource:
     def allocateTCAMMatKeyBitwidth(self, keyWidth):
         self.tcamMatResource.availableTcamMatCrossbarBitwidth = self.tcamMatResource.availableTcamMatCrossbarBitwidth - keyWidth
         self.tcamMatResource.usedTcamMatCrossbarBitwidth = self.tcamMatResource.usedTcamMatCrossbarBitwidth + keyWidth
+
+    def allocateSRAMMatKeyBitwidth(self, keyWidth):
+        self.sramMatResource.availableSramMatCrossbarBitwidth = self.sramMatResource.availableSramMatCrossbarBitwidth - keyWidth
+        self.sramMatResource.usedSramMatCrossbarBitwidth = self.sramMatResource.usedSramMatCrossbarBitwidth + keyWidth
 
     def allocateTCAMMatBlocks(self, blockCount):
         self.tcamMatResource.availableTcamMatBlocks = self.tcamMatResource.availableTcamMatBlocks - blockCount
@@ -66,8 +70,12 @@ class StageWiseResource:
         self.tcamMatResource.availableTcamMatFields = self.tcamMatResource.availableTcamMatFields - keyCount
         self.tcamMatResource.usedTcamMatFields = self.tcamMatResource.usedTcamMatFields + keyCount
 
+    def allocateSRAMMatKeyCount(self, keyCount):
+        self.sramMatResource.availableSramMatFields = self.sramMatResource.availableSramMatFields - keyCount
+        self.sramMatResource.usedSramMatFields = self.sramMatResource.usedSramMatFields + keyCount
+
     def convertMatKeyBitWidthLengthToSRAMMatKeyLength(self, matKeysBitWidth):
-        requiredSRAMMatBitwidth = math.ceil(matKeysBitWidth/self.sramMatResource.sramMatBitWidth) * self.sramMatResource.sramMatBitWidth
+        requiredSRAMMatBitwidth = math.ceil(matKeysBitWidth / self.sramMatResource.perSramMatBitWidth) * self.sramMatResource.perSramMatBitWidth
         return requiredSRAMMatBitwidth
 
     def convertMatKeyBitWidthLengthToTCAMMatKeyLength(self, matKeysBitWidth):
@@ -90,6 +98,8 @@ class StageWiseResource:
         self.usedActionCrossbarBitWidth = self.usedActionCrossbarBitWidth + actionCrossbarBitwidth
         pass
     def allocateMatEntriesOverTCAMBasedMATSinSingleStage(self,matKeyBitWidth, requiredMatEntries):
+        if(matKeyBitWidth <=0) or (requiredMatEntries <=0):
+            return #Becuase if the match key bitwidth is zero or there is no match key, there is nothing to embed
         matKeyBitWidth = self.convertMatKeyBitWidthLengthToTCAMMatKeyLength(matKeyBitWidth)
         matKeyTcamBlockWidth = math.ceil(matKeyBitWidth/self.tcamMatResource.perTcamBlockBitWidth) # Means how many blocks we need to merge to form a key. For example: for 80 bit mat key we need 2 40 bit tcam block
         availableKeyBlock = math.floor(self.tcamMatResource.availableTcamMatBlocks/matKeyTcamBlockWidth) # if we need 3 blocks to form a mat key and we have 5 tcam block then we can accomodate only 1 block for the matkey
@@ -99,23 +109,50 @@ class StageWiseResource:
         self.tcamMatResource.usedTcamMatBlocks = self.tcamMatResource.usedTcamMatBlocks + requiredTCAMBlocks
         return
 
+    def allocateMatEntriesOverSRAMBasedMATSInSingleStage(self,matKeyBitWidth, requiredMatEntries):
+        if(matKeyBitWidth <=0) or (requiredMatEntries <=0):
+            return #Becuase if the match key bitwidth is zero or there is no match key, there is nothing to embed
+        matKeyBitWidth = self.convertMatKeyBitWidthLengthToSRAMMatKeyLength(matKeyBitWidth*self.sramMatResource.sramMatHashingWay)
+        matKeySramBlockWidth = math.ceil(matKeyBitWidth/self.sramMatResource.perSramMatBitWidth) # Means how many blocks we need to merge to form a key. For example: for 80 bit mat key we need 2 40 bit tcam block
+        availableKeyBlock = math.floor(self.tcamMatResource.availableTcamMatBlocks/matKeySramBlockWidth) # if we need 3 blocks to form a mat key and we have 5 tcam block then we can accomodate only 1 block for the matkey
+        requiredBlocks = math.ceil(requiredMatEntries / self.sramResource.perMemoryBlockRowCount)
+        requiredSRAMBlocks = requiredBlocks * matKeySramBlockWidth
+        self.sramResource.availableSramBlocks = self.sramResource.availableSramBlocks - requiredSRAMBlocks
+        self.sramResource.usedSramBlocks = self.sramResource.usedSramBlocks + requiredSRAMBlocks
+        return
 
+
+    def isMatEntriesAccomodatableInSRAMBasedMATInThisStage(self,matKeyBitWidth, requiredMatEntries):
+        if(matKeyBitWidth <= 0):
+            return True #Because if there is no key to match nothing there is to embed
+        matKeyBitWidth = self.convertMatKeyBitWidthLengthToSRAMMatKeyLength(matKeyBitWidth)
+        matKeySRAMBlockWidth = math.ceil(matKeyBitWidth / self.sramMatResource.perSramMatBitWidth) # Means how many blocks we need to merge to form a key. For example: for 80 bit mat key we need 2 40 bit tcam block
+        availableKeyBlock = math.floor(self.sramResource.availableSramBlocks/matKeySRAMBlockWidth) # if we need 3 blocks to form a mat key and we have 5 tcam block then we can accomodate only 1 block for the matkey
+        accomodatableSRAMEntries = availableKeyBlock * self.sramResource.perMemoryBlockRowCount
+        if(requiredMatEntries <= accomodatableSRAMEntries):
+            return True
+        else:
+            print("The SRAM based MAT  requires total "+str(requiredMatEntries)+ "where each one is "+str(matKeyBitWidth)+"  bit wide. ")
+            print("But the stage can only accomodatee "+(accomodatableSRAMEntries))
+            return False
 
     def isMatEntriesAccomodatableInTCAMBasedMATInThisStage(self,matKeyBitWidth, requiredMatEntries):
+        if(matKeyBitWidth <= 0):
+            return True #Because if there is no key to match nothing there is to embed
         matKeyBitWidth = self.convertMatKeyBitWidthLengthToTCAMMatKeyLength(matKeyBitWidth)
         matKeyTcamBlockWidth = math.ceil(matKeyBitWidth/self.tcamMatResource.perTcamBlockBitWidth) # Means how many blocks we need to merge to form a key. For example: for 80 bit mat key we need 2 40 bit tcam block
         availableKeyBlock = math.floor(self.tcamMatResource.availableTcamMatBlocks/matKeyTcamBlockWidth) # if we need 3 blocks to form a mat key and we have 5 tcam block then we can accomodate only 1 block for the matkey
         accomodatableTcamEntries = availableKeyBlock * self.tcamMatResource.perTcamBlockRowCount
-        if(requiredMatEntries > accomodatableTcamEntries):
+        if(requiredMatEntries <= accomodatableTcamEntries):
             return True
         else:
-            print("The MAT  requires total "+str(requiredMatEntries)+ "where each one is "+str(matKeyBitWidth)+"  bit wide. ")
-            print("But the stage can only accomodatee "+(accomodatableTcamEntries))
+            print("The TCAM based MAT  requires total "+str(requiredMatEntries)+ " entries where each one is "+str(matKeyBitWidth)+"  bit wide. ")
+            print("But the stage can only accomodatee "+str(accomodatableTcamEntries))
             return False
 
 
     def allocateStatefulMemoerySetOnStage(self, p4ProgramGraph, pipelineID, statefulMemSet, hardware):
-        print("Test")
+        # print("Test")
         isEmbeddable = True
         for regName in statefulMemSet:
             regBitwidth, regArrayLength = p4ProgramGraph.parsedP4Program.getRegisterArraysResourceRequirment(regName)
@@ -180,7 +217,14 @@ class StageWiseResource:
     def allocateMatNodeOverTCAMMat(self, matNode):
         self.allocateTCAMMatKeyCount(matNode.totalKeysTobeMatched)
         self.allocateTCAMMatKeyBitwidth(self.convertMatKeyBitWidthLengthToTCAMMatKeyLength(matNode.matKeyBitWidth))
-        self.allocateMatEntriesOverTCAMBasedMATSinSingleStage() # This embeds both match-key and tables and entries in one stage
+        self.allocateMatEntriesOverTCAMBasedMATSinSingleStage(matNode.matKeyBitWidth, matNode.getRequiredNumberOfMatEntries()) # This embeds both match-key and tables and entries in one stage
+        self.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= matNode.getRequiredNumberOfActionEntries())
+
+
+    def allocateMatNodeOverSRAMMat(self, matNode):
+        self.allocateSRAMMatKeyCount(matNode.totalKeysTobeMatched)
+        self.allocateSRAMMatKeyBitwidth(self.convertMatKeyBitWidthLengthToTCAMMatKeyLength(matNode.matKeyBitWidth))
+        self.allocateMatEntriesOverSRAMBasedMATSInSingleStage(matNode.matKeyBitWidth, matNode.getRequiredNumberOfMatEntries()) # This embeds both match-key and tables and entries in one stage
         self.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= matNode.getRequiredNumberOfActionEntries())
 
 
@@ -194,6 +238,22 @@ class StageWiseResource:
             print("But the SRAM based MATS at stage "+str(self.stageIndex)+" can accomodate "+str(self.getAvailableTCAMMatKeyCount())+" MAT keys and their bttwidth is "+str(self.getAvailableTCAMMatKeyBitwidth()))
             isEmbeddable = False
             return isEmbeddable
+        if(self.isMatEntriesAccomodatableInSRAMBasedMATInThisStage(self.convertMatKeyBitWidthLengthToSRAMMatKeyLength(matNode.matKeyBitWidth), matNode.getRequiredNumberOfMatEntries())):
+            isEmbeddable=True
+        else:
+            print("The mat node: "+matNode.name+" requires total "+str(matNode.getRequiredNumberOfMatEntries())+" match entries in the TCAM based table")
+            print("But the TCAM at stage is not enough")
+            isEmbeddable = False
+            return isEmbeddable
+        if(self.isActionMemoryAccomodatable(actionEntryBitwidth=matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries=matNode.getRequiredNumberOfActionEntries())):
+            isEmbeddable= True
+        else:
+            print("The SRAM based mat node: "+matNode.name+" requires total "+str(matNode.getRequiredNumberOfActionEntries())+" action entries for the TCAM based table.")
+            print("But the avialble resource at stage is unable to embed these action entires in sram.")
+            isEmbeddable=False
+        return isEmbeddable
+
+
 
 
     def isMatNodeEmbeddableOnTCAMMatBlocks(self, matNode):
@@ -263,7 +323,7 @@ class StageWiseResource:
                     else:
                         isEmbeddable = False
                 else:
-                    if(self.isMatNodeEmbeddableOnSRAMMats(matNode)):
+                    if(self.isMatNodeEmbeddableOnSRAMMatBlocks(matNode)):
                         self.allocateMatNodeOverSRAMMat(matNode) #TODO : this need to include both action memory and direct statefule memories
                     elif(self.isMatNodeEmbeddableOnTCAMMatBlocks(matNode)):
                         self.allocateMatNodeOverTCAMMat(matNode)
@@ -283,9 +343,7 @@ class StageWiseResource:
 
 
 
-    def isMatNodeEmbeddableOnSRAMMats(self, matNode):
-        print("In isMatNodeEmbeddableOnSRAMMats.still unimplemented")
-        exit(1)
+
 
 
 
@@ -312,7 +370,7 @@ class SRAMMatResource:
         self.usedSramMatCrossbarBitwidth = 0
         self.supportedMatchTypes = sram_mat_resources.supported_match_types
         self.sramMatHashingWay = sram_mat_resources.per_sram_mat_block_spec.hashing_way
-        self.sramMatBitWidth = sram_mat_resources.per_sram_mat_block_spec.sram_bit_width
+        self.perSramMatBitWidth = sram_mat_resources.per_sram_mat_block_spec.sram_bit_width
         pass
 
 # : int

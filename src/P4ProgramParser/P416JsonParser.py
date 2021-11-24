@@ -1693,11 +1693,11 @@ class Action:
             #TODO: in the final framework we need to suport meter execution
         setOfStatefulMemoryBeingAccessed = set(listOfStatefulMemoryBeingAccessed) #We are taking set, because the same register can be read and write. but we are not handling it here.
         #So by default every register will be once in the list
-        # listOfStatefulMemoryBeingAccessed = list(listOfStatefulMemoryBeingAccessed)
-        # totalMemoryBitwdithRequired = 0
-        # for sfMem in listOfStatefulMemoryBeingAccessed:
-        #     totalSramRequirement, totalBitWidth = p4ProgramGraph.parsedP4Program.getRegisterArraysResourceRequirment(sfMem)
-        #     totalMemoryBitwdithRequired = totalMemoryBitwdithRequired + totalBitWidth
+        listOfStatefulMemoryBeingAccessed = list(listOfStatefulMemoryBeingAccessed)
+        totalMemoryBitwdithRequired = 0
+        for sfMem in listOfStatefulMemoryBeingAccessed:
+            totalSramRequirement, totalBitWidth = p4ProgramGraph.parsedP4Program.getRegisterArraysResourceRequirment(sfMem)
+            totalMemoryBitwdithRequired = totalMemoryBitwdithRequired + totalBitWidth
 
         return ActionResourceConsumptionStatistics(listOfFieldBeingModifed, listOfFieldBeingUsed,listOfStatefulMemoryBeingAccessed, actionCrossbarBitwidth,allActionParameterSizeInBits, totalMemoryBitwdithRequired)
 
