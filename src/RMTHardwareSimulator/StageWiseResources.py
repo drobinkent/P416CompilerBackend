@@ -121,14 +121,16 @@ class StageWiseResource:
         self.sramResource.usedSramBlocks = self.sramResource.usedSramBlocks + requiredSRAMBlocks
         return
 
-
-    def isMatEntriesAccomodatableInSRAMBasedMATInThisStage(self,matKeyBitWidth, requiredMatEntries):
-        if(matKeyBitWidth <= 0):
-            return True #Because if there is no key to match nothing there is to embed
+    def getTotalAccomodatableSRAMMatEntriesForGivenMatKeyBitwidth(self, matKeyBitWidth):
         matKeyBitWidth = self.convertMatKeyBitWidthLengthToSRAMMatKeyLength(matKeyBitWidth)
         matKeySRAMBlockWidth = math.ceil(matKeyBitWidth / self.sramMatResource.perSramMatBitWidth) # Means how many blocks we need to merge to form a key. For example: for 80 bit mat key we need 2 40 bit tcam block
         availableKeyBlock = math.floor(self.sramResource.availableSramBlocks/matKeySRAMBlockWidth) # if we need 3 blocks to form a mat key and we have 5 tcam block then we can accomodate only 1 block for the matkey
         accomodatableSRAMEntries = availableKeyBlock * self.sramResource.perMemoryBlockRowCount
+        return  accomodatableSRAMEntries
+    def isMatEntriesAccomodatableInSRAMBasedMATInThisStage(self,matKeyBitWidth, requiredMatEntries):
+        if(matKeyBitWidth <= 0):
+            return True #Because if there is no key to match nothing there is to embed
+        accomodatableSRAMEntries = self.getTotalAccomodatableSRAMMatEntriesForGivenMatKeyBitwidth(matKeyBitWidth)
         if(requiredMatEntries <= accomodatableSRAMEntries):
             return True
         else:
@@ -136,13 +138,17 @@ class StageWiseResource:
             print("But the stage can only accomodatee "+(accomodatableSRAMEntries))
             return False
 
-    def isMatEntriesAccomodatableInTCAMBasedMATInThisStage(self,matKeyBitWidth, requiredMatEntries):
-        if(matKeyBitWidth <= 0):
-            return True #Because if there is no key to match nothing there is to embed
+    def getTotalAccomodatableTCAMMatEntriesForGivenMatKeyBitwidth(self, matKeyBitWidth):
         matKeyBitWidth = self.convertMatKeyBitWidthLengthToTCAMMatKeyLength(matKeyBitWidth)
         matKeyTcamBlockWidth = math.ceil(matKeyBitWidth/self.tcamMatResource.perTcamBlockBitWidth) # Means how many blocks we need to merge to form a key. For example: for 80 bit mat key we need 2 40 bit tcam block
         availableKeyBlock = math.floor(self.tcamMatResource.availableTcamMatBlocks/matKeyTcamBlockWidth) # if we need 3 blocks to form a mat key and we have 5 tcam block then we can accomodate only 1 block for the matkey
         accomodatableTcamEntries = availableKeyBlock * self.tcamMatResource.perTcamBlockRowCount
+        return accomodatableTcamEntries
+
+    def isMatEntriesAccomodatableInTCAMBasedMATInThisStage(self,matKeyBitWidth, requiredMatEntries):
+        if(matKeyBitWidth <= 0):
+            return True #Because if there is no key to match nothing there is to embed
+        accomodatableTcamEntries = self.getTotalAccomodatableTCAMMatEntriesForGivenMatKeyBitwidth(matKeyBitWidth)
         if(requiredMatEntries <= accomodatableTcamEntries):
             return True
         else:
@@ -176,16 +182,20 @@ class StageWiseResource:
         self.sramResource.availableSramPortBitwidth = self.sramResource.availableSramPortBitwidth - requiredActionMemoryBlockWidth * self.actionMemoryBlockBitWidth
         self.sramResource.usedSramPortBitwidth = self.sramResource.usedSramPortBitwidth + requiredActionMemoryBlockWidth * self.actionMemoryBlockBitWidth
 
-
-    def isActionMemoryAccomodatable(self, actionEntryBitwidth, numberOfActionEntries): #TODO: at this moment we are assuming that
+    def getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth(self, actionEntryBitwidth):
         requiredActionMemoryBlockWidth = math.ceil(actionEntryBitwidth / self.actionMemoryBlockBitWidth) # if we have an action entry with parameters width 120 bit and
         #the action memory block bidwidth is 80 then we need at least 2 blocks.
-        #This requiredActionMemoryBlockWidth will be always less than or equal to the number of availalb eaction memory block width. Assuming that we will precheck it
         if(requiredActionMemoryBlockWidth <= self.availableActionMemoryBlocks) and (self.sramResource.availableSramBlocks>= requiredActionMemoryBlockWidth):
             accomodatableActionBlocksInSRAM = math.floor(self.sramResource.availableSramBlocks/requiredActionMemoryBlockWidth)
             totalAccmmodatableEntries = accomodatableActionBlocksInSRAM * self.sramResource.perMemoryBlockRowCount
-            if(accomodatableActionBlocksInSRAM >0) and (numberOfActionEntries <= totalAccmmodatableEntries):
-                return True
+            return totalAccmmodatableEntries
+        else:
+            return 0
+
+    def isActionMemoryAccomodatable(self, actionEntryBitwidth, numberOfActionEntries): #TODO: at this moment we are assuming that
+        totalAccmmodatableEntries = self.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth(actionEntryBitwidth)
+        if(numberOfActionEntries <= totalAccmmodatableEntries):
+            return True
         else:
             print("The action entries can not be accomodated in this stage. Becuase the reqruier amount of resource is not available")
             return False
@@ -210,7 +220,7 @@ class StageWiseResource:
             if(accomodatableIndirectStatefulMemoryBlocksInSRAM >0) and (numberOfIndirectStatefulMemoryEntries <= totalAccmmodatableEntries):
                 return True
         else:
-            print("The action entries can not be accomodated in this stage. Becuase the reqruier amount of resource is not available")
+            print("The action entries can not be accomodated in this stage. Becuase the reqruired amount of resource is not available")
             exit(1)
         return False
 
@@ -329,6 +339,7 @@ class StageWiseResource:
                         self.allocateMatNodeOverTCAMMat(matNode)
                     else:
                         isEmbeddable = False
+        return isEmbeddable
 
             # mat key bidwidth , mat key count, mat entries -- are these things embeddable?
             # then action field count, action crossbar bitwidth, then action memory -- are these thing feasible

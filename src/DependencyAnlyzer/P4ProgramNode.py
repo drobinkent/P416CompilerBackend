@@ -171,7 +171,11 @@ class MATNode:
         # self.neighbourAssignedStatefulMemoryNameToLevelMap={}  # TODO : this may not be necessary even . on that tcase we will remove it
         return
 
-    # listOfFieldBeingModifed, listOfFieldBeingUsed,listOfStatefulMemoryBeingAccessed, actionCrossbarBitwidth
+    def getMatchType(self):
+        if(type(self.originalP4node) == Table):
+            return self.originalP4node.match_type
+        else:
+            return MatchType.EXACT
 
     def getTotalAmountOfActionMemoryRequiredInBits(self):
         '''
