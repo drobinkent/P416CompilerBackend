@@ -251,6 +251,7 @@ class RMTV1ModelHardware:
                 or (pipelineGraph.levelWiseLogicalMatList.get(logicalStageIndex)[0].name == confConst.DUMMY_START_NODE):
                 continue
             else:
+                print("Embedding logical stage "+str(logicalStageIndex)+" and the starting physcial stage index for this stage is "+str(startingPhyicalStageIndex))
                 logicalMatList = pipelineGraph.levelWiseLogicalMatList.get(logicalStageIndex)
                 statefulMemoryNameToUserMatListMap, matListNotUsingStatefulMem, usedStatefulMemSet = self.divideMatNodeListInStatefulMemoryUserAndNonUser(p4ProgramGraph, logicalMatList)
                 physicalStageIndexForIndirectStatefulMemory, deepCopiedResourcesOfStage = self.embedIndirectStatefulMemoryAndDependentMatNodes(p4ProgramGraph,pipelineID, hardware, usedStatefulMemSet, statefulMemoryNameToUserMatListMap, startingPhyicalStageIndex)
@@ -273,8 +274,8 @@ class RMTV1ModelHardware:
                         else:
                             startingStageList.append(startingStageIndexForMAtNode)
                             endingStageList.append(endingStageIndexForMatNode)
-                            endingStageList.sort()
-                            startingPhyicalStageIndex = endingStageList[len(endingStageList)-1]+1
+                    endingStageList.sort()
+                    startingPhyicalStageIndex = endingStageList[len(endingStageList)-1]+1
                 else:
                     print("The resource requirement for the indirect stateful memories can not be fulfilled by the availalbe resources of stage ")
                     print("Halintg the embedding process here")
@@ -298,6 +299,7 @@ class RMTV1ModelHardware:
             val2= deepCopiedResourcesOfStage.isMatNodeListEmbeddableOnThisStage(p4ProgramGraph,pipelineID, matNodeListThatusesStatefulMemory,hardware)
             if(val1==True) and (val2 == True):
                 flag= True
+                print("We may allocate resource for the matnoselist here")
             else:
                 startingPhyicalStageIndex = startingPhyicalStageIndex + 1
                 deepCopiedResourcesOfStage = copy.deepcopy(hardware.stageWiseResources.get(startingPhyicalStageIndex))
@@ -343,9 +345,17 @@ class RMTV1ModelHardware:
         remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
         remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
         while(currentStageHardwareResource != None) and (remainingMatEntries > 0):
-            accmodatableMatEntries = currentStageHardwareResource.getTotalAccomodatableTCAMMatEntriesForGivenMatKeyBitwidth(matNode.matKeyBitWidth)
-            accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth\
-                (actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter())
+            accmodatableMatEntries = 0
+            if(matNode.matKeyBitWidth == 0):
+                accmodatableMatEntries = matNode.getRequiredNumberOfMatEntries()
+            else:
+                accmodatableMatEntries = currentStageHardwareResource.getTotalAccomodatableTCAMMatEntriesForGivenMatKeyBitwidth(matNode.matKeyBitWidth)
+            accmodatableActionEntries = 0
+            if(matNode.getMaxBitwidthOfActionParameter() == 0):
+                accmodatableActionEntries = matNode.getRequiredNumberOfActionEntries()
+            else:
+                accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth \
+                    (actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter())
             if(matNode.totalKeysTobeMatched <= currentStageHardwareResource.getAvailableTCAMMatKeyCount()) and \
                     (currentStageHardwareResource.convertMatKeyBitWidthLengthToTCAMMatKeyLength(matNode.matKeyBitWidth) \
                     <= currentStageHardwareResource.getAvailableTCAMMatKeyBitwidth()) and \
@@ -370,9 +380,17 @@ class RMTV1ModelHardware:
         remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
         remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
         while(currentStageHardwareResource != None) and (remainingMatEntries > 0):
-            accmodatableMatEntries = currentStageHardwareResource.getTotalAccomodatableSRAMMatEntriesForGivenMatKeyBitwidth(matNode.matKeyBitWidth)
-            accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth \
-                (actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter())
+            accmodatableMatEntries = 0
+            if(matNode.matKeyBitWidth == 0):
+                accmodatableMatEntries = matNode.getRequiredNumberOfMatEntries()
+            else:
+                accmodatableMatEntries = currentStageHardwareResource.getTotalAccomodatableSRAMMatEntriesForGivenMatKeyBitwidth(matNode.matKeyBitWidth)
+            accmodatableActionEntries = 0
+            if(matNode.getMaxBitwidthOfActionParameter() == 0):
+                accmodatableActionEntries = matNode.getRequiredNumberOfActionEntries()
+            else:
+                accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth \
+                    (actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter())
             if(matNode.totalKeysTobeMatched <= currentStageHardwareResource.getAvailableSRAMMatKeyCount()) and \
                     (currentStageHardwareResource.convertMatKeyBitWidthLengthToSRAMMatKeyLength(matNode.matKeyBitWidth) \
                      <= currentStageHardwareResource.getAvailableSRAMMatKeyBitwidth()) and \
@@ -397,9 +415,17 @@ class RMTV1ModelHardware:
         remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
         remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
         while(currentStageHardwareResource != None) and (remainingMatEntries > 0):
-            accmodatableMatEntries = currentStageHardwareResource.getTotalAccomodatableTCAMMatEntriesForGivenMatKeyBitwidth(matNode.matKeyBitWidth)
-            accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth \
-                (actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter())
+            accmodatableMatEntries = 0
+            if(matNode.matKeyBitWidth == 0):
+                accmodatableMatEntries = matNode.getRequiredNumberOfMatEntries()
+            else:
+                accmodatableMatEntries = currentStageHardwareResource.getTotalAccomodatableTCAMMatEntriesForGivenMatKeyBitwidth(matNode.matKeyBitWidth)
+            accmodatableActionEntries = 0
+            if(matNode.getMaxBitwidthOfActionParameter() == 0):
+                accmodatableActionEntries = matNode.getRequiredNumberOfActionEntries()
+            else:
+                accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth \
+                    (actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter())
             if(matNode.totalKeysTobeMatched <= currentStageHardwareResource.getAvailableTCAMMatKeyCount()) and \
                     (currentStageHardwareResource.convertMatKeyBitWidthLengthToTCAMMatKeyLength(matNode.matKeyBitWidth) \
                      <= currentStageHardwareResource.getAvailableTCAMMatKeyBitwidth()) and \
@@ -425,9 +451,17 @@ class RMTV1ModelHardware:
         remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
         remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
         while(currentStageHardwareResource != None) and (remainingMatEntries > 0):
-            accmodatableMatEntries = currentStageHardwareResource.getTotalAccomodatableSRAMMatEntriesForGivenMatKeyBitwidth(matNode.matKeyBitWidth)
-            accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth \
-                (actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter())
+            accmodatableMatEntries = 0
+            if(matNode.matKeyBitWidth == 0):
+                accmodatableMatEntries = matNode.getRequiredNumberOfMatEntries()
+            else:
+                accmodatableMatEntries = currentStageHardwareResource.getTotalAccomodatableSRAMMatEntriesForGivenMatKeyBitwidth(matNode.matKeyBitWidth)
+            accmodatableActionEntries = 0
+            if(matNode.getMaxBitwidthOfActionParameter() == 0):
+                accmodatableActionEntries = matNode.getRequiredNumberOfActionEntries()
+            else:
+                accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth \
+                    (actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter())
             if(matNode.totalKeysTobeMatched <= currentStageHardwareResource.getAvailableSRAMMatKeyCount()) and \
                     (currentStageHardwareResource.convertMatKeyBitWidthLengthToSRAMMatKeyLength(matNode.matKeyBitWidth) \
                      <= currentStageHardwareResource.getAvailableSRAMMatKeyBitwidth()) and \
@@ -495,7 +529,7 @@ class RMTV1ModelHardware:
         '''We give highest priority to matchtype that is not exact, so that TCAM's are at first used for non-exact matching '''
         sortedMatNodeList = []
         for matNode in matNodeList:
-            if (matNode.originalP4node.match_type.value == MatchType.EXACT):
+            if (matNode.getMatchType() == MatchType.EXACT):
                 sortedMatNodeList.append(matNode)
             else:
                 sortedMatNodeList = [matNode] + sortedMatNodeList

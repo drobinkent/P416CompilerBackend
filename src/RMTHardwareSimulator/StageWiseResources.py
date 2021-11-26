@@ -185,7 +185,9 @@ class StageWiseResource:
     def getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth(self, actionEntryBitwidth):
         requiredActionMemoryBlockWidth = math.ceil(actionEntryBitwidth / self.actionMemoryBlockBitWidth) # if we have an action entry with parameters width 120 bit and
         #the action memory block bidwidth is 80 then we need at least 2 blocks.
+
         if(requiredActionMemoryBlockWidth <= self.availableActionMemoryBlocks) and (self.sramResource.availableSramBlocks>= requiredActionMemoryBlockWidth):
+
             accomodatableActionBlocksInSRAM = math.floor(self.sramResource.availableSramBlocks/requiredActionMemoryBlockWidth)
             totalAccmmodatableEntries = accomodatableActionBlocksInSRAM * self.sramResource.perMemoryBlockRowCount
             return totalAccmmodatableEntries
@@ -193,8 +195,12 @@ class StageWiseResource:
             return 0
 
     def isActionMemoryAccomodatable(self, actionEntryBitwidth, numberOfActionEntries): #TODO: at this moment we are assuming that
-        totalAccmmodatableEntries = self.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth(actionEntryBitwidth)
-        if(numberOfActionEntries <= totalAccmmodatableEntries) and ():
+        totalAccmmodatableEntries = 0
+        if(actionEntryBitwidth== 0):
+            totalAccmmodatableEntries = numberOfActionEntries
+        else:
+            totalAccmmodatableEntries = self.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth(actionEntryBitwidth)
+        if(numberOfActionEntries <= totalAccmmodatableEntries) :
             return True
         else:
             print("The action entries can not be accomodated in this stage. Becuase the reqruier amount of resource is not available")
@@ -211,6 +217,7 @@ class StageWiseResource:
 
     def isIndirectStatefulMemoryAccomodatable(self, indirectStatefulMemoryBitwidth, numberOfIndirectStatefulMemoryEntries): #TODO: at this moment we are assuming that
         requiredMemoryBlockWidth = math.ceil(indirectStatefulMemoryBitwidth / self.sramResource.perMemoryBlockBitwidth) # if we have an action entry with parameters width 120 bit and
+        print("This fucntion calculates the requiremnt in wrong way. including its allocation method")
         #the action memory block bidwidth is 80 then we need at least 2 blocks.
         #This requiredActionMemoryBlockWidth will be always less than or equal to the number of availalb eaction memory block width. Assuming that we will precheck it
         if(requiredMemoryBlockWidth*self.sramResource.perMemoryBlockBitwidth <= self.sramResource.availableSramPortBitwidth) \
@@ -436,7 +443,7 @@ class SRAMResource:
         self.availableActionMemoryBitwidth = sram_resources.memory_port_width * sram_resources.memory_port_count
         self.usedActionMemoryBitwidth = 0
         self.availableSramBlocks = sram_resources.memory_block_count
-        self.usedSramBlocks = sram_resources.memory_block_count
+        self.usedSramBlocks = 0
         # self.availalbeSramBlockBitwidth = sram_resources.memory_block_bit_width
         # self.usedSramBlockBitwidth=0
         self.availableSramRows = self.availableSramBlocks * sram_resources.memoroy_block_row_count

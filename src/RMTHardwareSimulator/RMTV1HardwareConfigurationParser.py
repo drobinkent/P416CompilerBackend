@@ -249,7 +249,7 @@ class StageDescription:
         sram_mat_resources = SRAMMatResources.from_dict(obj.get("SRAMMatResources"))
         alu_resources = from_list(Resource.from_dict, obj.get("ALUResources"))
         extern_resources = from_list(Resource.from_dict, obj.get("ExternResources"))
-        return StageDescription(index, action_crossbar_bit_width, action_memory_block_bit_width, action_memory_blocks, maximum_actions_supported, sram_resources, tcam_mat_resources, sram_mat_resources, alu_resources, extern_resources)
+        return StageDescription(index, action_crossbar_bit_width, action_memory_blocks , action_memory_block_bit_width, maximum_actions_supported, sram_resources, tcam_mat_resources, sram_mat_resources, alu_resources, extern_resources)
 
     def to_dict(self) -> dict:
         result: dict = {}
