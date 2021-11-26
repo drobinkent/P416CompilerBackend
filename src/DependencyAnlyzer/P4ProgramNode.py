@@ -3,7 +3,7 @@ from DependencyAnlyzer.DefinitionConstants import P4ProgramNodeType, PipelineID,
 from P4ProgramParser.P416JsonParser import PrimitiveOpblock, Expression, PrimitiveField, RegisterArrayPrimitive, HexStr, \
     PrimitiveHeader, BoolPrimitive, Table, Key, MatchType, TableType, GraphColor, HeaderField, \
     ActionResourceConsumptionStatistics
-
+from FrameworkConfigurations import IS_ACTION_ENTRIES_PER_TABLE_FIXED_SIZE, PER_TABLE_ACTION_ENTRY_COUNT
 import networkx as nx
 import logging
 import ConfigurationConstants as confConst
@@ -189,7 +189,10 @@ class MATNode:
         return self.originalP4node.max_size
 
     def getRequiredNumberOfActionEntries(self):
-        return self.originalP4node.max_size
+        if IS_ACTION_ENTRIES_PER_TABLE_FIXED_SIZE == True:
+            return PER_TABLE_ACTION_ENTRY_COUNT
+        else:
+            self.originalP4node.max_size
         # return 1024  #TODO: not always 1024 action entries are enough
 
     def getMaxBitwidthOfActionParameter(self):

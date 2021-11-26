@@ -253,39 +253,63 @@ class RMTV1ModelHardware:
             else:
                 logicalMatList = pipelineGraph.levelWiseLogicalMatList.get(logicalStageIndex)
                 statefulMemoryNameToUserMatListMap, matListNotUsingStatefulMem, usedStatefulMemSet = self.divideMatNodeListInStatefulMemoryUserAndNonUser(p4ProgramGraph, logicalMatList)
-                # Now check whther all the table in each stateful memories list can satisfy memory requirement.
-                # At this moment we will write a menthod that will consider all the stateful memories in one stage.
-                # later we will add support for mat bifurcation.
-                #     Add this note to todo list. we can deep copy a matnode and bifurcate it
-                print(hardware)
+                physicalStageIndexForIndirectStatefulMemory, deepCopiedResourcesOfStage = self.embedIndirectStatefulMemoryAndDependentMatNodes(p4ProgramGraph,pipelineID, hardware, usedStatefulMemSet, statefulMemoryNameToUserMatListMap, startingPhyicalStageIndex)
+                #TODO think about the case when either of the mat node list is empty what will happen.
+                if(len(usedStatefulMemSet)>0) and (deepCopiedResourcesOfStage != None):
+                    hardware.stageWiseResources[physicalStageIndexForIndirectStatefulMemory]= deepCopiedResourcesOfStage
+                if(physicalStageIndexForIndirectStatefulMemory != -1):
+                    matListNotUsingStatefulMem = self.sortNodesBasedOnMatchType(matListNotUsingStatefulMem)
+                    deepCopiedHW = copy.deepcopy(hardware)
+                    startingStageList=[]
+                    endingStageList = []
+                    startingStageList.append(startingPhyicalStageIndex)
+                    endingStageList.append(physicalStageIndexForIndirectStatefulMemory)
+                    for matNode in matListNotUsingStatefulMem:
+                        startingStageIndexForMAtNode, endingStageIndexForMatNode = self.embedMatNodeOverMultipleStage(p4ProgramGraph,pipelineID, matNode, deepCopiedHW, startingPhyicalStageIndex)
+                        if(startingStageIndexForMAtNode==-1) or (endingStageIndexForMatNode == -1):
+                            print("The matnode "+matNode.name+" Can not be embedded on any hardware stage after "+str(startingPhyicalStageIndex))
+                            print("Halting the embedding processs and exiting. ")
+                            exit(1)
+                        else:
+                            startingStageList.append(startingStageIndexForMAtNode)
+                            endingStageList.append(endingStageIndexForMatNode)
+                            endingStageList.sort()
+                            startingPhyicalStageIndex = endingStageList[len(endingStageList)-1]+1
+                else:
+                    print("The resource requirement for the indirect stateful memories can not be fulfilled by the availalbe resources of stage ")
+                    print("Halintg the embedding process here")
+
+    def embedIndirectStatefulMemoryAndDependentMatNodes(self,p4ProgramGraph,pipelineID, hardware, statefulMemorySet, statefulMemoryNameToUserMatListMap, startingStageIndex):
+        '''This function finds the physcial stage which can accomodate the stateful memories and the tables use them in same stage and return the stage '''
+        matNodeListThatusesStatefulMemory = []
+        for k in statefulMemoryNameToUserMatListMap.keys():
+            for matNode in statefulMemoryNameToUserMatListMap.get(k):
+                matNodeListThatusesStatefulMemory.append(matNode)
+        matNodeListThatusesStatefulMemory = self.sortNodesBasedOnMatchType(matNodeListThatusesStatefulMemory) # sorted the matnodes according to their matching type. Exact matching got least priority so that they are embedded at last and TCAM's are used at first
+        startingPhyicalStageIndex = startingStageIndex
+        deepCopiedResourcesOfStage = copy.deepcopy(hardware.stageWiseResources.get(startingPhyicalStageIndex))
+        if(deepCopiedResourcesOfStage == None):
+            print("In embedIndirectStatefulMemoryAndDependentMatNodes The deepcopied resrurces for stage "+str(startingPhyicalStageIndex)+" of the hardware is Empty. Severe error. Exiting")
+            exit(1)
+
+        flag = False
+        while (flag == False ):
+            val1 = deepCopiedResourcesOfStage.allocateStatefulMemoerySetOnStage(p4ProgramGraph, pipelineID, statefulMemorySet, hardware)
+            val2= deepCopiedResourcesOfStage.isMatNodeListEmbeddableOnThisStage(p4ProgramGraph,pipelineID, matNodeListThatusesStatefulMemory,hardware)
+            if(val1==True) and (val2 == True):
+                flag= True
+            else:
+                startingPhyicalStageIndex = startingPhyicalStageIndex + 1
                 deepCopiedResourcesOfStage = copy.deepcopy(hardware.stageWiseResources.get(startingPhyicalStageIndex))
                 if(deepCopiedResourcesOfStage == None):
-                    print("The deepcopied resrurces for stage "+str(startingPhyicalStageIndex)+" of the hardware is Empty. Severe error. Exiting")
-                    exit(1)
-                if(deepCopiedResourcesOfStage.allocateStatefulMemoerySetOnStage(p4ProgramGraph, pipelineID, statefulMemoryNameToUserMatListMap.keys(), hardware)):
-                    #the Stateul memories can be embedded on this stage. Now we need to find can we embed all the MAtnodes of statefulMemoryNameToUserMatListMap on this same stage
-                    # Now all the MAt nodes in same level matches on differnt fields. But they are from different paths of the TDG. Hence they will never match together.
-                    #It implies only one of the matnodes will find a matching entry. Hence onyl one of their action will be executed. Therefore the resource requirement of the
-                    #Actions will be the highest of the actions from all the tables. Means, we have to reserve the maximum bitwidth of action for the crossbar,
-                    #maximum bitwidth for memory port.
-                    #But we have to reserve the full amount of space for TCAM/SRAM based mat entries and their actions.
-                    matNodeListThatusesStatefulMemory = []
-                    for k in statefulMemoryNameToUserMatListMap:
-                        for matNode in statefulMemoryNameToUserMatListMap.get(k):
-                            matNodeListThatusesStatefulMemory.append(matNode)
-                    matNodeListThatusesStatefulMemory = self.sortNodesBasedOnMatchType(matNodeListThatusesStatefulMemory) # sorted the matnodes according to their matching type. Exact matching got least priority so that they are embedded at last and TCAM's are used at first
-                    if (deepCopiedResourcesOfStage.isMatNodeListEmbeddableOnThisStage(p4ProgramGraph,pipelineID, matNodeListThatusesStatefulMemory,hardware)):
-                        hardware.stageWiseResources[startingPhyicalStageIndex]= deepCopiedResourcesOfStage
-                        deepCopiedResourcesOfStage = copy.deepcopy(hardware.stageWiseResources.get(startingPhyicalStageIndex))
-                        #Make sure the previous function to embed the matlist works correctly when there are no node which uses stateful memeory.
-                        # then embed the mat nodes that does not use stateful memory one by one
-                        deepCopiedHW = copy.deepcopy(hardware)
-                        # for matNode in matListNotUsingStatefulMem:
+                    print("In embedIndirectStatefulMemoryAndDependentMatNodes inside while loop The deepcopied resrurces for stage "+str(startingPhyicalStageIndex)+" of the hardware is Empty. Severe error. Exiting")
+                    startingPhyicalStageIndex = -1
+                    break
+        return startingPhyicalStageIndex, deepCopiedResourcesOfStage
 
 
-                else:
-                    print("The resource requirement for the indirect stateful memories can not be fulfilled by the availalbe resources of stage: "+str(deepCopiedResourcesOfStage.index))
-                    print("Halintg the embedding process here")
+
+
 
     def embedMatNodeOverMultipleStage(self,p4ProgramGraph,pipelineID, matNode, hardware, startingStageIndex):
         '''If embedding is successfull the function will return starting and ending stage index. if both index are equal then the node is embeddable over single stage.
@@ -294,41 +318,174 @@ class RMTV1ModelHardware:
         p4ProgramGraph.parsedP4Program.getMatchActionResourceRequirementForMatNode(matNode, p4ProgramGraph, pipelineID) # computes the resource requirement of the mat node
         remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
         remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
-        while(remainingActionEntries >0) and (remainingMatEntries >0):
-            # get hardwarestage
-            # In all cases the matkey count and bitwidth must have to match
-            # get accomdatable mat entries
-            # get accomodatable action entries
-            # get minimum of two
-            # if minimum is zero but remiaining entries are non zero --> matnode can not be embedded on consecutive stages. Need to start again from next stage
-            #     startingsteage = curentstage + 1 and set remainin entries as remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
-            #                     remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
-            # else allocate this minimum number and deduct that from remaininentries
-            currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
-            isMatchKeyAccomodatable = False
-            accmodatableMatEntries = 0
-            accmodatableActionEntries=0
-            if(matNode.getMatchType() != MatchType.EXACT):
-                if(matNode.totalKeysTobeMatched <= currentStageHardwareResource.getAvailableTCAMMatKeyCount()) and\
-                    (currentStageHardwareResource.convertMatKeyBitWidthLengthToTCAMMatKeyLength(matNode.matKeyBitWidth) \
-                    <= currentStageHardwareResource.getAvailableTCAMMatKeyBitwidth()):
-                    isMatchKeyAccomodatable = True
-                    accmodatableMatEntries = currentStageHardwareResource.getTotalAccomodatableSRAMMatEntriesForGivenMatKeyBitwidth(matNode.matKeyBitWidth)
-                    accmodatableActionEntries = currentStageHardwareResource.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= matNode.getRequiredNumberOfActionEntries())
-                    minEntryCount= min(accmodatableMatEntries, accmodatableActionEntries)
-                    if(minEntryCount == 0) and (remainingMatEntries >0) or (remainingActionEntries > 0)
-                else:
-                    isMatchKeyAccomodatable = False
+        startingStage = -1
+        endginStage = -1
+        if(remainingMatEntries != remainingActionEntries) :
+            if  (matNode.getMatchType() != MatchType.EXACT):
+                startingStage, endginStage = self.embedMatNodeOverTCAMMatInMultipleStageWithActionEntriesReplication(p4ProgramGraph,pipelineID, matNode, hardware, startingStageIndex)
             else:
-                if(matNode.totalKeysTobeMatched <= currentStageHardwareResource.allocateSRAMMatKeyCount()) and \
-                        (currentStageHardwareResource.convertMatKeyBitWidthLengthToSRAMMatKeyLength(matNode.matKeyBitWidth) \
-                         <= currentStageHardwareResource.getAvailableSRAMMatKeyBitwidth()):
-                    isMatchKeyAccomodatable = True
-                    accmodatableMatEntries = currentStageHardwareResource.getTotalAccomodatableSRAMMatEntriesForGivenMatKeyBitwidth(matNode.matKeyBitWidth)
-                    accmodatableActionEntries = currentStageHardwareResource.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= matNode.getRequiredNumberOfActionEntries())
-                    minEntryCount= min(accmodatableMatEntries, accmodatableActionEntries)
-                else:
-                    isMatchKeyAccomodatable = False
+                startingStage, endginStage = self.embedMatNodeOverSRAMMatInMultipleStageWithActionEntriesReplication(p4ProgramGraph,pipelineID, matNode, hardware, startingStageIndex)
+                if(startingStage == - 1 and endginStage == -1 ):
+                    startingStage, endginStage = self.embedMatNodeOverTCAMMatInMultipleStageWithActionEntriesReplication(p4ProgramGraph,pipelineID, matNode, hardware, startingStageIndex)
+        else:
+            if  (matNode.getMatchType() != MatchType.EXACT):
+                startingStage, endginStage = self.embedMatNodeOverTCAMMatInMultipleStageWithActionEntriesDistribution(p4ProgramGraph,pipelineID, matNode, hardware, startingStageIndex)
+            else:
+                startingStage, endginStage = self.embedMatNodeOverSRAMMatInMultipleStageWithActionEntriesDistribution(p4ProgramGraph,pipelineID, matNode, hardware, startingStageIndex)
+                if(startingStage == - 1 and endginStage == -1 ):
+                    startingStage, endginStage = self.embedMatNodeOverTCAMMatInMultipleStageWithActionEntriesDistribution(p4ProgramGraph,pipelineID, matNode, hardware, startingStageIndex)
+        return startingStage, endginStage
+
+    def embedMatNodeOverTCAMMatInMultipleStageWithActionEntriesReplication(self,p4ProgramGraph,pipelineID, matNode, hardware, startingStageIndex):
+        startingStage = endingStage = -1
+        currentStageIndex = startingStageIndex
+        currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
+        remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
+        remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
+        while(currentStageHardwareResource != None) and (remainingMatEntries > 0):
+            accmodatableMatEntries = currentStageHardwareResource.getTotalAccomodatableTCAMMatEntriesForGivenMatKeyBitwidth(matNode.matKeyBitWidth)
+            accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth\
+                (actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter())
+            if(matNode.totalKeysTobeMatched <= currentStageHardwareResource.getAvailableTCAMMatKeyCount()) and \
+                    (currentStageHardwareResource.convertMatKeyBitWidthLengthToTCAMMatKeyLength(matNode.matKeyBitWidth) \
+                    <= currentStageHardwareResource.getAvailableTCAMMatKeyBitwidth()) and \
+                (accmodatableActionEntries >= remainingActionEntries) and (accmodatableMatEntries >=  remainingMatEntries):
+                if(startingStage == -1):
+                    startingStage = currentStageIndex
+                endingStage = currentStageIndex
+                remainingMatEntries = remainingMatEntries - min(accmodatableMatEntries, remainingMatEntries)
+
+            else:
+                startingStage = endingStage = -1
+                remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
+                remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
+            currentStageIndex = currentStageIndex + 1
+            currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
+        return  startingStage, endingStage
+
+    def embedMatNodeOverSRAMMatInMultipleStageWithActionEntriesReplication(self,p4ProgramGraph,pipelineID, matNode, hardware, startingStageIndex):
+        startingStage = endingStage = -1
+        currentStageIndex = startingStageIndex
+        currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
+        remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
+        remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
+        while(currentStageHardwareResource != None) and (remainingMatEntries > 0):
+            accmodatableMatEntries = currentStageHardwareResource.getTotalAccomodatableSRAMMatEntriesForGivenMatKeyBitwidth(matNode.matKeyBitWidth)
+            accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth \
+                (actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter())
+            if(matNode.totalKeysTobeMatched <= currentStageHardwareResource.getAvailableSRAMMatKeyCount()) and \
+                    (currentStageHardwareResource.convertMatKeyBitWidthLengthToSRAMMatKeyLength(matNode.matKeyBitWidth) \
+                     <= currentStageHardwareResource.getAvailableSRAMMatKeyBitwidth()) and \
+                    (accmodatableActionEntries >= remainingActionEntries) and (accmodatableMatEntries >= remainingMatEntries):
+                if(startingStage == -1):
+                    startingStage = currentStageIndex
+                endingStage = currentStageIndex
+                remainingMatEntries = remainingMatEntries - min(accmodatableMatEntries, remainingMatEntries)
+                print("We may allocate the resource here")
+            else:
+                startingStage = endingStage = -1
+                remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
+                remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
+            currentStageIndex = currentStageIndex + 1
+            currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
+        return  startingStage, endingStage
+
+    def embedMatNodeOverTCAMMatInMultipleStageWithActionEntriesDistribution(self,p4ProgramGraph,pipelineID, matNode, hardware, startingStageIndex):
+        startingStage = endingStage = -1
+        currentStageIndex = startingStageIndex
+        currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
+        remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
+        remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
+        while(currentStageHardwareResource != None) and (remainingMatEntries > 0):
+            accmodatableMatEntries = currentStageHardwareResource.getTotalAccomodatableTCAMMatEntriesForGivenMatKeyBitwidth(matNode.matKeyBitWidth)
+            accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth \
+                (actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter())
+            if(matNode.totalKeysTobeMatched <= currentStageHardwareResource.getAvailableTCAMMatKeyCount()) and \
+                    (currentStageHardwareResource.convertMatKeyBitWidthLengthToTCAMMatKeyLength(matNode.matKeyBitWidth) \
+                     <= currentStageHardwareResource.getAvailableTCAMMatKeyBitwidth()) and \
+                    (accmodatableActionEntries >= remainingActionEntries) and (accmodatableMatEntries >=  remainingMatEntries):
+                if(startingStage == -1):
+                    startingStage = currentStageIndex
+                endingStage = currentStageIndex
+                entriesToBePlacedInThisStage = min(accmodatableMatEntries, remainingMatEntries, accmodatableActionEntries, remainingMatEntries)
+                remainingMatEntries = remainingMatEntries - entriesToBePlacedInThisStage
+                remainingActionEntries = remainingActionEntries - entriesToBePlacedInThisStage
+                print("We may allocate the resource here")
+            else:
+                startingStage = endingStage = -1
+                remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
+                remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
+            currentStageIndex = currentStageIndex + 1
+            currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
+        return  startingStage, endingStage
+    def embedMatNodeOverSRAMMatInMultipleStageWithActionEntriesDistribution(self,p4ProgramGraph,pipelineID, matNode, hardware, startingStageIndex):
+        startingStage = endingStage = -1
+        currentStageIndex = startingStageIndex
+        currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
+        remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
+        remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
+        while(currentStageHardwareResource != None) and (remainingMatEntries > 0):
+            accmodatableMatEntries = currentStageHardwareResource.getTotalAccomodatableSRAMMatEntriesForGivenMatKeyBitwidth(matNode.matKeyBitWidth)
+            accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth \
+                (actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter())
+            if(matNode.totalKeysTobeMatched <= currentStageHardwareResource.getAvailableSRAMMatKeyCount()) and \
+                    (currentStageHardwareResource.convertMatKeyBitWidthLengthToSRAMMatKeyLength(matNode.matKeyBitWidth) \
+                     <= currentStageHardwareResource.getAvailableSRAMMatKeyBitwidth()) and \
+                    (accmodatableActionEntries >= remainingActionEntries) and (accmodatableMatEntries >=  remainingMatEntries):
+                if(startingStage == -1):
+                    startingStage = currentStageIndex
+                endingStage = currentStageIndex
+                entriesToBePlacedInThisStage = min(accmodatableMatEntries, remainingMatEntries, accmodatableActionEntries, remainingMatEntries)
+                remainingMatEntries = remainingMatEntries - entriesToBePlacedInThisStage
+                remainingActionEntries = remainingActionEntries - entriesToBePlacedInThisStage
+                print("We may allocate the resource here")
+            else:
+                startingStage = endingStage = -1
+                remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
+                remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
+            currentStageIndex = currentStageIndex + 1
+            currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
+        return  startingStage, endingStage
+
+        # while(remainingActionEntries >0) and (remainingMatEntries >0):
+        #     # get hardwarestage
+        #     # In all cases the matkey count and bitwidth must have to match
+        #     # get accomdatable mat entries
+        #     # get accomodatable action entries
+        #     # get minimum of two
+        #     # if minimum is zero but remiaining entries are non zero --> matnode can not be embedded on consecutive stages. Need to start again from next stage
+        #     #     startingsteage = curentstage + 1 and set remainin entries as remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
+        #     #                     remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
+        #     # else allocate this minimum number and deduct that from remaininentries
+        #     currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
+        #     isMatchKeyAccomodatable = False
+        #     accmodatableMatEntries = 0
+        #     accmodatableActionEntries=0
+        #     if(matNode.getMatchType() != MatchType.EXACT):
+        #         if(matNode.totalKeysTobeMatched <= currentStageHardwareResource.getAvailableTCAMMatKeyCount()) and\
+        #             (currentStageHardwareResource.convertMatKeyBitWidthLengthToTCAMMatKeyLength(matNode.matKeyBitWidth) \
+        #             <= currentStageHardwareResource.getAvailableTCAMMatKeyBitwidth()):
+        #             isMatchKeyAccomodatable = True
+        #             if(isFixedSizeActionEntries == True): #Implies we have to replicate the actions in all stages.
+        #             accmodatableMatEntries = currentStageHardwareResource.getTotalAccomodatableSRAMMatEntriesForGivenMatKeyBitwidth(matNode.matKeyBitWidth)
+        #             accmodatableActionEntries = currentStageHardwareResource.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= matNode.getRequiredNumberOfActionEntries())
+        #             minEntryCount= min(accmodatableMatEntries, accmodatableActionEntries)
+        #             if(minEntryCount == 0) and (remainingMatEntries >0) or (remainingActionEntries > 0):
+        #                 pass
+        #
+        #
+        #         else:
+        #             isMatchKeyAccomodatable = False
+        #     else:
+        #         if(matNode.totalKeysTobeMatched <= currentStageHardwareResource.allocateSRAMMatKeyCount()) and \
+        #                 (currentStageHardwareResource.convertMatKeyBitWidthLengthToSRAMMatKeyLength(matNode.matKeyBitWidth) \
+        #                  <= currentStageHardwareResource.getAvailableSRAMMatKeyBitwidth()):
+        #             isMatchKeyAccomodatable = True
+        #             accmodatableMatEntries = currentStageHardwareResource.getTotalAccomodatableSRAMMatEntriesForGivenMatKeyBitwidth(matNode.matKeyBitWidth)
+        #             accmodatableActionEntries = currentStageHardwareResource.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= matNode.getRequiredNumberOfActionEntries())
+        #             minEntryCount= min(accmodatableMatEntries, accmodatableActionEntries)
+        #         else:
+        #             isMatchKeyAccomodatable = False
 
 
 

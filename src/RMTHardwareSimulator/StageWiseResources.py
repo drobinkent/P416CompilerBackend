@@ -194,7 +194,7 @@ class StageWiseResource:
 
     def isActionMemoryAccomodatable(self, actionEntryBitwidth, numberOfActionEntries): #TODO: at this moment we are assuming that
         totalAccmmodatableEntries = self.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth(actionEntryBitwidth)
-        if(numberOfActionEntries <= totalAccmmodatableEntries):
+        if(numberOfActionEntries <= totalAccmmodatableEntries) and ():
             return True
         else:
             print("The action entries can not be accomodated in this stage. Becuase the reqruier amount of resource is not available")
@@ -225,6 +225,9 @@ class StageWiseResource:
         return False
 
     def allocateMatNodeOverTCAMMat(self, matNode):
+        if(self.usedActionCrossbarBitWidth < matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction()): #Because We are embedding all nodes on a sp-ecific level one by one. so any
+            #table in same stage do need the maximum action crossbar among it's sibilings.
+            self.allocateActionCrossbarBitwidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
         self.allocateTCAMMatKeyCount(matNode.totalKeysTobeMatched)
         self.allocateTCAMMatKeyBitwidth(self.convertMatKeyBitWidthLengthToTCAMMatKeyLength(matNode.matKeyBitWidth))
         self.allocateMatEntriesOverTCAMBasedMATSinSingleStage(matNode.matKeyBitWidth, matNode.getRequiredNumberOfMatEntries()) # This embeds both match-key and tables and entries in one stage
@@ -232,6 +235,9 @@ class StageWiseResource:
 
 
     def allocateMatNodeOverSRAMMat(self, matNode):
+        if(self.usedActionCrossbarBitWidth < matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction()): #Because We are embedding all nodes on a sp-ecific level one by one. so any
+            #table in same stage do need the maximum action crossbar among it's sibilings.
+            self.allocateActionCrossbarBitwidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
         self.allocateSRAMMatKeyCount(matNode.totalKeysTobeMatched)
         self.allocateSRAMMatKeyBitwidth(self.convertMatKeyBitWidthLengthToTCAMMatKeyLength(matNode.matKeyBitWidth))
         self.allocateMatEntriesOverSRAMBasedMATSInSingleStage(matNode.matKeyBitWidth, matNode.getRequiredNumberOfMatEntries()) # This embeds both match-key and tables and entries in one stage
