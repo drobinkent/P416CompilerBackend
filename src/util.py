@@ -1,5 +1,6 @@
-import P416JsonParser
-import P4ProgramParser.P416JsonParser
+import sys
+sys.path.append("..") # Adds higher directory to python modules path.
+from P4ProgramParser import P416JsonParser
 from utils import JsonParserUtil
 import logging
 import ConfigurationConstants as ConfConst

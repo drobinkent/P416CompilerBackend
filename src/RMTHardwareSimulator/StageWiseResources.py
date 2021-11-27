@@ -3,8 +3,9 @@ import logging
 import ConfigurationConstants as confConst
 import math
 
-from P416JsonParser import MatchType
-
+import sys
+sys.path.append("..") # Adds higher directory to python modules path.
+from P4ProgramParser.P416JsonParser import MatchType
 logger = logging.getLogger('StageWiseResource')
 hdlr = logging.FileHandler(confConst.LOG_FILE_PATH )
 hdlr.setLevel(logging.INFO)
@@ -36,6 +37,17 @@ class StageWiseResource:
         self.tcamMatResource = TCAMMatResource(stageResourceDescription.tcam_mat_resources, self.rmtHWSpec)
         self.aluResource = AluResource(stageResourceDescription.alu_resources, self.rmtHWSpec)
         self.externResource = ExternResource(stageResourceDescription.extern_resources, self.rmtHWSpec)
+
+    def printAvailableResourceStatistics(self):
+        print("Stage Index: "+str(self.stageIndex))
+        print("availableActionCrossbarBitWidth is: "+str(self.availableActionCrossbarBitWidth)+" usedActionCrossbarBitWidth is : "+str(self.usedActionCrossbarBitWidth))
+        print("availableActionMemoryBlocks is: "+str(self.availableActionMemoryBlocks)+" usedActionMemoryBlocks is : "+str(self.usedActionMemoryBlocks))
+        print("availableNumberOfActions is: "+str(self.availableNumberOfActions)+" usedNumberOfActions is : "+str(self.usedNumberOfActions))
+        self.sramResource.printAvailableResourceStatistics()
+        self.sramMatResource.printAvailableResourceStatistics()
+        self.tcamMatResource.printAvailableResourceStatistics()
+
+
 
     def getAvailableSRAMMatKeyBitwidth(self):
         return self.sramMatResource.availableSramMatCrossbarBitwidth
@@ -396,6 +408,10 @@ class SRAMMatResource:
         self.sramMatHashingWay = sram_mat_resources.per_sram_mat_block_spec.hashing_way
         self.perSramMatBitWidth = sram_mat_resources.per_sram_mat_block_spec.sram_bit_width
         pass
+    def printAvailableResourceStatistics(self):
+        print("availableSramMatFields is: "+str(self.availableSramMatFields)+" usedSramMatFields is : "+str(self.usedSramMatFields))
+        print("availableSramMatCrossbarBitwidth is: "+str(self.availableSramMatCrossbarBitwidth)+" usedSramMatCrossbarBitwidth is : "+str(self.usedSramMatCrossbarBitwidth))
+
 
 # : int
 # match_crossbar_bit_width: int
@@ -427,6 +443,11 @@ class TCAMMatResource:
         self.perTcamBlockBitWidth = tcam_mat_resources.per_tcam_mat_block_spec.tcam_bit_width
         self.perTcamBlockRowCount = tcam_mat_resources.per_tcam_mat_block_spec.tcam_row_count
         pass
+    def printAvailableResourceStatistics(self):
+        print("availableTcamMatFields is: "+str(self.availableTcamMatFields)+" usedTcamMatFields is : "+str(self.usedTcamMatFields))
+        print("availableTcamMatCrossbarBitwidth is: "+str(self.availableTcamMatCrossbarBitwidth)+" usedTcamMatCrossbarBitwidth is : "+str(self.usedTcamMatCrossbarBitwidth))
+        print("availableTcamMatBlocks is: "+str(self.availableTcamMatBlocks)+" usedTcamMatBlocks is : "+str(self.usedTcamMatBlocks))
+
 
 
 
@@ -451,6 +472,13 @@ class SRAMResource:
         self.perMemoryBlockRowCount = sram_resources.memoroy_block_row_count
         self.perMemoryBlockBitwidth = sram_resources.memory_port_width
         pass
+
+    def printAvailableResourceStatistics(self):
+        print("availableSramPorts is: "+str(self.availableSramPorts)+" usedSramPorts is : "+str(self.usedSramPorts))
+        print("availableSramPortBitwidth is: "+str(self.availableSramPortBitwidth)+" usedSramPortBitwidth is : "+str(self.usedSramPortBitwidth))
+        print("availableActionMemoryBitwidth is: "+str(self.availableActionMemoryBitwidth)+" usedActionMemoryBitwidth is : "+str(self.usedActionMemoryBitwidth))
+        print("availableSramBlocks is: "+str(self.availableSramBlocks)+" usedSramBlocks is : "+str(self.usedSramBlocks))
+        print("availableSramBlocks is: "+str(self.availableSramBlocks)+" usedSramBlocks is : "+str(self.usedSramBlocks))
 
 class AluResource:
 

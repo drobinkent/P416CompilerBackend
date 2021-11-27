@@ -4,7 +4,6 @@ import sys
 
 from DependencyAnlyzer.DefinitionConstants import PipelineID
 from DependencyAnlyzer.PipelineGraph import PipelineGraph
-from P416JsonParser import HeaderField
 
 sys.path.append("..")
 import ConfigurationConstants as confConst

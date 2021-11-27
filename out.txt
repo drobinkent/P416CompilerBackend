@@ -1,0 +1,1310 @@
+RMTV1HardwareConfiguration(name='RMTV1Model32Stage', total_stages=32, header_vector_specs=[HeaderVectorSpec(bit_width=8, count=100), HeaderVectorSpec(bit_width=16, count=124), HeaderVectorSpec(bit_width=32, count=96)], stage_description=[StageDescription(index='0-31', action_crossbar_bit_width=1280, action_memory_blocks=8, action_memory_block_bit_width=80, maximum_actions_supported=64, sram_resources=SRAMResources(memory_port_width=112, memory_port_count=8, memory_block_count=106, memory_block_bit_width=112, memoroy_block_row_count=1024), tcam_mat_resources=TCAMMatResources(tcam_mat_field_count=8, match_crossbar_bit_width=640, block_count=16, supported_match_types=SupportedMatchTypes(exact=True, lpm=True, range=True, ternary=True), per_tcam_mat_block_spec=PerTCAMMatBlockSpec(tcam_bit_width=40, tcam_row_count=2048)), sram_mat_resources=SRAMMatResources(sram_mat_field_count=8, match_crossbar_bit_width=640, block_count='RetrivableFromSramResources', supported_match_types=SupportedMatchTypes(exact=True, lpm=False, range=False, ternary=False), per_sram_mat_block_spec=PerSRAMMatBlockSpec(sram_bit_width=80, hashing_way=4)), alu_resources=[Resource(name='8BitAluInstructions', count=64), Resource(name='16BitAluInstructions', count=96), Resource(name='32BitAluInstructions', count=64)], extern_resources=[Resource(name='RegisterReadExtern', count=8), Resource(name='RegisterWriteExtern', count=8)])])
+RMTV1InstrctionSet(name='RMTV1ModelInstructionSet', alu_instructions=[ALUInstruction(name='8BitAluInstructions', alu_bitwidth=8, op=['+', '-', '*', '/', '<<', '>>', 'and', 'or', 'xor', '<', '<=', '>', '>=', '==', '!=', '&', '|', '^', 'assign'], parameters=[ALUInstructionParameter(name='result', bitwidth=8, supported_data_types=SupportedDataTypes(header_field=True, standard_metadata=True, local_metadata=True, constant=True, register=True)), ALUInstructionParameter(name='left', bitwidth=8, supported_data_types=SupportedDataTypes(header_field=True, standard_metadata=True, local_metadata=True, constant=True, register=True)), ALUInstructionParameter(name='right', bitwidth=8, supported_data_types=SupportedDataTypes(header_field=True, standard_metadata=True, local_metadata=True, constant=True, register=True))]), ALUInstruction(name='16BitAluInstructions', alu_bitwidth=16, op=['+', '-', '*', '/', '<<', '>>', 'and', 'or', 'xor', '<', '<=', '>', '>=', '==', '!=', '&', '|', '^', 'assign'], parameters=[ALUInstructionParameter(name='result', bitwidth=16, supported_data_types=SupportedDataTypes(header_field=True, standard_metadata=True, local_metadata=True, constant=True, register=True)), ALUInstructionParameter(name='left', bitwidth=16, supported_data_types=SupportedDataTypes(header_field=True, standard_metadata=True, local_metadata=True, constant=True, register=True)), ALUInstructionParameter(name='right', bitwidth=16, supported_data_types=SupportedDataTypes(header_field=True, standard_metadata=True, local_metadata=True, constant=True, register=True))]), ALUInstruction(name='32BitAluInstructions', alu_bitwidth=32, op=['+', '-', '*', '/', '<<', '>>', 'and', 'or', 'xor', '<', '<=', '>', '>=', '==', '!=', '&', '|', '^', 'assign'], parameters=[ALUInstructionParameter(name='result', bitwidth=32, supported_data_types=SupportedDataTypes(header_field=True, standard_metadata=True, local_metadata=True, constant=True, register=True)), ALUInstructionParameter(name='left', bitwidth=32, supported_data_types=SupportedDataTypes(header_field=True, standard_metadata=True, local_metadata=True, constant=True, register=True)), ALUInstructionParameter(name='right', bitwidth=32, supported_data_types=SupportedDataTypes(header_field=True, standard_metadata=True, local_metadata=True, constant=True, register=True))])], extern_instructions=[ExternInstruction(name='RegisterReadExtern', op='register_read', extern_bitwidth=8, parameters=[ExternInstructionParameter(name='register_array', bitwidth='LimitedBySramSpec', supported_data_types=SupportedDataTypes(header_field=True, standard_metadata=True, local_metadata=True, constant=True, register=True)), ExternInstructionParameter(name='index', bitwidth=32, supported_data_types=SupportedDataTypes(header_field=True, standard_metadata=True, local_metadata=True, constant=True, register=True)), ExternInstructionParameter(name='value', bitwidth='LimitedBySramSpec', supported_data_types=SupportedDataTypes(header_field=True, standard_metadata=True, local_metadata=True, constant=True, register=True))]), ExternInstruction(name='RegisterWriteExtern', op='register_write', extern_bitwidth=8, parameters=[ExternInstructionParameter(name='register-array', bitwidth='LimitedBySramSpec', supported_data_types=SupportedDataTypes(header_field=False, standard_metadata=False, local_metadata=False, constant=False, register=True)), ExternInstructionParameter(name='index', bitwidth='32', supported_data_types=SupportedDataTypes(header_field=True, standard_metadata=True, local_metadata=True, constant=True, register=False)), ExternInstructionParameter(name='right', bitwidth='LimitedBySramSpec', supported_data_types=SupportedDataTypes(header_field=True, standard_metadata=True, local_metadata=True, constant=True, register=False))])])
+Loading stage wise reousrces
+['0', '31']
+Loading device configuration for RMT_V1 completed
+For pieplinePipelineID.INGRESS_PIPELINE total Graph nodes  after conditional processing 40
+For pieplinePipelineID.INGRESS_PIPELINE total Graph nodes  after TDG processing 40
+Returning from gatherLevelsOfStatefulMemories
+For pieplinePipelineID.EGRESS_PIPELINE total Graph nodes  after conditional processing 2
+For pieplinePipelineID.EGRESS_PIPELINE total Graph nodes  after TDG processing 1
+Returning from gatherLevelsOfStatefulMemories
+
+
+ Ingress stage header analysis
+HEre remains a question: Should we unify the metadata's with both ingress nad egress separately or not!!!!!!!!!!!!!!
+Before removing duplicate member of match fields 39
+After removing duplicate member  of match fields 4
+Before removing duplicate member of action fields 81
+After removing duplicate member  of match fields 42
+Total number of header fields used in the pipeline is 44
+Before removing duplicate member of conditional checking of all the conditional  16
+After removing duplicate member of conditional checking of all the conditional  12
+Total number of header fields used in the pipeline is 47
+Total header legnth for given headerfield list is  1520
+Bitwdith wise header count is  {32: 33, 8: 10, 24: 11, 48: 2, 16: 6}
+
+
+ Egress stage header analysis
+HEre remains a question: Should we unify the metadata's with both ingress nad egress separately or not!!!!!!!!!!!!!!
+Before removing duplicate member of match fields 0
+After removing duplicate member  of match fields 0
+Before removing duplicate member of action fields 0
+After removing duplicate member  of match fields 0
+Total number of header fields used in the pipeline is 0
+Before removing duplicate member of conditional checking of all the conditional  0
+After removing duplicate member of conditional checking of all the conditional  0
+Total number of header fields used in the pipeline is 0
+Total header legnth for given headerfield list is  360
+Bitwdith wise header count is  {32: 5, 8: 3, 48: 2, 16: 5, 24: 2}
+total header count in nameToHeaderTypeObjectMap is : 101
+Bitwdith wise header count is  {32: 38, 48: 4, 16: 11, 8: 13, 24: 13}
+Data model is {'weights': [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32], 'values': [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32], 'items': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319], 'num_items': 320, 'bins': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78], 'bin_capacities': [32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 48, 48, 48, 48, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24]}
+Total packed value: 2000.0
+Total packed weight: 2000
+The program's header fields can be mapped to the RMT hardware using following mappine
+For each X-bit wide header field this output lists all the hardwared header fields used. So assume in a P4 program you need 2 32 bit field. If it shows 8 x8 bit wide header fields. that means to fillthe 2x 32 bit header fields of the program we can use 8x8 bit wide header fields available in the hardware
+{32: [32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 8, 8, 16, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32], 48: [16, 32, 16, 32, 16, 32, 16, 32], 16: [16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16], 8: [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8], 24: [8, 16, 8, 16, 8, 16, 8, 16, 8, 16, 8, 16, 8, 16, 8, 16, 8, 16, 8, 16, 8, 16, 8, 16, 8, 16]}
+Starting embedding the P4 pipeline:PipelineID.INGRESS_PIPELINE graph  on  the hardware
+Embedding logical stage 31 and the starting physcial stage index for this stage is 0
+The hardware resource of physical stage 0 Before embedding is following
+Stage Index: 0
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: OntasIngress.multicast_mac_catch_tb resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 1
+	 	 matKeyBitWidth: 9.0
+	 	 headerFieldWiseBitwidthOfMatKeys: {'standard_metadata.ingress_port': 9.0}
+				 actionCrossbarBitwidth 56 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 0 after embedding is following
+Stage Index: 0
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 30 and the starting physcial stage index for this stage is 1
+The hardware resource of physical stage 1 Before embedding is following
+Stage Index: 1
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: OntasIngress.anony_mac_src_oui_tb resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 1
+	 	 matKeyBitWidth: 9.0
+	 	 headerFieldWiseBitwidthOfMatKeys: {'standard_metadata.ingress_port': 9.0}
+				 actionCrossbarBitwidth 56 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 1 after embedding is following
+Stage Index: 1
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 29 and the starting physcial stage index for this stage is 2
+The hardware resource of physical stage 2 Before embedding is following
+Stage Index: 2
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: OntasIngress.anony_mac_src_id_tb resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 1
+	 	 matKeyBitWidth: 9.0
+	 	 headerFieldWiseBitwidthOfMatKeys: {'standard_metadata.ingress_port': 9.0}
+				 actionCrossbarBitwidth 56 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 2 after embedding is following
+Stage Index: 2
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 28 and the starting physcial stage index for this stage is 3
+The hardware resource of physical stage 3 Before embedding is following
+Stage Index: 3
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: node_5 resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 0
+	 	 matKeyBitWidth: 0
+	 	 headerFieldWiseBitwidthOfMatKeys: {}
+				 actionCrossbarBitwidth 56 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 3 after embedding is following
+Stage Index: 3
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 27 and the starting physcial stage index for this stage is 4
+The hardware resource of physical stage 4 Before embedding is following
+Stage Index: 4
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: node_6 resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 1
+	 	 matKeyBitWidth: 8
+	 	 headerFieldWiseBitwidthOfMatKeys: {'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 56 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 4 after embedding is following
+Stage Index: 4
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 26 and the starting physcial stage index for this stage is 5
+The hardware resource of physical stage 5 Before embedding is following
+Stage Index: 5
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: node_7 resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 1
+	 	 matKeyBitWidth: 8
+	 	 headerFieldWiseBitwidthOfMatKeys: {'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 56 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 5 after embedding is following
+Stage Index: 5
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 25 and the starting physcial stage index for this stage is 6
+The hardware resource of physical stage 6 Before embedding is following
+Stage Index: 6
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: OntasIngress.anony_mac_dst_oui_tb resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 2
+	 	 matKeyBitWidth: 17.0
+	 	 headerFieldWiseBitwidthOfMatKeys: {'standard_metadata.ingress_port': 9.0, 'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 56 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 6 after embedding is following
+Stage Index: 6
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 24 and the starting physcial stage index for this stage is 7
+The hardware resource of physical stage 7 Before embedding is following
+Stage Index: 7
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: OntasIngress.anony_mac_dst_id_tb resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 1
+	 	 matKeyBitWidth: 9.0
+	 	 headerFieldWiseBitwidthOfMatKeys: {'standard_metadata.ingress_port': 9.0}
+				 actionCrossbarBitwidth 56 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 7 after embedding is following
+Stage Index: 7
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 23 and the starting physcial stage index for this stage is 8
+The hardware resource of physical stage 8 Before embedding is following
+Stage Index: 8
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: node_10 resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 1
+	 	 matKeyBitWidth: 8
+	 	 headerFieldWiseBitwidthOfMatKeys: {'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 48 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 8 after embedding is following
+Stage Index: 8
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 22 and the starting physcial stage index for this stage is 9
+The hardware resource of physical stage 9 Before embedding is following
+Stage Index: 9
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: node_11 resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 1
+	 	 matKeyBitWidth: 8
+	 	 headerFieldWiseBitwidthOfMatKeys: {'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 40 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 9 after embedding is following
+Stage Index: 9
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 21 and the starting physcial stage index for this stage is 10
+The hardware resource of physical stage 10 Before embedding is following
+Stage Index: 10
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: OntasIngress.anony_arp_mac_dst_id_tb resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 2
+	 	 matKeyBitWidth: 17.0
+	 	 headerFieldWiseBitwidthOfMatKeys: {'standard_metadata.ingress_port': 9.0, 'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 48 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 10 after embedding is following
+Stage Index: 10
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 20 and the starting physcial stage index for this stage is 11
+The hardware resource of physical stage 11 Before embedding is following
+Stage Index: 11
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: node_13 resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 1
+	 	 matKeyBitWidth: 8
+	 	 headerFieldWiseBitwidthOfMatKeys: {'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 40 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 11 after embedding is following
+Stage Index: 11
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 19 and the starting physcial stage index for this stage is 12
+The hardware resource of physical stage 12 Before embedding is following
+Stage Index: 12
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: OntasIngress.anony_arp_mac_dst_oui_tb resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 2
+	 	 matKeyBitWidth: 17.0
+	 	 headerFieldWiseBitwidthOfMatKeys: {'standard_metadata.ingress_port': 9.0, 'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 48 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 12 after embedding is following
+Stage Index: 12
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 18 and the starting physcial stage index for this stage is 13
+The hardware resource of physical stage 13 Before embedding is following
+Stage Index: 13
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: node_15 resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 1
+	 	 matKeyBitWidth: 8
+	 	 headerFieldWiseBitwidthOfMatKeys: {'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 40 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 13 after embedding is following
+Stage Index: 13
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 17 and the starting physcial stage index for this stage is 14
+The hardware resource of physical stage 14 Before embedding is following
+Stage Index: 14
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: OntasIngress.anony_arp_mac_src_id_tb resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 2
+	 	 matKeyBitWidth: 17.0
+	 	 headerFieldWiseBitwidthOfMatKeys: {'standard_metadata.ingress_port': 9.0, 'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 48 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 14 after embedding is following
+Stage Index: 14
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 16 and the starting physcial stage index for this stage is 15
+The hardware resource of physical stage 15 Before embedding is following
+Stage Index: 15
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: node_17 resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 1
+	 	 matKeyBitWidth: 8
+	 	 headerFieldWiseBitwidthOfMatKeys: {'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 40 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 15 after embedding is following
+Stage Index: 15
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 15 and the starting physcial stage index for this stage is 16
+The hardware resource of physical stage 16 Before embedding is following
+Stage Index: 16
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: OntasIngress.anony_arp_mac_src_oui_tb resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 2
+	 	 matKeyBitWidth: 17.0
+	 	 headerFieldWiseBitwidthOfMatKeys: {'standard_metadata.ingress_port': 9.0, 'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 48 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 16 after embedding is following
+Stage Index: 16
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 14 and the starting physcial stage index for this stage is 17
+The hardware resource of physical stage 17 Before embedding is following
+Stage Index: 17
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: OntasIngress.anony_srcip_tb resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 2
+	 	 matKeyBitWidth: 40.0
+	 	 headerFieldWiseBitwidthOfMatKeys: {'scalars.userMetadata.ipv4_srcip': 32.0, 'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 256 allActionParameterSizeInBits: 64
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+The hardware resource of physical stage 17 after embedding is following
+Stage Index: 17
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 13 and the starting physcial stage index for this stage is 18
+The hardware resource of physical stage 18 Before embedding is following
+Stage Index: 18
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: node_20 resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 0
+	 	 matKeyBitWidth: 0
+	 	 headerFieldWiseBitwidthOfMatKeys: {}
+				 actionCrossbarBitwidth 64 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 18 after embedding is following
+Stage Index: 18
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 12 and the starting physcial stage index for this stage is 19
+The hardware resource of physical stage 19 Before embedding is following
+Stage Index: 19
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: node_22 resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 1
+	 	 matKeyBitWidth: 8
+	 	 headerFieldWiseBitwidthOfMatKeys: {'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 64 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 19 after embedding is following
+Stage Index: 19
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 11 and the starting physcial stage index for this stage is 20
+The hardware resource of physical stage 20 Before embedding is following
+Stage Index: 20
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: node_24 resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 1
+	 	 matKeyBitWidth: 8
+	 	 headerFieldWiseBitwidthOfMatKeys: {'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 64 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 20 after embedding is following
+Stage Index: 20
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 10 and the starting physcial stage index for this stage is 21
+The hardware resource of physical stage 21 Before embedding is following
+Stage Index: 21
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: OntasIngress.hashing_src0_tb resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 2
+	 	 matKeyBitWidth: 17.0
+	 	 headerFieldWiseBitwidthOfMatKeys: {'standard_metadata.ingress_port': 9.0, 'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 176 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+We may allocate the resource here
+ For Mat: OntasIngress.hashing_src8_tb resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 2
+	 	 matKeyBitWidth: 17.0
+	 	 headerFieldWiseBitwidthOfMatKeys: {'standard_metadata.ingress_port': 9.0, 'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 176 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+We may allocate the resource here
+ For Mat: OntasIngress.hashing_src16_tb resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 2
+	 	 matKeyBitWidth: 17.0
+	 	 headerFieldWiseBitwidthOfMatKeys: {'standard_metadata.ingress_port': 9.0, 'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 176 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+We may allocate the resource here
+ For Mat: OntasIngress.hashing_src24_tb resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 2
+	 	 matKeyBitWidth: 17.0
+	 	 headerFieldWiseBitwidthOfMatKeys: {'standard_metadata.ingress_port': 9.0, 'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 176 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 21 after embedding is following
+Stage Index: 21
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 9 and the starting physcial stage index for this stage is 22
+The hardware resource of physical stage 22 Before embedding is following
+Stage Index: 22
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: OntasIngress.anony_dstip_tb resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 1
+	 	 matKeyBitWidth: 32.0
+	 	 headerFieldWiseBitwidthOfMatKeys: {'scalars.userMetadata.ipv4_dstip': 32.0}
+				 actionCrossbarBitwidth 256 allActionParameterSizeInBits: 64
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+The hardware resource of physical stage 22 after embedding is following
+Stage Index: 22
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 8 and the starting physcial stage index for this stage is 23
+The hardware resource of physical stage 23 Before embedding is following
+Stage Index: 23
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: node_28 resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 0
+	 	 matKeyBitWidth: 0
+	 	 headerFieldWiseBitwidthOfMatKeys: {}
+				 actionCrossbarBitwidth 64 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 23 after embedding is following
+Stage Index: 23
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 7 and the starting physcial stage index for this stage is 24
+The hardware resource of physical stage 24 Before embedding is following
+Stage Index: 24
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: node_30 resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 1
+	 	 matKeyBitWidth: 8
+	 	 headerFieldWiseBitwidthOfMatKeys: {'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 64 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 24 after embedding is following
+Stage Index: 24
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 6 and the starting physcial stage index for this stage is 25
+The hardware resource of physical stage 25 Before embedding is following
+Stage Index: 25
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: node_32 resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 1
+	 	 matKeyBitWidth: 8
+	 	 headerFieldWiseBitwidthOfMatKeys: {'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 64 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 25 after embedding is following
+Stage Index: 25
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 5 and the starting physcial stage index for this stage is 26
+The hardware resource of physical stage 26 Before embedding is following
+Stage Index: 26
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: OntasIngress.hashing_dst0_tb resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 2
+	 	 matKeyBitWidth: 17.0
+	 	 headerFieldWiseBitwidthOfMatKeys: {'standard_metadata.ingress_port': 9.0, 'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 176 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+We may allocate the resource here
+ For Mat: OntasIngress.hashing_dst8_tb resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 2
+	 	 matKeyBitWidth: 17.0
+	 	 headerFieldWiseBitwidthOfMatKeys: {'standard_metadata.ingress_port': 9.0, 'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 176 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+We may allocate the resource here
+ For Mat: OntasIngress.hashing_dst16_tb resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 2
+	 	 matKeyBitWidth: 17.0
+	 	 headerFieldWiseBitwidthOfMatKeys: {'standard_metadata.ingress_port': 9.0, 'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 176 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+We may allocate the resource here
+ For Mat: OntasIngress.hashing_dst24_tb resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 2
+	 	 matKeyBitWidth: 17.0
+	 	 headerFieldWiseBitwidthOfMatKeys: {'standard_metadata.ingress_port': 9.0, 'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 176 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 26 after embedding is following
+Stage Index: 26
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 4 and the starting physcial stage index for this stage is 27
+The hardware resource of physical stage 27 Before embedding is following
+Stage Index: 27
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: node_35 resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 0
+	 	 matKeyBitWidth: 0
+	 	 headerFieldWiseBitwidthOfMatKeys: {}
+				 actionCrossbarBitwidth 40 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 27 after embedding is following
+Stage Index: 27
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 3 and the starting physcial stage index for this stage is 28
+The hardware resource of physical stage 28 Before embedding is following
+Stage Index: 28
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: OntasIngress.arp_ip_overwrite_tb resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 2
+	 	 matKeyBitWidth: 17.0
+	 	 headerFieldWiseBitwidthOfMatKeys: {'standard_metadata.ingress_port': 9.0, 'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 192 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 28 after embedding is following
+Stage Index: 28
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 2 and the starting physcial stage index for this stage is 29
+The hardware resource of physical stage 29 Before embedding is following
+Stage Index: 29
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: node_37 resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 1
+	 	 matKeyBitWidth: 8
+	 	 headerFieldWiseBitwidthOfMatKeys: {'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 40 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 29 after embedding is following
+Stage Index: 29
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 1 and the starting physcial stage index for this stage is 30
+The hardware resource of physical stage 30 Before embedding is following
+Stage Index: 30
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: OntasIngress.ipv4_ip_overwite_tb resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 2
+	 	 matKeyBitWidth: 17.0
+	 	 headerFieldWiseBitwidthOfMatKeys: {'standard_metadata.ingress_port': 9.0, 'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 192 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 30 after embedding is following
+Stage Index: 30
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Embedding logical stage 0 and the starting physcial stage index for this stage is 31
+The hardware resource of physical stage 31 Before embedding is following
+Stage Index: 31
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+ For Mat: OntasIngress.forward_tb resource Requirement is follwoing : 
+	 	 totalKeysTobeMatched: 2
+	 	 matKeyBitWidth: 17.0
+	 	 headerFieldWiseBitwidthOfMatKeys: {'standard_metadata.ingress_port': 9.0, 'scalars.userMetadata.ingress_conditioanl_carry': 8}
+				 actionCrossbarBitwidth 25 allActionParameterSizeInBits: 9
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+				 actionCrossbarBitwidth 0 allActionParameterSizeInBits: 0
+We may allocate the resource here
+The hardware resource of physical stage 31 after embedding is following
+Stage Index: 31
+availableActionCrossbarBitWidth is: 1280 usedActionCrossbarBitWidth is : 0
+availableActionMemoryBlocks is: 8 usedActionMemoryBlocks is : 0
+availableNumberOfActions is: 64 usedNumberOfActions is : 0
+availableSramPorts is: 8 usedSramPorts is : 0
+availableSramPortBitwidth is: 896 usedSramPortBitwidth is : 0
+availableActionMemoryBitwidth is: 896 usedActionMemoryBitwidth is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramBlocks is: 106 usedSramBlocks is : 0
+availableSramMatFields is: 8 usedSramMatFields is : 0
+availableSramMatCrossbarBitwidth is: 640 usedSramMatCrossbarBitwidth is : 0
+availableTcamMatFields is: 8 usedTcamMatFields is : 0
+availableTcamMatCrossbarBitwidth is: 640 usedTcamMatCrossbarBitwidth is : 0
+availableTcamMatBlocks is: 16 usedTcamMatBlocks is : 0
+Starting embedding the P4 pipeline:PipelineID.EGRESS_PIPELINE graph  on  the hardware
+there is only one level required for the nodes in piepieline : PipelineID.EGRESS_PIPELINE The name of the node is DUMMY_START_NODE
+The pipeline have no element to embedd. So returning.

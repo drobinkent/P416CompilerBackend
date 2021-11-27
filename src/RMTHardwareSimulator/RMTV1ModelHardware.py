@@ -1,9 +1,11 @@
 import copy
 
+import sys
+sys.path.append("..") # Adds higher directory to python modules path.
 from ortools.linear_solver import pywraplp
 
 from DependencyAnlyzer.DefinitionConstants import PipelineID
-from P416JsonParser import MatchType
+from P4ProgramParser.P416JsonParser import MatchType
 from RMTHardwareSimulator.RMTV1HardwareConfigurationParser import RMTV1HardwareConfiguration
 from RMTHardwareSimulator.RMTV1InstrctionSetParser import RMTV1InstrctionSet
 from RMTHardwareSimulator.StageWiseResources import StageWiseResource
@@ -32,9 +34,23 @@ class RMTV1ModelHardware:
         self.stageWiseResources= {}
         self.nameToAluInstructionMap={}
         self.nameToExternInstructionMap={}
-
         self.initResourcesFromRawJsonConfigurations()
         print("Loading device configuration for " + self.name+ " completed" )
+
+    def printAvailableResourceStatistics(self):
+        stageIndexes = list(self.stageWiseResources.keys()).sort()
+        for stageIndex in stageIndexes:
+            stageResource = self.stageWiseResources.get(stageIndex)
+            stageResource.printAvailableResourceStatistics()
+
+    def printStageHardwareAvailableResourceStatistics(self,stageIndex):
+        stageResource = self.stageWiseResources.get(stageIndex)
+        if(stageResource == None):
+            print("Stage reousrce found None for stage index "+str(stageIndex)+" Severe errror . eXiting ")
+            exit(1)
+        else:
+            stageResource.printAvailableResourceStatistics()
+
 
     def initResourcesFromRawJsonConfigurations(self):
         self.totalStages = self.hardwareSpecRawJsonObjects.total_stages
@@ -67,7 +83,7 @@ class RMTV1ModelHardware:
                 exit(1)
             stageIndexStart = int(indexStrings[0])
             stageIndexEnd = int(indexStrings[1])
-            for stageIndex in range(stageIndexStart, stageIndexEnd):
+            for stageIndex in range(stageIndexStart, stageIndexEnd+1):
                 self.stageWiseResources[stageIndex] = self.loadSingleStageResource(stageIndex, stageResourceDescription)
                 # print(self.stageWiseResources[stageIndex])
 
@@ -239,7 +255,7 @@ class RMTV1ModelHardware:
         return
 
     def embedP4ProgramAccordingToSingleMatrix(self, p4ProgramGraph,pipelineID,hardware):
-        print("Starting embedding the P4 Program graph on to the hardware")
+        print("Starting embedding the P4 pipeline:"+str(pipelineID)+" graph  on  the hardware")
         pipelineGraph = p4ProgramGraph.pipelineIdToPipelineGraphMap.get(pipelineID)
         logicalStageNumbersAsList = list(pipelineGraph.levelWiseLogicalMatList.keys())
         logicalStageNumbersAsList.sort(reverse=True) # We are sorting the logical stage numbers in descending order. Because we have calculated the levels in reverse order due to use of DFS
@@ -251,7 +267,9 @@ class RMTV1ModelHardware:
                 or (pipelineGraph.levelWiseLogicalMatList.get(logicalStageIndex)[0].name == confConst.DUMMY_START_NODE):
                 continue
             else:
-                print("Embedding logical stage "+str(logicalStageIndex)+" and the starting physcial stage index for this stage is "+str(startingPhyicalStageIndex))
+                print("\n\n\nEmbedding logical stage "+str(logicalStageIndex)+" and the starting physcial stage index for this stage is "+str(startingPhyicalStageIndex))
+                print("The hardware resource of physical stage "+str(startingPhyicalStageIndex)+" Before embedding is following")
+                hardware.printStageHardwareAvailableResourceStatistics(startingPhyicalStageIndex)
                 logicalMatList = pipelineGraph.levelWiseLogicalMatList.get(logicalStageIndex)
                 statefulMemoryNameToUserMatListMap, matListNotUsingStatefulMem, usedStatefulMemSet = self.divideMatNodeListInStatefulMemoryUserAndNonUser(p4ProgramGraph, logicalMatList)
                 physicalStageIndexForIndirectStatefulMemory, deepCopiedResourcesOfStage = self.embedIndirectStatefulMemoryAndDependentMatNodes(p4ProgramGraph,pipelineID, hardware, usedStatefulMemSet, statefulMemoryNameToUserMatListMap, startingPhyicalStageIndex)
@@ -260,13 +278,13 @@ class RMTV1ModelHardware:
                     hardware.stageWiseResources[physicalStageIndexForIndirectStatefulMemory]= deepCopiedResourcesOfStage
                 if(physicalStageIndexForIndirectStatefulMemory != -1):
                     matListNotUsingStatefulMem = self.sortNodesBasedOnMatchType(matListNotUsingStatefulMem)
-                    deepCopiedHW = copy.deepcopy(hardware)
+                    # deepCopiedHW = copy.deepcopy(hardware)
                     startingStageList=[]
                     endingStageList = []
                     startingStageList.append(startingPhyicalStageIndex)
                     endingStageList.append(physicalStageIndexForIndirectStatefulMemory)
                     for matNode in matListNotUsingStatefulMem:
-                        startingStageIndexForMAtNode, endingStageIndexForMatNode = self.embedMatNodeOverMultipleStage(p4ProgramGraph,pipelineID, matNode, deepCopiedHW, startingPhyicalStageIndex)
+                        startingStageIndexForMAtNode, endingStageIndexForMatNode = self.embedMatNodeOverMultipleStage(p4ProgramGraph,pipelineID, matNode, hardware, startingPhyicalStageIndex)
                         if(startingStageIndexForMAtNode==-1) or (endingStageIndexForMatNode == -1):
                             print("The matnode "+matNode.name+" Can not be embedded on any hardware stage after "+str(startingPhyicalStageIndex))
                             print("Halting the embedding processs and exiting. ")
@@ -274,6 +292,8 @@ class RMTV1ModelHardware:
                         else:
                             startingStageList.append(startingStageIndexForMAtNode)
                             endingStageList.append(endingStageIndexForMatNode)
+                    print("The hardware resource of physical stage "+str(startingPhyicalStageIndex)+" after embedding is following")
+                    hardware.printStageHardwareAvailableResourceStatistics(startingPhyicalStageIndex)
                     endingStageList.sort()
                     startingPhyicalStageIndex = endingStageList[len(endingStageList)-1]+1
                 else:
@@ -299,7 +319,7 @@ class RMTV1ModelHardware:
             val2= deepCopiedResourcesOfStage.isMatNodeListEmbeddableOnThisStage(p4ProgramGraph,pipelineID, matNodeListThatusesStatefulMemory,hardware)
             if(val1==True) and (val2 == True):
                 flag= True
-                print("We may allocate resource for the matnoselist here")
+                # print("We may allocate resource for the matnoselist here")
             else:
                 startingPhyicalStageIndex = startingPhyicalStageIndex + 1
                 deepCopiedResourcesOfStage = copy.deepcopy(hardware.stageWiseResources.get(startingPhyicalStageIndex))
@@ -364,7 +384,7 @@ class RMTV1ModelHardware:
                     startingStage = currentStageIndex
                 endingStage = currentStageIndex
                 remainingMatEntries = remainingMatEntries - min(accmodatableMatEntries, remainingMatEntries)
-
+                currentStageHardwareResource.allocateMatNodeOverTCAMMat(matNode)
             else:
                 startingStage = endingStage = -1
                 remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
@@ -400,6 +420,7 @@ class RMTV1ModelHardware:
                 endingStage = currentStageIndex
                 remainingMatEntries = remainingMatEntries - min(accmodatableMatEntries, remainingMatEntries)
                 print("We may allocate the resource here")
+                currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode)
             else:
                 startingStage = endingStage = -1
                 remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
@@ -437,6 +458,7 @@ class RMTV1ModelHardware:
                 remainingMatEntries = remainingMatEntries - entriesToBePlacedInThisStage
                 remainingActionEntries = remainingActionEntries - entriesToBePlacedInThisStage
                 print("We may allocate the resource here")
+                currentStageHardwareResource.allocateMatNodeOverTCAMMat(matNode)
             else:
                 startingStage = endingStage = -1
                 remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
@@ -473,6 +495,7 @@ class RMTV1ModelHardware:
                 remainingMatEntries = remainingMatEntries - entriesToBePlacedInThisStage
                 remainingActionEntries = remainingActionEntries - entriesToBePlacedInThisStage
                 print("We may allocate the resource here")
+                currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode)
             else:
                 startingStage = endingStage = -1
                 remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
