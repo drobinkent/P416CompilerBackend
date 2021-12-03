@@ -61,15 +61,15 @@
       },
       "ALUResources": [
         {
-          "name": "8BitAluInstructions",
+          "name": "8BitAlu",
           "count": 64
         },
         {
-          "name": "16BitAluInstructions",
+          "name": "16BitAlu",
           "count": 96
         },
         {
-          "name": "32BitAluInstructions",
+          "name": "32BitAlu",
           "count": 64
         }
       ],

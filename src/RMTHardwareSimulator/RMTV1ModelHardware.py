@@ -37,6 +37,17 @@ class RMTV1ModelHardware:
         self.initResourcesFromRawJsonConfigurations()
         print("Loading device configuration for " + self.name+ " completed" )
 
+    #We need this method to handle the action memory bitwidth and count issue. Because for a single pipeline when we embed multiple node in a physical stage,
+    #It implies that only one of the action will succeed once. But when we have multiple pipeline thread, that means,
+    # two action can succeed simulanaourly. In the allocate resources for action bitwidth we have always allocated the possible maximum (by checking if
+    # the used resource of a this stage is more than of the current node or not) of the
+    # action bitiwdith of all the actions. But when we have multiple pipeline wehave to check for more than one pipeline.
+    #So this method, just sets the used action  crossbar field count and bitwodth
+    def reinitializeResourcesForNewPiepeline(self):
+        for stageIndex in self.stageWiseResources.keys():
+            stageResource = self.stageWiseResources.get(stageIndex)
+            stageResource.usedActionCrossbarBitWidth=0
+
     def printAvailableResourceStatistics(self):
         stageIndexes = list(self.stageWiseResources.keys()).sort()
         for stageIndex in stageIndexes:

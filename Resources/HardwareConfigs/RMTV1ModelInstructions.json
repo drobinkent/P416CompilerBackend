@@ -1,8 +1,8 @@
 {
   "Name": "RMTV1ModelInstructionSet",
-  "ALUInstructions":[
+  "Alu":[
     {
-      "name": "8BitAluInstructions",
+      "name": "8BitAlu",
       "ALUBitwidth": 8,
       "op": [
         "+",
@@ -60,7 +60,7 @@
       ]
     },
     {
-      "name": "16BitAluInstructions",
+      "name": "16BitAlu",
       "ALUBitwidth": 16,
       "op": [
         "+",
@@ -118,7 +118,7 @@
       ]
     },
     {
-      "name": "32BitAluInstructions",
+      "name": "32BitAlu",
       "ALUBitwidth": 32,
       "op": [
         "+",

@@ -179,7 +179,7 @@ class RMTV1InstrctionSet:
     def from_dict(obj: Any) -> 'RMTV1InstrctionSet':
         assert isinstance(obj, dict)
         name = from_str(obj.get("Name"))
-        alu_instructions = from_list(ALUInstruction.from_dict, obj.get("ALUInstructions"))
+        alu_instructions = from_list(ALUInstruction.from_dict, obj.get("Alu"))
         extern_instructions = from_list(ExternInstruction.from_dict, obj.get("ExternInstructions"))
         return RMTV1InstrctionSet(name, alu_instructions, extern_instructions)
 

@@ -68,3 +68,49 @@ we also automatically dividing the direct memory in same way.
 
 --- currently we are assigning memory blocks entriely to some register or action emmory. but in reality it can be fractional. we will handle it later
 
+
+
+------------------------- Implementing node bifurcation for indirect memory -----------------------------------------------
+after our first stage stateful memeory processing, all nodes accessing the same set of indirect memory will be in same level. if somehow they can not handle the memory in same stage,
+They will need to be divided. simply bifurcate them and mek multiple level. then increase the nodes of  later levels accordingly.
+
+
+one more point, if we bifurcate a node, then one node will do the original matching and next layer has no matching. so in the later stage we need to add some mathcing
+tasks. or at least we have to handle how they will handle it.
+
+
+
+
+
+
+
+
+
+
+----------------------------------Fine grained memory acllocation ------HOW TO SUPPORT THAT???????????????????????????????????????
+make separate class for sram resource or rename everything so that we can find wehrer we are suing the memories
+
+data strcture--> list of blocks sorted by their remaining row count
+what are the possible fuctions --> interface design
+
+a) isaccomodatable memthods for differnt bitwidths
+b) how many entries can be accomodated for given bitwidth
+
+
+
+----------------------at first memory support . then indireect memory hsndling. then solve the header field management. then direct memory
+
+
+
+--------------------------------------- support dirct moemry
+
+counters have binding with table. in the json of counter array that is defined as binding and the tables actuallu use them have a "with-binding" param. so how many number of entries a table have, based on
+that we need to find counter size.
+"with_counters" : false,
+
+for meter there is entry in each table as following
+          "support_timeout" : false,
+          "direct_meters" : "EgressPipeImpl.egress_rate_monitor_control_block.egress_meter",
+
+
+use them for direct memory use calculation.

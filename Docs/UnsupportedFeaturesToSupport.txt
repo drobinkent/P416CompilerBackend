@@ -1,0 +1,14 @@
+Features we need to support
+
+
+a) direct memory support
+b) if 2 direct memory is in same block and due to their resource requirement they are needed to be divided over multiple stage then suport it
+c) Fine grained memory allocation support
+d) power consumption anlysis
+e) visualization
+f) comparison
+
+then presentation
+
+
+write test program which needed match entries spanning over 2 stages
