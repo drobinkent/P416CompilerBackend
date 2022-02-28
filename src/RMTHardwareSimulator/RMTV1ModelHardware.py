@@ -166,7 +166,7 @@ class RMTV1ModelHardware:
         # print("The converted header specs of the givne P4 program is ",p4ProgramHeaderFieldSpecs)
         data = self.createDataModelForHeaderMapping(p4ProgramHeaderFieldSpecs)
         # Create the mip solver with the SCIP backend.
-        solver = pywraplp.Solver.CreateSolver('BOP_INTEGER_PROGRAMMING')
+        solver = pywraplp.Solver.CreateSolver('SAT_INTEGER_PROGRAMMING')
         # Variables
         # x[i, j] = 1 if item i is packed in bin j.
         x = {}

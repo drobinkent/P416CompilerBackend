@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/P416CompilerBackend.iml" filepath="$PROJECT_DIR$/.idea/P416CompilerBackend.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/ParserMapper/ParserMapper.iml" filepath="$PROJECT_DIR$/src/ParserMapper/ParserMapper.iml" />
       <module fileurl="file://$PROJECT_DIR$/src/src.iml" filepath="$PROJECT_DIR$/src/src.iml" />
     </modules>
   </component>
