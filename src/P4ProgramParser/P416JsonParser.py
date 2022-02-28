@@ -1721,10 +1721,11 @@ class ActionResourceConsumptionStatistics:
 
 class ParserOpOp(Enum):
     EXTRACT = "extract"
-    SET = "set"
+    # SET = "set"
+    #TODO: in future we need tu spport all other types
 
 
-class TentacledType(Enum):
+class ParserValueType(Enum):
     FIELD = "field"
     HEXSTR = "hexstr"
     REGULAR = "regular"
@@ -1732,19 +1733,19 @@ class TentacledType(Enum):
 
 @dataclass
 class RightElement:
-    type: TentacledType
+    type: ParserValueType
     value: Union[List[str], str]
 
     @staticmethod
     def from_dict(obj: Any) -> 'RightElement':
         assert isinstance(obj, dict)
-        type = TentacledType(obj.get("type"))
+        type = ParserValueType(obj.get("type"))
         value = from_union([lambda x: from_list(from_str, x), from_str], obj.get("value"))
         return RightElement(type, value)
 
     def to_dict(self) -> dict:
         result: dict = {}
-        result["type"] = to_enum(TentacledType, self.type)
+        result["type"] = to_enum(ParserValueType, self.type)
         result["value"] = from_union([lambda x: from_list(from_str, x), from_str], self.value)
         return result
 
@@ -1832,6 +1833,12 @@ class Parser:
     id: int
     init_state: str
     parse_states: List[ParseState]
+
+    def getParserState(self, stateName):
+        for pState in self.parse_states:
+            if(pState.name == stateName):
+                return  pState
+        return None
 
     @staticmethod
     def from_dict(obj: Any) -> 'Parser':
@@ -3032,6 +3039,8 @@ class ParsedP416ProgramForV1ModelArchitecture:
     nameToHeaderTypeObjectMap : {}
     nameToRegisterArrayMap: {}
 
+
+
     def buildRegisterVector(self):
         for r in self.register_arrays:
             self.nameToRegisterArrayMap[r.name] = r
@@ -3082,6 +3091,13 @@ class ParsedP416ProgramForV1ModelArchitecture:
             return self.nameToHeaderTypeObjectMap
 
 
+    def getHeaderFieldsFromHeaderName(self, headerName):
+        for h in self.headers:
+            if h.name ==headerName:
+                for hType in self.header_types:
+                    if(hType.name == h.header_type):
+                        return hType.fields
+        return None
     def buildHeaderVectorForGivenStruct(self, headerTypeName, headerType):
         returnValue = {}
         headerType = self.getHeaderTypeFromName(headerTypeName)
@@ -3155,7 +3171,6 @@ class ParsedP416ProgramForV1ModelArchitecture:
         parsers = from_list(Parser.from_dict, obj.get("parsers"))
         # parse_vsets = from_list(lambda x: x, obj.get("parse_vsets"))
         # deparsers = from_list(Deparser.from_dict, obj.get("deparsers"))
-        parsers = None
         parse_vsets = None
         deparsers = None
         meter_arrays = from_list(MeterArray.from_dict, obj.get("meter_arrays"))

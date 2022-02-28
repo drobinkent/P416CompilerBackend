@@ -2,7 +2,7 @@
 
 """A header node for use in a DAG"""
 
-import Header
+import ParserMapperHeader
 from DAGNode import DAGNode
 
 class BarrierNode(DAGNode):
@@ -29,7 +29,7 @@ class BarrierNode(DAGNode):
 
 # Basic test code
 if __name__ == '__main__':
-    hdr = Header.Header('TestHeader')
+    hdr = Header.ParserMapperHeader('TestHeader')
     hdr.addField('f1', 8)
     hdr.addField('f2', 16)
     hdr.addField('f3', 8)

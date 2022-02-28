@@ -2,7 +2,7 @@
 
 """A node in a DAGChain (contains DAGNode objects)"""
 
-import Header
+import ParserMapperHeader
 from DAGHeaderNode import HeaderNode
 
 class DAGChainNode(object):
@@ -205,7 +205,7 @@ class DAGChainNode(object):
 
 # Basic test code
 if __name__ == '__main__':
-    hdr = Header.Header('TestHeader')
+    hdr = Header.ParserMapperHeader('TestHeader')
     hdr.addField('test', 32)
     dagNode1 = HeaderNode(hdr, 1)
     dagNode2 = HeaderNode(hdr, 2)

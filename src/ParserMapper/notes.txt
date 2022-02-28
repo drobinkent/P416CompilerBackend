@@ -1,0 +1,12 @@
+The parser only supports parsing some header and based on some parsed header we can do transition to next state.
+
+1) If the parser_op in a parser state is None but it is a valid transition that means the transition key is a standard metadata field.
+Usually this type of lanaguage constructs are not necessary. So we are skipping that. Probably these are supported as part of language specification.
+
+2) In the parser state machine, currently we are supporting only extract operation. For variable leangth header we are not suporting now.
+
+3) Look to the following link
+https://github.com/hyojoonkim/p4anony-ontas/blob/master/src/p4anony.p4
+This P4 program supports some action as part of the parser. Here you can set some metadata field's value from parsed header vlaue. Currently we do not support
+these type of features.
+

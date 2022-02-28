@@ -2,7 +2,7 @@
 
 """A chain of nodes from a DAG"""
 
-import Header
+import ParserMapperHeader
 from DAGNode import DAGNode
 from DAGHeaderNode import HeaderNode
 from DAGSubHeaderNode import SubHeaderNode
@@ -1016,7 +1016,7 @@ class DAGChain(object):
 
 # Basic test code
 if __name__ == '__main__':
-    hdr = Header.Header('TestHeader')
+    hdr = Header.ParserMapperHeader('TestHeader')
     hdr.addField('test', 32)
     chainNode1 = DAGChainNode(HeaderNode(hdr, 1), 1, 3, 3)
     chainNode2 = DAGChainNode(HeaderNode(hdr, 2), 0, 2, 2)

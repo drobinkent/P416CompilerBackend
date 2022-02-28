@@ -3,7 +3,7 @@
 """A node in a DAG"""
 
 from abc import ABCMeta, abstractmethod
-import Header
+import ParserMapperHeader
 
 class DAGNode(object, metaclass=ABCMeta):
     """A node in a DAG"""
@@ -87,6 +87,6 @@ if __name__ == '__main__':
         def getDecisionBytes(self):
             return []
 
-    hdr = Header.Header('TestHeader')
+    hdr = Header.ParserMapperHeader('TestHeader')
     node = MyDAGNode(hdr, 1, 0)
     print(node)

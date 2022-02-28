@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from Header import Header, ANY
-from Field import Field
+from ParserMapperHeader import ParserMapperHeader, ANY
+from ParserMapperField import ParserMapperField
 import string
 import sys
 import re

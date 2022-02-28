@@ -7,7 +7,7 @@ from abc import ABCMeta, abstractmethod
 from DAGChain import DAGChain
 from DAGChainNode import DAGChainNode
 from DAGHeaderNode import HeaderNode
-from Header import Header
+from ParserMapperHeader import ParserMapperHeader
 from OptNode import OptNode
 
 
@@ -44,7 +44,7 @@ class OptContext(object, metaclass=ABCMeta):
 
 # Basic test code
 if __name__ == '__main__':
-    hdr = Header.Header('TestHeader')
+    hdr = ParserMapperHeader.Header('TestHeader')
     hdr.addField('test', 32)
     chainNode1 = DAGChainNode(HeaderNode(hdr, 1), 1, 3, 3)
     chainNode2 = DAGChainNode(HeaderNode(hdr, 2), 0, 2, 2)

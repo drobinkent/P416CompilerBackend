@@ -2,7 +2,7 @@
 
 """A header node for use in a DAG"""
 
-import Header
+import ParserMapperHeader
 from DAGNode import DAGNode
 
 class PadNode(DAGNode):
@@ -37,7 +37,7 @@ class PadNode(DAGNode):
 
 # Basic test code
 if __name__ == '__main__':
-    hdr = Header.Header('TestHeader')
+    hdr = Header.ParserMapperHeader('TestHeader')
     hdr.addField('test', 8)
     node = PadNode(hdr, 1, 4)
     print(node)

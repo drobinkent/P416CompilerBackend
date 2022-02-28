@@ -6,44 +6,93 @@
 #   getHeaderLengths: return the header lengths of a given header
 #
 
-from Header import Header
-from RefCount import RefCount
+# import ParserMapperHeader
+
+
 from pyparsing import *
-import sys
 import re
 import argparse
 import copy
+import sys
+sys.path.append("..")
+sys.path.append(".")
 START = 0
 DONE = 255
-
+from P4ProgramParser.P416JsonParser import  ParserOpOp
+from P4ProgramParser.P416JsonParser import   *
+from ParserMapper.ParserMapperHeader import *
 # Variables used in reading headers
 shouldMergeFixedTransitions = True
 shouldTrimNonReachable = True
 wantWildcard = True
 headerBNF = None
 
-def readHeaders(filename):
-    """Read all of the headers from a file"""
 
-    fh = open(filename)
-    data = fh.read()
-    fh.close()
-    #data = filename
-
-    parser = getHeaderBNF()
-
-    intRE = re.compile(r'^\d+$')
-    opRE = re.compile(r'^[+\-*]|<<|>>$')
-
+def loadParseGraph(parserObject,p4ProgramGraph):
+    curParserState = parserObject.getParserState(parserObject.init_state)
+    print(curParserState)
     refCounts = {}
     headerList = []
     headers = {}
+    while (curParserState != None):
+        print("Hello")
+        if(len(curParserState.parser_ops) ==0):
+            print("At this moment we are not supporting parser states where there is no header to be parsed but the trnaistion key is a etadta field.")
+            exit(1)
+        else:
+            if(len(curParserState.parser_ops) == 1):
+                parserOp = curParserState.parser_ops[0]
+                if(parserOp.op == ParserOpOp.EXTRACT):
+                    if(len(parserOp.parameters) != 1):
+                        print("As we are supporting only parse operation in the parser state machine, therefore there should be only one parameters. Exiting ")
+                        exit(1)
+                    else: # Valid condition only pne paramter
+                        if(parserOp.parameters[0].type == ParserValueType.REGULAR):
+                            headerName = parserOp.parameters[0].value
+                            headerFields = p4ProgramGraph.parsedP4Program.getHeaderFieldsFromHeaderName(headerName=headerName)
+                            if (headerFields == None):
+                                print("Header fields for Header object: "+str(headerName)+' is None. Exiting')
+                                exit(1)
+                            else:
+                                parserMapperHeader = ParserMapperHeader(headerName)
+                                for hf in headerFields:
+                                    parserMapperHeader.addField(hf[0], hf[1])
+                                    parserMapperHeader.addExtractField(hf[0])
+
+
+
+                        else:
+                            print("In the parser op non regular value is parameter. Not supporting this currently. ")
+                            exit(1)
+
+                else:
+                    print("Currently we only allow extract operation in parser op. NO other operations are supported. Exiting")
+                    exit(1)
+            else:
+                print("Currently we only support parsing a header object (parser_op == extract) and based on some of its field go to next state. In future we will support rest of the ops in parser")
+                exit(1)
+    return 0
+
+def readHeaders(filename):
+    # fh = open(filename)
+    # data = fh.read()
+    # fh.close()
+    # #data = filename
+    #
+    # parser = getHeaderBNF()
+    #
+    # intRE = re.compile(r'^\d+$')
+    # opRE = re.compile(r'^[+\-*]|<<|>>$')
+    #
+    # refCounts = {}
+    # headerList = []
+    # headers = {}
     for item in parser.parseString(data, True):
         #print item
 
         #print item.hdr
         if item.hdr not in headers:
-            hdr = Header(item.hdr)
+            hdr = ParserMapperHeader(item.hdr)
             headerList.append(hdr)
             headers[item.hdr] = hdr
             if item.fields != '':
@@ -66,7 +115,7 @@ def readHeaders(filename):
                     hdr.addPseudofield(name, width)
 
             if item.next_header != '':
-                if item.nh_field != '':
+                if item.nh_field != '':  #default
                     hdr.setNextHeader(str(item.nh_field))
                 else:
                     from_fields = item.nh_mapping.from_header.asList()
@@ -529,7 +578,7 @@ def mergeTransitions(headerList, headers):
             while isinstance(hdr.nextHeader, str):
                 nextHdr = headers[hdr.nextHeader]
 
-                mergedHeader = Header('%s+%s' % (hdr.name, nextHdr.name))
+                mergedHeader = ParserMapperHeader('%s+%s' % (hdr.name, nextHdr.name))
                 for field in hdr.fieldList:
                     mergedHeader.addField(field.name, field.width)
                 for field in nextHdr.fieldList:
