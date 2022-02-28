@@ -11,7 +11,8 @@ from RefCount import RefCount
 from pyparsing import *
 import sys
 import re
-
+import argparse
+import copy
 START = 0
 DONE = 255
 
@@ -21,6 +22,150 @@ shouldTrimNonReachable = True
 wantWildcard = True
 headerBNF = None
 
+def readHeaders(filename):
+    """Read all of the headers from a file"""
+
+    fh = open(filename)
+    data = fh.read()
+    fh.close()
+    #data = filename
+
+    parser = getHeaderBNF()
+
+    intRE = re.compile(r'^\d+$')
+    opRE = re.compile(r'^[+\-*]|<<|>>$')
+
+    refCounts = {}
+    headerList = []
+    headers = {}
+    for item in parser.parseString(data, True):
+        #print item
+
+        #print item.hdr
+        if item.hdr not in headers:
+            hdr = Header(item.hdr)
+            headerList.append(hdr)
+            headers[item.hdr] = hdr
+            if item.fields != '':
+                for fieldData in item.fields:
+                    (name, width) = fieldData[0:2]
+                    if width == '*':
+                        width = None
+                    else:
+                        width = int(width)
+                    hdr.addField(name, width)
+                    if len(fieldData) == 3:
+                        hdr.addExtractField(name)
+
+            if item.pseudofields != '':
+                for (name, width) in item.pseudofields:
+                    if width == '*':
+                        width = None
+                    else:
+                        width = int(width)
+                    hdr.addPseudofield(name, width)
+
+            if item.next_header != '':
+                if item.nh_field != '':
+                    hdr.setNextHeader(str(item.nh_field))
+                else:
+                    from_fields = item.nh_mapping.from_header.asList()
+                    rangeCount = 0
+                    widths = hdr.getFieldWidths(from_fields)
+                    hdrMap = {}
+                    for (keys, value) in item.nh_mapping.maplist:
+                        for key in keys:
+                            if key.find('0x') == 0:
+                                key = int(key, 16)
+                            elif key.find('b') == 0:
+                                pass
+                            else:
+                                key = int(key)
+
+                            (mask, data) = crackKey(hdr, key, from_fields)
+
+                            hdrMap[key] = ((mask, data), value)
+
+                            # Approximate counting of the number of entries covered
+                            wildcards = 0
+                            for i in range(len(widths)):
+                                fieldWidth = widths[i]
+                                fieldMask = mask[i]
+                                wildcards += sum([(~fieldMask >> shift) & 1 for shift in range(fieldWidth)])
+                            rangeCount += 2 ** wildcards
+
+                    # Attempt to sort the header map by key
+                    keys = list(hdrMap.keys())
+                    keys.sort()
+                    hdrList = []
+                    for key in keys:
+                        hdrList.append(hdrMap[key])
+
+                    # Add a wildcard entry if we haven't covered all inputs
+                    if rangeCount < 2 ** sum(widths) and wantWildcard:
+                        hdrList.append((([0] * len(from_fields), [0] * len(from_fields)), None))
+
+                    hdr.setNextHeader((from_fields, hdrList))
+
+            if item.next_header_def != '':
+                if item.next_header == '' or item.nh_field != '':
+                    raise Exception("next_header_def value specified but next_header is not specified/is not a map")
+                from_fields = item.nh_mapping.from_header.asList()
+                (mask, data) = crackKey(hdr, item.next_header_def[0], from_fields)
+                hdr.setDefNxtHdrVal((mask, data))
+
+            if item.maxvar != '':
+                item.maxvar = str(item.maxvar)
+                if item.maxvar not in refCounts:
+                    refCounts[item.maxvar] = RefCount(item.maxvar)
+                hdr.setRefCount(refCounts[item.maxvar])
+
+            if item.maxval != '':
+                if not hdr.getRefCount():
+                    if item.hdr not in refCounts:
+                        refCounts[item.hdr] = RefCount(item.hdr)
+                    hdr.setRefCount(refCounts[item.hdr])
+                hdr.getRefCount().setMax(int(item.maxval[0]))
+
+            if item.hdr_len != '':
+                newExp = []
+                if type(item.hdr_len[0]) == str:
+                    newExp.append(item.hdr_len[0])
+                else:
+                    #print item.hdr_len[0]
+                    #print type(item.hdr_len[0])
+                    #print len(item.hdr_len[0])
+                    #print len(item.hdr_len.asList())
+                    for exp in item.hdr_len[0]:
+                        if intRE.match(exp):
+                            exp = int(exp)
+                            newExp.append(exp)
+                        elif opRE.match(exp):
+                            newExp.append(exp)
+                        else:
+                            newExp.append(exp)
+                hdr.setCalcLength(newExp)
+
+                #hdr.setMax(int(item.maxval[0]))
+
+            if item.max_len != '':
+                hdr.setMaxLength(int(item.max_len[0]))
+
+            #print hdr
+        else:
+            print("Error: header '%s' seen multiple times" % item.hdr)
+            sys.exit(-1)
+        #print hdr
+
+    # Merge fixed/deterministic transitions if requested
+    if shouldMergeFixedTransitions:
+        headerList = mergeTransitions(headerList, headers)
+
+    # Work out which headers are reachable
+    if shouldTrimNonReachable:
+        headerList = trimNonReachable(headerList, headers)
+
+    return (headerList, headers)
 
 class HeaderInfo:
     """Simple class for returning header info"""
@@ -200,9 +345,8 @@ def exploreHeader(hdr, headers, callback, callPerLenNxtHdr = True):
     hdr.decRefCount()
 
 if __name__ == "__main__":
-    import argparse
-    from read_headers import readHeaders
-    import copy
+
+
 
     hfile = 'headers.txt'
 
@@ -372,152 +516,10 @@ def getHeaderBNF():
 
     return headerBNF
 
-def readHeaders(filename):
-    """Read all of the headers from a file"""
 
-    fh = open(filename)
-    data = fh.read()
-    fh.close()
-    #data = filename
-
-    parser = getHeaderBNF()
-
-    intRE = re.compile(r'^\d+$')
-    opRE = re.compile(r'^[+\-*]|<<|>>$')
-
-    refCounts = {}
-    headerList = []
-    headers = {}
-    for item in parser.parseString(data, True):
-        #print item
-
-        #print item.hdr
-        if item.hdr not in headers:
-            hdr = Header(item.hdr)
-            headerList.append(hdr)
-            headers[item.hdr] = hdr
-            if item.fields != '':
-                for fieldData in item.fields:
-                    (name, width) = fieldData[0:2]
-                    if width == '*':
-                        width = None
-                    else:
-                        width = int(width)
-                    hdr.addField(name, width)
-                    if len(fieldData) == 3:
-                        hdr.addExtractField(name)
-
-            if item.pseudofields != '':
-                for (name, width) in item.pseudofields:
-                    if width == '*':
-                        width = None
-                    else:
-                        width = int(width)
-                    hdr.addPseudofield(name, width)
-
-            if item.next_header != '':
-                if item.nh_field != '':
-                    hdr.setNextHeader(str(item.nh_field))
-                else:
-                    from_fields = item.nh_mapping.from_header.asList()
-                    rangeCount = 0
-                    widths = hdr.getFieldWidths(from_fields)
-                    hdrMap = {}
-                    for (keys, value) in item.nh_mapping.maplist:
-                        for key in keys:
-                            if key.find('0x') == 0:
-                                key = int(key, 16)
-                            elif key.find('b') == 0:
-                                pass
-                            else:
-                                key = int(key)
-
-                            (mask, data) = crackKey(hdr, key, from_fields)
-
-                            hdrMap[key] = ((mask, data), value)
-
-                            # Approximate counting of the number of entries covered
-                            wildcards = 0
-                            for i in range(len(widths)):
-                                fieldWidth = widths[i]
-                                fieldMask = mask[i]
-                                wildcards += sum([(~fieldMask >> shift) & 1 for shift in range(fieldWidth)])
-                            rangeCount += 2 ** wildcards
-
-                    # Attempt to sort the header map by key
-                    keys = list(hdrMap.keys())
-                    keys.sort()
-                    hdrList = []
-                    for key in keys:
-                        hdrList.append(hdrMap[key])
-
-                    # Add a wildcard entry if we haven't covered all inputs
-                    if rangeCount < 2 ** sum(widths) and wantWildcard:
-                        hdrList.append((([0] * len(from_fields), [0] * len(from_fields)), None))
-
-                    hdr.setNextHeader((from_fields, hdrList))
-
-            if item.next_header_def != '':
-                if item.next_header == '' or item.nh_field != '':
-                    raise Exception("next_header_def value specified but next_header is not specified/is not a map")
-                from_fields = item.nh_mapping.from_header.asList()
-                (mask, data) = crackKey(hdr, item.next_header_def[0], from_fields)
-                hdr.setDefNxtHdrVal((mask, data))
-
-            if item.maxvar != '':
-                item.maxvar = str(item.maxvar)
-                if item.maxvar not in refCounts:
-                    refCounts[item.maxvar] = RefCount(item.maxvar)
-                hdr.setRefCount(refCounts[item.maxvar])
-
-            if item.maxval != '':
-                if not hdr.getRefCount():
-                    if item.hdr not in refCounts:
-                        refCounts[item.hdr] = RefCount(item.hdr)
-                    hdr.setRefCount(refCounts[item.hdr])
-                hdr.getRefCount().setMax(int(item.maxval[0]))
-
-            if item.hdr_len != '':
-                newExp = []
-                if type(item.hdr_len[0]) == str:
-                    newExp.append(item.hdr_len[0])
-                else:
-                    #print item.hdr_len[0]
-                    #print type(item.hdr_len[0])
-                    #print len(item.hdr_len[0])
-                    #print len(item.hdr_len.asList())
-                    for exp in item.hdr_len[0]:
-                        if intRE.match(exp):
-                            exp = int(exp)
-                            newExp.append(exp)
-                        elif opRE.match(exp):
-                            newExp.append(exp)
-                        else:
-                            newExp.append(exp)
-                hdr.setCalcLength(newExp)
-                
-                #hdr.setMax(int(item.maxval[0]))
-
-            if item.max_len != '':
-                hdr.setMaxLength(int(item.max_len[0]))
-                
-            #print hdr
-        else:
-            print("Error: header '%s' seen multiple times" % item.hdr)
-            sys.exit(-1)
-        #print hdr
-
-    # Merge fixed/deterministic transitions if requested
-    if shouldMergeFixedTransitions:
-        headerList = mergeTransitions(headerList, headers)
-
-    # Work out which headers are reachable
-    if shouldTrimNonReachable:
-        headerList = trimNonReachable(headerList, headers)
-
-    return (headerList, headers)
 
 def mergeTransitions(headerList, headers):
+    opRE = re.compile(r'^[+\-*]|<<|>>$')
     mergedHeaderList = []
     remapHdrs = {}
     for hdr in headerList:
