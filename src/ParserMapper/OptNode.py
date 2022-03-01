@@ -2,11 +2,15 @@
 
 """Optimal chain graph node"""
 
+import sys
+sys.path.append("..")
+sys.path.append(".")
+import ParserMapper.ParserMapperHeader
 from abc import ABCMeta
-import ParserMapperHeader
-from DAGHeaderNode import HeaderNode
-from DAGChainNode import DAGChainNode
-from DAGChain import DAGChain
+
+from ParserMapper.DAGHeaderNode import HeaderNode
+from ParserMapper.DAGChainNode import DAGChainNode
+from ParserMapper.DAGChain import DAGChain
 
 class OptNode(object, metaclass=ABCMeta):
     """Optimal chain graph node"""

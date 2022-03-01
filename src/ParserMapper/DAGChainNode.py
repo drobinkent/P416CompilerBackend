@@ -2,8 +2,11 @@
 
 """A node in a DAGChain (contains DAGNode objects)"""
 
-import ParserMapperHeader
-from DAGHeaderNode import HeaderNode
+import sys
+sys.path.append("..")
+sys.path.append(".")
+import ParserMapper.ParserMapperHeader
+from ParserMapper.DAGHeaderNode import HeaderNode
 
 class DAGChainNode(object):
     """A node in a DAGChain"""

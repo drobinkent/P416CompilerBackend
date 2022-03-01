@@ -2,13 +2,16 @@
 
 """A chain of nodes from a DAG"""
 
-import ParserMapperHeader
-from DAGNode import DAGNode
-from DAGHeaderNode import HeaderNode
-from DAGSubHeaderNode import SubHeaderNode
-from DAGBarrierNode import BarrierNode
-from DAGPadNode import PadNode
-from DAGChainNode import DAGChainNode
+import sys
+sys.path.append("..")
+sys.path.append(".")
+import ParserMapper.ParserMapperHeader
+from ParserMapper.DAGNode import DAGNode
+from ParserMapper.DAGHeaderNode import HeaderNode
+from ParserMapper.DAGSubHeaderNode import SubHeaderNode
+from ParserMapper.DAGBarrierNode import BarrierNode
+from ParserMapper.DAGPadNode import PadNode
+from ParserMapper.DAGChainNode import DAGChainNode
 import copy
 
 class DAGChain(object):
@@ -467,7 +470,7 @@ class DAGChain(object):
         if self.done:
             nxtHdrName = None
         else:
-            nxtHdrName = Header.ANY
+            nxtHdrName = ParserMapper.ParserMapperHeader.ANY
         #skip = 0
         seenLastHdr = self.done
         #print "Cons: %d   Read: %d   nxtHdrName: %s" % (cons, read, nxtHdrName)
@@ -511,7 +514,7 @@ class DAGChain(object):
                 consLen = dagNode.startPos + node.consumed
                 readLen = dagNode.startPos + node.read
                 if not seenLastHdr:
-                    hdrLen = Header.ANY
+                    hdrLen = ParserMapper.ParserMapperHeader.Header.ANY
                 else:
                     hdrLen = consLen
                 decCombos = hdrNode.getDecisionCombos(
@@ -521,7 +524,7 @@ class DAGChain(object):
             #elif isinstance(dagNode, HeaderNode):
             elif dagNode.__class__ == HeaderNode:
                 if not seenLastHdr:
-                    hdrLen = Header.ANY
+                    hdrLen = ParserMapper.ParserMapperHeader.ANY
                 else:
                     hdrLen = consLen
                 decCombos = hdrNode.getDecisionCombos(
@@ -618,8 +621,8 @@ class DAGChain(object):
                 #    decBytes.pop(0)
                 #while len(decBytes) > 0 and decBytes[-1] > endPos:
                 #    decBytes.pop()
-                decBefore = firstHdr.getDecisionCombos(startPos, Header.ANY, Header.ANY)
-                decAfter = firstHdr.getDecisionCombos(endPos + 1, Header.ANY, Header.ANY)
+                decBefore = firstHdr.getDecisionCombos(startPos, ParserMapper.ParserMapperHeader.ANY, ParserMapper.ParserMapperHeader.ANY)
+                decAfter = firstHdr.getDecisionCombos(endPos + 1, ParserMapper.ParserMapperHeader.ANY, ParserMapper.ParserMapperHeader.ANY)
                 #if len(decBytes) == 0:
                 if decBefore == decAfter:
                     #print "calcPatterns (sefi): %s   Patterns: %d -> %d" % (self, patterns, 1)
@@ -880,7 +883,7 @@ class DAGChain(object):
                 if len(lengths) == 1:
                     length = lengths[0]
                 else:
-                    length = Header.ANY
+                    length = ParserMapper.ParserMapperHeader.ANY
             elif isinstance(dagNode, HeaderNode):
                 startPos = cnode.startPos
                 offset = -startPos + prevOffset
@@ -890,7 +893,7 @@ class DAGChain(object):
                 if len(lengths) == 1:
                     length = lengths[0]
                 else:
-                    length = Header.ANY
+                    length = ParserMapper.ParserMapperHeader.ANY
             elif isinstance(dagNode, PadNode):
                 startPos = cnode.startPos + hdr.length()[0]
                 offset = -startPos + prevOffset
@@ -927,7 +930,7 @@ class DAGChain(object):
                 nxtPos += 1
 
             if nxtPos >= len(self.chain):
-                nxtHdr = Header.ANY
+                nxtHdr = ParserMapper.ParserMapperHeader.ANY
                 successors = self.successors()
                 if len(successors) > 0:
                     successor = successors.pop()
@@ -1016,7 +1019,7 @@ class DAGChain(object):
 
 # Basic test code
 if __name__ == '__main__':
-    hdr = Header.ParserMapperHeader('TestHeader')
+    hdr = ParserMapper.ParserMapperHeader.ParserMapperHeader('TestHeader')
     hdr.addField('test', 32)
     chainNode1 = DAGChainNode(HeaderNode(hdr, 1), 1, 3, 3)
     chainNode2 = DAGChainNode(HeaderNode(hdr, 2), 0, 2, 2)

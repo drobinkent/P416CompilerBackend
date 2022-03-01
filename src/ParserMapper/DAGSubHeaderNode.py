@@ -2,8 +2,11 @@
 
 """A header node for use in a DAG"""
 
-import ParserMapperHeader
-from DAGHeaderNode import HeaderNode
+import sys
+sys.path.append("..")
+sys.path.append(".")
+import ParserMapper.ParserMapperHeader
+from ParserMapper.DAGHeaderNode import HeaderNode
 
 class SubHeaderNode(HeaderNode):
     """Sub-header node for use in a DAG"""

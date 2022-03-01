@@ -1807,6 +1807,17 @@ class ParseState:
     transitions: List[Transition]
     transition_key: List[Element]
 
+    def getTransitionKeyFieldsAsList(self):
+        transitionKeyFields = []
+        for tKey in self.transition_key:
+            transitionKeyFields.append(tKey.value[1])
+        return transitionKeyFields
+
+    # def getTransitionsAsKeyValueList(self):
+    #     transitionKeyValueList = {}
+    #     for t in self.transitions:
+    #         transitionKeyValueList[t.]
+
     @staticmethod
     def from_dict(obj: Any) -> 'ParseState':
         assert isinstance(obj, dict)

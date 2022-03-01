@@ -2,8 +2,11 @@
 
 """A header node for use in a DAG"""
 
-import ParserMapperHeader
-from DAGNode import DAGNode
+import sys
+sys.path.append("..")
+sys.path.append(".")
+import ParserMapper.ParserMapperHeader
+from ParserMapper.DAGNode import DAGNode
 
 class PadNode(DAGNode):
     """Pad node for use in a DAG"""

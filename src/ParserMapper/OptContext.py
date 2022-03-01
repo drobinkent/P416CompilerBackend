@@ -1,14 +1,17 @@
 #!/usr/bin/env python
 
 """Optimization run result set"""
-
+import sys
+sys.path.append("..")
+sys.path.append(".")
+import ParserMapper.ParserMapperHeader
 from abc import ABCMeta, abstractmethod
 
-from DAGChain import DAGChain
-from DAGChainNode import DAGChainNode
-from DAGHeaderNode import HeaderNode
-from ParserMapperHeader import ParserMapperHeader
-from OptNode import OptNode
+from ParserMapper.DAGChain import DAGChain
+from ParserMapper.DAGChainNode import DAGChainNode
+from ParserMapper.DAGHeaderNode import HeaderNode
+from ParserMapper.ParserMapperHeader import ParserMapperHeader
+from ParserMapper.OptNode import OptNode
 
 
 class OptContext(object, metaclass=ABCMeta):

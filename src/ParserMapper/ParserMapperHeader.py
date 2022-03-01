@@ -6,6 +6,13 @@ import ParserMapper.ParserMapperField
 import ParserMapper.RefCount
 import copy
 import re
+import sys
+sys.path.append("..")
+sys.path.append(".")
+from P4ProgramParser.P416JsonParser import  ParserOpOp
+from P4ProgramParser.P416JsonParser import   *
+from ParserMapper import *
+
 
 DEFAULT = 'DEFAULT'
 MAX_HDR_LEN = 512
@@ -37,7 +44,7 @@ class ParserMapperHeader():
 
     def addField(self, name, width = None):
         if name not in self.fields:
-            field = ParserMapperField.ParserMapperField(name, width, self.lastPos)
+            field = ParserMapper.ParserMapperField.ParserMapperField(name, width, self.lastPos)
             self.fields[name] = field
             self.fieldList.append(field)
             if width:
@@ -53,7 +60,7 @@ class ParserMapperHeader():
 
     def addPseudofield(self, name, width = None):
         if name not in self.pseudofields:
-            field = Field.ParserMapperField(name, width)
+            field = ParserMapper.ParserMapperField(name, width)
             self.pseudofields[name] = field
             self.pseudofieldList.append(field)
         else:
@@ -148,7 +155,7 @@ class ParserMapperHeader():
         if self.nextHeader:
             if type(self.nextHeader) == str:
                 optional += ", nextHeader='%s'" % self.nextHeader
-            elif isinstance(self.nextHeader, Field.ParserMapperField):
+            elif isinstance(self.nextHeader, ParserMapper.ParserMapperField):
                 optional += ", nextHeader='%s'" % self.nextHeader.name
             elif type(self.nextHeader) == tuple:
                 name = ''
@@ -171,21 +178,21 @@ class ParserMapperHeader():
                 length, optional)
 
     def incRefCount(self):
-        if self.refCount and isinstance(self.refCount, RefCount.RefCount):
+        if self.refCount and isinstance(self.refCount, ParserMapper.RefCount.RefCount):
             self.refCount.inc()
 
     def decRefCount(self):
-        if self.refCount and isinstance(self.refCount, RefCount.RefCount):
+        if self.refCount and isinstance(self.refCount, ParserMapper.RefCount.RefCount):
             self.refCount.dec()
 
     def refCountAtLimit(self):
-        if self.refCount and isinstance(self.refCount, RefCount.RefCount):
+        if self.refCount and isinstance(self.refCount, ParserMapper.RefCount.RefCount):
             return self.refCount.atLimit()
         else:
             return False
 
     def refCountExceedsLimit(self):
-        if self.refCount and isinstance(self.refCount, RefCount.RefCount):
+        if self.refCount and isinstance(self.refCount, ParserMapper.RefCount.RefCount):
             return self.refCount.exceedsLimit()
         else:
             return False
@@ -608,6 +615,9 @@ class ParserMapperHeader():
         """
         return self.getExtractBytes_i()[0]
 
+# self.parsedP4Program.nameToHeaderTypeObjectMap.get(k.name)
+#
+#     def getFieldWidths(self, fields, parsedP4Program):
     def getFieldWidths(self, fields):
         """Get the widths of multiple fields
 
@@ -643,7 +653,7 @@ class ParserMapperHeader():
         minLength = min(lengths)
         
         if desiredLength < minLength:
-            desiredLength = ANY
+            desiredLength = ParserMapper.ParserMapperHeader.ANY
 
         # Walk through the combination of lengths and next headers
         # (assume that headers have been merged)

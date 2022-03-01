@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
 """A header node for use in a DAG"""
-
-import ParserMapperHeader
-from HeaderLib import getHeaderLengths
-from DAGNode import DAGNode
+import sys
+sys.path.append("..")
+sys.path.append(".")
+import ParserMapper.ParserMapperHeader
+from ParserMapper.HeaderLib import getHeaderLengths
+from ParserMapper.DAGNode import DAGNode
 
 class HeaderNode(DAGNode):
     """Header node for use in a DAG"""
@@ -12,6 +14,17 @@ class HeaderNode(DAGNode):
     def __init__(self, hdr, inst):
         super(HeaderNode, self).__init__(hdr, inst, min(getHeaderLengths(hdr)[1]) / 8)
         self._processLen = None
+
+    def cmp(self, y):
+        if self.hdr.name ==y.hdr.name :
+            return 0
+        elif self.hdr.name > y.hdr.name :
+            return 1
+        else:
+            return 0
+    def __lt__(self, y ):
+        return self.hdr.name < y.hdr.name
+
 #
 #    def __str__(self):
 #        return "HeaderNode: [HdrName='%s', Inst=%d, Length=%d]" % (self.hdr.name, self.inst, self.length)
@@ -43,7 +56,7 @@ class HeaderNode(DAGNode):
 
 # Basic test code
 if __name__ == '__main__':
-    hdr = Header.ParserMapperHeader('TestHeader')
+    hdr = ParserMapper.ParserMapperHeader('TestHeader')
     hdr.addField('test', 8)
     node = HeaderNode(hdr, 1)
     print(node)

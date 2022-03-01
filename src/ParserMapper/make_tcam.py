@@ -1,26 +1,29 @@
 #!/usr/bin/env python
-
-from ParserMapperHeader import ParserMapperHeader, ANY
-from ParserMapperField import ParserMapperField
+import sys
+sys.path.append("..")
+sys.path.append(".")
+import ParserMapper
+from ParserMapper.ParserMapperHeader import ParserMapperHeader, ANY
+from ParserMapper.ParserMapperField import ParserMapperField
 import string
 import sys
 import re
 import copy
 import math
-from HeaderLib import exploreHeader, readHeaders
-from DAGHeaderNode import HeaderNode
-from DAGSubHeaderNode import SubHeaderNode
-from DAGBarrierNode import BarrierNode
-from DAGPadNode import PadNode
-from DAGChain import DAGChain
-from DAGChainNode import DAGChainNode
-from OptNode import OptNode
+from ParserMapper.HeaderLib import exploreHeader, readHeaders
+from ParserMapper.DAGHeaderNode import HeaderNode
+from ParserMapper.DAGSubHeaderNode import SubHeaderNode
+from ParserMapper.DAGBarrierNode import BarrierNode
+from ParserMapper.DAGPadNode import PadNode
+from ParserMapper.DAGChain import DAGChain
+from ParserMapper.DAGChainNode import DAGChainNode
+from ParserMapper.OptNode import OptNode
 import time
 #from LookupChain import LookupChain
 import argparse
 import cProfile
 from random import randint, random
-from OptContext import OptContext
+from ParserMapper.OptContext import OptContext
 
 dataRate = 10
 clkFreq = 1
@@ -515,7 +518,7 @@ def calcExtractLocs(hdrList, hdrs):
     extractMaxDest = currPos
 
 
-def printTCAMEntry(context, chain):
+def printTCAMEntry(context, chain,stateWidth10, stateBits , stateBytes):
     """Print a single TCAM entry"""
     # Work out where to put each lookup byte
     lookupBytes = chain.getLookupBytes()
@@ -808,7 +811,7 @@ def firstInstCNode(cnode):
         newCNode = DAGChainNode(newDAGNode, cnode.startPos, cnode.consumed, cnode.read)
         return newCNode
 
-def printTCAMEntries(context):
+def printTCAMEntries(context, stateWidth10, stateBits, stateBytes):
     global tcamFile
 
     if len(context.optNodes) > 0:
@@ -891,7 +894,7 @@ def printTCAMEntries(context):
 
         for states in sorted(clustersByState):
             for cluster in sorted(clustersByState[states]):
-                printTCAMEntry(context, cluster)
+                printTCAMEntry(context, cluster,stateWidth10=stateWidth10,stateBits = stateBits, stateBytes = stateBytes)
         if saveTCAM:
             tcamFile.close()
 
@@ -1647,8 +1650,8 @@ def buildDAG(headerList, headers):
                 ehcFunc = lambda ehcHdr, ehcNxtHdr, ehcHeaders, ehcInfo : \
                         exploreHdrChain(ehcHdr, ehcNxtHdr, ehcHeaders, ehcInfo, chain)
                 exploreHeader(nxtHdr, headers, ehcFunc)
-            else:
-                dagNode.nxt.add(None)
+            # else:
+            #     dagNode.nxt.add(None)
                 #finalPaths.add(path)
     
     
@@ -2024,9 +2027,9 @@ def printDAGParents(context):
 def runExplore(context):
     baseNode = DAGChainNode(context.dag, 0, 0, 0)
 
-    startTime = time.clock()
+    startTime = time.process_time()
     results = exploreGraph(context, baseNode)
-    endTime = time.clock()
+    endTime = time.process_time()
 
     timeDelta = endTime - startTime
 
@@ -2035,9 +2038,9 @@ def runExplore(context):
 def runOpt(context):
     baseNode = DAGChainNode(context.dag, 0, 0, 0)
 
-    startTime = time.clock()
+    startTime = time.process_time()
     opt(context, baseNode, globalBPC)
-    endTime = time.clock()
+    endTime = time.process_time()
 
     (context.worstBits, context.worstCyc) = findOptNodes(context, baseNode, globalBPC)
 
@@ -2220,7 +2223,7 @@ def updateDAGNodes(context):
                 pending.append(nxt)
                 seen.add(nxt)
 
-def tryDAGBarrier(context, node):
+def tryDAGBarrier(context, node,parentCount):
     print("Procesing node '%s'   (Parents: %d)..." % (node, parentCount))
     posList = node.getDecisionBytes()
 
@@ -2257,7 +2260,7 @@ def tryDAGBarrier(context, node):
 
     return roundBestContext, roundBestLoc
 
-def tryDAGParallelEdgeBarrier(context, node, nxtNode):
+def tryDAGParallelEdgeBarrier(context, node, nxtNode,nodeLen):
     edges = node.hdr.getDecisionCombos(
             nodeLen, nxtNode.hdr.name, nodeLen)
     print("Processing edges between %s and %s (edges: %d)" % (node, nxtNode, edges))
@@ -2333,93 +2336,324 @@ def allocateResultVectorEntries(context):
     for node in hdrs:
         print("  %s: %d" % (node, context.foundHdrNum[node]))
 
-if __name__ == "__main__":
+
+# if __name__ == "__main__":
+#     my_parser = argparse.ArgumentParser('Read headers from a given file')
+#     my_parser.add_argument('hdr_file', type=str,
+#                            help='Parse graph description file')
+#
+#     # General parameters
+#     my_parser.add_argument('--data-rate', type=int,
+#                            default=dataRate, help='Data rate (Gbps)')
+#     my_parser.add_argument('--clk-freq', type=float,
+#                            default=clkFreq, help='Clock frequency (Gbps)')
+#     my_parser.add_argument('--lookups', type=int,
+#                            default=lookups, help='Lookups per cycle')
+#     my_parser.add_argument('--lookup-width', type=int,
+#                            default=lookupWidth, help='Lookup width (bytes)')
+#     my_parser.add_argument('--max-skip', type=int,
+#                            default=maxSkip, help='Maximum jump amount per cycle')
+#     my_parser.add_argument('--min-skip', type=int,
+#                            default=minSkip, help='Minimum jump amount per cycle')
+#     my_parser.add_argument('--first-lookup-at-zero', action='store_true',
+#                            default=firstLookupAtZero, help='First lookup is at zero offset')
+#     my_parser.add_argument('--no-first-lookup-at-zero', action='store_false',
+#                            default=firstLookupAtZero, dest='first_lookup_at_zero',
+#                            help='First lookup is NOT at zero offset')
+#     my_parser.add_argument('--window', type=int,
+#                            default=windowSize, help='Size of window from which to extract lookups')
+#     my_parser.add_argument('--extract', action='store_true',
+#                            default=extract, help='Table outputs fields to extract')
+#     my_parser.add_argument('--no-extract', action='store_false',
+#                            default=extract, dest='extract',
+#                            help='Table outputs header types only')
+#     my_parser.add_argument('--extract-bytes', type=int,
+#                            default=extractBytes, help='Number of bytes to extract (extract only)')
+#     my_parser.add_argument('--max-hdrs', type=int,
+#                            default=maxHdrs, help='Maximum number of headers identifiable in a single cycle (no-extract only)')
+#
+#     my_parser.add_argument('--mult-parent', action='store_true',
+#                            default=multParent, help='Try merging at nodes with mulitple parents')
+#     my_parser.add_argument('--no-mult-parent', action='store_false',
+#                            default=multParent, dest='mult_parent',
+#                            help='Do NOT try merging at nodes with multiple parents')
+#
+#     my_parser.add_argument('--mult-parent-retry', action='store_true',
+#                            default=multParentRetry, help='Retry failed multiple parent merging')
+#     my_parser.add_argument('--no-mult-parent-retry', action='store_false',
+#                            default=multParentRetry, dest='mult_parent_retry',
+#                            help='Do NOT retry failed multiple parent merging')
+#
+#     my_parser.add_argument('--parallel-edge', action='store_true',
+#                            default=parallelEdge, help='Try forcing barriers for parallel multiple edges')
+#     my_parser.add_argument('--no-parallel-edge', action='store_false',
+#                            default=parallelEdge, dest='parallel_edge',
+#                            help='Do NOT try forcing barriers for parallel multiple edges')
+#
+#     my_parser.add_argument('--inst-merge', action='store_true',
+#                            default=instMerge, help='Combine clusters that differ only by instance number')
+#     my_parser.add_argument('--no-inst-merge', action='store_false',
+#                            default=instMerge, dest='inst_merge',
+#                            help='Do NOT combine clusters that differ only by instance number')
+#
+#     my_parser.add_argument('--ternary-state-match', action='store_true',
+#                            default=ternMatchOnState, help='Perform ternary matching on state variables (single entry within a header)')
+#     my_parser.add_argument('--no-ternary-state-match', action='store_false',
+#                            default=ternMatchOnState, dest='ternary_state_match',
+#                            help='Do NOT perform ternary matching on state variables')
+#
+#     my_parser.add_argument('--print-tcam', action='store_true',
+#                            default=printTCAM, help='Print TCAM entries')
+#     my_parser.add_argument('--no-print-tcam', action='store_false',
+#                            default=printTCAM, dest='print_tcam',
+#                            help='Do NOT print TCAM entries')
+#
+#     my_parser.add_argument('--save-tcam', action='store_true',
+#                            default=saveTCAM, help='Print TCAM entries')
+#     my_parser.add_argument('--no-save-tcam', action='store_false',
+#                            default=saveTCAM, dest='save_tcam',
+#                            help='Do NOT save TCAM entries')
+#
+#     my_parser.add_argument('--max-tcam-state', type=int,
+#                            default=tcamMaxState, help='Maximum TCAM state value')
+#
+#     my_parser.add_argument('--show-result-sets', action='store_true',
+#                            default=showResultSets, help='Show all potential result sets ')
+#
+#     args = my_parser.parse_args()
+#
+#
+#     hfile = args.hdr_file
+#
+#     dataRate = args.data_rate
+#     clkFreq = args.clk_freq
+#     globalBPC = dataRate / clkFreq
+#     lookups = args.lookups
+#     lookupWidth = args.lookup_width
+#     maxSkip = args.max_skip
+#     minSkip = args.min_skip
+#     firstLookupAtZero = args.first_lookup_at_zero
+#     windowSize = args.window
+#     extract = args.extract
+#     extractBytes = args.extract_bytes
+#     extract = args.extract
+#     maxHdrs = args.max_hdrs
+#
+#     multParent = args.mult_parent
+#     multParentRetry = args.mult_parent_retry
+#     parallelEdge = args.parallel_edge
+#     instMerge = args.inst_merge
+#     ternMatchOnState = args.ternary_state_match
+#     DAGChain.singleEntryForInternal = ternMatchOnState
+#     printTCAM = args.print_tcam
+#     saveTCAM = args.save_tcam
+#
+#     showResultSets = args.show_result_sets
+#
+#     tcamMaxState = args.max_tcam_state
+#     stateBits = int(math.ceil(math.log(tcamMaxState, 2)))
+#     stateBytes = int(math.ceil(stateBits / 8.0))
+#     stateWidth10 = int(math.ceil(math.log10(tcamMaxState)))
+#
+#     if minSkip > 0:
+#         print("Stopping: minSkip parameter does not work correctly. Specified: %d" % minSkip)
+#         sys.exit(1)
+#
+#     printParams()
+#
+#     (headerList, headers) = readHeaders(hfile)
+#     firstHdr = headerList[0]
+#
+#     # Optimize the headers
+#     for hdr in headerList:
+#         if hdr.nextHeader is not None and type(hdr.nextHeader) == tuple:
+#             hdr.optNextHeader()
+#
+#     ccontext.dag, ccontext.dagNodes = buildDAG(headerList, headers)
+#     printDAG(ccontext.dag)
+#     calcExtractLocs(headerList, headers)
+#     headNode = ccontext.dag
+#
+#     sortDAG(ccontext)
+#     printDAGParents(ccontext)
+#
+#     print("\n\n\n")
+#     print("Initial run:")
+#     runExploreAndOpt(ccontext, showExpTime=True, showOptTime=True, printPathsToExplore=True, printEdges=True)
+#     bestContext = ccontext
+#
+#     if multParent:
+#         print("\nAttempting optimization of nodes with multiple parents...\n")
+#
+#         barrierLocs = []
+#         unprocHeaders = []
+#         for node in reversed(ccontext.dagOrderList):
+#             parentCount = len(ccontext.dagParents[node])
+#             if parentCount <= 1:
+#                 continue
+#
+#             bestContext, bestLoc = tryDAGBarrier(bestContext, node)
+#             if bestLoc is not None:
+#                 barrierLocs.append((node, bestLoc))
+#             else:
+#                 unprocHeaders.append(node)
+#
+#         if multParentRetry and len(unprocHeaders) > 0:
+#             print("Retrying:", end=' ')
+#             for h in unprocHeaders:
+#                 print(h, end=' ')
+#             print("")
+#             for node in unprocHeaders:
+#                 bestContext, bestLoc = tryDAGBarrier(bestContext, node)
+#                 if bestLoc is not None:
+#                     barrierLocs.append((node, bestLoc))
+#
+#         print("")
+#         print("Multi-parent optimization results:")
+#         print("----------------------------------")
+#         printBestOpt(bestContext)
+#         print("")
+#         if len(barrierLocs) > 0:
+#             print("Barrier locations:")
+#             for (node, loc) in barrierLocs:
+#                 print("  %s: %d" % (node, loc))
+#         else:
+#             print("Multi-parent barriers do not improve results")
+#         print("\n\n\n")
+#
+#     if parallelEdge:
+#         print("\nAttempting optimization of parallel edges to downstream nodes...\n")
+#         # Insert barriers between adjacent nodes when multiple patterns cause the transition
+#         parallelLocs = []
+#         for node in ccontext.dagOrderList:
+#             if isinstance(node, HeaderNode):
+#                 nodeLen = node.getLength()
+#                 for nxt in node.nxt:
+#                     if nxt and node.hdr.getDecisionCombos(
+#                             nodeLen, nxt.hdr.name, nodeLen) > 1:
+#                         bestContext, bestLoc = tryDAGParallelEdgeBarrier(bestContext, node, nxt)
+#                         if bestLoc is not None:
+#                             parallelLocs.append((node, nxt, bestLoc))
+#
+#         print("")
+#         print("Parallel edge optimization results:")
+#         print("-----------------------------------")
+#         printBestOpt(bestContext)
+#         print("")
+#         if len(parallelLocs) > 0:
+#             print("Parallel edge barrier locations:")
+#             for (node, nxtNode, loc) in parallelLocs:
+#                 print("  %s -> %s: %d" % (node, nxtNode, loc))
+#         else:
+#             print("Parallel edge barriers do not improve results")
+#         print("\n\n\n")
+#
+#
+#     if instMerge:
+#         print("\nAttempting combining clusters that differ only by instance number...\n")
+#         combineClustersByInst(bestContext)
+#
+#     print("")
+#     print("Final optimization results:")
+#     print("---------------------------")
+#     printDAG(bestContext.dag)
+#     printBestOpt(bestContext)
+#     print("")
+#     printEntries(bestContext)
+#     if printTCAM or saveTCAM:
+#         print("")
+#         allocateResultVectorEntries(bestContext)
+#         print("")
+#         printTCAMEntries(bestContext)
+
+def buildParserMapper(parseGraphHeaderList, parsedGraphHeaders):
     my_parser = argparse.ArgumentParser('Read headers from a given file')
-    my_parser.add_argument('hdr_file', type=str,
-            help='Parse graph description file')
+    # my_parser.add_argument('hdr_file', type=str,
+    #         help='Parse graph description file')
 
     # General parameters
+
     my_parser.add_argument('--data-rate', type=int,
-            default=dataRate, help='Data rate (Gbps)')
+            default=ParserMapper.make_tcam.dataRate, help='Data rate (Gbps)')
     my_parser.add_argument('--clk-freq', type=float,
-            default=clkFreq, help='Clock frequency (Gbps)')
+            default=ParserMapper.make_tcam.clkFreq, help='Clock frequency (Gbps)')
     my_parser.add_argument('--lookups', type=int,
-            default=lookups, help='Lookups per cycle')
+            default=ParserMapper.make_tcam.lookups, help='Lookups per cycle')
     my_parser.add_argument('--lookup-width', type=int,
-            default=lookupWidth, help='Lookup width (bytes)')
+            default=ParserMapper.make_tcam.lookupWidth, help='Lookup width (bytes)')
     my_parser.add_argument('--max-skip', type=int,
-            default=maxSkip, help='Maximum jump amount per cycle')
+            default=ParserMapper.make_tcam.maxSkip, help='Maximum jump amount per cycle')
     my_parser.add_argument('--min-skip', type=int,
-            default=minSkip, help='Minimum jump amount per cycle')
+            default=ParserMapper.make_tcam.minSkip, help='Minimum jump amount per cycle')
     my_parser.add_argument('--first-lookup-at-zero', action='store_true',
-            default=firstLookupAtZero, help='First lookup is at zero offset')
+            default=ParserMapper.make_tcam.firstLookupAtZero, help='First lookup is at zero offset')
     my_parser.add_argument('--no-first-lookup-at-zero', action='store_false',
-            default=firstLookupAtZero, dest='first_lookup_at_zero',
+            default=ParserMapper.make_tcam.firstLookupAtZero, dest='first_lookup_at_zero',
             help='First lookup is NOT at zero offset')
     my_parser.add_argument('--window', type=int,
-            default=windowSize, help='Size of window from which to extract lookups')
+            default=ParserMapper.make_tcam.windowSize, help='Size of window from which to extract lookups')
     my_parser.add_argument('--extract', action='store_true',
-            default=extract, help='Table outputs fields to extract')
+            default=ParserMapper.make_tcam.extract, help='Table outputs fields to extract')
     my_parser.add_argument('--no-extract', action='store_false',
-            default=extract, dest='extract',
+            default=ParserMapper.make_tcam.extract, dest='extract',
             help='Table outputs header types only')
     my_parser.add_argument('--extract-bytes', type=int,
-            default=extractBytes, help='Number of bytes to extract (extract only)')
+            default=ParserMapper.make_tcam.extractBytes, help='Number of bytes to extract (extract only)')
     my_parser.add_argument('--max-hdrs', type=int,
-            default=maxHdrs, help='Maximum number of headers identifiable in a single cycle (no-extract only)')
+            default=ParserMapper.make_tcam.maxHdrs, help='Maximum number of headers identifiable in a single cycle (no-extract only)')
 
     my_parser.add_argument('--mult-parent', action='store_true',
-            default=multParent, help='Try merging at nodes with mulitple parents')
+            default=ParserMapper.make_tcam.multParent, help='Try merging at nodes with mulitple parents')
     my_parser.add_argument('--no-mult-parent', action='store_false',
-            default=multParent, dest='mult_parent',
+            default=ParserMapper.make_tcam.multParent, dest='mult_parent',
             help='Do NOT try merging at nodes with multiple parents')
 
     my_parser.add_argument('--mult-parent-retry', action='store_true',
-            default=multParentRetry, help='Retry failed multiple parent merging')
+            default=ParserMapper.make_tcam.multParentRetry, help='Retry failed multiple parent merging')
     my_parser.add_argument('--no-mult-parent-retry', action='store_false',
-            default=multParentRetry, dest='mult_parent_retry',
+            default=ParserMapper.make_tcam.multParentRetry, dest='mult_parent_retry',
             help='Do NOT retry failed multiple parent merging')
 
     my_parser.add_argument('--parallel-edge', action='store_true',
-            default=parallelEdge, help='Try forcing barriers for parallel multiple edges')
+            default=ParserMapper.make_tcam.parallelEdge, help='Try forcing barriers for parallel multiple edges')
     my_parser.add_argument('--no-parallel-edge', action='store_false',
-            default=parallelEdge, dest='parallel_edge',
+            default=ParserMapper.make_tcam.parallelEdge, dest='parallel_edge',
             help='Do NOT try forcing barriers for parallel multiple edges')
 
     my_parser.add_argument('--inst-merge', action='store_true',
-            default=instMerge, help='Combine clusters that differ only by instance number')
+            default=ParserMapper.make_tcam.instMerge, help='Combine clusters that differ only by instance number')
     my_parser.add_argument('--no-inst-merge', action='store_false',
-            default=instMerge, dest='inst_merge',
+            default=ParserMapper.make_tcam.instMerge, dest='inst_merge',
             help='Do NOT combine clusters that differ only by instance number')
 
     my_parser.add_argument('--ternary-state-match', action='store_true',
-            default=ternMatchOnState, help='Perform ternary matching on state variables (single entry within a header)')
+            default=ParserMapper.make_tcam.ternMatchOnState, help='Perform ternary matching on state variables (single entry within a header)')
     my_parser.add_argument('--no-ternary-state-match', action='store_false',
-            default=ternMatchOnState, dest='ternary_state_match',
+            default=ParserMapper.make_tcam.ternMatchOnState, dest='ternary_state_match',
             help='Do NOT perform ternary matching on state variables')
 
     my_parser.add_argument('--print-tcam', action='store_true',
-            default=printTCAM, help='Print TCAM entries')
+            default=ParserMapper.make_tcam.printTCAM, help='Print TCAM entries')
     my_parser.add_argument('--no-print-tcam', action='store_false',
-            default=printTCAM, dest='print_tcam',
+            default=ParserMapper.make_tcam.printTCAM, dest='print_tcam',
             help='Do NOT print TCAM entries')
 
     my_parser.add_argument('--save-tcam', action='store_true',
-            default=saveTCAM, help='Print TCAM entries')
+            default=ParserMapper.make_tcam.saveTCAM, help='Print TCAM entries')
     my_parser.add_argument('--no-save-tcam', action='store_false',
-            default=saveTCAM, dest='save_tcam',
+            default=ParserMapper.make_tcam.saveTCAM, dest='save_tcam',
             help='Do NOT save TCAM entries')
 
     my_parser.add_argument('--max-tcam-state', type=int,
-            default=tcamMaxState, help='Maximum TCAM state value')
+            default=ParserMapper.make_tcam.tcamMaxState, help='Maximum TCAM state value')
 
     my_parser.add_argument('--show-result-sets', action='store_true',
-            default=showResultSets, help='Show all potential result sets ')
+            default=ParserMapper.make_tcam.showResultSets, help='Show all potential result sets ')
 
     args = my_parser.parse_args()
 
 
-    hfile = args.hdr_file
+    # hfile = args.hdr_file
 
     dataRate = args.data_rate
     clkFreq = args.clk_freq
@@ -2457,7 +2691,7 @@ if __name__ == "__main__":
 
     printParams()
 
-    (headerList, headers) = readHeaders(hfile)
+    (headerList, headers) = parseGraphHeaderList, parsedGraphHeaders
     firstHdr = headerList[0]
 
     # Optimize the headers
@@ -2560,4 +2794,4 @@ if __name__ == "__main__":
         print("")
         allocateResultVectorEntries(bestContext)
         print("")
-        printTCAMEntries(bestContext)
+        printTCAMEntries(bestContext, stateWidth10=stateWidth10, stateBits = stateBits, stateBytes= stateBytes)
