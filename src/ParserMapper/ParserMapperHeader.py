@@ -652,8 +652,9 @@ class ParserMapperHeader():
         lengths = [x / 8 for x in lengths]
         minLength = min(lengths)
         
-        if desiredLength < minLength:
-            desiredLength = ParserMapper.ParserMapperHeader.ANY
+        # if desiredLength < minLength:
+        #     desiredLength = ParserMapper.ParserMapperHeader.ANY
+        desiredLength = ParserMapper.ParserMapperHeader.ANY
 
         # Walk through the combination of lengths and next headers
         # (assume that headers have been merged)

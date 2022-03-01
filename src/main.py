@@ -21,9 +21,9 @@ headerFieldSpecsInP4Program = p4ProgramGraph.headeranalyzer()
 headerFieldSpecsInP4ProgramToBeUsedForParserMapper = p4ProgramGraph.headeranalyzer()
 parseGraphHeaderList, parsedGraphHeaders = HeaderLib.loadParseGraph(parserObject = p4program.parsers[0], p4ProgramGraph = p4ProgramGraph) # There is only one parser in v1model
 buildParserMapper(parseGraphHeaderList, parsedGraphHeaders)
-mappedPacketHeaderVector = hw.mapHeaderFields(headerFieldSpecsInP4Program)
-p4ProgramGraph.storePHVFieldMappingForHeaderFields(mappedPacketHeaderVector=mappedPacketHeaderVector)
-p4ProgramGraph.embedPipelines(hw)
+# mappedPacketHeaderVector = hw.mapHeaderFields(headerFieldSpecsInP4Program)
+# p4ProgramGraph.storePHVFieldMappingForHeaderFields(mappedPacketHeaderVector=mappedPacketHeaderVector)
+# p4ProgramGraph.embedPipelines(hw)
 
 
 
