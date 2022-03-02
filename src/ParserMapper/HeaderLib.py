@@ -39,14 +39,17 @@ def loadParseGraph(parserObject,p4ProgramGraph):
     headers = {}
     # while (curParserState != None):
     for curParserState in parserObject.parse_states:
-        print("Hello")
-        if(len(curParserState.parser_ops) ==0):
+        # print("Hello")
+        if(len(curParserState.parser_ops) ==0) and (curParserState.transition_key[0].value[0] != "standard_metadata"):
             print("At this moment we are not supporting parser states where there is no header to be parsed but the trnaistion key is a etadta field.")
             exit(1)
         else:
-            if(len(curParserState.parser_ops) == 1):
-                parserOp = curParserState.parser_ops[0]
-                if(parserOp.op == ParserOpOp.EXTRACT):
+            parserMapperHeader = None
+            if(len(curParserState.parser_ops) == 1) or\
+                ((len(curParserState.parser_ops) ==0) and (curParserState.transition_key[0].value[0] == "standard_metadata")):
+
+                if (len(curParserState.parser_ops)==1) and (curParserState.parser_ops[0].op== ParserOpOp.EXTRACT):
+                    parserOp = curParserState.parser_ops[0]
                     if(len(parserOp.parameters) != 1):
                         print("As we are supporting only parse operation in the parser state machine, therefore there should be only one parameters. Exiting ")
                         exit(1)
@@ -55,7 +58,7 @@ def loadParseGraph(parserObject,p4ProgramGraph):
                             headerName = parserOp.parameters[0].value
                             headerFields = p4ProgramGraph.parsedP4Program.getHeaderFieldsFromHeaderName(headerName=headerName)
                             if (headerFields == None):
-                                print("Header fields for Header object: "+str(headerName)+' is None. Exiting')
+                                print("Header fields for Header object: "+str(headerName)+' is None. In Parser operation header field to be parsed can not be null.  Exiting')
                                 exit(1)
                             else:
                                 if (headerName not in headers.keys()):
@@ -65,61 +68,74 @@ def loadParseGraph(parserObject,p4ProgramGraph):
                                     for hf in headerFields:
                                         parserMapperHeader.addField(hf[0], hf[1])
                                         parserMapperHeader.addExtractField(hf[0])
-                                    if(len(curParserState.transition_key) ==0) and (curParserState.transitions[0].next_state != None): # This means it is a default transition, because there are not transition kes but there is a trnasition which is default
-                                        print("Default transition" )
-                                        handleParserDefaultTransition(p4ProgramGraph, parserObject, curParserState, parserMapperHeader)
-                                    elif(len(curParserState.transition_key) ==0) and (curParserState.transitions[0].next_state == None): # This means it is a default transition
-                                        print("Reached an end state of the parse graph. Current state name is "+str(curParserState.name) )
-                                    else:
-                                        print("Non end state in parse graph")
-                                        fromFields = curParserState.getTransitionKeyFieldsAsList()
-                                        rangeCount = 0
-                                        widths = parserMapperHeader.getFieldWidths(fromFields) # There are some suspiciois about this function and the function that adds header fileds to a parsedmappedheadder
-                                        hdrMap = {}
-                                        for t in curParserState.transitions:
-                                            if (t.type == TransitionType.HEXSTR): # Becuase default is already handled and we only support direct header field value to next state mapping
-                                                key,value = t.value , t.next_state
-                                                value = parserObject.getParserState(value).parser_ops[0].parameters[0].value
-                                                if key.find('0x') == 0:
-                                                    key = int(key, 16)
-                                                elif key.find('b') == 0:
-                                                    pass
-                                                else:
-                                                    key = int(key)
-                                                (mask, data) = crackKey(parserMapperHeader, key, fromFields)
-                                                hdrMap[key] = ((mask, data), value)
-                                                # Approximate counting of the number of entries covered
-                                                wildcards = 0
-                                                for i in range(len(widths)):
-                                                    fieldWidth = widths[i]
-                                                    fieldMask = mask[i]
-                                                    wildcards += sum([(~fieldMask >> shift) & 1 for shift in range(fieldWidth)])
-                                                rangeCount += 2 ** wildcards
-
-                                        # Attempt to sort the header map by key
-                                        keys = list(hdrMap.keys())
-                                        keys.sort()
-                                        hdrList = []
-                                        for key in keys:
-                                            hdrList.append(hdrMap[key])
-
-                                        # Add a wildcard entry if we haven't covered all inputs
-                                        if rangeCount < 2 ** sum(widths) and wantWildcard:
-                                            hdrList.append((([0] * len(fromFields), [0] * len(fromFields)), None))
-                                        parserMapperHeader.setNextHeader((fromFields, hdrList))
-
                                 else:
                                     print("Error: header '%s' seen multiple times" % headerName)
                                     exit(-1)
-
-
                         else:
                             print("In the parser op non regular value is parameter. Not supporting this currently. ")
                             exit(1)
-
+                elif((curParserState.transition_key[0].value[0] == "standard_metadata")): #This branch is for handling metadata based branching in parsing
+                    headerName = "standard_metadata"
+                    headerFields = p4ProgramGraph.parsedP4Program.getHeaderFieldsFromHeaderName(headerName=headerName)
+                    if (headerFields == None):
+                        print("Header fields for Header object: "+str(headerName)+' is None. In Parser operation header field to be parsed can not be null.  Exiting')
+                        exit(1)
+                    else:
+                        if (headerName not in headers.keys()):
+                            parserMapperHeader = ParserMapperHeader(headerName)
+                            headers[headerName] = parserMapperHeader
+                            headerList.append(parserMapperHeader)
+                            for hf in headerFields:
+                                parserMapperHeader.addField(hf[0], hf[1])
+                                # parserMapperHeader.addExtractField(hf[0])  #for metadata we do not need any extraction
+                        else:
+                            print("Metadata field is already parsed. No need parse again")
                 else:
-                    print("Currently we only allow extract operation in parser op. NO other operations are supported. Exiting")
+                    print("Currently we only allow extract operation in parser op or metadata based branching . NO other operations are supported. Exiting")
                     exit(1)
+
+                if(len(curParserState.transition_key) ==0) and (curParserState.transitions[0].next_state != None): # This means it is a default transition, because there are not transition kes but there is a trnasition which is default
+                    print("Default transition" )
+                    handleParserDefaultTransition(p4ProgramGraph, parserObject, curParserState, parserMapperHeader)
+                elif(len(curParserState.transition_key) ==0) and (curParserState.transitions[0].next_state == None): # This means it is a default transition
+                    print("Reached an end state of the parse graph. Current state name is "+str(curParserState.name) )
+                else:
+                    print("Non end state in parse graph")
+                    fromFields = curParserState.getTransitionKeyFieldsAsList()
+                    rangeCount = 0
+                    widths = parserMapperHeader.getFieldWidths(fromFields) # There are some suspiciois about this function and the function that adds header fileds to a parsedmappedheadder
+                    hdrMap = {}
+                    for t in curParserState.transitions:
+                        if (t.type == TransitionType.HEXSTR): # Becuase default is already handled and we only support direct header field value to next state mapping
+                            key,value = t.value , t.next_state
+                            value = parserObject.getParserState(value).parser_ops[0].parameters[0].value
+                            if key.find('0x') == 0:
+                                key = int(key, 16)
+                            elif key.find('b') == 0:
+                                pass
+                            else:
+                                key = int(key)
+                            (mask, data) = crackKey(parserMapperHeader, key, fromFields)
+                            hdrMap[key] = ((mask, data), value)
+                            # Approximate counting of the number of entries covered
+                            wildcards = 0
+                            for i in range(len(widths)):
+                                fieldWidth = widths[i]
+                                fieldMask = mask[i]
+                                wildcards += sum([(~fieldMask >> shift) & 1 for shift in range(fieldWidth)])
+                            rangeCount += 2 ** wildcards
+
+                    # Attempt to sort the header map by key
+                    keys = list(hdrMap.keys())
+                    keys.sort()
+                    hdrList = []
+                    for key in keys:
+                        hdrList.append(hdrMap[key])
+
+                    # Add a wildcard entry if we haven't covered all inputs
+                    if rangeCount < 2 ** sum(widths) and wantWildcard:
+                        hdrList.append((([0] * len(fromFields), [0] * len(fromFields)), None))
+                    parserMapperHeader.setNextHeader((fromFields, hdrList))
             else:
                 print("Currently we only support parsing a header object (parser_op == extract) and based on some of its field go to next state. In future we will support rest of the ops in parser")
                 exit(1)
@@ -137,7 +153,7 @@ def loadParseGraph(parserObject,p4ProgramGraph):
 #     parserObject.getParserState(curParserState.name).parser_ops[0].parameters[0].value
 
 def handleParserDefaultTransition(p4ProgramGraph, parserObject, curParserState, parserMapperHeader):
-    nextParserState = parserObject.getParserState(curParserState.name)
+    nextParserState = parserObject.getParserState(curParserState.transitions[0].next_state)
     nextHeaderName = nextParserState.parser_ops[0].parameters[0].value
     nextHeaderFields = p4ProgramGraph.parsedP4Program.getHeaderFieldsFromHeaderName(headerName=nextHeaderName)
     if(nextHeaderFields != None):

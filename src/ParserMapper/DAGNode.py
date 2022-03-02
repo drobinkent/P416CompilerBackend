@@ -66,7 +66,7 @@ class DAGNode(object, metaclass=ABCMeta):
         return self._cmpName
 
     def dagNodeComparator(self, other):
-        print("This function may mishave bcaus eof the impleemntation of the CMP function in python  3 ")
+        # print("This function may mishave bcaus eof the impleemntation of the CMP function in python  3 ")
         # python 2 code
         # if isinstance(other, DAGNode):
         #     return cmp(self.getCmpName(), other.getCmpName())

@@ -748,6 +748,11 @@ def typeValueParser(obj):
         value = BoolPrimitive.from_dict(obj)
     elif (type == ValueType.LOCAL):
         value = LocalPrimitive.from_dict(obj)
+    else:
+        logger.info("Value type "+str(type)+" is not defined. Unsupported operation alarm. Storing as  a simple object")
+        # print("Value type "+str(type)+" is not defined. Unsupported operation alarm. exiting")
+        # exit(1)
+        value = obj
     return value
 
 
@@ -1546,6 +1551,9 @@ class Action:
                 else:
                     print("The first parameter in a count operation must have to be a counter. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
                     exit(1)
+            elif (prim.op == PrimitiveOp.LOG_MSG):
+                logger.info("Primitive OP:"+ str(prim.op)+" is required only for debigging. We are not suporting it to hardware leevel. and Skipping")
+                logger.info("Primitive OP:"+ str(prim.op)+" is required only for debigging. We are not suporting it to hardware leevel. and Skipping")
             else:
                 logger.info("Primitive OP:"+ str(prim.op)+" not supported yet.Exiting")
                 print("Primitive OP:"+ str(prim.op)+" not supported yet.Exiting")

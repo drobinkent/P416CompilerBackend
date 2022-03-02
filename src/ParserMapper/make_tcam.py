@@ -203,7 +203,8 @@ def printBestOpt(context, printEdges=True):
                 (context.worstBPC, context.worstBPC / 8))
         if printEdges:
             print("opt-algorithm optimal clusters:")
-            for cluster in sorted(context.bestClusters):
+            # for cluster in sorted(context.bestClusters):
+            for cluster in context.bestClusters:
                 print("  %s   (%d edges)" % (cluster, findEdgeCount(context, cluster)))
                 #cnode = DAGChainNode(cluster.chain[0].dagNode, cluster.chain[0].startPos, 0, 0)
                 #coveredClusters = findClustersAndCovers(cnode)
@@ -394,7 +395,7 @@ def allocateState(context, chain, availableState):
             # matchBytes = sorted(findPrecedingMatchBytes(chain), cmpMatchBytesStr)
             matchBytes = sorted(findPrecedingMatchBytes(chain))
             if len(matchBytes) > 0 and len(matchBytes[0]) > 0:
-                mask = list(map(ord, matchBytes[0].decode('hex')))[0::2]
+                mask = list(map(ord, codecs.decode(matchBytes,'hex')))[0::2]
                 for mb in matchBytes[1:]:
                     newMask = list(map(ord, mb.decode('hex')))[0::2]
                     for i in range(len(mask)):
