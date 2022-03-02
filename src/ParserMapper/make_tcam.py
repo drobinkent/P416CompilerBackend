@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import codecs
 import sys
 sys.path.append("..")
 sys.path.append(".")
@@ -91,7 +92,8 @@ def opt(context, cnode, bpc):
     minEdgeCnt = None
     minCluster = None
     coveredClusters = findClustersAndCovers(context, startCN)
-    for cluster in sorted(coveredClusters):
+    # for cluster in sorted(coveredClusters):
+    for cluster in coveredClusters:
         consumed = cluster.totalConsumed()
         edgeCount = findEdgeCount(context, cluster)
         baseEdge = edgeCount
@@ -389,7 +391,8 @@ def allocateState(context, chain, availableState):
             endPos = startPos
         elif arraySpan == statesNeeded and \
                 span == statesNeeded:
-            matchBytes = sorted(findPrecedingMatchBytes(chain), cmpMatchBytesStr)
+            # matchBytes = sorted(findPrecedingMatchBytes(chain), cmpMatchBytesStr)
+            matchBytes = sorted(findPrecedingMatchBytes(chain))
             if len(matchBytes) > 0 and len(matchBytes[0]) > 0:
                 mask = list(map(ord, matchBytes[0].decode('hex')))[0::2]
                 for mb in matchBytes[1:]:
@@ -573,7 +576,8 @@ def printTCAMEntry(context, chain,stateWidth10, stateBits , stateBytes):
     cnode = chain.chain[0]
     covers = findClustersAndCovers(context, cnode)[chain]
     entries = []
-    for cover in sorted(covers):
+    # for cover in sorted(covers):
+    for cover in covers:
         print(chain, cover)
 
         lookupValues = cover.getLookupByteValues(False)
@@ -623,7 +627,8 @@ def printTCAMEntry(context, chain,stateWidth10, stateBits , stateBytes):
             nxtLookupStarts.append(0)
 
         skip = cover.totalConsumed()
-        for lookupValueFull in sorted(lookupValues, cmpMatchBytesStr, reverse=True):
+        # for lookupValueFull in sorted(lookupValues, cmpMatchBytesStr, reverse=True):
+        for lookupValueFull in sorted(lookupValues,  reverse=True):
             stateInBytes = lookupValueFull[0:baseMatchByteLen]
             if successorMatchByteLen > 0:
                 stateOutBytes = lookupValueFull[-successorMatchByteLen:]
@@ -631,7 +636,7 @@ def printTCAMEntry(context, chain,stateWidth10, stateBits , stateBytes):
                 stateOutBytes = ''
 
             #print "SOBi:", stateOutBytes
-            stateOutBytes = list(map(ord, stateOutBytes.decode('hex')))
+            stateOutBytes = list(map(ord, str(codecs.decode(stateOutBytes,'hex'))))
             for i in range(len(successorMatchMask)):
                 stateOutBytes[i*2] &= successorMatchMask[i]
                 stateOutBytes[i*2+1] &= successorMatchMask[i]
@@ -644,17 +649,17 @@ def printTCAMEntry(context, chain,stateWidth10, stateBits , stateBytes):
                 print("YUP")
                 prevMatchBytes = set('')
             print("cover: %s   lookupValue:%s   stateInBytes: %s   prevMatchBytes: %s" % (cover, lookupValueFull, stateInBytes, prevMatchBytes))
-            stateInBytesAsArray = list(map(ord, stateInBytes.decode('hex')))
+            stateInBytesAsArray = list(map(ord, str(codecs.decode(stateInBytes,'hex'))))
             stateInBytesMask = stateInBytesAsArray[0::2]
             stateInBytesMatch = stateInBytesAsArray[1::2]
             for pmb in prevMatchBytes:
-                pmbAsArray = list(map(ord, pmb.decode('hex')))
+                pmbAsArray = list(map(ord, str(codecs.decode(pmb,'hex'))))
                 pmbMask = pmbAsArray[0::2]
                 pmbMatch = pmbAsArray[1::2]
 
                 # Check if the masks are compatible
                 compat = True
-                for i in range(len(pmbMask)):
+                for i in range(len(pmbMask)-1):
                     compat &= (stateInBytesMask[i] & pmbMask[i]) ^ stateInBytesMask[i] == 0
                     compat &= (stateInBytesMask[i] & pmbMatch[i]) == (stateInBytesMask[i] & stateInBytesMatch[i])
 
@@ -815,6 +820,7 @@ def printTCAMEntries(context, stateWidth10, stateBits, stateBytes):
     global tcamFile
 
     if len(context.optNodes) > 0:
+    # if True:
         sortDAG(context)
 
         calcNumStatesNeeded(context)
@@ -947,7 +953,8 @@ def exploreGraph(context, cnode):
     combs = 0
     counts = 0
     cn = 0
-    for cluster in sorted(clusters):
+    # for cluster in sorted(clusters):
+    for cluster in clusters:
         cn += 1
         fringeMult = 1
 
@@ -1257,7 +1264,8 @@ def findClustersAndCovers(context, cnode):
     #        print "  ", cover
     #print ""
     context.coveredClustersFromNode[cnode] = coveredClusters
-    context.clustersFromNode[cnode] = sorted(coveredClusters.keys())
+    # context.clustersFromNode[cnode] = sorted(coveredClusters.keys())
+    context.clustersFromNode[cnode] = coveredClusters.keys()
 
     return coveredClusters
 
@@ -1325,16 +1333,11 @@ def findMaxLenChains(baseChain,
                     lookupsRem = 0
                     unusedLookupBytes = 0
                     extractRem = 0
-                #print "  Last:", lastCN, lookupsRem, skipRem, windowRem, extractRem, hdrsRem
-                # Attempt to extend the header chain
+
                 if lastCN.unconsumed() > 0 or lastCN.unread() > 0:
                     extended = extendChain(chain,
                             lookups, lookupWidth, maxSkip, firstLookupAtZero,
                             windowSize, extract, extractBytes, maxHdrs)
-                    #extended = extendChainNode(lastCN,
-                    #        unusedLookupBytes, lookupsRem, lookupWidth,
-                    #        skipRem, firstLookupAtZero, windowRem, extract,
-                    #        extractRem, hdrsRem)
                     if extended:
                         newChains.append(chain)
                     else:
@@ -1349,21 +1352,16 @@ def findMaxLenChains(baseChain,
                                 extended = extendChain(newChain,
                                         lookups, lookupWidth, maxSkip, firstLookupAtZero,
                                         windowSize, extract, extractBytes, maxHdrs)
-                                #extended = extendChainNode(newCN,
-                                #        unusedLookupBytes, lookupsRem, lookupWidth,
-                                #        skipRem, firstLookupAtZero, windowRem, extract,
-                                #        extractRem, hdrsRem)
                                 if extended:
                                     newChains.append(newChain)
                                 else:
-                                    #newChain.trim()
                                     chainsDone.append(newChain)
                             else:
                                 chainsDone.append(newChain)
-                        else:
-                            newChain = chain.copy()
-                            newChain.add(None)
-                            chainsDone.append(newChain)
+                        # else:
+                    newChain = chain.copy()
+                    newChain.add(None)
+                    chainsDone.append(newChain)
             else:
                 chainsDone.append(chain)
         chains = newChains
@@ -1393,7 +1391,8 @@ def findCoveredClusters(clusters):
 
         # Calculate the set of nodes reachable from the current cluster
         targets = set()
-        for subchain in sorted(subchains):
+        # for subchain in sorted(subchains):
+        for subchain in (subchains):
             #print "Add:", subchain
             targets.update(reachableNewHdr[subchain])
         targets.update(reachableSameHdr[subchains[-1]])
@@ -2715,9 +2714,9 @@ def buildParserMapper(parseGraphHeaderList, parsedGraphHeaders):
     runExploreAndOpt(ccontext, showExpTime=True, showOptTime=True, printPathsToExplore=True, printEdges=True)
     bestContext = ccontext
     if printTCAM or saveTCAM:
-        print("")
+        print("allocateResultVectorEntries")
         allocateResultVectorEntries(bestContext)
-        print("")
+        print("printTCAMEntries")
         printTCAMEntries(bestContext, stateWidth10=stateWidth10, stateBits = stateBits, stateBytes= stateBytes)
 
     # if multParent:

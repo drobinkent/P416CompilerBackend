@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 """A header found within a packet"""
+import codecs
 
 import ParserMapper.ParserMapperField
 import ParserMapper.RefCount
@@ -737,9 +738,9 @@ class ParserMapperHeader():
         lengths = [x / 8 for x in lengths]
         minLength = min(lengths)
         
-        if desiredLength < minLength:
-            desiredLength = ANY
-
+        # if desiredLength < minLength:
+        #     desiredLength = ANY
+        desiredLength = ANY
         # Walk through the combination of lengths and next headers
         # (assume that headers have been merged)
         if self.nextHeader:
@@ -880,7 +881,8 @@ class ParserMapperHeader():
 
         newMatches = []
         for match in matchStrs:
-            matchValueByteArray = list(map(ord, match.decode('hex')))
+            # matchValueByteArray = list(map(ord, match.decode('hex')))
+            matchValueByteArray = list(map(ord, str(codecs.decode(match, 'hex'))))
             newMatches.append((matchValueByteArray[0::2], matchValueByteArray[1::2]))
 
         return mergedFieldBytes[0:numDecBytes], newMatches
