@@ -121,6 +121,13 @@ class DAGChainNode(object):
         #if isinstance(other, DAGChainNode):
         return self.__hash__() == other.__hash__()
 
+    def __lt__(self, other):
+        c = self.dagNode.dagNodeComparator( other.dagNode)
+        if c==-1:
+            return 1
+        else:
+            return -1
+
     def dagChainNodeComparator(self, other):
         if type(other) == DAGChainNode:
             if self.__hash__() == other.__hash__():

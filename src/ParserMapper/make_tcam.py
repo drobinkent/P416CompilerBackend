@@ -1293,6 +1293,7 @@ def findMaxLenChains(baseChain,
 
     chains = [baseChain]
     chainsDone = []
+
     while len(chains) > 0:
         # Attempt to expand each chain
         newChains = []
@@ -1324,9 +1325,7 @@ def findMaxLenChains(baseChain,
                     lookupsRem = 0
                     unusedLookupBytes = 0
                     extractRem = 0
-
                 #print "  Last:", lastCN, lookupsRem, skipRem, windowRem, extractRem, hdrsRem
-
                 # Attempt to extend the header chain
                 if lastCN.unconsumed() > 0 or lastCN.unread() > 0:
                     extended = extendChain(chain,
@@ -1369,10 +1368,11 @@ def findMaxLenChains(baseChain,
                 chainsDone.append(chain)
         chains = newChains
         #print ""
-    if(len(chainsDone)<len(newChain.chain)):
-        return newChain
-    else:
-        return chainsDone
+    # if(len(chainsDone)<len(newChain.chain)):
+    #     return [newChain]
+    # else:
+    #     return chainsDone
+    return chainsDone
 
 def findCoveredClusters(clusters):
     """Find all nodes reachable from each cluster"""
@@ -1503,11 +1503,11 @@ def findReachable(chains,
     reachableNewHdr = dict()
     reachableSameHdr = dict()
     #for chain in sorted(chains):
-    for chain in sorted(chains.chain):
+    for chain in chains:
         #print "CH:", chain
         lookupSubchains = chain.findLookupSubchains()
-        #for lc in lookupSubchains:
-        for lc in sorted(lookupSubchains):
+        for lc in lookupSubchains:
+        # for lc in sorted(lookupSubchains):
             #print "   LC:", lc
             #continue
             if lc not in reachableNewHdr:
@@ -2720,86 +2720,86 @@ def buildParserMapper(parseGraphHeaderList, parsedGraphHeaders):
         print("")
         printTCAMEntries(bestContext, stateWidth10=stateWidth10, stateBits = stateBits, stateBytes= stateBytes)
 
-    if multParent:
-        print("\nAttempting optimization of nodes with multiple parents...\n")
-
-        barrierLocs = []
-        unprocHeaders = []
-        for node in reversed(ccontext.dagOrderList):
-            parentCount = len(ccontext.dagParents[node])
-            if parentCount <= 1:
-                continue
-
-            bestContext, bestLoc = tryDAGBarrier(bestContext, node)
-            if bestLoc is not None:
-                barrierLocs.append((node, bestLoc))
-            else:
-                unprocHeaders.append(node)
-
-        if multParentRetry and len(unprocHeaders) > 0:
-            print("Retrying:", end=' ')
-            for h in unprocHeaders:
-                print(h, end=' ')
-            print("")
-            for node in unprocHeaders:
-                bestContext, bestLoc = tryDAGBarrier(bestContext, node)
-                if bestLoc is not None:
-                    barrierLocs.append((node, bestLoc))
-
-        print("")
-        print("Multi-parent optimization results:")
-        print("----------------------------------")
-        printBestOpt(bestContext)
-        print("")
-        if len(barrierLocs) > 0:
-            print("Barrier locations:")
-            for (node, loc) in barrierLocs:
-                print("  %s: %d" % (node, loc))
-        else:
-            print("Multi-parent barriers do not improve results")
-        print("\n\n\n")
-
-    if parallelEdge:
-        print("\nAttempting optimization of parallel edges to downstream nodes...\n")
-        # Insert barriers between adjacent nodes when multiple patterns cause the transition
-        parallelLocs = []
-        for node in ccontext.dagOrderList:
-            if isinstance(node, HeaderNode):
-                nodeLen = node.getLength()
-                for nxt in node.nxt:
-                    if nxt and node.hdr.getDecisionCombos(
-                            nodeLen, nxt.hdr.name, nodeLen) > 1:
-                        bestContext, bestLoc = tryDAGParallelEdgeBarrier(bestContext, node, nxt)
-                        if bestLoc is not None:
-                            parallelLocs.append((node, nxt, bestLoc))
-
-        print("")
-        print("Parallel edge optimization results:")
-        print("-----------------------------------")
-        printBestOpt(bestContext)
-        print("")
-        if len(parallelLocs) > 0:
-            print("Parallel edge barrier locations:")
-            for (node, nxtNode, loc) in parallelLocs:
-                print("  %s -> %s: %d" % (node, nxtNode, loc))
-        else:
-            print("Parallel edge barriers do not improve results")
-        print("\n\n\n")
-
-
-    if instMerge:
-        print("\nAttempting combining clusters that differ only by instance number...\n")
-        combineClustersByInst(bestContext)
-
-    print("")
-    print("Final optimization results:")
-    print("---------------------------")
-    printDAG(bestContext.dag)
-    printBestOpt(bestContext)
-    print("")
-    printEntries(bestContext)
-    if printTCAM or saveTCAM:
-        print("")
-        allocateResultVectorEntries(bestContext)
-        print("")
-        printTCAMEntries(bestContext, stateWidth10=stateWidth10, stateBits = stateBits, stateBytes= stateBytes)
+    # if multParent:
+    #     print("\nAttempting optimization of nodes with multiple parents...\n")
+    #
+    #     barrierLocs = []
+    #     unprocHeaders = []
+    #     for node in reversed(ccontext.dagOrderList):
+    #         parentCount = len(ccontext.dagParents[node])
+    #         if parentCount <= 1:
+    #             continue
+    #
+    #         bestContext, bestLoc = tryDAGBarrier(bestContext, node)
+    #         if bestLoc is not None:
+    #             barrierLocs.append((node, bestLoc))
+    #         else:
+    #             unprocHeaders.append(node)
+    #
+    #     if multParentRetry and len(unprocHeaders) > 0:
+    #         print("Retrying:", end=' ')
+    #         for h in unprocHeaders:
+    #             print(h, end=' ')
+    #         print("")
+    #         for node in unprocHeaders:
+    #             bestContext, bestLoc = tryDAGBarrier(bestContext, node)
+    #             if bestLoc is not None:
+    #                 barrierLocs.append((node, bestLoc))
+    #
+    #     print("")
+    #     print("Multi-parent optimization results:")
+    #     print("----------------------------------")
+    #     printBestOpt(bestContext)
+    #     print("")
+    #     if len(barrierLocs) > 0:
+    #         print("Barrier locations:")
+    #         for (node, loc) in barrierLocs:
+    #             print("  %s: %d" % (node, loc))
+    #     else:
+    #         print("Multi-parent barriers do not improve results")
+    #     print("\n\n\n")
+    #
+    # if parallelEdge:
+    #     print("\nAttempting optimization of parallel edges to downstream nodes...\n")
+    #     # Insert barriers between adjacent nodes when multiple patterns cause the transition
+    #     parallelLocs = []
+    #     for node in ccontext.dagOrderList:
+    #         if isinstance(node, HeaderNode):
+    #             nodeLen = node.getLength()
+    #             for nxt in node.nxt:
+    #                 if nxt and node.hdr.getDecisionCombos(
+    #                         nodeLen, nxt.hdr.name, nodeLen) > 1:
+    #                     bestContext, bestLoc = tryDAGParallelEdgeBarrier(bestContext, node, nxt)
+    #                     if bestLoc is not None:
+    #                         parallelLocs.append((node, nxt, bestLoc))
+    #
+    #     print("")
+    #     print("Parallel edge optimization results:")
+    #     print("-----------------------------------")
+    #     printBestOpt(bestContext)
+    #     print("")
+    #     if len(parallelLocs) > 0:
+    #         print("Parallel edge barrier locations:")
+    #         for (node, nxtNode, loc) in parallelLocs:
+    #             print("  %s -> %s: %d" % (node, nxtNode, loc))
+    #     else:
+    #         print("Parallel edge barriers do not improve results")
+    #     print("\n\n\n")
+    #
+    #
+    # if instMerge:
+    #     print("\nAttempting combining clusters that differ only by instance number...\n")
+    #     combineClustersByInst(bestContext)
+    #
+    # print("")
+    # print("Final optimization results:")
+    # print("---------------------------")
+    # printDAG(bestContext.dag)
+    # printBestOpt(bestContext)
+    # print("")
+    # printEntries(bestContext)
+    # if printTCAM or saveTCAM:
+    #     print("")
+    #     allocateResultVectorEntries(bestContext)
+    #     print("")
+    #     printTCAMEntries(bestContext, stateWidth10=stateWidth10, stateBits = stateBits, stateBytes= stateBytes)
