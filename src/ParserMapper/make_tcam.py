@@ -816,6 +816,16 @@ def firstInstCNode(cnode):
             raise TypeError('Unknown type of DAG node: %s (%s)' % (type(dagNode), dagNode))
         newCNode = DAGChainNode(newDAGNode, cnode.startPos, cnode.consumed, cnode.read)
         return newCNode
+def calculateRequiredNumberOfTCAMEntries(context, stateWidth10, stateBits, stateBytes):
+    totalNumberOfTCAMEntriesRequired = 0
+    if len(context.optNodes) > 0:
+        # if True:
+        sortDAG(context)
+        calcNumStatesNeeded(context)
+
+        for v in list(context.numStatesNeeded.values()):
+            totalNumberOfTCAMEntriesRequired= totalNumberOfTCAMEntriesRequired + v
+    return totalNumberOfTCAMEntriesRequired
 
 def printTCAMEntries(context, stateWidth10, stateBits, stateBytes):
     global tcamFile
@@ -2714,11 +2724,17 @@ def buildParserMapper(parseGraphHeaderList, parsedGraphHeaders):
     print("Initial run:")
     runExploreAndOpt(ccontext, showExpTime=True, showOptTime=True, printPathsToExplore=True, printEdges=True)
     bestContext = ccontext
-    if printTCAM or saveTCAM:
-        print("allocateResultVectorEntries")
-        allocateResultVectorEntries(bestContext)
-        print("printTCAMEntries")
-        printTCAMEntries(bestContext, stateWidth10=stateWidth10, stateBits = stateBits, stateBytes= stateBytes)
+    allocateResultVectorEntries(bestContext)
+    totalTCAMEntriesRequired = calculateRequiredNumberOfTCAMEntries(bestContext, stateWidth10=stateWidth10, stateBits = stateBits, stateBytes= stateBytes)
+    if(totalTCAMEntriesRequired > tcamMaxState):
+        print("Ttoal TCAM entries required is : "+str(totalTCAMEntriesRequired)+" But the parser TCAM in the hardware contains space for only "+str(tcamMaxState)+" entries. Exiting")
+        exit(1)
+    # if printTCAM or saveTCAM:
+    #     print("allocateResultVectorEntries")
+    #     allocateResultVectorEntries(bestContext)
+    #     print("printTCAMEntries")
+    #     printTCAMEntries(bestContext, stateWidth10=stateWidth10, stateBits = stateBits, stateBytes= stateBytes)
+    #
 
     # if multParent:
     #     print("\nAttempting optimization of nodes with multiple parents...\n")
