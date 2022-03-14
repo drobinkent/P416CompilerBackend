@@ -10,3 +10,20 @@ https://github.com/hyojoonkim/p4anony-ontas/blob/master/src/p4anony.p4
 This P4 program supports some action as part of the parser. Here you can set some metadata field's value from parsed header vlaue. Currently we do not support
 these type of features.
 
+4) If a parser state have two consecutive header parsed/extracted i.e. extract(ethernet); extract(vlan). Our system will not support it.
+
+
+RMTV1Model32Stages.json to makeTcam field mapping is follwoing
+
+ "ParserSpecs": {
+    "ParsingRate": 40, --- dataRate
+    "HeaderIdentificationBufferSize": 16,  -- windowSize
+    "MaxIdentifieableHeader": 3,   -- maxHdrs
+    "MaxMoveAheadBit": 128,  -- maxSkip
+    "TCAMLength": 255,   -- tcamMaxState
+    "TCAMLookupFieldCount": 4,  -- lookups
+    "TCAMLookupFieldWidth": 4,  -- lookupWidth
+    "MaxExtractableData": 4   -- extractBytes
+  },
+
+

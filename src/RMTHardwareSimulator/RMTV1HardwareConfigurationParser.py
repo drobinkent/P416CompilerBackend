@@ -266,27 +266,88 @@ class StageDescription:
         return result
 
 
+class ParserSpecs:
+    parsing_rate: int
+    header_identification_buffer_size: int
+    max_identifieable_header: int
+    max_move_ahead_bit: int
+    tcam_length: int
+    tcam_lookup_field_count: int
+    tcam_lookup_field_width: int
+    max_extractable_data: int
+
+    def __init__(self, parsing_rate: int, header_identification_buffer_size: int, max_identifieable_header: int, max_move_ahead_bit: int, tcam_length: int, tcam_lookup_field_count: int, tcam_lookup_field_width: int, max_extractable_data: int) -> None:
+        self.parsing_rate = parsing_rate
+        self.header_identification_buffer_size = header_identification_buffer_size
+        self.max_identifieable_header = max_identifieable_header
+        self.max_move_ahead_bit = max_move_ahead_bit
+        self.tcam_length = tcam_length
+        self.tcam_lookup_field_count = tcam_lookup_field_count
+        self.tcam_lookup_field_width = tcam_lookup_field_width
+        self.max_extractable_data = max_extractable_data
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'ParserSpecs':
+        assert isinstance(obj, dict)
+        parsing_rate = from_int(obj.get("ParsingRate"))
+        header_identification_buffer_size = from_int(obj.get("HeaderIdentificationBufferSize"))
+        max_identifieable_header = from_int(obj.get("MaxIdentifieableHeader"))
+        max_move_ahead_bit = from_int(obj.get("MaxMoveAheadBit"))
+        tcam_length = from_int(obj.get("TCAMLength"))
+        tcam_lookup_field_count = from_int(obj.get("TCAMLookupFieldCount"))
+        tcam_lookup_field_width = from_int(obj.get("TCAMLookupFieldWidth"))
+        max_extractable_data = from_int(obj.get("MaxExtractableData"))
+        return ParserSpecs(parsing_rate, header_identification_buffer_size, max_identifieable_header, max_move_ahead_bit, tcam_length, tcam_lookup_field_count, tcam_lookup_field_width, max_extractable_data)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        result["ParsingRate"] = from_int(self.parsing_rate)
+        result["HeaderIdentificationBufferSize"] = from_int(self.header_identification_buffer_size)
+        result["MaxIdentifieableHeader"] = from_int(self.max_identifieable_header)
+        result["MaxMoveAheadBit"] = from_int(self.max_move_ahead_bit)
+        result["TCAMLength"] = from_int(self.tcam_length)
+        result["TCAMLookupFieldCount"] = from_int(self.tcam_lookup_field_count)
+        result["TCAMLookupFieldWidth"] = from_int(self.tcam_lookup_field_width)
+        result["MaxExtractableData"] = from_int(self.max_extractable_data)
+        return result
+
+
+
 @dataclass
 class RMTV1HardwareConfiguration:
     name: str
+    clock_rate: int
     total_stages: int
     header_vector_specs: List[HeaderVectorSpec]
+    parser_specs: ParserSpecs
     stage_description: List[StageDescription]
 
+    def __init__(self, name: str, clock_rate: int, total_stages: int, header_vector_specs: List[HeaderVectorSpec], parser_specs: ParserSpecs, stage_description: List[StageDescription]) -> None:
+        self.name = name
+        self.clock_rate = clock_rate
+        self.total_stages = total_stages
+        self.header_vector_specs = header_vector_specs
+        self.parser_specs = parser_specs
+        self.stage_description = stage_description
+
     @staticmethod
-    def from_dict(obj: Any) -> 'RMTV1HardwareConfiguration':
+    def from_dict(obj: Any) -> 'Welcome':
         assert isinstance(obj, dict)
         name = from_str(obj.get("Name"))
+        clock_rate = from_int(obj.get("ClockRate"))
         total_stages = from_int(obj.get("TotalStages"))
         header_vector_specs = from_list(HeaderVectorSpec.from_dict, obj.get("HeaderVectorSpecs"))
+        parser_specs = ParserSpecs.from_dict(obj.get("ParserSpecs"))
         stage_description = from_list(StageDescription.from_dict, obj.get("StageDescription"))
-        return RMTV1HardwareConfiguration(name, total_stages, header_vector_specs, stage_description)
+        return RMTV1HardwareConfiguration(name, clock_rate, total_stages, header_vector_specs, parser_specs, stage_description)
 
     def to_dict(self) -> dict:
         result: dict = {}
         result["Name"] = from_str(self.name)
+        result["ClockRate"] = from_int(self.clock_rate)
         result["TotalStages"] = from_int(self.total_stages)
         result["HeaderVectorSpecs"] = from_list(lambda x: to_class(HeaderVectorSpec, x), self.header_vector_specs)
+        result["ParserSpecs"] = to_class(ParserSpecs, self.parser_specs)
         result["StageDescription"] = from_list(lambda x: to_class(StageDescription, x), self.stage_description)
         return result
 

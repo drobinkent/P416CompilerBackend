@@ -26,7 +26,27 @@ import cProfile
 from random import randint, random
 from ParserMapper.OptContext import OptContext
 
-dataRate = 16
+# WORD_WIDTH --> EV_INPUTS --> extract_bytes
+#
+# PROG_LOOKUP_WORDS --> --lookups  --> lookups per cycle
+#
+#
+# PROG_LOOKUP_WORDS: number of inputs to the parser state table. --> lookups
+# PROG_LOOKUP_WORD_WIDTH: width of each input to the state table.
+#
+#
+#
+# PROG_BUF_WORD_WIDTH: width of internal buffer.  -- --window
+# EV_INPUTS: number of extract vector inputs.    --> --extract-bytes
+# MAX_RD_AMT: maximum number of bytes to advance in a single cycle.   --> --max-skip
+#
+#
+# if a tcam has maximum 255 entry storing capability, that means the parse grpah need to be converted 255 states.
+# Therefore 1 byte is required to store the current state. If the TCAM has WxH dimension then keeping 1 byte for current state
+#     W-1 byte can be used to use as header fields to be matched.
+
+
+dataRate = 32
 clkFreq = 1
 
 # Bits per cycle
@@ -34,15 +54,15 @@ globalBPC = dataRate / clkFreq
 
 # Variables identified by Glen
 
-lookups = 8
-lookupWidth = 4
-maxSkip = 128
+lookups = 2  # How many lookups per cycle in the tcam
+lookupWidth = 2 # bitwidth of the lookups
+maxSkip = 0  #how much it can jump while extracting
 minSkip = 0
 firstLookupAtZero = True
-windowSize = 30
-extract = True
-extractBytes = 32
-maxHdrs = 1
+windowSize = 16
+extract = False
+extractBytes = 16
+maxHdrs = 16
 
 showResultSets = True
 multParent = True
@@ -65,6 +85,40 @@ resultsTerminate = 14
 extractPos = {}
 extractOffset = {}
 extractMaxDest = 0
+
+def setParserMapperParameter(hw):
+
+    # "ParserSpecs": {
+    #     "ParsingRate": 40, --- dataRate
+    #         "HeaderIdentificationBufferSize": 16,  -- windowSize
+    # "MaxIdentifieableHeader": 3,   -- maxHdrs
+    # "MaxMoveAheadBit": 128,  -- maxSkip
+    # "TCAMLength": 255,   -- tcamMaxState
+    # "TCAMLookupFieldCount": 4,  -- lookups
+    # "TCAMLookupFieldWidth": 4,  -- lookupWidth
+    # "MaxExtractableData": 4   -- extractBytes
+    # },
+
+
+    dataRate = hw.parserSpecs.parsing_rate
+    clkFreq = hw.hardwareSpecRawJsonObjects.clock_rate
+
+    # Bits per cycle
+    globalBPC = dataRate / clkFreq
+    windowSize = hw.parserSpecs.header_identification_buffer_size
+    maxHdrs = hw.parserSpecs.max_identifieable_header
+    maxSkip = hw.parserSpecs.max_move_ahead_bit #how much it can jump while extracting
+    tcamMaxState = hw.parserSpecs.tcam_length
+    lookups = hw.parserSpecs.tcam_lookup_field_count  # How many lookups per cycle in the tcam
+    lookupWidth = hw.parserSpecs.tcam_lookup_field_width# bitwidth of the lookups
+    extractBytes = hw.parserSpecs.max_extractable_data
+    minSkip = 0
+    firstLookupAtZero = True
+    extract = False
+
+
+
+
 
 
 def opt(context, cnode, bpc):
@@ -215,6 +269,8 @@ def printBestOpt(context, printEdges=True):
                 #print ""
     else:
         print("opt-algorithm could not find optimal that met required BPC (%d) or minimum skip amount (%d)" % (globalBPC, minSkip))
+        print('Exiting!!')
+        exit(1)
 
 def printEntries(context):
     if len(context.optNodes) > 0:
@@ -2088,8 +2144,8 @@ def runExploreAndOpt(context,
     optTime = runOpt(context)
 
     if showOptTime:
-        print("opt-algorithm runtime: %1.03fs" % optTime)
-        print("opt-algorithm evaluation steps: %d" % context.count)
+        print("Algorithm runtime: %1.03fs" % optTime)
+        print("Algorithm evaluation steps: %d" % context.count)
 
     if printResults:
         printBestOpt(context, printEdges)
@@ -2579,7 +2635,7 @@ def allocateResultVectorEntries(context):
 #         print("")
 #         printTCAMEntries(bestContext)
 
-def buildParserMapper(parseGraphHeaderList, parsedGraphHeaders):
+def buildParserMapper(parseGraphHeaderList, parsedGraphHeaders,hw):
     my_parser = argparse.ArgumentParser('Read headers from a given file')
     # my_parser.add_argument('hdr_file', type=str,
     #         help='Parse graph description file')
@@ -2693,6 +2749,8 @@ def buildParserMapper(parseGraphHeaderList, parsedGraphHeaders):
     #
     # showResultSets = args.show_result_sets
 
+    ParserMapper.make_tcam.setParserMapperParameter(hw)
+    globalBPC = dataRate / clkFreq
     tcamMaxState = ParserMapper.make_tcam.tcamMaxState
     stateBits = int(math.ceil(math.log(tcamMaxState, 2)))
     stateBytes = int(math.ceil(stateBits / 8.0))
@@ -2729,6 +2787,8 @@ def buildParserMapper(parseGraphHeaderList, parsedGraphHeaders):
     if(totalTCAMEntriesRequired > tcamMaxState):
         print("Ttoal TCAM entries required is : "+str(totalTCAMEntriesRequired)+" But the parser TCAM in the hardware contains space for only "+str(tcamMaxState)+" entries. Exiting")
         exit(1)
+    else:
+        print("Ttoal TCAM entries required is : "+str(totalTCAMEntriesRequired)+" and parser TCAM in the hardware contains space for  "+str(tcamMaxState)+". Accmodatable")
     # if printTCAM or saveTCAM:
     #     print("allocateResultVectorEntries")
     #     allocateResultVectorEntries(bestContext)

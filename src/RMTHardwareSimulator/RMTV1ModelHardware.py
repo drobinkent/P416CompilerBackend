@@ -27,14 +27,16 @@ class RMTV1ModelHardware:
 
     def __init__(self, name, instructionSetConfigurationJsonFile, hardwareSpecConfigurationJsonFile):
         self.name = name
-        self.instructionSetConfigurationRawJsonObjects = RMTV1InstrctionSet.from_dict(JsonParserUtil.loadRowJsonAsDictFromFile(instructionSetConfigurationJsonFile))
-        self.hardwareSpecRawJsonObjects = RMTV1HardwareConfiguration.from_dict(JsonParserUtil.loadRowJsonAsDictFromFile(hardwareSpecConfigurationJsonFile))
         self.pakcetHeaderVectorFieldSizeVsCountMap = {}
         self.totalStages = -1
         self.stageWiseResources= {}
         self.nameToAluInstructionMap={}
         self.nameToExternInstructionMap={}
+        self.parserSpecs = None
+        self.instructionSetConfigurationRawJsonObjects = RMTV1InstrctionSet.from_dict(JsonParserUtil.loadRowJsonAsDictFromFile(instructionSetConfigurationJsonFile))
+        self.hardwareSpecRawJsonObjects = RMTV1HardwareConfiguration.from_dict(JsonParserUtil.loadRowJsonAsDictFromFile(hardwareSpecConfigurationJsonFile))
         self.initResourcesFromRawJsonConfigurations()
+
         print("Loading device configuration for " + self.name+ " completed" )
 
     #We need this method to handle the action memory bitwidth and count issue. Because for a single pipeline when we embed multiple node in a physical stage,
@@ -71,8 +73,13 @@ class RMTV1ModelHardware:
         print(self.hardwareSpecRawJsonObjects)
         self.loadInstructionSet()
         self.loadStageWiseResource()
+        self.loadParserSpecs()
         # for i in range(0, self.totalStages):
         #     self.stageWiseResources[i] = self.loadStageResource(i)
+
+    def  loadParserSpecs(self):
+        print(self.hardwareSpecRawJsonObjects.parser_specs)
+        self.parserSpecs = self.hardwareSpecRawJsonObjects.parser_specs
 
     def loadInstructionSet(self):
         print(self.instructionSetConfigurationRawJsonObjects)

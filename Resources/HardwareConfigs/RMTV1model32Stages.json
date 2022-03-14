@@ -1,5 +1,6 @@
 {
   "Name": "RMTV1Model32Stage",
+  "ClockRate" : 1,
   "TotalStages": 32,
   "HeaderVectorSpecs": [
     {
@@ -15,6 +16,16 @@
       "Count": 96
     }
   ],
+  "ParserSpecs": {
+    "ParsingRate": 40,
+    "HeaderIdentificationBufferSize": 16,
+    "MaxIdentifieableHeader": 3,
+    "MaxMoveAheadBit": 128,
+    "TCAMLength": 255,
+    "TCAMLookupFieldCount": 4,
+    "TCAMLookupFieldWidth": 4,
+    "MaxExtractableData": 4
+  },
   "StageDescription": [
     {
       "Index": "0-31",
