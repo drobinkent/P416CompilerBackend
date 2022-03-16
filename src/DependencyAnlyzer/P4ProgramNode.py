@@ -235,7 +235,7 @@ class MATNode:
         for m in statefulMemoryNameList:
             combinedStatefulMemName = combinedStatefulMemName + "_"+m
         for actionObject in self.actions:
-            statefulMemoeryBeingUsed = actionObject.getListOfStatefulMemoriesBeingUsed()
+            statefulMemoeryBeingUsed = actionObject.getListOfIndirectStatefulMemoriesBeingUsed()
             for statefulMem in statefulMemoeryBeingUsed:
                 if ((self.name in pipelineGraph.registerNameToTableMap.get(statefulMem))):
                     pipelineGraph.registerNameToTableMap.get(statefulMem).remove(self.name)
@@ -323,14 +323,14 @@ class MATNode:
         #     if(self.selfStatefulMemoryNameToLevelMap.get(sfName)!= None):
         #         self.selfStatefulMemoryNameToLevelMap.pop(sfName)
         for actionObject in newMatNode.actions:
-            statefulMemoeryBeingUsed = actionObject.getListOfStatefulMemoriesBeingUsed()
+            statefulMemoeryBeingUsed = actionObject.getListOfIndirectStatefulMemoriesBeingUsed()
             for statefulMem in statefulMemoeryBeingUsed:
                 if(pipelineGraph.registerNameToTableMap.get(statefulMem) == None):
                     pipelineGraph.registerNameToTableMap[statefulMem] = []
                 if (not(newMatNode.name in pipelineGraph.registerNameToTableMap.get(statefulMem))):
                     pipelineGraph.registerNameToTableMap.get(statefulMem).append(newMatNode.name)
         for actionObject in self.actions:
-            statefulMemoeryBeingUsed = actionObject.getListOfStatefulMemoriesBeingUsed()
+            statefulMemoeryBeingUsed = actionObject.getListOfIndirectStatefulMemoriesBeingUsed()
             for statefulMem in statefulMemoeryBeingUsed:
                 if(pipelineGraph.registerNameToTableMap.get(statefulMem) == None):
                     pipelineGraph.registerNameToTableMap[statefulMem] = []
@@ -439,14 +439,14 @@ class MATNode:
             returnValue.append(k)
         return set(returnValue)
 
-    def getListOfStatefulMemoriesBeingUsedByMatNodeAsSet(self):
+    def getListOfIndirectStatefulMemoriesBeingUsedByMatNodeAsSet(self):
         # if type(self.originalP4node) == Table:
         #     for a in self.actions
         # else:
         #     return set([])
         stafeulMemorySet= set()
         for a in self.actions:
-            stafeulMemorySet = stafeulMemorySet.union(set(a.getListOfStatefulMemoriesBeingUsed()))
+            stafeulMemorySet = stafeulMemorySet.union(set(a.getListOfIndirectStatefulMemoriesBeingUsed()))
         return stafeulMemorySet
 
 

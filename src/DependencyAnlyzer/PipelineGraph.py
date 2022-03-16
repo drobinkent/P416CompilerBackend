@@ -290,7 +290,7 @@ class PipelineGraph:
                 p4teTableNode.actionObjectList.append(actionObject)
                 # Todo : get the list of fields modifiede here.
                 # print(self.getActionByName(a).getListOfFieldsModifedAndUsed())
-                statefulMemoeryBeingUsed = actionObject.getListOfStatefulMemoriesBeingUsed()
+                statefulMemoeryBeingUsed = actionObject.getListOfIndirectStatefulMemoriesBeingUsed()
                 for statefulMem in statefulMemoeryBeingUsed:
                     if(self.registerNameToTableMap.get(statefulMem) == None):
                         self.registerNameToTableMap[statefulMem] = []

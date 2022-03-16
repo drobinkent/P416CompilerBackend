@@ -122,27 +122,28 @@ class SupportedMatchTypes:
 
 @dataclass
 class SRAMMatResources:
-    sram_mat_field_count: int
+    # sram_mat_field_count: int
     match_crossbar_bit_width: int
-    block_count: str
+    block_count: int
     supported_match_types: SupportedMatchTypes
     per_sram_mat_block_spec: PerSRAMMatBlockSpec
 
     @staticmethod
     def from_dict(obj: Any) -> 'SRAMMatResources':
         assert isinstance(obj, dict)
-        sram_mat_field_count = from_int(obj.get("SRAMMatFieldCount"))
+        # sram_mat_field_count = from_int(obj.get("SRAMMatFieldCount"))
         match_crossbar_bit_width = from_int(obj.get("MatchCrossbarBitWidth"))
-        block_count = from_str(obj.get("BlockCount"))
+        block_count = from_int(obj.get("BlockCount"))
         supported_match_types = SupportedMatchTypes.from_dict(obj.get("SupportedMatchTypes"))
         per_sram_mat_block_spec = PerSRAMMatBlockSpec.from_dict(obj.get("PerSRAMMatBlockSpec"))
-        return SRAMMatResources(sram_mat_field_count, match_crossbar_bit_width, block_count, supported_match_types, per_sram_mat_block_spec)
+        # return SRAMMatResources(sram_mat_field_count, match_crossbar_bit_width, block_count, supported_match_types, per_sram_mat_block_spec)
+        return SRAMMatResources( match_crossbar_bit_width, block_count, supported_match_types, per_sram_mat_block_spec)
 
     def to_dict(self) -> dict:
         result: dict = {}
-        result["SRAMMatFieldCount"] = from_int(self.sram_mat_field_count)
+        # result["SRAMMatFieldCount"] = from_int(self.sram_mat_field_count)
         result["MatchCrossbarBitWidth"] = from_int(self.match_crossbar_bit_width)
-        result["BlockCount"] = from_str(self.block_count)
+        result["BlockCount"] = from_int(self.block_count)
         result["SupportedMatchTypes"] = to_class(SupportedMatchTypes, self.supported_match_types)
         result["PerSRAMMatBlockSpec"] = to_class(PerSRAMMatBlockSpec, self.per_sram_mat_block_spec)
         return result
@@ -197,7 +198,7 @@ class PerTCAMMatBlockSpec:
 
 @dataclass
 class TCAMMatResources:
-    tcam_mat_field_count: int
+    # tcam_mat_field_count: int
     match_crossbar_bit_width: int
     block_count: int
     supported_match_types: SupportedMatchTypes
@@ -206,16 +207,18 @@ class TCAMMatResources:
     @staticmethod
     def from_dict(obj: Any) -> 'TCAMMatResources':
         assert isinstance(obj, dict)
-        tcam_mat_field_count = from_int(obj.get("TCAMMatFieldCount"))
+        # tcam_mat_field_count = from_int(obj.get("TCAMMatFieldCount"))
         match_crossbar_bit_width = from_int(obj.get("MatchCrossbarBitWidth"))
         block_count = from_int(obj.get("BlockCount"))
         supported_match_types = SupportedMatchTypes.from_dict(obj.get("SupportedMatchTypes"))
         per_tcam_mat_block_spec = PerTCAMMatBlockSpec.from_dict(obj.get("PerTCAMMatBlockSpec"))
-        return TCAMMatResources(tcam_mat_field_count, match_crossbar_bit_width, block_count, supported_match_types, per_tcam_mat_block_spec)
+        # return TCAMMatResources(tcam_mat_field_count, match_crossbar_bit_width, block_count, supported_match_types, per_tcam_mat_block_spec)
+        return TCAMMatResources( match_crossbar_bit_width, block_count, supported_match_types, per_tcam_mat_block_spec)
+
 
     def to_dict(self) -> dict:
         result: dict = {}
-        result["TCAMMatFieldCount"] = from_int(self.tcam_mat_field_count)
+        # result["TCAMMatFieldCount"] = from_int(self.tcam_mat_field_count)
         result["MatchCrossbarBitWidth"] = from_int(self.match_crossbar_bit_width)
         result["BlockCount"] = from_int(self.block_count)
         result["SupportedMatchTypes"] = to_class(SupportedMatchTypes, self.supported_match_types)
@@ -223,48 +226,59 @@ class TCAMMatResources:
         return result
 
 
-@dataclass
 class StageDescription:
     index: str
+    per_mat_instruction_memory_capacity: int
     action_crossbar_bit_width: int
-    action_memory_blocks: int
-    action_memory_block_bit_width: int
-    maximum_actions_supported:int
+    action_memory_block_width: int
+    action_memory_block_bitwdith: int
+    maximum_actions_supported: int
     sram_resources: SRAMResources
     tcam_mat_resources: TCAMMatResources
     sram_mat_resources: SRAMMatResources
     alu_resources: List[Resource]
     extern_resources: List[Resource]
 
+    def __init__(self, index: str, per_mat_instruction_memory_capacity: int, action_crossbar_bit_width: int, action_memory_block_width: int, action_memory_block_bitwdith: int,  sram_resources: SRAMResources, tcam_mat_resources: TCAMMatResources, sram_mat_resources: SRAMMatResources, alu_resources: List[Resource], extern_resources: List[Resource]) -> None:
+        self.index = index
+        self.per_mat_instruction_memory_capacity = per_mat_instruction_memory_capacity
+        self.action_crossbar_bit_width = action_crossbar_bit_width
+        self.action_memory_block_width = action_memory_block_width
+        self.action_memory_block_bitwdith = action_memory_block_bitwdith
+        self.sram_resources = sram_resources
+        self.tcam_mat_resources = tcam_mat_resources
+        self.sram_mat_resources = sram_mat_resources
+        self.alu_resources = alu_resources
+        self.extern_resources = extern_resources
+
     @staticmethod
     def from_dict(obj: Any) -> 'StageDescription':
         assert isinstance(obj, dict)
         index = from_str(obj.get("Index"))
+        per_mat_instruction_memory_capacity = from_int(obj.get("PerMATInstructionMemoryCapacity"))
         action_crossbar_bit_width = from_int(obj.get("ActionCrossbarBitWidth"))
-        action_memory_blocks = from_int(obj.get("ActionMemoryBlocks"))
-        action_memory_block_bit_width = from_int(obj.get("ActionMemoryBlockBitwdith"))
-        maximum_actions_supported = from_int(obj.get("MaximumActionsSupported"))
+        action_memory_block_width = from_int(obj.get("ActionMemoryBlockWidth"))
+        action_memory_block_bitwdith = from_int(obj.get("ActionMemoryBlockBitwdith"))
         sram_resources = SRAMResources.from_dict(obj.get("SRAMResources"))
         tcam_mat_resources = TCAMMatResources.from_dict(obj.get("TCAMMatResources"))
         sram_mat_resources = SRAMMatResources.from_dict(obj.get("SRAMMatResources"))
         alu_resources = from_list(Resource.from_dict, obj.get("ALUResources"))
         extern_resources = from_list(Resource.from_dict, obj.get("ExternResources"))
-        return StageDescription(index, action_crossbar_bit_width, action_memory_blocks , action_memory_block_bit_width, maximum_actions_supported, sram_resources, tcam_mat_resources, sram_mat_resources, alu_resources, extern_resources)
+        return StageDescription(index, per_mat_instruction_memory_capacity, action_crossbar_bit_width, action_memory_block_width, action_memory_block_bitwdith, sram_resources, tcam_mat_resources, sram_mat_resources, alu_resources, extern_resources)
 
     def to_dict(self) -> dict:
         result: dict = {}
         result["Index"] = from_str(self.index)
+        result["PerMATInstructionMemoryCapacity"] = from_int(self.per_mat_instruction_memory_capacity)
         result["ActionCrossbarBitWidth"] = from_int(self.action_crossbar_bit_width)
-        result["ActionMemoryBlocks"] = from_int(self.action_memory_blocks)
-        result["ActionMemoryBlockBitwdith"] = from_int(self.action_memory_bit_width)
-        result["MaximumActionsSupported"] = from_int(self.maximum_actions_supported)
+        result["ActionMemoryBlockWidth"] = from_int(self.action_memory_block_width)
+        result["ActionMemoryBlockBitwdith"] = from_int(self.action_memory_block_bitwdith)
         result["SRAMResources"] = to_class(SRAMResources, self.sram_resources)
         result["TCAMMatResources"] = to_class(TCAMMatResources, self.tcam_mat_resources)
         result["SRAMMatResources"] = to_class(SRAMMatResources, self.sram_mat_resources)
         result["ALUResources"] = from_list(lambda x: to_class(Resource, x), self.alu_resources)
         result["ExternResources"] = from_list(lambda x: to_class(Resource, x), self.extern_resources)
         return result
-
 
 class ParserSpecs:
     parsing_rate: int

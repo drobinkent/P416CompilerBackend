@@ -1452,7 +1452,7 @@ class Action:
             exit(1)
         return fieldList
 
-    def getListOfStatefulMemoriesBeingUsed(self):
+    def getListOfIndirectStatefulMemoriesBeingUsed(self):
         listOfStatefulMemoeriesBeingUsed = []
         for prim in self.primitives:
             if ((prim.op == PrimitiveOp.REGISTER_WRITE) ):
@@ -1737,6 +1737,7 @@ class ParserValueType(Enum):
     FIELD = "field"
     HEXSTR = "hexstr"
     REGULAR = "regular"
+
 
 
 @dataclass

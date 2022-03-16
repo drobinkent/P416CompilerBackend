@@ -1,0 +1,46 @@
+TCAMMatFieldCount etar asole meaning nai. eta full code theke tulte hobe
+
+simiarly SRAM MAT er jonno
+
+
+*) assyme Node has two child B and C.
+B has two child
+
+
+
+
+
+Notes:
+
+1) we do not supprt parser stack
+2) P4 14 is not fully backward comaptible
+3) the bmv is also not backwardnot compatible in all cases
+3) reinitializeResourcesForNewPiepeline ei function a action crossbar bitwodth amra 0 te reinitilize korchi eta bodh hoy maximum of existing tables hobe.
+because for a ingress pipeline there can be n tables embedded on a stage. but only one will be executed at a time. so for ingress pipeline in worst
+the maximum of the action bitwidth will be used. therefore for egress the rest will remain.
+
+
+Our mapping algorithm
+at first maps the mats that useing indirect stateful memories. so we have to explain this in mapping algo and we also have to explain the difference between direct
+and indirect stateful memory usage
+
+
+*) These two function sneed  closer look
+self.allocateActionMemoryBitwidth(maxActionMemoryBitwidth) -- are we going to allocate
+            self.allocateActionCrossbarBitwidth(maxActionCrossbarBitwidth)
+
+
+
+
+**) How to handle counter and meter
+
+indirect counter and meter support :
+in Action class there is a function "getListOfStatefulMemoriesBeingUsed" here we are suporting only register read and write.
+if we want to add counter and meter, we need to add suport for both of thm in this function. then it will add indirect counter and meter dependency in the TDG.
+
+Direct meter and counter support:
+These are connnected with a specific table entry. so there is no depndency with other table. so basically we do not need anything extra, only
+in embedding an action we need to calculate what is their memory requirement and how much memory they do need as part of supporting the action.
+
+
+

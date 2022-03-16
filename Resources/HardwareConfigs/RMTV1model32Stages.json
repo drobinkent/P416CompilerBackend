@@ -29,10 +29,10 @@
   "StageDescription": [
     {
       "Index": "0-31",
+      "PerMATInstructionMemoryCapacity": 32,
       "ActionCrossbarBitWidth": 1280,
-      "ActionMemoryBlocks": 8,
+      "ActionMemoryBlockWidth": 8,
       "ActionMemoryBlockBitwdith": 80,
-      "MaximumActionsSupported": 64,
       "SRAMResources": {
         "MemoryPortWidth": 112,
         "MemoryPortCount": 8,
@@ -41,7 +41,6 @@
         "MemoroyBlockRowCount": 1024
       },
       "TCAMMatResources": {
-        "TCAMMatFieldCount": 8,
         "MatchCrossbarBitWidth": 640,
         "BlockCount": 16,
         "SupportedMatchTypes": {
@@ -56,9 +55,8 @@
         }
       },
       "SRAMMatResources": {
-        "SRAMMatFieldCount": 8,
         "MatchCrossbarBitWidth": 640,
-        "BlockCount": "RetrivableFromSramResources",
+        "BlockCount": 8,
         "SupportedMatchTypes": {
           "exact": true,
           "lpm": false,
