@@ -372,7 +372,7 @@ class RMTV1ModelHardware:
         '''If embedding is successfull the function will return starting and ending stage index. if both index are equal then the node is embeddable over single stage.
         If both are -1 then the node is not embeddable. '''
         currentStageIndex = startingStageIndex
-        p4ProgramGraph.parsedP4Program.getMatchActionResourceRequirementForMatNode(matNode, p4ProgramGraph, pipelineID) # computes the resource requirement of the mat node
+        p4ProgramGraph.parsedP4Program.computeMatchActionResourceRequirementForMatNode(matNode, p4ProgramGraph, pipelineID) # computes the resource requirement of the mat node
         remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
         remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
         startingStage = -1
@@ -413,20 +413,27 @@ class RMTV1ModelHardware:
             else:
                 accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth \
                     (actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter())
-            if((currentStageHardwareResource.convertMatKeyBitWidthLengthToTCAMMatKeyLength(matNode.matKeyBitWidth) \
-                    <= currentStageHardwareResource.getAvailableTCAMMatKeyCrossbarBitwidth()) and \
+            if((matNode.matKeyBitWidth <= currentStageHardwareResource.getAvailableTCAMMatKeyCrossbarBitwidth()) and \
                 (accmodatableActionEntries >= remainingActionEntries) and (accmodatableMatEntries >=  remainingMatEntries)):
                 if(startingStage == -1):
                     startingStage = currentStageIndex
                 endingStage = currentStageIndex
                 remainingMatEntries = remainingMatEntries - min(accmodatableMatEntries, remainingMatEntries)
                 currentStageHardwareResource.allocateMatNodeOverTCAMMat(matNode)
+                if(remainingMatEntries>0):
+                    currentStageIndex = currentStageIndex + 1
+                    currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
+                    if(currentStageHardwareResource==None):
+                        print("The mapping algorithm has reached to stage "+str(currentStageIndex)+" Which is invalid. Exiting!!")
             else:
                 startingStage = endingStage = -1
                 remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
                 remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
-            currentStageIndex = currentStageIndex + 1
-            currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
+                currentStageIndex = currentStageIndex + 1
+                currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
+                if(currentStageHardwareResource==None):
+                    print("The mapping algorithm has reached to stage "+str(currentStageIndex)+" Which is invalid. Exiting!!")
+
         return  startingStage, endingStage
 
     def embedMatNodeOverSRAMMatInMultipleStageWithActionEntriesReplication(self,p4ProgramGraph,pipelineID, matNode, hardware, startingStageIndex):
@@ -438,8 +445,6 @@ class RMTV1ModelHardware:
 
         if(remainingMatEntries == 0):
             startingStage, endingStage = startingStageIndex, startingStageIndex
-
-
         while(currentStageHardwareResource != None) and (remainingMatEntries > 0):
             accmodatableMatEntries = 0
             if(matNode.matKeyBitWidth == 0):
@@ -452,8 +457,7 @@ class RMTV1ModelHardware:
             else:
                 accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth \
                     (actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter())
-            if((currentStageHardwareResource.convertMatKeyBitWidthLengthToSRAMMatKeyLength(matNode.matKeyBitWidth) \
-                     <= currentStageHardwareResource.getAvailableSRAMMatKeyCrossbarBitwidth()) and \
+            if((matNode.matKeyBitWidth <= currentStageHardwareResource.getAvailableSRAMMatKeyCrossbarBitwidth()) and \
                     (accmodatableActionEntries >= remainingActionEntries) and (accmodatableMatEntries >= remainingMatEntries)):
                 if(startingStage == -1):
                     startingStage = currentStageIndex
@@ -461,12 +465,22 @@ class RMTV1ModelHardware:
                 remainingMatEntries = remainingMatEntries - min(accmodatableMatEntries, remainingMatEntries)
                 print("We may allocate the resource here")
                 currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode)
+                currentStageIndex = currentStageIndex + 1
+                currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
+                if(remainingMatEntries>0):
+                    currentStageIndex = currentStageIndex + 1
+                    currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
+                    if(currentStageHardwareResource==None):
+                        print("The mapping algorithm has reached to stage "+str(currentStageIndex)+" Which is invalid. Exiting!!")
+
             else:
                 startingStage = endingStage = -1
                 remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
                 remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
-            currentStageIndex = currentStageIndex + 1
-            currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
+                currentStageIndex = currentStageIndex + 1
+                currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
+                if(currentStageHardwareResource==None):
+                    print("In embedMatNodeOverSRAMMatInMultipleStageWithActionEntriesReplication, The mapping algorithm has reached to stage "+str(currentStageIndex)+" Which is invalid. Exiting!!")
         return  startingStage, endingStage
 
     def embedMatNodeOverTCAMMatInMultipleStageWithActionEntriesDistribution(self,p4ProgramGraph,pipelineID, matNode, hardware, startingStageIndex):
@@ -487,8 +501,7 @@ class RMTV1ModelHardware:
             else:
                 accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth \
                     (actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter())
-            if((currentStageHardwareResource.convertMatKeyBitWidthLengthToTCAMMatKeyLength(matNode.matKeyBitWidth) \
-                     <= currentStageHardwareResource.getAvailableTCAMMatKeyCrossbarBitwidth()) and \
+            if((matNode.matKeyBitWidth <= currentStageHardwareResource.getAvailableTCAMMatKeyCrossbarBitwidth()) and \
                     (accmodatableActionEntries >= remainingActionEntries) and (accmodatableMatEntries >=  remainingMatEntries)):
                 if(startingStage == -1):
                     startingStage = currentStageIndex
@@ -498,12 +511,20 @@ class RMTV1ModelHardware:
                 remainingActionEntries = remainingActionEntries - entriesToBePlacedInThisStage
                 print("We may allocate the resource here")
                 currentStageHardwareResource.allocateMatNodeOverTCAMMat(matNode)
+                if(remainingMatEntries>0):
+                    currentStageIndex = currentStageIndex + 1
+                    currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
+                    if(currentStageHardwareResource==None):
+                        print("In embedMatNodeOverTCAMMatInMultipleStageWithActionEntriesDistribution The mapping algorithm has reached to stage "+str(currentStageIndex)+" Which is invalid. Exiting!!")
             else:
                 startingStage = endingStage = -1
                 remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
                 remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
-            currentStageIndex = currentStageIndex + 1
-            currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
+                currentStageIndex = currentStageIndex + 1
+                currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
+                if(currentStageHardwareResource==None):
+                    print("In embedMatNodeOverTCAMMatInMultipleStageWithActionEntriesDistribution The mapping algorithm has reached to stage "+str(currentStageIndex)+" Which is invalid. Exiting!!")
+
         return  startingStage, endingStage
     def embedMatNodeOverSRAMMatInMultipleStageWithActionEntriesDistribution(self,p4ProgramGraph,pipelineID, matNode, hardware, startingStageIndex):
         startingStage = endingStage = -1
@@ -534,12 +555,19 @@ class RMTV1ModelHardware:
                 remainingActionEntries = remainingActionEntries - entriesToBePlacedInThisStage
                 print("We may allocate the resource here")
                 currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode)
+                if(remainingMatEntries>0):
+                    currentStageIndex = currentStageIndex + 1
+                    currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
+                    if(currentStageHardwareResource==None):
+                        print("In embedMatNodeOverSRAMMatInMultipleStageWithActionEntriesDistribution The mapping algorithm has reached to stage "+str(currentStageIndex)+" Which is invalid. Exiting!!")
             else:
                 startingStage = endingStage = -1
                 remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
                 remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
-            currentStageIndex = currentStageIndex + 1
-            currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
+                currentStageIndex = currentStageIndex + 1
+                currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
+                if(currentStageHardwareResource==None):
+                    print("In embedMatNodeOverSRAMMatInMultipleStageWithActionEntriesDistribution The mapping algorithm has reached to stage "+str(currentStageIndex)+" Which is invalid. Exiting!!")
         return  startingStage, endingStage
 
         # while(remainingActionEntries >0) and (remainingMatEntries >0):

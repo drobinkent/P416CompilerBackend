@@ -3296,7 +3296,7 @@ class ParsedP416ProgramForV1ModelArchitecture:
         totalKeysTobeMatched = len(matNode.matchKeyFields)
         return totalKeysTobeMatched, matKeyBitWidth, headerFieldWiseBitwidthOfMatKeys
 
-    def getMatchActionResourceRequirementForMatNode(self, matNode,p4ProgramGraph,pipelineID):
+    def computeMatchActionResourceRequirementForMatNode(self, matNode, p4ProgramGraph, pipelineID):
         # Need to maintain a list or map for which header field is using how manu bytes
         #     for each action buidl a method that will calculate, fields being modified, fields being used as parameter, stateful memory .
         #     count and bitwidth and also their mapping of name to bitwidth.
