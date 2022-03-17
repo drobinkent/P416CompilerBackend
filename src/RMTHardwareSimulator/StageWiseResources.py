@@ -4,6 +4,9 @@ import ConfigurationConstants as confConst
 import math
 
 import sys
+
+from DependencyAnlyzer.DefinitionConstants import PipelineID
+
 sys.path.append("..") # Adds higher directory to python modules path.
 from P4ProgramParser.P416JsonParser import MatchType
 logger = logging.getLogger('StageWiseResource')
@@ -22,7 +25,9 @@ class StageWiseResource:
     def __init__(self, stageIndex, stageResourceDescription, rmtHWSpec ): # need to pass the instructionset here
         self.stageIndex = stageIndex
         self.rmtHWSpec = rmtHWSpec
-
+        self.listOfLogicalTableMappedToThisStage= {}
+        self.listOfLogicalTableMappedToThisStage[PipelineID.INGRESS_PIPELINE] = []
+        self.listOfLogicalTableMappedToThisStage[PipelineID.EGRESS_PIPELINE] = []
         self.unprocessedStageResourceDescription = stageResourceDescription
         self.perMatInstructionMemoryCapacity = stageResourceDescription.per_mat_instruction_memory_capacity
         self.availableActionCrossbarBitWidth = stageResourceDescription.action_crossbar_bit_width
@@ -48,7 +53,11 @@ class StageWiseResource:
         self.sramMatResource.printAvailableResourceStatistics()
         self.tcamMatResource.printAvailableResourceStatistics()
 
-
+    def getCycleLengthForThisStage(self, pipelineId):
+        if(len(self.listOfLogicalTableMappedToThisStage.get(pipelineId)) >0):
+            return self.rmtHWSpec.hardwareSpecRawJsonObjects.single_stage_cycle_length
+        else:
+            return self.rmtHWSpec.hardwareSpecRawJsonObjects.dependency_delay_in_cycle_legth.default_dependency
 
 
 
@@ -193,17 +202,18 @@ class StageWiseResource:
             return False
 
 
-    def allocateStatefulMemoerySetOnStage(self, p4ProgramGraph, pipelineID, indectStatefulMemoryName, hardware):
+    def allocateStatefulMemoerySetOnStage(self, p4ProgramGraph, pipelineID, statefulMemSet, hardware):
         # print("Test")
         isEmbeddable = True
-        regBitwidth, regArrayLength = p4ProgramGraph.parsedP4Program.getRegisterArraysResourceRequirment(indectStatefulMemoryName)
-        if(self.isIndirectStatefulMemoryAccomodatable(indirectStatefulMemoryBitwidth=regBitwidth, numberOfIndirectStatefulMemoryEntries=regArrayLength)):
-            self.allocateSramBlockForIndirectStatefulMemory(indirectStatefulMemoryBitwidth=regBitwidth, numberOfIndirectStatefulMemoryEntries=regArrayLength,indirectStatefulMemoryName=indectStatefulMemoryName)
-            isEmbeddable = True
-        else:
-            isEmbeddable = False
-            print("The resource requirement for the indirect stateful memory: "+indectStatefulMemoryName + " can not be fulfilled with the available resources in stage  "+str(self.stageIndex))
-            return  isEmbeddable
+        for regName in statefulMemSet:
+            regBitwidth, regArrayLength = p4ProgramGraph.parsedP4Program.getRegisterArraysResourceRequirment(regName)
+            if(self.isIndirectStatefulMemoryAccomodatable(indirectStatefulMemoryBitwidth=regBitwidth, numberOfIndirectStatefulMemoryEntries=regArrayLength)):
+                self.allocateSramBlockForIndirectStatefulMemory(indirectStatefulMemoryBitwidth=regBitwidth, numberOfIndirectStatefulMemoryEntries=regArrayLength,indirectStatefulMemoryName=regName)
+                isEmbeddable = True
+            else:
+                isEmbeddable = False
+                print("The resource requirement for the indirect stateful memory: "+regName + " can not be fulfilled with the available resources in stage  "+str(self.stageIndex))
+                return  isEmbeddable
         return  isEmbeddable
 
 
@@ -265,7 +275,7 @@ class StageWiseResource:
             exit(1)
         return False
 
-    def allocateMatNodeOverTCAMMatWithOutParam(self, matNode):
+    def allocateMatNodeOverTCAMMatWithOutParam(self, matNode,pipelineID):
         # if(self.usedActionCrossbarBitWidth < matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction()): #Because We are embedding all nodes on a sp-ecific level one by one. so any
         #     #table in same stage do need the maximum action crossbar among it's sibilings.
 
@@ -275,7 +285,8 @@ class StageWiseResource:
         self.allocateMatEntriesOverTCAMBasedMATSinSingleStage(matNode.matKeyBitWidth, matNode.getRequiredNumberOfMatEntries()) # This embeds both match-key and tables and entries in one stage
         self.allocateActionCrossbarBitwidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
         self.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= matNode.getRequiredNumberOfActionEntries())
-    def allocateMatNodeOverTCAMMat(self, matNode, numberOfMatEntriesToBeAllocated, numberOfActionEntriesToBeAllocated):
+        self.listOfLogicalTableMappedToThisStage.get(pipelineID).append(matNode)
+    def allocateMatNodeOverTCAMMat(self, matNode, numberOfMatEntriesToBeAllocated, numberOfActionEntriesToBeAllocated,pipelineID):
         # if(self.usedActionCrossbarBitWidth < matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction()): #Because We are embedding all nodes on a sp-ecific level one by one. so any
         #     #table in same stage do need the maximum action crossbar among it's sibilings.
 
@@ -285,19 +296,22 @@ class StageWiseResource:
         self.allocateMatEntriesOverTCAMBasedMATSinSingleStage(matNode.matKeyBitWidth, numberOfMatEntriesToBeAllocated) # This embeds both match-key and tables and entries in one stage
         self.allocateActionCrossbarBitwidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
         self.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= numberOfActionEntriesToBeAllocated)
+        self.listOfLogicalTableMappedToThisStage.get(pipelineID).append(matNode)
 
-    def allocateMatNodeOverSRAMMatWithoutParam(self, matNode):
+    def allocateMatNodeOverSRAMMatWithoutParam(self, matNode,pipelineID):
         self.allocateSRAMMatKeyCrossbarBitwidth(matNode.matKeyBitWidth)
         self.allocateSRAMMatBlocks(self.convertMatKeyBitWidthLengthToSRAMMatBlockCount(matNode.matKeyBitWidth))
         self.allocateMatEntriesOverSRAMBasedMATSInSingleStage(matNode.matKeyBitWidth, matNode.getRequiredNumberOfMatEntries()) # This embeds both match-key and tables and entries in one stage
         self.allocateActionCrossbarBitwidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
         self.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= matNode.getRequiredNumberOfActionEntries())
-    def allocateMatNodeOverSRAMMat(self, matNode, numberOfMatEntriesToBeAllocated, numberOfActionEntriesToBeAllocated):
+        self.listOfLogicalTableMappedToThisStage.get(pipelineID).append(matNode)
+    def allocateMatNodeOverSRAMMat(self, matNode, numberOfMatEntriesToBeAllocated, numberOfActionEntriesToBeAllocated,pipelineID):
         self.allocateSRAMMatKeyCrossbarBitwidth(matNode.matKeyBitWidth)
         self.allocateSRAMMatBlocks(self.convertMatKeyBitWidthLengthToSRAMMatBlockCount(matNode.matKeyBitWidth))
         self.allocateMatEntriesOverSRAMBasedMATSInSingleStage(matNode.matKeyBitWidth, numberOfMatEntriesToBeAllocated) # This embeds both match-key and tables and entries in one stage
         self.allocateActionCrossbarBitwidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
         self.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= numberOfActionEntriesToBeAllocated)
+        self.listOfLogicalTableMappedToThisStage.get(pipelineID).append(matNode)
 
     def isMatNodeEmbeddableOnSRAMMatBlocks(self, matNode):
         isEmbeddable = False
@@ -384,19 +398,20 @@ class StageWiseResource:
 
         if (self.getAvailableActionMemoryBitwidth() >= maxActionMemoryBitwidth) and \
                 (self.getAvailableActionCrossbarBitwidth() >= maxActionCrossbarBitwidth):
-            p4ProgramGraph.parsedP4Program.computeMatchActionResourceRequirementForMatNode(matNode, p4ProgramGraph, pipelineID) # Though redundant but not harm in calling
+
             for matNode in matNodeList: # The matnode list already sorted and TCAM based tables will come first. So they will be embedded at first
+                p4ProgramGraph.parsedP4Program.computeMatchActionResourceRequirementForMatNode(matNode, p4ProgramGraph, pipelineID) # Though redundant but not harm in calling
                 if(matNode.originalP4node.match_type.value != MatchType.EXACT):
                     #try to embed the matnode in tcam
                     if(self.isMatNodeEmbeddableOnTCAMMatBlocks(matNode,maxActionCrossbarBitwidth,maxActionMemoryBitwidth)):
-                        self.allocateMatNodeOverTCAMMatWithOutParam(matNode) #TODO : this need to include both action memory and direct statefule memories
+                        self.allocateMatNodeOverTCAMMatWithOutParam(matNode,pipelineID) #TODO : this need to include both action memory and direct statefule memories
                     else:
                         isEmbeddable = False
                 else:
                     if(self.isMatNodeEmbeddableOnSRAMMatBlocks(matNode)):
-                        self.allocateMatNodeOverSRAMMatWithoutParam(matNode) #TODO : this need to include both action memory and direct statefule memories
+                        self.allocateMatNodeOverSRAMMatWithoutParam(matNode,pipelineID) #TODO : this need to include both action memory and direct statefule memories
                     elif(self.isMatNodeEmbeddableOnTCAMMatBlocks(matNode)):
-                        self.allocateMatNodeOverTCAMMatWithOutParam(matNode)
+                        self.allocateMatNodeOverTCAMMatWithOutParam(matNode,pipelineID)
                     else:
                         isEmbeddable = False
         else:

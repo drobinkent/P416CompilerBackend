@@ -325,6 +325,39 @@ class ParserSpecs:
         result["MaxExtractableData"] = from_int(self.max_extractable_data)
         return result
 
+class DependencyDelayInCycleLegth:
+    match_dependency: int
+    action_dependency: int
+    successor_dependency: int
+    reverse_match_dependency: int
+    default_dependency: int
+
+    def __init__(self, match_dependency: int, action_dependency: int, successor_dependency: int, reverse_match_dependency: int, default: int) -> None:
+        self.match_dependency = match_dependency
+        self.action_dependency = action_dependency
+        self.successor_dependency = successor_dependency
+        self.reverse_match_dependency = reverse_match_dependency
+        self.default_dependency = default
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'DependencyDelayInCycleLegth':
+        assert isinstance(obj, dict)
+        match_dependency = from_int(obj.get("match_dependency"))
+        action_dependency = from_int(obj.get("action_dependency"))
+        successor_dependency = from_int(obj.get("successor_dependency"))
+        reverse_match_dependency = from_int(obj.get("reverse_match_dependency"))
+        default = from_int(obj.get("default"))
+        return DependencyDelayInCycleLegth(match_dependency, action_dependency, successor_dependency, reverse_match_dependency, default)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        result["match_dependency"] = from_int(self.match_dependency)
+        result["action_dependency"] = from_int(self.action_dependency)
+        result["successor_dependency"] = from_int(self.successor_dependency)
+        result["reverse_match_dependency"] = from_int(self.reverse_match_dependency)
+        result["default"] = from_int(self.default_dependency)
+        return result
+
 
 
 @dataclass
@@ -335,17 +368,21 @@ class RMTV1HardwareConfiguration:
     header_vector_specs: List[HeaderVectorSpec]
     parser_specs: ParserSpecs
     stage_description: List[StageDescription]
+    single_stage_cycle_length: int
+    dependency_delay_in_cycle_legth: DependencyDelayInCycleLegth
 
-    def __init__(self, name: str, clock_rate: int, total_stages: int, header_vector_specs: List[HeaderVectorSpec], parser_specs: ParserSpecs, stage_description: List[StageDescription]) -> None:
+    def __init__(self, name: str, clock_rate: int, total_stages: int, header_vector_specs: List[HeaderVectorSpec], parser_specs: ParserSpecs, stage_description: List[StageDescription], single_stage_cycle_length: int, dependency_delay_in_cycle_legth: DependencyDelayInCycleLegth) -> None:
         self.name = name
         self.clock_rate = clock_rate
         self.total_stages = total_stages
         self.header_vector_specs = header_vector_specs
         self.parser_specs = parser_specs
         self.stage_description = stage_description
+        self.single_stage_cycle_length = single_stage_cycle_length
+        self.dependency_delay_in_cycle_legth = dependency_delay_in_cycle_legth
 
     @staticmethod
-    def from_dict(obj: Any) -> 'Welcome':
+    def from_dict(obj: Any) -> 'RMTV1HardwareConfiguration':
         assert isinstance(obj, dict)
         name = from_str(obj.get("Name"))
         clock_rate = from_int(obj.get("ClockRate"))
@@ -353,7 +390,9 @@ class RMTV1HardwareConfiguration:
         header_vector_specs = from_list(HeaderVectorSpec.from_dict, obj.get("HeaderVectorSpecs"))
         parser_specs = ParserSpecs.from_dict(obj.get("ParserSpecs"))
         stage_description = from_list(StageDescription.from_dict, obj.get("StageDescription"))
-        return RMTV1HardwareConfiguration(name, clock_rate, total_stages, header_vector_specs, parser_specs, stage_description)
+        single_stage_cycle_length = from_int(obj.get("SingleStageCycleLength"))
+        dependency_delay_in_cycle_legth = DependencyDelayInCycleLegth.from_dict(obj.get("DependencyDelayInCycleLegth"))
+        return RMTV1HardwareConfiguration(name, clock_rate, total_stages, header_vector_specs, parser_specs, stage_description, single_stage_cycle_length, dependency_delay_in_cycle_legth)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -363,6 +402,8 @@ class RMTV1HardwareConfiguration:
         result["HeaderVectorSpecs"] = from_list(lambda x: to_class(HeaderVectorSpec, x), self.header_vector_specs)
         result["ParserSpecs"] = to_class(ParserSpecs, self.parser_specs)
         result["StageDescription"] = from_list(lambda x: to_class(StageDescription, x), self.stage_description)
+        result["SingleStageCycleLength"] = from_int(self.single_stage_cycle_length)
+        result["DependencyDelayInCycleLegth"] = to_class(DependencyDelayInCycleLegth, self.dependency_delay_in_cycle_legth)
         return result
 
 

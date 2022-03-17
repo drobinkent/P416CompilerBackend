@@ -1,11 +1,11 @@
 {
   "Name": "RMTV1Model32Stage",
-  "ClockRate" : 1,
+  "ClockRate": 1,
   "TotalStages": 32,
   "HeaderVectorSpecs": [
     {
-    "BitWidth": 8,
-    "Count": 100
+      "BitWidth": 8,
+      "Count": 100
     },
     {
       "BitWidth": 16,
@@ -93,5 +93,13 @@
         }
       ]
     }
-  ]
+  ],
+  "SingleStageCycleLength": 14,
+  "DependencyDelayInCycleLegth": {
+    "match_dependency": 12,
+    "action_dependency": 3,
+    "successor_dependency": 1,
+    "reverse_match_dependency": 1,
+    "default": 1
+  }
 }
