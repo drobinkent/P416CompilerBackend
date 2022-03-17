@@ -64,7 +64,7 @@ class P4ProgramGraph:
                 # self.pipelineIdToPipelineMap[PipelineID.INGRESS_PIPELINE] = pipeline
                 # newPipelineGraph.preProcessPipelineGraph()
                 hw.embedP4ProgramAccordingToSingleMatrix(self,pipelineID=PipelineID.INGRESS_PIPELINE, hardware = hw)
-                hw.reinitializeResourcesForNewPiepeline()
+                # hw.reinitializeResourcesForNewPiepeline()
             if(pipeline.name == PipelineID.EGRESS_PIPELINE.value):
                 hw.embedP4ProgramAccordingToSingleMatrix(self,pipelineID=PipelineID.EGRESS_PIPELINE, hardware = hw)
                 pass

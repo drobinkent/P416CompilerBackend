@@ -3250,7 +3250,7 @@ class ParsedP416ProgramForV1ModelArchitecture:
             print("The match key: "+headerName+" is not found in the nameToHeaderTypeObjectMap. Severe error. Exiting. ")
             exit(1)
         else:
-            bitWidth = hdrObj.getOriginalbitwidth()
+            bitWidth = hdrObj.getPHVBitWidth(pipelineId)
             if(bitWidth<=0):
                 logger.info("bitwidth for header field : "+ headerName+" is found 0. This can not happen. Debug please . Exiting !!!!")
                 print("bitwidth for header field : "+ headerName+" is found 0. This can not happen. Debug please . Exiting !!!!")

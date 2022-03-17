@@ -384,7 +384,9 @@ class RMTV1ModelHardware:
                 startingStage, endginStage = self.embedMatNodeOverSRAMMatInMultipleStageWithActionEntriesReplication(p4ProgramGraph,pipelineID, matNode, hardware, startingStageIndex)
                 if(startingStage == - 1 and endginStage == -1 ):
                     startingStage, endginStage = self.embedMatNodeOverTCAMMatInMultipleStageWithActionEntriesReplication(p4ProgramGraph,pipelineID, matNode, hardware, startingStageIndex)
-        else: # This case will most likely not happen. Becuase we are assigning fixed number of action entries. which is covered in the if segement
+        else: # This case will most likely not happen. Becuase we are assigning fixed number of action entries. which is covered in the if segement. Even if we need
+            #  n number of action entries where n is the number of mat entries required, we need to handle same thing. Therefore the functions for replication and distribution mode are same
+            #However when we want to generate the configuration binary, we need to handle the index generation . on that case the details of these two functions become different
             if  (matNode.getMatchType() != MatchType.EXACT):
                 startingStage, endginStage = self.embedMatNodeOverTCAMMatInMultipleStageWithActionEntriesDistribution(p4ProgramGraph,pipelineID, matNode, hardware, startingStageIndex)
             else:
@@ -414,12 +416,14 @@ class RMTV1ModelHardware:
                 accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth \
                     (actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter())
             if((matNode.matKeyBitWidth <= currentStageHardwareResource.getAvailableTCAMMatKeyCrossbarBitwidth()) and \
-                (accmodatableActionEntries >= remainingActionEntries) and (accmodatableMatEntries >=  remainingMatEntries)):
+                    (currentStageHardwareResource.getAvailableActionCrossbarBitwidth() >= matNode.getMaxBitwidthOfActionParameter()) and \
+                    (accmodatableActionEntries >= remainingActionEntries) ):
+                # Becuase this fucntion assumes a fixed and small number of action for every mat. and replicats these actions in every stages where the mat entries needed to be deivided.
                 if(startingStage == -1):
                     startingStage = currentStageIndex
                 endingStage = currentStageIndex
+                currentStageHardwareResource.allocateMatNodeOverTCAMMat(matNode, min(accmodatableMatEntries, remainingMatEntries), remainingActionEntries)
                 remainingMatEntries = remainingMatEntries - min(accmodatableMatEntries, remainingMatEntries)
-                currentStageHardwareResource.allocateMatNodeOverTCAMMat(matNode)
                 if(remainingMatEntries>0):
                     currentStageIndex = currentStageIndex + 1
                     currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
@@ -458,13 +462,13 @@ class RMTV1ModelHardware:
                 accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth \
                     (actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter())
             if((matNode.matKeyBitWidth <= currentStageHardwareResource.getAvailableSRAMMatKeyCrossbarBitwidth()) and \
-                    (accmodatableActionEntries >= remainingActionEntries) and (accmodatableMatEntries >= remainingMatEntries)):
+                    (accmodatableActionEntries >= remainingActionEntries) and \
+                    (currentStageHardwareResource.getAvailableActionCrossbarBitwidth() >= matNode.getMaxBitwidthOfActionParameter()) ):
                 if(startingStage == -1):
                     startingStage = currentStageIndex
                 endingStage = currentStageIndex
+                currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode, min(accmodatableMatEntries, remainingMatEntries), remainingActionEntries) # write a method with this signature.
                 remainingMatEntries = remainingMatEntries - min(accmodatableMatEntries, remainingMatEntries)
-                print("We may allocate the resource here")
-                currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode)
                 currentStageIndex = currentStageIndex + 1
                 currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
                 if(remainingMatEntries>0):
@@ -489,6 +493,8 @@ class RMTV1ModelHardware:
         currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
         remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
         remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
+        if(remainingMatEntries == 0):
+            startingStage, endingStage = startingStageIndex, startingStageIndex
         while(currentStageHardwareResource != None) and (remainingMatEntries > 0):
             accmodatableMatEntries = 0
             if(matNode.matKeyBitWidth == 0):
@@ -502,15 +508,16 @@ class RMTV1ModelHardware:
                 accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth \
                     (actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter())
             if((matNode.matKeyBitWidth <= currentStageHardwareResource.getAvailableTCAMMatKeyCrossbarBitwidth()) and \
-                    (accmodatableActionEntries >= remainingActionEntries) and (accmodatableMatEntries >=  remainingMatEntries)):
+                    (currentStageHardwareResource.getAvailableActionCrossbarBitwidth() >= matNode.getMaxBitwidthOfActionParameter()) ):
                 if(startingStage == -1):
                     startingStage = currentStageIndex
                 endingStage = currentStageIndex
+                # Follwoing line is the main differenc between the replication and distribution method
                 entriesToBePlacedInThisStage = min(accmodatableMatEntries, remainingMatEntries, accmodatableActionEntries, remainingMatEntries)
                 remainingMatEntries = remainingMatEntries - entriesToBePlacedInThisStage
                 remainingActionEntries = remainingActionEntries - entriesToBePlacedInThisStage
                 print("We may allocate the resource here")
-                currentStageHardwareResource.allocateMatNodeOverTCAMMat(matNode)
+                currentStageHardwareResource.allocateMatNodeOverTCAMMat(matNode , numberOfMatEntriesToBeAllocated = entriesToBePlacedInThisStage, numberOfActionEntriesToBeAllocated = entriesToBePlacedInThisStage)
                 if(remainingMatEntries>0):
                     currentStageIndex = currentStageIndex + 1
                     currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
@@ -532,6 +539,8 @@ class RMTV1ModelHardware:
         currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
         remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
         remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
+        if(remainingMatEntries == 0):
+            startingStage, endingStage = startingStageIndex, startingStageIndex
         while(currentStageHardwareResource != None) and (remainingMatEntries > 0):
             accmodatableMatEntries = 0
             if(matNode.matKeyBitWidth == 0):
@@ -544,9 +553,8 @@ class RMTV1ModelHardware:
             else:
                 accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth \
                     (actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter())
-            if((currentStageHardwareResource.convertMatKeyBitWidthLengthToSRAMMatKeyLength(matNode.matKeyBitWidth) \
-                     <= currentStageHardwareResource.getAvailableSRAMMatKeyCrossbarBitwidth()) and \
-                    (accmodatableActionEntries >= remainingActionEntries) and (accmodatableMatEntries >=  remainingMatEntries)):
+            if((matNode.matKeyBitWidth <= currentStageHardwareResource.getAvailableSRAMMatKeyCrossbarBitwidth()) and \
+                    (currentStageHardwareResource.getAvailableActionCrossbarBitwidth() >= matNode.getMaxBitwidthOfActionParameter()) ):
                 if(startingStage == -1):
                     startingStage = currentStageIndex
                 endingStage = currentStageIndex
@@ -554,7 +562,7 @@ class RMTV1ModelHardware:
                 remainingMatEntries = remainingMatEntries - entriesToBePlacedInThisStage
                 remainingActionEntries = remainingActionEntries - entriesToBePlacedInThisStage
                 print("We may allocate the resource here")
-                currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode)
+                currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode, numberOfMatEntriesToBeAllocated = entriesToBePlacedInThisStage, numberOfActionEntriesToBeAllocated = entriesToBePlacedInThisStage)
                 if(remainingMatEntries>0):
                     currentStageIndex = currentStageIndex + 1
                     currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)

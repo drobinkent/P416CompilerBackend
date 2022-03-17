@@ -44,3 +44,9 @@ in embedding an action we need to calculate what is their memory requirement and
 
 
 
+*) memory usage optimization:
+will look at later part. but only needs to handle two function improvement. the indirect stateful memory allocation and action emmory allocation. These two function needs to
+utilize multi word packing to improve memory usage
+
+
+*) table embedding a direct stateful memory support in action is needed. it should be simple in implementation

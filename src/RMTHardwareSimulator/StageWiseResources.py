@@ -265,7 +265,7 @@ class StageWiseResource:
             exit(1)
         return False
 
-    def allocateMatNodeOverTCAMMat(self, matNode):
+    def allocateMatNodeOverTCAMMatWithOutParam(self, matNode):
         # if(self.usedActionCrossbarBitWidth < matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction()): #Because We are embedding all nodes on a sp-ecific level one by one. so any
         #     #table in same stage do need the maximum action crossbar among it's sibilings.
 
@@ -275,15 +275,29 @@ class StageWiseResource:
         self.allocateMatEntriesOverTCAMBasedMATSinSingleStage(matNode.matKeyBitWidth, matNode.getRequiredNumberOfMatEntries()) # This embeds both match-key and tables and entries in one stage
         self.allocateActionCrossbarBitwidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
         self.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= matNode.getRequiredNumberOfActionEntries())
+    def allocateMatNodeOverTCAMMat(self, matNode, numberOfMatEntriesToBeAllocated, numberOfActionEntriesToBeAllocated):
+        # if(self.usedActionCrossbarBitWidth < matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction()): #Because We are embedding all nodes on a sp-ecific level one by one. so any
+        #     #table in same stage do need the maximum action crossbar among it's sibilings.
 
+        # self.allocateTCAMMatKeyCount(matNode.totalKeysTobeMatched)
+        self.allocateTCAMMatKeyCrossbarBitwidth(matNode.matKeyBitWidth)
+        self.allocateTCAMMatBlocks(self.convertMatKeyBitWidthLengthToTCAMMatBlockCount(matNode.matKeyBitWidth))
+        self.allocateMatEntriesOverTCAMBasedMATSinSingleStage(matNode.matKeyBitWidth, numberOfMatEntriesToBeAllocated) # This embeds both match-key and tables and entries in one stage
+        self.allocateActionCrossbarBitwidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
+        self.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= numberOfActionEntriesToBeAllocated)
 
-    def allocateMatNodeOverSRAMMat(self, matNode):
+    def allocateMatNodeOverSRAMMatWithoutParam(self, matNode):
         self.allocateSRAMMatKeyCrossbarBitwidth(matNode.matKeyBitWidth)
         self.allocateSRAMMatBlocks(self.convertMatKeyBitWidthLengthToSRAMMatBlockCount(matNode.matKeyBitWidth))
         self.allocateMatEntriesOverSRAMBasedMATSInSingleStage(matNode.matKeyBitWidth, matNode.getRequiredNumberOfMatEntries()) # This embeds both match-key and tables and entries in one stage
         self.allocateActionCrossbarBitwidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
         self.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= matNode.getRequiredNumberOfActionEntries())
-
+    def allocateMatNodeOverSRAMMat(self, matNode, numberOfMatEntriesToBeAllocated, numberOfActionEntriesToBeAllocated):
+        self.allocateSRAMMatKeyCrossbarBitwidth(matNode.matKeyBitWidth)
+        self.allocateSRAMMatBlocks(self.convertMatKeyBitWidthLengthToSRAMMatBlockCount(matNode.matKeyBitWidth))
+        self.allocateMatEntriesOverSRAMBasedMATSInSingleStage(matNode.matKeyBitWidth, numberOfMatEntriesToBeAllocated) # This embeds both match-key and tables and entries in one stage
+        self.allocateActionCrossbarBitwidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
+        self.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= numberOfActionEntriesToBeAllocated)
 
     def isMatNodeEmbeddableOnSRAMMatBlocks(self, matNode):
         isEmbeddable = False
@@ -370,21 +384,19 @@ class StageWiseResource:
 
         if (self.getAvailableActionMemoryBitwidth() >= maxActionMemoryBitwidth) and \
                 (self.getAvailableActionCrossbarBitwidth() >= maxActionCrossbarBitwidth):
-            # self.allocateActionMemoryBitwidth(maxActionMemoryBitwidth)
-            # self.allocateActionCrossbarBitwidth(maxActionCrossbarBitwidth)
             p4ProgramGraph.parsedP4Program.computeMatchActionResourceRequirementForMatNode(matNode, p4ProgramGraph, pipelineID) # Though redundant but not harm in calling
             for matNode in matNodeList: # The matnode list already sorted and TCAM based tables will come first. So they will be embedded at first
                 if(matNode.originalP4node.match_type.value != MatchType.EXACT):
                     #try to embed the matnode in tcam
                     if(self.isMatNodeEmbeddableOnTCAMMatBlocks(matNode,maxActionCrossbarBitwidth,maxActionMemoryBitwidth)):
-                        self.allocateMatNodeOverTCAMMat(matNode) #TODO : this need to include both action memory and direct statefule memories
+                        self.allocateMatNodeOverTCAMMatWithOutParam(matNode) #TODO : this need to include both action memory and direct statefule memories
                     else:
                         isEmbeddable = False
                 else:
                     if(self.isMatNodeEmbeddableOnSRAMMatBlocks(matNode)):
-                        self.allocateMatNodeOverSRAMMat(matNode) #TODO : this need to include both action memory and direct statefule memories
+                        self.allocateMatNodeOverSRAMMatWithoutParam(matNode) #TODO : this need to include both action memory and direct statefule memories
                     elif(self.isMatNodeEmbeddableOnTCAMMatBlocks(matNode)):
-                        self.allocateMatNodeOverTCAMMat(matNode)
+                        self.allocateMatNodeOverTCAMMatWithOutParam(matNode)
                     else:
                         isEmbeddable = False
         else:
