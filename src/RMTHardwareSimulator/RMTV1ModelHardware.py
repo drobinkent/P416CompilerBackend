@@ -676,11 +676,17 @@ class RMTV1ModelHardware:
         return  statefulMemoryNameToUserMatListMap, matListNotUsingStatefulMem, usedStatefulMemSet
 
     def calculateTotalLatency(self,p4ProgramGraph):
+        ingressPipepine1Delay = 0
+        egressPipepineDelay = 0
         for pipeline in p4ProgramGraph.parsedP4Program.pipelines:
             if(pipeline.name == PipelineID.INGRESS_PIPELINE.value):
-                self.calculateTotalLatencyOfOnePipeline(p4ProgramGraph, PipelineID.INGRESS_PIPELINE)
+                ingressPipepine1Delay = self.calculateTotalLatencyOfOnePipeline(p4ProgramGraph, PipelineID.INGRESS_PIPELINE)
+                print("ingressPipepine1Delay = 0 is "+str(ingressPipepine1Delay))
             if(pipeline.name == PipelineID.EGRESS_PIPELINE.value):
-                self.calculateTotalLatencyOfOnePipeline(p4ProgramGraph, PipelineID.INGRESS_PIPELINE)
+                egressPipepineDelay = self.calculateTotalLatencyOfOnePipeline(p4ProgramGraph, PipelineID.EGRESS_PIPELINE)
+                print("egressPipepineDelay = 0 is "+str(egressPipepineDelay))
+        print("Total delay is :"+str(ingressPipepine1Delay+egressPipepineDelay))
+        return ingressPipepine1Delay + egressPipepineDelay
 
     def calculateTotalLatencyOfOnePipeline(self,p4ProgramGraph, pipelineID):
         stageIndexList = list(self.stageWiseResources.keys())
@@ -691,32 +697,29 @@ class RMTV1ModelHardware:
             interStageDelay = 0
             for stage1Table in self.stageWiseResources.get(stageIndex).listOfLogicalTableMappedToThisStage.get(pipelineID):
                 for stage2Table in self.stageWiseResources.get(stageIndex+1).listOfLogicalTableMappedToThisStage.get(pipelineID):
-                    delay = self.getDealyBetweenTwoLogicalTable(stage2Table, stage2Table,p4ProgramGraph,pipelineID)
+                    delay = self.getDealyBetweenTwoLogicalTable(stage1Table, stage2Table,p4ProgramGraph,pipelineID)
                     if(delay>interStageDelay):
                         interStageDelay = delay
-            totalDelay = stage1Dealy + stage2Dealy - (stage1Dealy - interStageDelay)
-
-
+            totalDelay = totalDelay + stage1Dealy + stage2Dealy - (stage1Dealy - interStageDelay)
         return totalDelay
 
     def getDealyBetweenTwoLogicalTable(self,stage1Table,stage2Table,p4ProgramGraph,pipelineID):
-        print("Test")
         pipeplineGraph = p4ProgramGraph.pipelineIdToPipelineGraphMap.get(pipelineID)
-        dependencyType = pipeplineGraph.matToMatDependnecyAnalysis(stage1Table,stage2Table)
-        if(dependencyType == DependencyType.MATCH_DEPENDENCY):
-            return 1
-        elif(dependencyType == DependencyType.ACTION_DEPENDENCY):
-            return 1
-        elif(dependencyType == DependencyType.SUCCESOR_DEPENDENCY):
-            return 1
-        elif(dependencyType == DependencyType.REVERSE_MATCH_DEPENDENCY):
-            return 1
-        elif(dependencyType == DependencyType.NO_DEPNDENCY):
-            return 1
-        elif(dependencyType == DependencyType.DUMMY_DEPENDENCY_TO_END):
-            return 1
-        elif(dependencyType == DependencyType.DUMMY_DEPENDENCY_FROM_START):
-            return 1
+        dep = pipeplineGraph.matToMatDependnecyAnalysis(stage1Table,stage2Table)
+        if(dep.dependencyType == DependencyType.MATCH_DEPENDENCY):
+            return self.hardwareSpecRawJsonObjects.dependency_delay_in_cycle_legth.match_dependency
+        elif(dep.dependencyType == DependencyType.ACTION_DEPENDENCY):
+            return self.hardwareSpecRawJsonObjects.dependency_delay_in_cycle_legth.action_dependency
+        elif(dep.dependencyType == DependencyType.SUCCESOR_DEPENDENCY):
+            return self.hardwareSpecRawJsonObjects.dependency_delay_in_cycle_legth.successor_dependency
+        elif(dep.dependencyType == DependencyType.REVERSE_MATCH_DEPENDENCY):
+            return self.hardwareSpecRawJsonObjects.dependency_delay_in_cycle_legth.reverse_match_dependency
+        elif(dep.dependencyType == DependencyType.NO_DEPNDENCY):
+            return self.hardwareSpecRawJsonObjects.dependency_delay_in_cycle_legth.default_dependency
+        elif(dep.dependencyType == DependencyType.DUMMY_DEPENDENCY_TO_END):
+            return 0
+        elif(dep.dependencyType == DependencyType.DUMMY_DEPENDENCY_FROM_START):
+            return 0
         return 0
     # logicalmatlist er protita element kon stateful element use korche seta pacchi. okhan theke dui set a vag korte pari.
     # tarpo okhan theke jara stateful memoery use korche, sei element gulor set nibo. tahole unique stateful memoery gulor name pacchi.
