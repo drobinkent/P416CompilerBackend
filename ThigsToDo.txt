@@ -53,3 +53,7 @@ utilize multi word packing to improve memory usage
 
 *) our memory packing is not good. for example assume someone using a single register. our algorithm will allocate a whole block for it.
 To solve that we ned to model a full memory layout. and need to decide where to keep which elements.
+
+*) we are basically not allocating fixed amount of sram blocks for action. we are allocting them from totla sram blocks. need to
+modify the hardwre description where we have said fixed number of sram blocks. also we are saying that we are using fixed number of sram blocks. but we can also support
+per mat rule sram entries.

@@ -126,7 +126,7 @@ class StageWiseResource:
     def getAvailableActionCrossbarBitwidth(self):
         return self.availableActionCrossbarBitWidth
 
-    def allocateActionMemoryBitwidth(self, actionMemoryBitwidth):
+    def allocateActionMemoryBlockBitwidth(self, actionMemoryBitwidth):
         '''When there are multiple tables or action is mapped on a stage, only one table is eecuted at a time and one action is executed at a time
         Therefore, only keep the action that have maximum bitwisdth among all table and their actions.'''
         requiredActionMemoryBlockWidth = math.ceil(actionMemoryBitwidth / self.actionMemoryBlockBitWidth)
@@ -284,6 +284,7 @@ class StageWiseResource:
         self.allocateTCAMMatBlocks(self.convertMatKeyBitWidthLengthToTCAMMatBlockCount(matNode.matKeyBitWidth))
         self.allocateMatEntriesOverTCAMBasedMATSinSingleStage(matNode.matKeyBitWidth, matNode.getRequiredNumberOfMatEntries()) # This embeds both match-key and tables and entries in one stage
         self.allocateActionCrossbarBitwidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
+        self.allocateActionMemoryBlockBitwidth( matNode.getMaxBitwidthOfActionParameter())
         self.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= matNode.getRequiredNumberOfActionEntries())
         self.listOfLogicalTableMappedToThisStage.get(pipelineID).append(matNode)
     def allocateMatNodeOverTCAMMat(self, matNode, numberOfMatEntriesToBeAllocated, numberOfActionEntriesToBeAllocated,pipelineID):
@@ -295,6 +296,7 @@ class StageWiseResource:
         self.allocateTCAMMatBlocks(self.convertMatKeyBitWidthLengthToTCAMMatBlockCount(matNode.matKeyBitWidth))
         self.allocateMatEntriesOverTCAMBasedMATSinSingleStage(matNode.matKeyBitWidth, numberOfMatEntriesToBeAllocated) # This embeds both match-key and tables and entries in one stage
         self.allocateActionCrossbarBitwidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
+        self.allocateActionMemoryBlockBitwidth( matNode.getMaxBitwidthOfActionParameter())
         self.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= numberOfActionEntriesToBeAllocated)
         self.listOfLogicalTableMappedToThisStage.get(pipelineID).append(matNode)
 
@@ -303,6 +305,7 @@ class StageWiseResource:
         self.allocateSRAMMatBlocks(self.convertMatKeyBitWidthLengthToSRAMMatBlockCount(matNode.matKeyBitWidth))
         self.allocateMatEntriesOverSRAMBasedMATSInSingleStage(matNode.matKeyBitWidth, matNode.getRequiredNumberOfMatEntries()) # This embeds both match-key and tables and entries in one stage
         self.allocateActionCrossbarBitwidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
+        self.allocateActionMemoryBlockBitwidth( matNode.getMaxBitwidthOfActionParameter())
         self.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= matNode.getRequiredNumberOfActionEntries())
         self.listOfLogicalTableMappedToThisStage.get(pipelineID).append(matNode)
     def allocateMatNodeOverSRAMMat(self, matNode, numberOfMatEntriesToBeAllocated, numberOfActionEntriesToBeAllocated,pipelineID):
@@ -310,6 +313,7 @@ class StageWiseResource:
         self.allocateSRAMMatBlocks(self.convertMatKeyBitWidthLengthToSRAMMatBlockCount(matNode.matKeyBitWidth))
         self.allocateMatEntriesOverSRAMBasedMATSInSingleStage(matNode.matKeyBitWidth, numberOfMatEntriesToBeAllocated) # This embeds both match-key and tables and entries in one stage
         self.allocateActionCrossbarBitwidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
+        self.allocateActionMemoryBlockBitwidth( matNode.getMaxBitwidthOfActionParameter())
         self.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= numberOfActionEntriesToBeAllocated)
         self.listOfLogicalTableMappedToThisStage.get(pipelineID).append(matNode)
 
