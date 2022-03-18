@@ -177,7 +177,7 @@
       "name" : "deparser",
       "id" : 0,
       "source_info" : {
-        "filename" : "Resources/test.p4",
+        "filename" : "test.p4",
         "line" : 181,
         "column" : 8,
         "source_fragment" : "MyDeparser"
@@ -193,7 +193,7 @@
       "name" : "MyIngress.sf_1",
       "id" : 0,
       "source_info" : {
-        "filename" : "Resources/test.p4",
+        "filename" : "test.p4",
         "line" : 124,
         "column" : 28,
         "source_fragment" : "sf_1"
@@ -205,7 +205,7 @@
       "name" : "MyIngress.sf_2",
       "id" : 1,
       "source_info" : {
-        "filename" : "Resources/test.p4",
+        "filename" : "test.p4",
         "line" : 125,
         "column" : 28,
         "source_fragment" : "sf_2"
@@ -217,7 +217,7 @@
       "name" : "MyIngress.sf_3",
       "id" : 2,
       "source_info" : {
-        "filename" : "Resources/test.p4",
+        "filename" : "test.p4",
         "line" : 126,
         "column" : 28,
         "source_fragment" : "sf_3"
@@ -264,7 +264,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "Resources/test.p4",
+            "filename" : "test.p4",
             "line" : 94,
             "column" : 7,
             "source_fragment" : "meta.nsf_3 = action_param"
@@ -295,7 +295,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "Resources/test.p4",
+            "filename" : "test.p4",
             "line" : 108,
             "column" : 6,
             "source_fragment" : "meta.nsf_6 = action_param"
@@ -325,7 +325,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "Resources/test.p4",
+            "filename" : "test.p4",
             "line" : 131,
             "column" : 16,
             "source_fragment" : "sf_1.write((bit<32>)(1), (bit<16>) 0)"
@@ -348,7 +348,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "Resources/test.p4",
+            "filename" : "test.p4",
             "line" : 132,
             "column" : 16,
             "source_fragment" : "sf_2.write((bit<32>)(1), (bit<16>) 0)"
@@ -371,7 +371,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "Resources/test.p4",
+            "filename" : "test.p4",
             "line" : 133,
             "column" : 16,
             "source_fragment" : "sf_3.write((bit<32>)(1), (bit<16>) 0)"
@@ -397,7 +397,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "Resources/test.p4",
+            "filename" : "test.p4",
             "line" : 139,
             "column" : 16,
             "source_fragment" : "meta.nsf_4 = 10"
@@ -423,7 +423,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "Resources/test.p4",
+            "filename" : "test.p4",
             "line" : 142,
             "column" : 16,
             "source_fragment" : "meta.nsf_5 = 10"
@@ -453,7 +453,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "Resources/test.p4",
+            "filename" : "test.p4",
             "line" : 144,
             "column" : 12,
             "source_fragment" : "sf_2.write((bit<32>)(1), (bit<16>) 0)"
@@ -483,7 +483,7 @@
             }
           ],
           "source_info" : {
-            "filename" : "Resources/test.p4",
+            "filename" : "test.p4",
             "line" : 150,
             "column" : 16,
             "source_fragment" : "sf_3.write((bit<32>)(1), (bit<16>) 0)"
@@ -497,7 +497,7 @@
       "name" : "ingress",
       "id" : 0,
       "source_info" : {
-        "filename" : "Resources/test.p4",
+        "filename" : "test.p4",
         "line" : 90,
         "column" : 8,
         "source_fragment" : "MyIngress"
@@ -508,7 +508,7 @@
           "name" : "MyIngress.mat_nsf2",
           "id" : 0,
           "source_info" : {
-            "filename" : "Resources/test.p4",
+            "filename" : "test.p4",
             "line" : 97,
             "column" : 9,
             "source_fragment" : "mat_nsf2"
@@ -523,7 +523,7 @@
           ],
           "match_type" : "lpm",
           "type" : "simple",
-          "max_size" : 1024,
+          "max_size" : 131072,
           "with_counters" : false,
           "support_timeout" : false,
           "direct_meters" : null,
@@ -545,7 +545,7 @@
           "name" : "tbl_test131",
           "id" : 1,
           "source_info" : {
-            "filename" : "Resources/test.p4",
+            "filename" : "test.p4",
             "line" : 131,
             "column" : 16,
             "source_fragment" : "sf_1.write((bit<32>)(1), (bit<16>) 0); ..."
@@ -574,7 +574,7 @@
           "name" : "tbl_test139",
           "id" : 2,
           "source_info" : {
-            "filename" : "Resources/test.p4",
+            "filename" : "test.p4",
             "line" : 139,
             "column" : 27,
             "source_fragment" : "="
@@ -603,7 +603,7 @@
           "name" : "tbl_test142",
           "id" : 3,
           "source_info" : {
-            "filename" : "Resources/test.p4",
+            "filename" : "test.p4",
             "line" : 142,
             "column" : 27,
             "source_fragment" : "="
@@ -632,7 +632,7 @@
           "name" : "tbl_test144",
           "id" : 4,
           "source_info" : {
-            "filename" : "Resources/test.p4",
+            "filename" : "test.p4",
             "line" : 144,
             "column" : 12,
             "source_fragment" : "sf_2.write((bit<32>)(1), (bit<16>) 0)"
@@ -661,7 +661,7 @@
           "name" : "MyIngress.mat_nsf5",
           "id" : 5,
           "source_info" : {
-            "filename" : "Resources/test.p4",
+            "filename" : "test.p4",
             "line" : 110,
             "column" : 9,
             "source_fragment" : "mat_nsf5"
@@ -698,7 +698,7 @@
           "name" : "tbl_test150",
           "id" : 6,
           "source_info" : {
-            "filename" : "Resources/test.p4",
+            "filename" : "test.p4",
             "line" : 150,
             "column" : 16,
             "source_fragment" : "sf_3.write((bit<32>)(1), (bit<16>) 0)"
@@ -730,7 +730,7 @@
           "name" : "node_2",
           "id" : 0,
           "source_info" : {
-            "filename" : "Resources/test.p4",
+            "filename" : "test.p4",
             "line" : 129,
             "column" : 12,
             "source_fragment" : "meta.nsf_1 == 1"
@@ -756,7 +756,7 @@
           "name" : "node_5",
           "id" : 1,
           "source_info" : {
-            "filename" : "Resources/test.p4",
+            "filename" : "test.p4",
             "line" : 135,
             "column" : 18,
             "source_fragment" : "meta.nsf_1 == 2"
@@ -782,7 +782,7 @@
           "name" : "node_6",
           "id" : 2,
           "source_info" : {
-            "filename" : "Resources/test.p4",
+            "filename" : "test.p4",
             "line" : 138,
             "column" : 15,
             "source_fragment" : "meta.nsf_3 >2"
@@ -808,7 +808,7 @@
           "name" : "node_8",
           "id" : 3,
           "source_info" : {
-            "filename" : "Resources/test.p4",
+            "filename" : "test.p4",
             "line" : 141,
             "column" : 15,
             "source_fragment" : "meta.nsf_4 >2"
@@ -834,7 +834,7 @@
           "name" : "node_11",
           "id" : 4,
           "source_info" : {
-            "filename" : "Resources/test.p4",
+            "filename" : "test.p4",
             "line" : 145,
             "column" : 18,
             "source_fragment" : "meta.nsf_1 == 3"
@@ -862,7 +862,7 @@
       "name" : "egress",
       "id" : 1,
       "source_info" : {
-        "filename" : "Resources/test.p4",
+        "filename" : "test.p4",
         "line" : 161,
         "column" : 8,
         "source_fragment" : "MyEgress"
@@ -914,7 +914,7 @@
       ["standard_metadata", "priority"]
     ]
   ],
-  "program" : "Resources//test.p4i",
+  "program" : "./test.p4i",
   "__meta__" : {
     "version" : [2, 23],
     "compiler" : "https://github.com/p4lang/p4c"

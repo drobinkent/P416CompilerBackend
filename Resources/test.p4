@@ -101,7 +101,7 @@ control MyIngress(inout headers hdr,
        actions = {
            set_nsf_3;
        }
-       size = 1024;
+       size = 131072;
 
    }
    action set_nsf_6(bit<8> action_param) {
