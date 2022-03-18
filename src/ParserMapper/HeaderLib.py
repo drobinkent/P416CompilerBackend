@@ -40,9 +40,9 @@ def loadParseGraph(parserObject,p4ProgramGraph):
     # while (curParserState != None):
     for curParserState in parserObject.parse_states:
         # print("Hello")
-        if(len(curParserState.parser_ops) ==0) and (curParserState.transition_key[0].value[0] != "standard_metadata"):
-            print("At this moment we are not supporting parser states where there is no header to be parsed but the trnaistion key is a etadta field.")
-            exit(1)
+        # if(len(curParserState.parser_ops) ==0) and (curParserState.transition_key[0].value[0] != "standard_metadata"):
+        if(len(curParserState.parser_ops) ==0) and (len(curParserState.transition_key)==0):
+            pass
         else:
             parserMapperHeader = None
             if(len(curParserState.parser_ops) == 1) or\

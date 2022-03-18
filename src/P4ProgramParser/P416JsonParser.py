@@ -778,13 +778,16 @@ class SourceInfo:
 
     @staticmethod
     def from_dict(obj: Any) -> 'SourceInfo':
-        assert isinstance(obj, dict)
+        if (isinstance(obj, dict)):
+            return SourceInfo(str(obj))
+        else:
+            return None
         # filename = Program(obj.get("filename"))
         # line = from_int(obj.get("line"))
         # column = from_int(obj.get("column"))
         # source_fragment = from_str(obj.get("source_fragment"))
         # return SourceInfo(filename, line, column, source_fragment)
-        return SourceInfo(str(obj))
+
 
     # def to_dict(self) -> dict:
     #     result: dict = {}
@@ -3118,7 +3121,7 @@ class ParsedP416ProgramForV1ModelArchitecture:
                     if(hType.name == h.header_type):
                         return hType.fields
         return None
-    def buildHeaderVectorForGivenStruct(self, headerTypeName, headerType,hw):
+    def buildHeaderVectorForGivenStruct(self, headerTypeName, headerType, hw):
         returnValue = {}
         headerType = self.getHeaderTypeFromName(headerTypeName)
         if (headerType == None):
@@ -3130,7 +3133,7 @@ class ParsedP416ProgramForV1ModelArchitecture:
             returnValue[hdrObj.name] = hdrObj
         return returnValue
 
-    def buildHeaderVector(self):
+    def buildHeaderVector(self,hw):
         for h in self.headers:
             headerTypeName = h.header_type
             # headertypeNameUsedInSource =
@@ -3142,7 +3145,7 @@ class ParsedP416ProgramForV1ModelArchitecture:
                 logger.error("Header Type for the header "+ h.get("name")+" is not found. Exiting")
                 exit(1)
             for htf in headerType.fields:
-                bitWidth = math.ceil(float(htf[1]/8))*8
+                bitWidth = math.ceil(float(htf[1]/hw.getMinBitwidthOfPHVFields()))*hw.getMinBitwidthOfPHVFields()
                 # bitWidth = int(htf[1])
                 hdrObj = HeaderField(name=h.name+"."+htf[0], bitWidth= float(htf[1]), isSigned= htf[2], mutlipleOf8Bitwidth= bitWidth)
                 self.nameToHeaderTypeObjectMap[hdrObj.name] = hdrObj
@@ -3200,14 +3203,15 @@ class ParsedP416ProgramForV1ModelArchitecture:
         learn_lists = from_list(lambda x: x, obj.get("learn_lists"))
         actions = from_list(Action.from_dict, obj.get("actions"))
         pipelines = from_list(Pipeline.from_dict, obj.get("pipelines"))
-        checksums = from_list(Checksum.from_dict, obj.get("checksums"))
+        # checksums = from_list(Checksum.from_dict, obj.get("checksums"))
+        checksums = None
         force_arith = from_list(lambda x: x, obj.get("force_arith"))
         extern_instances = from_list(lambda x: x, obj.get("extern_instances"))
         field_aliases = from_list(lambda x: from_list(lambda x: from_union([lambda x: from_list(from_str, x), from_str], x), x), obj.get("field_aliases"))
         program = Program.from_dict(obj.get("program"))
         meta = Meta.from_dict(obj.get("__meta__"))
         parsedP4Program =  ParsedP416ProgramForV1ModelArchitecture(header_types, headers, header_stacks, header_union_types, header_unions, header_union_stacks, field_lists, errors, enums, parsers, parse_vsets, deparsers, meter_arrays, counter_arrays, register_arrays, calculations, learn_lists, actions, pipelines, checksums, force_arith, extern_instances, field_aliases, program, meta, {}, {})
-        parsedP4Program.buildHeaderVector()
+        
         return parsedP4Program
 
     def to_dict(self) -> dict:

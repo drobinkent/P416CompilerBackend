@@ -254,7 +254,7 @@ class RMTV1ModelHardware:
             pass
 
     def mapHeaderFields(self, p4ProgramHeaderFieldSpecs):
-        print("In mapHeaderFields")
+        # print("In mapHeaderFields")
         phvFieldSizeVsCountMap = copy.deepcopy(self.pakcetHeaderVectorFieldSizeVsCountMap)
         p4ProgramHeaderFieldsSizeInDecreasingOrder = list(p4ProgramHeaderFieldSpecs.keys())
         p4ProgramHeaderFieldsSizeInDecreasingOrder.sort(reverse=True)
@@ -263,7 +263,7 @@ class RMTV1ModelHardware:
             p4HeaderFieldCountForSelectedBitwidth = p4ProgramHeaderFieldSpecs.get(bitWidth)
             for i in range(0, p4HeaderFieldCountForSelectedBitwidth):
                 phvFieldListForThisHeaderField = self.fillP4HeaderFieldWithPhvFields(bitWidth,phvFieldSizeVsCountMap)
-                print(phvFieldListForThisHeaderField)
+                # print(phvFieldListForThisHeaderField)
                 if(p4ProgramFieldSizeVsPHVFieldSizeMap.get(bitWidth) == None):
                     p4ProgramFieldSizeVsPHVFieldSizeMap[bitWidth] = []
                 p4ProgramFieldSizeVsPHVFieldSizeMap[bitWidth]=p4ProgramFieldSizeVsPHVFieldSizeMap.get(bitWidth) + phvFieldListForThisHeaderField
