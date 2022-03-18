@@ -67,15 +67,21 @@ class RMTV1ModelHardware:
 
     def initResourcesFromRawJsonConfigurations(self):
         self.totalStages = self.hardwareSpecRawJsonObjects.total_stages
-
-        for rawPhvSpecsList in self.hardwareSpecRawJsonObjects.header_vector_specs:
-            self.pakcetHeaderVectorFieldSizeVsCountMap[rawPhvSpecsList.bit_width] = rawPhvSpecsList.count
-        print(self.hardwareSpecRawJsonObjects)
+        self.loadPHVSpecs()
+        # print(self.hardwareSpecRawJsonObjects)
         self.loadInstructionSet()
         self.loadStageWiseResource()
         self.loadParserSpecs()
         # for i in range(0, self.totalStages):
         #     self.stageWiseResources[i] = self.loadStageResource(i)
+    def loadPHVSpecs(self):
+        for rawPhvSpecsList in self.hardwareSpecRawJsonObjects.header_vector_specs:
+            self.pakcetHeaderVectorFieldSizeVsCountMap[rawPhvSpecsList.bit_width] = rawPhvSpecsList.count
+    def getMinBitwidthOfPHVFields(self):
+        self.loadPHVSpecs()
+        bitWidthList = list(self.pakcetHeaderVectorFieldSizeVsCountMap.keys())
+        bitWidthList.sort()
+        return bitWidthList[0]
 
     def  loadParserSpecs(self):
         print(self.hardwareSpecRawJsonObjects.parser_specs)
@@ -167,7 +173,7 @@ class RMTV1ModelHardware:
                 p4ProgramHeaderFieldSpecsConvertedToPHVSpecs[phvFieldSizeForP4Programfield] = count+oldCount
         return p4ProgramHeaderFieldSpecsConvertedToPHVSpecs
 
-    def mapHeaderFields(self, p4ProgramHeaderFieldSpecs):
+    def mapHeaderFieldsUsingGoogleOR(self, p4ProgramHeaderFieldSpecs):
         #TODO at first convert the p4 programs header fields size
         # p4ProgramHeaderFieldSpecs= self.convertP4PRogramHeaderFieldSizetoPHVFieldSize(p4ProgramHeaderFieldSpecs)
         # print("The converted header specs of the givne P4 program is ",p4ProgramHeaderFieldSpecs)
@@ -246,6 +252,47 @@ class RMTV1ModelHardware:
         else:
             print('The problem does not have an optimal solution.')
             pass
+
+    def mapHeaderFields(self, p4ProgramHeaderFieldSpecs):
+        print("In mapHeaderFields")
+        phvFieldSizeVsCountMap = copy.deepcopy(self.pakcetHeaderVectorFieldSizeVsCountMap)
+        p4ProgramHeaderFieldsSizeInDecreasingOrder = list(p4ProgramHeaderFieldSpecs.keys())
+        p4ProgramHeaderFieldsSizeInDecreasingOrder.sort(reverse=True)
+        p4ProgramFieldSizeVsPHVFieldSizeMap = {}
+        for bitWidth in p4ProgramHeaderFieldsSizeInDecreasingOrder:
+            p4HeaderFieldCountForSelectedBitwidth = p4ProgramHeaderFieldSpecs.get(bitWidth)
+            for i in range(0, p4HeaderFieldCountForSelectedBitwidth):
+                phvFieldListForThisHeaderField = self.fillP4HeaderFieldWithPhvFields(bitWidth,phvFieldSizeVsCountMap)
+                print(phvFieldListForThisHeaderField)
+                if(p4ProgramFieldSizeVsPHVFieldSizeMap.get(bitWidth) == None):
+                    p4ProgramFieldSizeVsPHVFieldSizeMap[bitWidth] = []
+                p4ProgramFieldSizeVsPHVFieldSizeMap[bitWidth]=p4ProgramFieldSizeVsPHVFieldSizeMap.get(bitWidth) + phvFieldListForThisHeaderField
+
+        return p4ProgramFieldSizeVsPHVFieldSizeMap
+
+    def getLargestPHVFieldsForGivenp4HeaderField(self,p4ProgramHeaderBitWidth,phvFieldSizeVsCountMap):
+        phvfieldSizes = list(phvFieldSizeVsCountMap.keys())
+        phvfieldSizes.sort(reverse=True)
+        for phvFieldSize in phvfieldSizes:
+            if (phvFieldSize<=p4ProgramHeaderBitWidth) and (phvFieldSizeVsCountMap.get(phvFieldSize)>0):
+                return phvFieldSize
+        return -1
+
+    def  fillP4HeaderFieldWithPhvFields(self,p4ProgramHeaderBitWidth,phvFieldSizeVsCountMap):
+        originalHeaderFieldWidth = p4ProgramHeaderBitWidth
+        phvFieldListForThisHeaderField = []
+        while(p4ProgramHeaderBitWidth>0):
+            nearestSizePhVField = self.getLargestPHVFieldsForGivenp4HeaderField(p4ProgramHeaderBitWidth, phvFieldSizeVsCountMap)
+
+            if(nearestSizePhVField == -1):
+                print("A header field of bitwidth "+str(originalHeaderFieldWidth)+" can not be allocated PHV fields in this system. Hence The P4 program can not be mapped tothis hardware. Extiting!!")
+                exit(1)
+            else:
+                phvFieldSizeVsCountMap[nearestSizePhVField]=phvFieldSizeVsCountMap.get(nearestSizePhVField) -1
+                p4ProgramHeaderBitWidth = p4ProgramHeaderBitWidth-nearestSizePhVField
+                phvFieldListForThisHeaderField.append(nearestSizePhVField)
+
+        return phvFieldListForThisHeaderField
 
 
     #================================================= The menthods for embedding starts here

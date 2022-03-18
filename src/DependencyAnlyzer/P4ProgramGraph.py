@@ -69,12 +69,12 @@ class P4ProgramGraph:
                 hw.embedP4ProgramAccordingToSingleMatrix(self,pipelineID=PipelineID.EGRESS_PIPELINE, hardware = hw)
                 pass
 
-    def headeranalyzer(self):
+    def headeranalyzer(self,hw):
         # print(self.parsedP4Program.nameToHeaderTypeObjectMap)
         headerfieldListOfMetadata = None
         for hdrtype in self.parsedP4Program.header_types:
             if hdrtype.name == "standard_metadata":
-                headerfieldListOfMetadata = self.parsedP4Program.buildHeaderVectorForGivenStruct(hdrtype.name, hdrtype)
+                headerfieldListOfMetadata = self.parsedP4Program.buildHeaderVectorForGivenStruct(hdrtype.name, hdrtype,hw)
 
         bitWidthByHeadercountForIngress = None
         bitWidthByHeadercountForEgress= None

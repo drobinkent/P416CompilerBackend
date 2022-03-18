@@ -3118,14 +3118,14 @@ class ParsedP416ProgramForV1ModelArchitecture:
                     if(hType.name == h.header_type):
                         return hType.fields
         return None
-    def buildHeaderVectorForGivenStruct(self, headerTypeName, headerType):
+    def buildHeaderVectorForGivenStruct(self, headerTypeName, headerType,hw):
         returnValue = {}
         headerType = self.getHeaderTypeFromName(headerTypeName)
         if (headerType == None):
             logger.error("Header Type for the header "+headerTypeName+" is not found. Exiting")
             exit(1)
         for htf in headerType.fields:
-            bitWidth = math.ceil(float(htf[1]/8))*8
+            bitWidth = math.ceil(float(htf[1]/hw.getMinBitwidthOfPHVFields()))*hw.getMinBitwidthOfPHVFields()
             hdrObj = HeaderField(name=headerTypeName+"."+htf[0], bitWidth= float(htf[1]), isSigned= htf[2],  mutlipleOf8Bitwidth= bitWidth)
             returnValue[hdrObj.name] = hdrObj
         return returnValue

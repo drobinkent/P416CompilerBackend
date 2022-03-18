@@ -17,13 +17,13 @@ hw = RMTHardwareFactory.createRmtHardware(rmtHardwaRemodelName = "RMT_V1",
 p4program = p4ProgramParserFactory.getParsedP4Program(p4JsonFile="../Resources/test.json",p4VersionAndArchitecture="P416_V1_Model")
 p4ProgramGraph = P4ProgramGraph(p4program)
 
-headerFieldSpecsInP4ProgramToBeUsedForParserMapper = p4ProgramGraph.headeranalyzer()
+headerFieldSpecsInP4ProgramToBeUsedForParserMapper = p4ProgramGraph.headeranalyzer(hw)
 parseGraphHeaderList, parsedGraphHeaders = HeaderLib.loadParseGraph(parserObject = p4program.parsers[0], p4ProgramGraph = p4ProgramGraph) # There is only one parser in v1model
 buildParserMapper(parseGraphHeaderList, parsedGraphHeaders, hw)
 
 p4ProgramGraph.loadPipelines(hw)
-headerFieldSpecsInP4Program = p4ProgramGraph.headeranalyzer()
-
+headerFieldSpecsInP4Program = p4ProgramGraph.headeranalyzer(hw)
+# mappedPacketHeaderVector1 = hw.mapHeaderFieldsUsingGoogleOR(headerFieldSpecsInP4Program)
 mappedPacketHeaderVector = hw.mapHeaderFields(headerFieldSpecsInP4Program)
 p4ProgramGraph.storePHVFieldMappingForHeaderFields(mappedPacketHeaderVector=mappedPacketHeaderVector)
 p4ProgramGraph.embedPipelines(hw)
