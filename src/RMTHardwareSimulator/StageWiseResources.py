@@ -57,7 +57,7 @@ class StageWiseResource:
         if(len(self.listOfLogicalTableMappedToThisStage.get(pipelineId)) >0):
             return self.rmtHWSpec.hardwareSpecRawJsonObjects.single_stage_cycle_length
         else:
-            return self.rmtHWSpec.hardwareSpecRawJsonObjects.dependency_delay_in_cycle_legth.default_dependency
+            return 0
 
 
 

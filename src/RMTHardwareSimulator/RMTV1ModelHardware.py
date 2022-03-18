@@ -680,30 +680,69 @@ class RMTV1ModelHardware:
         egressPipepineDelay = 0
         for pipeline in p4ProgramGraph.parsedP4Program.pipelines:
             if(pipeline.name == PipelineID.INGRESS_PIPELINE.value):
-                ingressPipepine1Delay = self.calculateTotalLatencyOfOnePipeline(p4ProgramGraph, PipelineID.INGRESS_PIPELINE)
+                ingressPipepine1Delay = self.calculateTotalLatencyOfPipeline(p4ProgramGraph, PipelineID.INGRESS_PIPELINE)
                 print("ingressPipepine1Delay = 0 is "+str(ingressPipepine1Delay))
             if(pipeline.name == PipelineID.EGRESS_PIPELINE.value):
-                egressPipepineDelay = self.calculateTotalLatencyOfOnePipeline(p4ProgramGraph, PipelineID.EGRESS_PIPELINE)
+                egressPipepineDelay = self.calculateTotalLatencyOfPipeline(p4ProgramGraph, PipelineID.EGRESS_PIPELINE)
                 print("egressPipepineDelay = 0 is "+str(egressPipepineDelay))
         print("Total delay is :"+str(ingressPipepine1Delay+egressPipepineDelay))
         return ingressPipepine1Delay + egressPipepineDelay
 
+    def calculateTotalLatencyOfPipeline(self,p4ProgramGraph, pipelineID):
+        stageIndexList = list(self.stageWiseResources.keys())
+        stageIndexToStartTimeMap= {}
+        stageIndexToEndTimeMap= {}
+        stageIndexToStartTimeMap[0] = 0
+        stageIndexToEndTimeMap[0] = self.stageWiseResources.get(0).getCycleLengthForThisStage(pipelineID)
+        for stageIndex in range(1, len(stageIndexList)):
+            interStageDelay = 0
+            if(len(self.stageWiseResources.get(stageIndex-1).listOfLogicalTableMappedToThisStage.get(pipelineID)) == 0) or \
+                    (len(self.stageWiseResources.get(stageIndex).listOfLogicalTableMappedToThisStage.get(pipelineID)) == 0):
+                interStageDelay = 1
+            else:
+                for stage1Table in self.stageWiseResources.get(stageIndex-1).listOfLogicalTableMappedToThisStage.get(pipelineID):
+                    for stage2Table in self.stageWiseResources.get(stageIndex).listOfLogicalTableMappedToThisStage.get(pipelineID):
+                        delay = self.getDependencyDelayBetweenTwoLogicalTable(stage1Table, stage2Table, p4ProgramGraph, pipelineID)
+                        if(delay>interStageDelay):
+                            interStageDelay = delay
+            previousStageStartTime = stageIndexToStartTimeMap.get(stageIndex-1)
+            currentStageStartTime = previousStageStartTime + interStageDelay
+            currentStageEndTime = currentStageStartTime + self.stageWiseResources.get(stageIndex).getCycleLengthForThisStage(pipelineID)
+            stageIndexToStartTimeMap[stageIndex] = currentStageStartTime
+            stageIndexToEndTimeMap[stageIndex] = currentStageEndTime
+        endTimeValueList = list(stageIndexToEndTimeMap.values())
+        endTimeValueList.sort()
+        print("Final time is "+str(endTimeValueList[len(endTimeValueList)-1]))
+        return endTimeValueList[len(endTimeValueList)-1]
+
+
+
     def calculateTotalLatencyOfOnePipeline(self,p4ProgramGraph, pipelineID):
         stageIndexList = list(self.stageWiseResources.keys())
-        totalDelay = 0
-        for stageIndex in range(0, len(stageIndexList)-1):
-            stage1Dealy = self.stageWiseResources.get(stageIndex).getCycleLengthForThisStage(pipelineID)
-            stage2Dealy = self.stageWiseResources.get(stageIndex+1).getCycleLengthForThisStage(pipelineID)
-            interStageDelay = 0
-            for stage1Table in self.stageWiseResources.get(stageIndex).listOfLogicalTableMappedToThisStage.get(pipelineID):
-                for stage2Table in self.stageWiseResources.get(stageIndex+1).listOfLogicalTableMappedToThisStage.get(pipelineID):
-                    delay = self.getDealyBetweenTwoLogicalTable(stage1Table, stage2Table,p4ProgramGraph,pipelineID)
-                    if(delay>interStageDelay):
-                        interStageDelay = delay
-            totalDelay = totalDelay + stage1Dealy + stage2Dealy - (stage1Dealy - interStageDelay)
+        totalDelay = self.stageWiseResources.get(0).getCycleLengthForThisStage(pipelineID)
+        for stageIndex in range(1, len(stageIndexList)-1):
+            stage1Dealy = self.stageWiseResources.get(stageIndex-1).getCycleLengthForThisStage(pipelineID)
+            stage2Dealy = self.stageWiseResources.get(stageIndex).getCycleLengthForThisStage(pipelineID)
+            interStageDelay = 1
+            if(len(self.stageWiseResources.get(stageIndex-1).listOfLogicalTableMappedToThisStage.get(pipelineID)) == 0) or\
+                (len(self.stageWiseResources.get(stageIndex).listOfLogicalTableMappedToThisStage.get(pipelineID)) == 0):
+                interStageDelay = 1
+            else:
+                for stage1Table in self.stageWiseResources.get(stageIndex-1).listOfLogicalTableMappedToThisStage.get(pipelineID):
+                    for stage2Table in self.stageWiseResources.get(stageIndex).listOfLogicalTableMappedToThisStage.get(pipelineID):
+                        delay = self.getDependencyDelayBetweenTwoLogicalTable(stage1Table, stage2Table, p4ProgramGraph, pipelineID)
+                        if(delay>interStageDelay):
+                            interStageDelay = delay
+            if(stage1Dealy >0) and (stage2Dealy >0):
+                totalDelay = totalDelay +  stage2Dealy - (stage1Dealy - interStageDelay)
+            elif ((stage1Dealy == 0) and (stage2Dealy >0)):
+                totalDelay = totalDelay
+            else:
+                totalDelay = totalDelay + 1
+
         return totalDelay
 
-    def getDealyBetweenTwoLogicalTable(self,stage1Table,stage2Table,p4ProgramGraph,pipelineID):
+    def getDependencyDelayBetweenTwoLogicalTable(self, stage1Table, stage2Table, p4ProgramGraph, pipelineID):
         pipeplineGraph = p4ProgramGraph.pipelineIdToPipelineGraphMap.get(pipelineID)
         dep = pipeplineGraph.matToMatDependnecyAnalysis(stage1Table,stage2Table)
         if(dep.dependencyType == DependencyType.MATCH_DEPENDENCY):
