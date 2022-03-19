@@ -57,3 +57,18 @@ To solve that we ned to model a full memory layout. and need to decide where to 
 *) we are basically not allocating fixed amount of sram blocks for action. we are allocting them from totla sram blocks. need to
 modify the hardwre description where we have said fixed number of sram blocks. also we are saying that we are using fixed number of sram blocks. but we can also support
 per mat rule sram entries.
+
+
+
+
+==========================Latency calculation
+
+for all node in a single stage set teir start time to 0.
+for every physical stage caculate if their is any 1 cycel dependency among the nodes. if have then set their start time accordingly.
+for example table a  and b are in same stage and they have successor or reverse match depndency. theirfore a will start at 0 and b will start at 1.
+set in this way for all the tables embedded on every stage.
+
+start form stage 1 (0 is initialized as previous pragraph). sort the tables in increasing order of their start time.
+Take the table that start earliest and compute whther if it has any dependency with any node embedded in previous stage
+and calculate what is it's possible start times. Also check its predeccsoro generated from tdg and find what is the possible start times.
+maximum of them will be its possible start time.
