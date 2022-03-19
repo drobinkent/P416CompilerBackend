@@ -374,6 +374,11 @@ class MATNode:
     #             self.neighbourAssignedStatefulMemoryNameToLevelMap[statefulMemeoryName] = level
     #             return level
 
+    def getSetOfAllDependencyType(self):
+        depList = []
+        for dep in self.dependencies.values():
+            depList.append(dep.dependencyType)
+        return set(depList)
     def getStatefulMemoryNameToLevelMap(self):
         return self.selfStatefulMemoryNameToLevelMap
     def getMaxLevelOfAllStatefulMemories(self):
@@ -502,6 +507,7 @@ class Dependency:
         self.dependencyType = dependencyType
         self.src = src
         self.dst = dst
+        print("New dependency: src "+src.name+" dest: "+dst.name+" dependeny Type :"+str(dependencyType))
 
 
 

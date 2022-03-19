@@ -222,7 +222,11 @@ class PipelineGraph:
         #         print(n.name)
         self.addStatefulMemoryDependencies()
         self.calculateNodeInDegrees()
-        self.calculateLevels( self.allTDGNode.get(confConst.DUMMY_START_NODE))
+        # self.calculateLevels( self.allTDGNode.get(confConst.DUMMY_START_NODE))
+        # following call is gettice marks call for optimizing the tdg. only needed for dependencies which can be set 1 cycle and have optimized through speculative execution.
+        self.calculateLevelsWithOneParentOptimization( self.allTDGNode.get(confConst.DUMMY_START_NODE))
+        # self.pipeline.resetAllIsVisitedVariableForGraph()
+        # self.reoptimizeLevels(self.allTDGNode.get(confConst.DUMMY_START_NODE))
         graphTobedrawn = nx.MultiDiGraph()
         self.pipeline.resetAllIsVisitedVariableForGraph()
         if(self.allTDGNode.get(confConst.DUMMY_START_NODE) != None):
@@ -791,6 +795,105 @@ class PipelineGraph:
         self.addStatefulMemoryDependencies()
         return (matNodeTobeBifurcated, newMatNode)
 
+    def calculateLevelsWithOneParentOptimization(self, curMatNode):
+        if(curMatNode == None):
+            logger.info("Severe error. Mat node can not be None in calculateLevels. Debug. exiting. ")
+            print("Severe error. Mat node can not be None in calculateLevels. Debug. exiting. ")
+            exit(1)
+        # print("CurMAtnode name is "+curMatNode.name)
+        if (curMatNode.name == confConst.DUMMY_END_NODE)  and (curMatNode.inDegree <=0):
+            curMatNode.inDegree = curMatNode.inDegree -1
+            return -1
+        if(curMatNode.name != confConst.DUMMY_START_NODE) and (curMatNode.inDegree <=0):
+
+            return curMatNode.getMaxLevelOfAllStatefulMemories()
+        curMatNode.inDegree = curMatNode.inDegree -1
+
+
+        childLevelList=[]
+        for depKey in curMatNode.dependencies.keys():
+            dep = curMatNode.dependencies.get(depKey)
+            nxtMatNode = dep.dst
+            levelOfChild = self.calculateLevelsWithOneParentOptimization(nxtMatNode) + 1
+            childLevelList.append(levelOfChild)
+        for sfMemName in curMatNode.statefulMemoryDependencies.keys():
+            sfMemDepList = curMatNode.statefulMemoryDependencies.get(sfMemName)
+            if(sfMemDepList == None):
+                continue
+            else:
+                for sfMemDep in sfMemDepList:
+                    levelOfChild = self.calculateLevelsWithOneParentOptimization(sfMemDep)
+                    childLevelList.append(levelOfChild)
+        childLevelList.sort()
+        maxLevel = -1
+        if(len(childLevelList)>0):
+            maxLevel = childLevelList[len(childLevelList)-1]
+
+        curMatNode.setLevelOfAllStatefulMemories(maxLevel)
+
+        for depKey in curMatNode.dependencies.keys():
+            dep = curMatNode.dependencies.get(depKey)
+            nxtMatNode = dep.dst
+            if(nxtMatNode.name != confConst.DUMMY_END_NODE):
+                levelOfChild = 1
+                if(len(nxtMatNode.predecessors)==1) and (len(nxtMatNode.selfStatefulMemoryNameToLevelMap)==0) and \
+                        ((list(curMatNode.dependencies.values())[0].dependencyType == DependencyType.SUCCESOR_DEPENDENCY) or \
+                         (list(curMatNode.dependencies.values())[0].dependencyType == DependencyType.NO_DEPNDENCY) or \
+                         (list(curMatNode.dependencies.values())[0].dependencyType == DependencyType.REVERSE_MATCH_DEPENDENCY) ):
+                    nxtMatNode.setLevelOfAllStatefulMemories(curMatNode.getMaxLevelOfAllStatefulMemories())
+                    print("Cur node is "+curMatNode.name+" and next node is "+str(nxtMatNode.name)+" They are assigned same level "+str(curMatNode.getMaxLevelOfAllStatefulMemories()))
+        childLevelList=[]
+        for depKey in curMatNode.dependencies.keys():
+            dep = curMatNode.dependencies.get(depKey)
+            nxtMatNode = dep.dst
+            childLevelList.append(nxtMatNode.getMaxLevelOfAllStatefulMemories())
+        childLevelSet = set(childLevelList)
+        if(len(childLevelSet) == 1):
+            if((DependencyType.MATCH_DEPENDENCY not in curMatNode.getSetOfAllDependencyType()) and (DependencyType.ACTION_DEPENDENCY not in curMatNode.getSetOfAllDependencyType())):
+                temp = list(childLevelSet)[0]
+                if(temp != -1):
+                    maxLevel = temp
+                    curMatNode.setLevelOfAllStatefulMemories(maxLevel)
+        return maxLevel
+
+    def reoptimizeLevels(self, curMatNode): #p4MatNode.originalP4node.is_visited_for_TDG_processing == GraphColor.BLACK
+        if(curMatNode == None):
+            logger.info("Severe error. Mat node can not be None in reoptimizeLevels. Debug. exiting. ")
+            print("Severe error. Mat node can not be None in reoptimizeLevels. Debug. exiting. ")
+            exit(1)
+        if (curMatNode.name == confConst.DUMMY_END_NODE) :
+            return -1
+        # if(curMatNode.originalP4node.is_visited_for_TDG_processing == GraphColor.BLACK):
+        #     return curMatNode.getMaxLevelOfAllStatefulMemories()
+        # curMatNode.originalP4node.is_visited_for_TDG_processing == GraphColor.GREY
+        if(len(curMatNode.dependencies.keys())==1):
+            if(((list(curMatNode.dependencies.values())[0].dependencyType == DependencyType.SUCCESOR_DEPENDENCY) or \
+                     (list(curMatNode.dependencies.values())[0].dependencyType == DependencyType.NO_DEPNDENCY) or \
+                     (list(curMatNode.dependencies.values())[0].dependencyType == DependencyType.REVERSE_MATCH_DEPENDENCY) )):
+                val = self.reoptimizeLevels(list(curMatNode.dependencies.values())[0].dst)
+                curMatNode.setLevelOfAllStatefulMemories(val)
+                print("Only one node found with condition the pair is "+str(curMatNode.name)+ "--"+str(list(curMatNode.dependencies.values())[0].dst.name))
+                # curMatNode.originalP4node.is_visited_for_TDG_processing == GraphColor.BLACK
+                return val
+            else:
+                val = self.reoptimizeLevels(list(curMatNode.dependencies.values())[0].dst) +1
+                curMatNode.setLevelOfAllStatefulMemories(val)
+                return val
+
+        else:
+            childLevelList=[]
+            for depKey in curMatNode.dependencies.keys():
+                dep = curMatNode.dependencies.get(depKey)
+                nxtMatNode = dep.dst
+                levelOfChild = self.reoptimizeLevels(nxtMatNode) + 1
+                childLevelList.append(levelOfChild)
+            childLevelList.sort()
+            maxLevel = -1
+            if(len(childLevelList)>0):
+                maxLevel = childLevelList[len(childLevelList)-1]
+            curMatNode.setLevelOfAllStatefulMemories(maxLevel)
+            # curMatNode.originalP4node.is_visited_for_TDG_processing == GraphColor.BLACK
+            return maxLevel
 
     def calculateLevels(self, curMatNode):
         if(curMatNode == None):
