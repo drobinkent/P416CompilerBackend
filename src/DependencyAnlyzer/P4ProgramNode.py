@@ -491,11 +491,14 @@ class MATNode:
         Maek sure  the mathod is called after a node is propoerly loaded up with its originial P4 node
         :return:
         '''
-        if(self.matchKeyFields == None) and (self.nodeType == P4ProgramNodeType.TABLE_NODE):
+        # if(self.matchKeyFields == None) and (self.nodeType == P4ProgramNodeType.TABLE_NODE):
+        #     return  self.originalP4node.getAllMatchFieldsOfRawP4Table()
+        # elif(self.matchKeyFields == None) and (self.nodeType == P4ProgramNodeType.CONDITIONAL_NODE):
+        #     return []
+        #
+        # return []
+        if(self.matchKeyFields != None) :
             return  self.originalP4node.getAllMatchFieldsOfRawP4Table()
-        elif(self.matchKeyFields == None) and (self.nodeType == P4ProgramNodeType.CONDITIONAL_NODE):
-            return []
-
         return []
 
     def getListOfFieldsModifedAndUsed(self, parsedP4Program):
@@ -520,7 +523,7 @@ class Dependency:
         self.dependencyType = dependencyType
         self.src = src
         self.dst = dst
-        print("New dependency: src "+src.name+" dest: "+dst.name+" dependeny Type :"+str(dependencyType))
+        # print("New dependency: src "+src.name+" dest: "+dst.name+" dependeny Type :"+str(dependencyType))
 
 
 

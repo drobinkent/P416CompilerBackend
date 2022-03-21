@@ -369,6 +369,12 @@ class RMTV1ModelHardware:
                 endingStageList = []
                 # startingStageList.append(startingPhyicalStageIndex)
                 # endingStageList.append(physicalStageIndexForIndirectStatefulMemory)
+                #TODO need to sort the matnodes according to their order in original graph. Becuase, for speculative execution we need to make sure
+                # the root node and the childs nodes are mebedded in correct order
+                matListNotUsingStatefulMem = self.preProcessInterStageTableDependencies(matListNotUsingStatefulMem)
+                tblList = []
+                matListNotUsingStatefulMem = self.orderTablesAccordingToTheirPositionInTDG(matListNotUsingStatefulMem,tblList)
+                matListNotUsingStatefulMem = tblList
                 for matNode in matListNotUsingStatefulMem:
                     startingStageIndexForMAtNode, endingStageIndexForMatNode = self.embedMatNodeOverMultipleStage(p4ProgramGraph,pipelineID, matNode, hardware, startingPhyicalStageIndex)
                     if(startingStageIndexForMAtNode==-1) or (endingStageIndexForMatNode == -1):
@@ -383,6 +389,12 @@ class RMTV1ModelHardware:
                 endingPhysicalStageListForLogicalStageIndex = endingPhysicalStageListForLogicalStageIndex + endingStageList
                 endingPhysicalStageListForLogicalStageIndex.sort()
                 startingPhyicalStageIndex = endingPhysicalStageListForLogicalStageIndex[len(endingPhysicalStageListForLogicalStageIndex)-1]+1
+
+    def orderTablesAccordingToTheirPositionInTDG(self,matListNotUsingStatefulMem, tblList):
+        for tbl in matListNotUsingStatefulMem:
+            tblList.append(tbl)
+            if(len(tbl.concurrentlyExecutableDependentTableList) >0):
+                self.orderTablesAccordingToTheirPositionInTDG(tbl.concurrentlyExecutableDependentTableList, tblList)
 
 
     def embedIndirectStatefulMemoryAndDependentMatNodes(self, p4ProgramGraph, pipelineID, hardware, statefulMemorySet, statefulMemoryNameToUserMatListMap, startingStageIndex):
@@ -524,7 +536,7 @@ class RMTV1ModelHardware:
                 endingStage = currentStageIndex
                 currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode, min(accmodatableMatEntries, remainingMatEntries), remainingActionEntries,pipelineID) # write a method with this signature.
                 remainingMatEntries = remainingMatEntries - min(accmodatableMatEntries, remainingMatEntries)
-                currentStageIndex = currentStageIndex + 1
+                # currentStageIndex = currentStageIndex + 1
                 currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
                 if(remainingMatEntries ==0): #Becuse if this matnode is a conditional node and have nothing to embed as mat entry it only need embed action entries.
                     break
@@ -758,11 +770,17 @@ class RMTV1ModelHardware:
         stageIndexToTableMap = {}
         for stageIndex in range(0, len(stageIndexList)):
             tblList = self.stageWiseResources.get(stageIndex).listOfLogicalTableMappedToThisStage.get(pipelineID)
-            tblList1 = self.preProcessInterStageTableDependencies(tblList)
-            stageIndexToTableMap[stageIndex] = tblList1
+            # tblList1 = self.preProcessInterStageTableDependencies(tblList)
+            stageIndexToTableMap[stageIndex] = tblList
         stageIndexList = list(stageIndexToTableMap.keys())
         stageIndexList.sort()
+        allTableMappedToThisStage = self.stageWiseResources.get(0).listOfLogicalTableMappedToThisStage.get(pipelineID)
+        tableNameForThisStage = [x.name for x in allTableMappedToThisStage]
+        print("Tables mapped to physical stage "+str(stageIndexList[0])+" are ",tableNameForThisStage)
         for stageIndex in range(1, len(stageIndexList)):
+            allTableMappedToThisStage = self.stageWiseResources.get(stageIndex).listOfLogicalTableMappedToThisStage.get(pipelineID)
+            tableNameForThisStage = [x.name for x in allTableMappedToThisStage]
+            print("Tables mapped to physical stage "+str(stageIndex)+" are ",tableNameForThisStage)
             allTableMappedToPreviousStage = self.getAllTableForStage(stageIndexToTableMap.get(stageIndex-1))
             superTablesInCurrentStage = stageIndexToTableMap.get(stageIndex) # we will only consider the the lonely tables or any table that have some other table as
             # their concurrently exxecutable table list. Because if a table has some concurrently executable tables with it, that means these child tables are actually
@@ -773,8 +791,8 @@ class RMTV1ModelHardware:
                     delayInCycleLEngth = self.getDependencyDelayBetweenTwoLogicalTable(tbl2, tbl1, p4ProgramGraph, pipelineID)
                     if(maxCycleDelay <delayInCycleLEngth):
                         maxCycleDelay = delayInCycleLEngth
-                for ancestor in tbl1.ancestors.values():
-                    delayInCycleLEngth = self.getDependencyDelayBetweenTwoLogicalTable(ancestor, tbl1, p4ProgramGraph, pipelineID)
+                for predecessor in tbl1.predecessors.values():
+                    delayInCycleLEngth = self.getDependencyDelayBetweenTwoLogicalTable(predecessor, tbl1, p4ProgramGraph, pipelineID)
                     if(maxCycleDelay <delayInCycleLEngth):
                         maxCycleDelay = delayInCycleLEngth
                 tbl1.executionStartingCycle = tbl1.executionStartingCycle + maxCycleDelay
@@ -797,7 +815,7 @@ class RMTV1ModelHardware:
         tblListForThisStage = []
         for tbl in tblList:
             for tbl1 in tblList:
-                if tbl.isTableExistsInNoOrReverseOrSuccessorDependencyList(tbl1):
+                if (tbl.isTableExistsInNoOrReverseOrSuccessorDependencyList(tbl1)) and (len(copyOfTableList)>0):
 
                     copiedTable = self.removeTableFromTableList(copyOfTableList, tbl)
                     if(self.isTableAlreadyInTTblList(tblListForThisStage,tbl) and (self.isTableAlreadyInTTblList(tblListForThisStage,tbl1))):

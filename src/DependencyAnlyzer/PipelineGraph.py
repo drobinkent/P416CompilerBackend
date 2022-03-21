@@ -340,7 +340,7 @@ class PipelineGraph:
                     obj = Key.from_dict(confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS)
                     if(matchTable.containsKey(obj)==False):
                         matchTable.key.append(obj)
-                matchTable.max_size = matchTable.max_size + 1
+                # matchTable.max_size = matchTable.max_size + 1
                 nextNodeList.append(nodeName)
         for cond in self.pipeline.conditionals:
             if cond.name  == nodeName:
@@ -354,7 +354,7 @@ class PipelineGraph:
                     obj = Key.from_dict(confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS)
                     if(cond.containsKey(obj)==False):
                         cond.key.append(obj)
-                cond.max_size = cond.max_size + 1
+                # cond.max_size = cond.max_size + 1
                 nextNodeList.append(nodeName)
         # for nameSwappedTableName in self.swappedTableMapForStatefulMemoryBasedPreprocessing.keys():
         #     if(nameSwappedTableName == nodeName):

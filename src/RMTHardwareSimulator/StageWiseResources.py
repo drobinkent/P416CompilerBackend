@@ -227,6 +227,12 @@ class StageWiseResource:
 
 
     def getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth(self, actionEntryBitwidth):
+        # requiredActionMemoryBlockWidth = 0  # should ne set to some real large value
+        # numberOfEntriesAccomodatableInBlockWidth = math.ceil(  self.actionMemoryBlockBitWidth/actionEntryBitwidth)
+        # if(numberOfEntriesAccomodatableInBlockWidth>1): #indicates multiple entries are accomodatable in one sram cell
+        #     pass
+        #
+
         requiredActionMemoryBlockWidth = math.ceil(actionEntryBitwidth / self.actionMemoryBlockBitWidth) # if we have an action entry with parameters width 120 bit and
         #the action memory block bidwidth is 80 then we need at least 2 blocks.
 
@@ -316,6 +322,7 @@ class StageWiseResource:
         self.allocateActionMemoryBlockBitwidth( matNode.getMaxBitwidthOfActionParameter())
         self.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= numberOfActionEntriesToBeAllocated)
         self.listOfLogicalTableMappedToThisStage.get(pipelineID).append(matNode)
+        # print("Test")
 
     def isMatNodeEmbeddableOnSRAMMatBlocks(self, matNode):
         isEmbeddable = False

@@ -46,7 +46,7 @@ in embedding an action we need to calculate what is their memory requirement and
 
 *) memory usage optimization:
 will look at later part. but only needs to handle two function improvement. the indirect stateful memory allocation and action emmory allocation. These two function needs to
-utilize multi word packing to improve memory usage
+utilize multi word packing to improve memory usage. Must also need to accomodate the amount of memory port use in action part of indirect and direct register
 
 
 *) table embedding a direct stateful memory support in action is needed. it should be simple in implementation
@@ -57,6 +57,14 @@ To solve that we ned to model a full memory layout. and need to decide where to 
 *) we are basically not allocating fixed amount of sram blocks for action. we are allocting them from totla sram blocks. need to
 modify the hardwre description where we have said fixed number of sram blocks. also we are saying that we are using fixed number of sram blocks. but we can also support
 per mat rule sram entries.
+
+
+-------------------------- VVI things to do
+
+a) memory packing
+b) need to check can whether action memory bitwidth is crossing the memory bitwidth or not
+c) direct stateful memory allocation is not done. add it.
+
 
 
 
