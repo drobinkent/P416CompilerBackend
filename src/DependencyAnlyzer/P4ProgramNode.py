@@ -167,10 +167,21 @@ class MATNode:
         self.totalKeysTobeMatched = 0
         self.matKeyBitWidth =0
         self.headerFieldWiseBitwidthOfMatKeys = {}
+        self.executionStartingCycle = 0
+        self.concurrentlyExecutableDependentTableList = []
 
         # self.neighbourAssignedStatefulMemoryNameToLevelMap={}  # TODO : this may not be necessary even . on that tcase we will remove it
         return
 
+    def isTableExistsInNoOrReverseOrSuccessorDependencyList(self, tbl):
+        if self.name == tbl.name:
+            return False
+        else:
+            returnValue = False
+            for dep in self.dependencies.values():
+                if(dep.dst.name == tbl.name) and ((dep.dependencyType != DependencyType.MATCH_DEPENDENCY) and (dep.dependencyType != DependencyType.ACTION_DEPENDENCY)):
+                    return True
+        return False
     def getMatchType(self):
         if(type(self.originalP4node) == Table):
             return self.originalP4node.match_type
@@ -378,6 +389,7 @@ class MATNode:
         depList = []
         for dep in self.dependencies.values():
             depList.append(dep.dependencyType)
+
         return set(depList)
     def getStatefulMemoryNameToLevelMap(self):
         return self.selfStatefulMemoryNameToLevelMap
@@ -482,8 +494,9 @@ class MATNode:
         if(self.matchKeyFields == None) and (self.nodeType == P4ProgramNodeType.TABLE_NODE):
             return  self.originalP4node.getAllMatchFieldsOfRawP4Table()
         elif(self.matchKeyFields == None) and (self.nodeType == P4ProgramNodeType.CONDITIONAL_NODE):
-            self.matchKeyFields = []
-        return self.matchKeyFields
+            return []
+
+        return []
 
     def getListOfFieldsModifedAndUsed(self, parsedP4Program):
         listOfFieldBeingModifed = []

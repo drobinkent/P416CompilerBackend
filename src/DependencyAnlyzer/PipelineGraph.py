@@ -863,7 +863,8 @@ class PipelineGraph:
             if((((dep.dependencyType == DependencyType.SUCCESOR_DEPENDENCY) or \
                  dep.dependencyType == DependencyType.NO_DEPNDENCY) or \
                 dep.dependencyType == DependencyType.REVERSE_MATCH_DEPENDENCY) ) and \
-                    (len(nxtMatNode.ancestors) == 1) and (len(nxtMatNode.statefulMemoryDependencies) ==0):
+                    (len(nxtMatNode.ancestors) == 1) and (len(nxtMatNode.statefulMemoryDependencies) ==0) and \
+                    (dep.dependencyType != DependencyType.DUMMY_DEPENDENCY_TO_END) and (dep.dependencyType != DependencyType.DUMMY_DEPENDENCY_FROM_START) :
                 nxtMatNode.setLevelOfAllStatefulMemories(curMatNode.getMaxLevelOfAllStatefulMemories())
                 val = self.reoptimizeLevels(nxtMatNode)
                 print("Only one node found with condition the pair is "+str(curMatNode.name)+ "--"+str(list(curMatNode.dependencies.values())[0].dst.name))
@@ -882,8 +883,10 @@ class PipelineGraph:
         childLevelSet = set(childLevelList)
         if(len(childLevelSet) == 1):
             if((DependencyType.MATCH_DEPENDENCY not in curMatNode.getSetOfAllDependencyType()) and
-                    (DependencyType.ACTION_DEPENDENCY not in curMatNode.getSetOfAllDependencyType()))\
-                    and (len(curMatNode.statefulMemoryDependencies) ==0):
+                    (DependencyType.ACTION_DEPENDENCY not in curMatNode.getSetOfAllDependencyType()) and \
+                    (DependencyType.DUMMY_DEPENDENCY_TO_END not in curMatNode.getSetOfAllDependencyType()) and \
+                    (DependencyType.DUMMY_DEPENDENCY_FROM_START not in curMatNode.getSetOfAllDependencyType()))\
+                    and (len(curMatNode.statefulMemoryDependencies) ==0) :
                 temp = list(childLevelSet)[0]
                 if(temp != -1):
                     maxLevel = temp

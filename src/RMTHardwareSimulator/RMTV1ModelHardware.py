@@ -728,14 +728,129 @@ class RMTV1ModelHardware:
         for pipeline in p4ProgramGraph.parsedP4Program.pipelines:
             if(pipeline.name == PipelineID.INGRESS_PIPELINE.value):
                 ingressPipepine1Delay = self.calculateTotalLatencyOfPipeline(p4ProgramGraph, PipelineID.INGRESS_PIPELINE)
-                print("ingressPipepine1Delay = 0 is "+str(ingressPipepine1Delay))
+                print("ingressPipeline1Delay = 0 is "+str(ingressPipepine1Delay))
             if(pipeline.name == PipelineID.EGRESS_PIPELINE.value):
                 egressPipepineDelay = self.calculateTotalLatencyOfPipeline(p4ProgramGraph, PipelineID.EGRESS_PIPELINE)
-                print("egressPipepineDelay = 0 is "+str(egressPipepineDelay))
+                print("egressPipelineDelay = 0 is "+str(egressPipepineDelay))
         print("Total delay is :"+str(ingressPipepine1Delay+egressPipepineDelay))
         return ingressPipepine1Delay + egressPipepineDelay
 
     def calculateTotalLatencyOfPipeline(self,p4ProgramGraph, pipelineID):
+        stageIndexToTableMap = self.assignStartAndEndTimeForAllMatForOnePipeline(p4ProgramGraph, pipelineID=pipelineID)
+        stageIndexList = list(stageIndexToTableMap.keys())
+        stageIndexList.sort()
+        for stageIndex in range(0, len(stageIndexList)):
+            allTables = stageIndexToTableMap.get(stageIndex)
+            startTimeList = [t.executionStartingCycle for t in allTables]
+            endingTimeList = [x+self.hardwareSpecRawJsonObjects.single_stage_cycle_length for x in startTimeList]
+            if(len(startTimeList) ==0):
+                startTimeList.append(1)
+                endingTimeList.append(1)
+            startTimeList.sort()
+            endingTimeList.sort()
+            print("Stage: "+str(stageIndex)+" starts execution at cycle "+str(startTimeList[0])+" and finishes execution at cycle "+str(endingTimeList[len(endingTimeList)-1]))
+
+
+
+    def assignStartAndEndTimeForAllMatForOnePipeline(self, p4ProgramGraph, pipelineID):
+        stageIndexList = list(self.stageWiseResources.keys())
+        stageIndexList.sort()
+        stageIndexToTableMap = {}
+        for stageIndex in range(0, len(stageIndexList)):
+            tblList = self.stageWiseResources.get(stageIndex).listOfLogicalTableMappedToThisStage.get(pipelineID)
+            tblList1 = self.preProcessInterStageTableDependencies(tblList)
+            stageIndexToTableMap[stageIndex] = tblList1
+        stageIndexList = list(stageIndexToTableMap.keys())
+        stageIndexList.sort()
+        for stageIndex in range(1, len(stageIndexList)):
+            allTableMappedToPreviousStage = self.getAllTableForStage(stageIndexToTableMap.get(stageIndex-1))
+            superTablesInCurrentStage = stageIndexToTableMap.get(stageIndex) # we will only consider the the lonely tables or any table that have some other table as
+            # their concurrently exxecutable table list. Because if a table has some concurrently executable tables with it, that means these child tables are actually
+            #direct child of this super table in the TDG. Therefore they will not have any direct dependency with any table in previous stage.
+            for tbl1 in superTablesInCurrentStage:
+                maxCycleDelay = 0
+                for tbl2 in allTableMappedToPreviousStage:
+                    delayInCycleLEngth = self.getDependencyDelayBetweenTwoLogicalTable(tbl2, tbl1, p4ProgramGraph, pipelineID)
+                    if(maxCycleDelay <delayInCycleLEngth):
+                        maxCycleDelay = delayInCycleLEngth
+                for ancestor in tbl1.ancestors.values():
+                    delayInCycleLEngth = self.getDependencyDelayBetweenTwoLogicalTable(ancestor, tbl1, p4ProgramGraph, pipelineID)
+                    if(maxCycleDelay <delayInCycleLEngth):
+                        maxCycleDelay = delayInCycleLEngth
+                tbl1.executionStartingCycle = tbl1.executionStartingCycle + maxCycleDelay
+                for child in tbl1.concurrentlyExecutableDependentTableList:
+                    child.executionStartingCycle = child.executionStartingCycle + maxCycleDelay
+        return stageIndexToTableMap
+
+
+
+    def getAllTableForStage(self,tblListInHierarchialFormat):
+        allTable = []
+        for t in tblListInHierarchialFormat:
+            if t!= None:
+                allTable.append(t)
+            for depTable in t.concurrentlyExecutableDependentTableList:
+                allTable.append(depTable)
+        return allTable
+    def preProcessInterStageTableDependencies(self, tblList):
+        copyOfTableList = copy.deepcopy(tblList)
+        tblListForThisStage = []
+        for tbl in tblList:
+            for tbl1 in tblList:
+                if tbl.isTableExistsInNoOrReverseOrSuccessorDependencyList(tbl1):
+
+                    copiedTable = self.removeTableFromTableList(copyOfTableList, tbl)
+                    if(self.isTableAlreadyInTTblList(tblListForThisStage,tbl) and (self.isTableAlreadyInTTblList(tblListForThisStage,tbl1))):
+                        pass
+                    else:
+                        if (copiedTable == None):
+                            copiedTable = self.getTableReferenceFromTableList(tblListForThisStage,tbl)
+                        dependentTable = self.removeTableFromTableList(copyOfTableList,tbl1)
+                        if(dependentTable == None): #This should not happen becuase tbl1 will have dependency with tbl only if there is a NO/Reverse/Successor dependency
+                            # print("Severer error. This should not happen becuase tbl1 will have dependency with tbl only if there is a NO/Reverse/Successor dependency. Exiting !!")
+                            # exit(1)
+                            dependentTable = self.getTableReferenceFromTableList(tblListForThisStage,tbl1)
+
+                        copiedTable.concurrentlyExecutableDependentTableList.append(dependentTable)
+                        dependentTable.executionStartingCycle = dependentTable.executionStartingCycle +  self.hardwareSpecRawJsonObjects.dependency_delay_in_cycle_legth.successor_dependency
+                        if(self.isTableAlreadyInTTblList(tblListForThisStage,copiedTable) == False):
+                            tblListForThisStage.append(copiedTable)
+
+
+        for tbl in copyOfTableList:  # adding the remainigntable who are totallty independent
+            tblListForThisStage.append(tbl)
+        return tblListForThisStage
+
+    def isTableAlreadyInTTblList(self,tblList,tbl):
+        val = self.getTableReferenceFromTableList(tblList, tbl)
+        if(val == None):
+            return False
+        else:
+            return True
+    def getTableReferenceFromTableList(self,tblList, tbl):
+        val = None
+        for i in range(0,len(tblList)):
+            if tblList[i].name == tbl.name:
+                val = tblList[i]
+                return val
+            else:
+                val = None
+                for concurrentTable in tblList[i].concurrentlyExecutableDependentTableList:
+                    val1 = self.getTableReferenceFromTableList(tblList[i].concurrentlyExecutableDependentTableList, tbl)
+                    if(val1 != None):
+                        val = val1
+        return val
+
+    def removeTableFromTableList(self,tblList, tbl):
+        val = None
+        for i in range(0,len(tblList)):
+            if tblList[i].name == tbl.name:
+                val = tblList.pop(i)
+                return val
+        return val
+
+
+    def calculateTotalLatencyOfPipelineOld(self,p4ProgramGraph, pipelineID):
         stageIndexList = list(self.stageWiseResources.keys())
         stageIndexToStartTimeMap= {}
         stageIndexToEndTimeMap= {}
@@ -803,7 +918,7 @@ class RMTV1ModelHardware:
         elif(dep.dependencyType == DependencyType.NO_DEPNDENCY):
             return self.hardwareSpecRawJsonObjects.dependency_delay_in_cycle_legth.default_dependency
         elif(dep.dependencyType == DependencyType.DUMMY_DEPENDENCY_TO_END):
-            return 0
+            return self.hardwareSpecRawJsonObjects.dependency_delay_in_cycle_legth.default_dependency
         elif(dep.dependencyType == DependencyType.DUMMY_DEPENDENCY_FROM_START):
             return 0
         return 0
