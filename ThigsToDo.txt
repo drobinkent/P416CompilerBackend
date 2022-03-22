@@ -61,9 +61,11 @@ per mat rule sram entries.
 
 -------------------------- VVI things to do
 
-a) memory packing
+a) memory packing--- simple check kore dao. jodi 20 bit hoy 80 bit block a 4 ta dhukabo. r packing factor name ekta paremter add koro. r bole dibo amra block granularity te sram allocation kori.
+jhotapt implement koro. same thing korbo sram mat er jonno.
 b) need to check can whether action memory bitwidth is crossing the memory bitwidth or not
 c) direct stateful memory allocation is not done. add it.
+d) checking register capability
 
 
 

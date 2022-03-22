@@ -751,15 +751,20 @@ class RMTV1ModelHardware:
         stageIndexToTableMap = self.assignStartAndEndTimeForAllMatForOnePipeline(p4ProgramGraph, pipelineID=pipelineID)
         stageIndexList = list(stageIndexToTableMap.keys())
         stageIndexList.sort()
+        prevStageStartTime = 0
+        prevStageEndTime = 0
         for stageIndex in range(0, len(stageIndexList)):
             allTables = stageIndexToTableMap.get(stageIndex)
             startTimeList = [t.executionStartingCycle for t in allTables]
             endingTimeList = [x+self.hardwareSpecRawJsonObjects.single_stage_cycle_length for x in startTimeList]
-            if(len(startTimeList) ==0):
-                startTimeList.append(1)
-                endingTimeList.append(1)
             startTimeList.sort()
             endingTimeList.sort()
+            if(len(startTimeList) ==0):
+                startTimeList.append(prevStageEndTime+0)
+                endingTimeList.append(prevStageEndTime+1)
+
+            prevStageStartTime = startTimeList[len(startTimeList)-1]
+            prevStageEndTime = endingTimeList[len(endingTimeList)-1]
             print("Stage: "+str(stageIndex)+" starts execution at cycle "+str(startTimeList[0])+" and finishes execution at cycle "+str(endingTimeList[len(endingTimeList)-1]))
 
 
