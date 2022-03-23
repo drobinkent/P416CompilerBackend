@@ -1,5 +1,7 @@
 import copy
 import logging
+
+import CompilerConfigurations
 import ConfigurationConstants as confConst
 import math
 
@@ -265,6 +267,43 @@ class StageWiseResource:
         self.sramResource.usedSramPortBitwidth = self.sramResource.usedSramPortBitwidth + requiredMemoryBlockWidth * self.sramResource.perMemoryBlockBitwidth
 
 
+    def getMemoryBlockWidthAndBlockCountFromBitWidthAndRequiredNumberOfEntries(self,bitWidth,memoryBlockBitwidth,memoryBlockRowCount,requiredNumberOfEntries):
+        '''
+        :param bitWidth:
+        :param memoryBlockBitwidth:
+        :param memoryBlockRowCount:
+        :param requiredNumberOfEntries:
+        :return: return only how many sram blocks are required
+        '''
+        if(bitWidth == 0) or (requiredNumberOfEntries == 0):
+            return 0
+        if(bitWidth < memoryBlockBitwidth) and ((memoryBlockBitwidth/bitWidth)>=2): # implies at least two entries can be acomodated in one cell
+            perMemoryBlockAccomodatableEntries = math.floor((memoryBlockBitwidth/bitWidth))
+            totalBlockRequired = math.ceil(requiredNumberOfEntries/(perMemoryBlockAccomodatableEntries*memoryBlockRowCount))
+            #return 1, totalBlockRequired, perMemoryBlockAccomodatableEntries  # the entries requires totalBlockRequired of one block wide units and able to store perMemoryBlockAccomodatableEntries
+            return 1*totalBlockRequired
+        elif (bitWidth < memoryBlockBitwidth) and ((memoryBlockBitwidth/bitWidth)>=1): # implies only one entry can be fully accomodated in one cell, so we do packing here
+            if(requiredNumberOfEntries <= memoryBlockRowCount):
+                # return 1, 1, requiredNumberOfEntries  # Because we allocate sram in total block granulairuty
+                return 1
+            else:
+                accomodatableEntriesInPackingFactorNumberOfCells = math.floor((CompilerConfigurations.PACKING_FACTOR *  memoryBlockBitwidth)/bitWidth)
+                totalBlockRequired = math.ceil(requiredNumberOfEntries/(accomodatableEntriesInPackingFactorNumberOfCells*memoryBlockRowCount))
+                # return  CompilerConfigurations.PACKING_FACTOR, totalBlockRequired, accomodatableEntriesInPackingFactorNumberOfCells
+                return CompilerConfigurations.PACKING_FACTOR*totalBlockRequired
+        else: # implies one entry requires more than one sram block
+            if (bitWidth <= CompilerConfigurations.PACKING_FACTOR*memoryBlockBitwidth):
+                accomodatableEntriesInPackingFactorNumberOfCells = math.floor((CompilerConfigurations.PACKING_FACTOR *  memoryBlockBitwidth)/bitWidth)
+                totalBlockRequired = math.ceil(requiredNumberOfEntries/(accomodatableEntriesInPackingFactorNumberOfCells*memoryBlockRowCount))
+                # return  CompilerConfigurations.PACKING_FACTOR,totalBlockRequired, accomodatableEntriesInPackingFactorNumberOfCells
+                return  CompilerConfigurations.PACKING_FACTOR*totalBlockRequired
+            else: # this condtion applies when the bitwidth is more than the packed factor number of sram block's combined width
+                blockWidth = math.ceil(bitWidth/memoryBlockBitwidth)
+                totalBlockRequired = math.ceil(requiredNumberOfEntries/memoryBlockRowCount)
+                return blockWidth* totalBlockRequired
+
+
+
     def isIndirectStatefulMemoryAccomodatable(self, indirectStatefulMemoryBitwidth, numberOfIndirectStatefulMemoryEntries): #TODO: at this moment we are assuming that
         requiredMemoryBlockWidth = math.ceil(indirectStatefulMemoryBitwidth / self.sramResource.perMemoryBlockBitwidth) # if we have an action entry with parameters width 120 bit and
         print("This fucntion calculates the requiremnt in wrong way. including its allocation method")
@@ -519,27 +558,27 @@ class SRAMResource:
     def __init__(self,sram_resources, rmtHWSpec):
         self.unprocessedSramResourceSpec = sram_resources
         self.availableSramPorts = sram_resources.memory_port_count
-        self.usedSramPorts = 0
-        self.availableSramPortBitwidth = sram_resources.memory_port_width * sram_resources.memory_port_count
-        self.usedSramPortBitwidth = 0
-        self.availableActionMemoryBitwidth = sram_resources.memory_port_width * sram_resources.memory_port_count
-        self.usedActionMemoryBitwidth = 0
+        self.availableSramPortForActionLoading= sram_resources.memory_port_count
+        self.usedSramPortForActionLoading = 0
+        self.availableSramPortForActionExecution = sram_resources.memory_port_count
+        self.usedSramPortForActionExecution = 0
         self.availableSramBlocks = sram_resources.memory_block_count
         self.usedSramBlocks = 0
         # self.availalbeSramBlockBitwidth = sram_resources.memory_block_bit_width
         # self.usedSramBlockBitwidth=0
-        self.availableSramRows = self.availableSramBlocks * sram_resources.memoroy_block_row_count
-        self.usedSramRows=0
+        # self.availableSramRows = self.availableSramBlocks * sram_resources.memoroy_block_row_count
+        # self.usedSramRows=0
         self.perMemoryBlockRowCount = sram_resources.memoroy_block_row_count
         self.perMemoryBlockBitwidth = sram_resources.memory_port_width
         pass
 
     def printAvailableResourceStatistics(self):
-        print("availableSramPorts is: "+str(self.availableSramPorts)+" usedSramPorts is : "+str(self.usedSramPorts))
-        print("availableSramPortBitwidth is: "+str(self.availableSramPortBitwidth)+" usedSramPortBitwidth is : "+str(self.usedSramPortBitwidth))
-        print("availableActionMemoryBitwidth is: "+str(self.availableActionMemoryBitwidth)+" usedActionMemoryBitwidth is : "+str(self.usedActionMemoryBitwidth))
-        print("availableSramBlocks is: "+str(self.availableSramBlocks)+" usedSramBlocks is : "+str(self.usedSramBlocks))
-        print("availableSramBlocks is: "+str(self.availableSramBlocks)+" usedSramBlocks is : "+str(self.usedSramBlocks))
+        # print("availableSramPorts is: "+str(self.availableSramPorts)+" usedSramPorts is : "+str(self.usedSramPorts))
+        # print("availableSramPortBitwidth is: "+str(self.availableSramPortBitwidth)+" usedSramPortBitwidth is : "+str(self.usedSramPortBitwidth))
+        # print("availableActionMemoryBitwidth is: "+str(self.availableActionMemoryBitwidth)+" usedActionMemoryBitwidth is : "+str(self.usedActionMemoryBitwidth))
+        # print("availableSramBlocks is: "+str(self.availableSramBlocks)+" usedSramBlocks is : "+str(self.usedSramBlocks))
+        # print("availableSramBlocks is: "+str(self.availableSramBlocks)+" usedSramBlocks is : "+str(self.usedSramBlocks))
+        print("The rinting of stagewise reource will be completed at last!!! Must need to implement this. MUST MUST MUST MUST MUST MUST MUST MUST MUST MUST MUST MUST MUST MUST MUST ")
 
 class AluResource:
 
@@ -569,18 +608,19 @@ class ExternResource:
     # that in this stage we can read 640 bit in total among them 512 bit are used for ingress and 108 bit for egress.
 
     def __init__(self,externResourcesDescription, rmtHWSpec):
-        self.availableBitwidthToExternInstructionMap= {}
-        self.usedBitwidthToExternInstructionMap= {}
+        self.availableBitwidthToRegisterInstructionMap= {}
+        self.usedBitwidthToRegisterExternInstructionMap= {}
         for externRsrcDes in externResourcesDescription:
             # print(externRsrcDes)
+            if (externRsrcDes.name in )
             instructionSpec = rmtHWSpec.nameToExternInstructionMap.get(externRsrcDes.name)
             if(instructionSpec == None):
                 logger.info("Instruction specification for instruction type: "+externRsrcDes.name+ " is not found in hardware specification. Exiting")
                 exit(1)
             externInstructionBitwidth = instructionSpec.extern_bitwidth
-            if(self.availableBitwidthToExternInstructionMap.get(externInstructionBitwidth) == None):
-                self.availableBitwidthToExternInstructionMap[externInstructionBitwidth] = []
+            if(self.availableBitwidthToRegisterInstructionMap.get(externInstructionBitwidth) == None):
+                self.availableBitwidthToRegisterInstructionMap[externInstructionBitwidth] = []
             for i in range(0, externRsrcDes.count):
-                bitWiseInstructionList = self.availableBitwidthToExternInstructionMap.get(externInstructionBitwidth)
+                bitWiseInstructionList = self.availableBitwidthToRegisterInstructionMap.get(externInstructionBitwidth)
                 bitWiseInstructionList.append(instructionSpec)
-                self.availableBitwidthToExternInstructionMap[externInstructionBitwidth] = bitWiseInstructionList
+                self.availableBitwidthToRegisterInstructionMap[externInstructionBitwidth] = bitWiseInstructionList

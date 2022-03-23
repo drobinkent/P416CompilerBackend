@@ -66,6 +66,9 @@ jhotapt implement koro. same thing korbo sram mat er jonno.
 b) need to check can whether action memory bitwidth is crossing the memory bitwidth or not
 c) direct stateful memory allocation is not done. add it.
 d) checking register capability
+e) dhori ekta stage a ram port ache, 8x80 bit. so 8 bit er extern thakte pare 80 ta. 16 biut er 40 ta. but at the end of the day we  need to make sure they confform the mempry port
+constrinats. evabe bole dite hobe. R amra instruction set asole temon kono kaje use kortechina. just for later stage.
+--then we need a function to convert the bitwidth size to size of the register extern. just like h eader mapping.
 
 
 
@@ -82,3 +85,5 @@ start form stage 1 (0 is initialized as previous pragraph). sort the tables in i
 Take the table that start earliest and compute whther if it has any dependency with any node embedded in previous stage
 and calculate what is it's possible start times. Also check its predeccsoro generated from tdg and find what is the possible start times.
 maximum of them will be its possible start time.
+
+

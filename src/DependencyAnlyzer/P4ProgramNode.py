@@ -3,7 +3,7 @@ from DependencyAnlyzer.DefinitionConstants import P4ProgramNodeType, PipelineID,
 from P4ProgramParser.P416JsonParser import PrimitiveOpblock, Expression, PrimitiveField, RegisterArrayPrimitive, HexStr, \
     PrimitiveHeader, BoolPrimitive, Table, Key, MatchType, TableType, GraphColor, HeaderField, \
     ActionResourceConsumptionStatistics
-from FrameworkConfigurations import IS_ACTION_ENTRIES_PER_TABLE_FIXED_SIZE, PER_TABLE_ACTION_ENTRY_COUNT
+from CompilerConfigurations import IS_ACTION_ENTRIES_PER_TABLE_FIXED_SIZE, PER_TABLE_ACTION_ENTRY_COUNT
 import networkx as nx
 import logging
 import ConfigurationConstants as confConst
