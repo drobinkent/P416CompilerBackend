@@ -302,9 +302,24 @@ class StageWiseResource:
                 totalBlockRequired = math.ceil(requiredNumberOfEntries/memoryBlockRowCount)
                 return blockWidth* totalBlockRequired
 
-
-
     def isIndirectStatefulMemoryAccomodatable(self, indirectStatefulMemoryBitwidth, numberOfIndirectStatefulMemoryEntries): #TODO: at this moment we are assuming that
+        requiredMemoryBlockWidth = math.ceil(indirectStatefulMemoryBitwidth / self.sramResource.perMemoryBlockBitwidth) # if we have an action entry with parameters width 120 bit and
+        print("This fucntion calculates the requiremnt in wrong way. including its allocation method")
+        #the action memory block bidwidth is 80 then we need at least 2 blocks.
+        #This requiredActionMemoryBlockWidth will be always less than or equal to the number of availalb eaction memory block width. Assuming that we will precheck it
+        if(requiredMemoryBlockWidth*self.sramResource.perMemoryBlockBitwidth <= self.sramResource.availableSramPortBitwidth) \
+                and (self.sramResource.availableSramBlocks>= requiredMemoryBlockWidth):
+            accomodatableIndirectStatefulMemoryBlocksInSRAM = math.floor(self.sramResource.availableSramBlocks/requiredMemoryBlockWidth)
+            totalAccmmodatableEntries = accomodatableIndirectStatefulMemoryBlocksInSRAM * self.sramResource.perMemoryBlockRowCount
+            if(accomodatableIndirectStatefulMemoryBlocksInSRAM >0) and (numberOfIndirectStatefulMemoryEntries <= totalAccmmodatableEntries):
+                return True
+        else:
+            print("The action entries can not be accomodated in this stage. Becuase the reqruired amount of resource is not available")
+            exit(1)
+        return False
+
+
+    def isIndirectStatefulMemoryAccomodatableOld(self, indirectStatefulMemoryBitwidth, numberOfIndirectStatefulMemoryEntries): #TODO: at this moment we are assuming that
         requiredMemoryBlockWidth = math.ceil(indirectStatefulMemoryBitwidth / self.sramResource.perMemoryBlockBitwidth) # if we have an action entry with parameters width 120 bit and
         print("This fucntion calculates the requiremnt in wrong way. including its allocation method")
         #the action memory block bidwidth is 80 then we need at least 2 blocks.

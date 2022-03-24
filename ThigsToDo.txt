@@ -70,6 +70,29 @@ e) dhori ekta stage a ram port ache, 8x80 bit. so 8 bit er extern thakte pare 80
 constrinats. evabe bole dite hobe. R amra instruction set asole temon kono kaje use kortechina. just for later stage.
 --then we need a function to convert the bitwidth size to size of the register extern. just like h eader mapping.
 
+How we will handle memory
+
+the memory packing is used. now to read some register assume the actual data is 35 bit wide. therefore it need two 32 or one 48 bit wide register.
+at this moment we will not map to any register. But when we want to generate the instreuction we need to pass how many bits will be read from sram. and rest will be padding.
+Therefore in the register read instruction we need to pass follwoing information: index, actual bitwidth to be read, and rest will be padding.
+OR even more simply as we actually allocate sram enties in integral multiple of sram block width this will automatically gives us mapping to some register that is
+actually padded. for exmaple a 90 bit wide register is packed with 3 sram block of 80 bit wide. therefore onle 2 entries can be stored in 2 sram width block.
+NOw 180 bit requires three 64 bit wide reigster read operation. we can do that, or we can use whole 3*80 bit wide register. but as of now we do not know
+how it is actually handled in hardware. so we do not consider the second varioation. Therefore, we consider the first variation and consider that 90 bit will be read from memory.
+However there is a problem with this variation. For example, assume we need 32 bit wide register. Hence one 96 bit wide sram block can store three such entries.
+Now if we use a whole 96b wide port then it is waste of memory port. However, it depends on whther a memory port can read from a sram block or multiple block.
+If it can read from a single block only then to read a 32b wide entry we need the whole 96b wide port. so really waste.
+
+
+Best possible option is to follwo open toffino style 8,16,32, and 1 bit wide. This will reduce memory waste. r amra bole dibo j padding jekhane kortechi tar bakita
+waste hocche. memory optimization k amra future goal hisebe rakhchi. Now the issue becomes P4 language supports arbitrary length. So we do padding.
+
+now we need to implement a method for converting a bitwidth to accomodate how to accomodate usnig these registers. once we get that, the total width is the
+bitwidth required for that entry.
+
+we will say two things happen : a ) due to rounding upto the register bidwidths a loss occurs b) due to block granularity memory allocation loss occurs . we keep this as future
+goal
+
 
 
 
