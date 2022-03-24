@@ -91,7 +91,7 @@ now we need to implement a method for converting a bitwidth to accomodate how to
 bitwidth required for that entry.
 
 we will say two things happen : a ) due to rounding upto the register bidwidths a loss occurs b) due to block granularity memory allocation loss occurs . we keep this as future
-goal
+goalq
 
 
 
