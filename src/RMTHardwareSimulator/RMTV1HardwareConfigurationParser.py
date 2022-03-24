@@ -38,22 +38,29 @@ def from_list(f: Callable[[Any], T], x: Any) -> List[T]:
     return [f(y) for y in x]
 
 
-@dataclass
 class HeaderVectorSpec:
     bit_width: int
     count: int
+    alu: str
+
+    def __init__(self, bit_width: int, count: int, alu: str) -> None:
+        self.bit_width = bit_width
+        self.count = count
+        self.alu = alu
 
     @staticmethod
     def from_dict(obj: Any) -> 'HeaderVectorSpec':
         assert isinstance(obj, dict)
         bit_width = from_int(obj.get("BitWidth"))
         count = from_int(obj.get("Count"))
-        return HeaderVectorSpec(bit_width, count)
+        alu = from_str(obj.get("ALU"))
+        return HeaderVectorSpec(bit_width, count, alu)
 
     def to_dict(self) -> dict:
         result: dict = {}
         result["BitWidth"] = from_int(self.bit_width)
         result["Count"] = from_int(self.count)
+        result["ALU"] = from_str(self.alu)
         return result
 
 
@@ -224,7 +231,40 @@ class TCAMMatResources:
         result["SupportedMatchTypes"] = to_class(SupportedMatchTypes, self.supported_match_types)
         result["PerTCAMMatBlockSpec"] = to_class(PerTCAMMatBlockSpec, self.per_tcam_mat_block_spec)
         return result
+class RegisterExtern:
+    name: str
 
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'RegisterExtern':
+        assert isinstance(obj, dict)
+        name = from_str(obj.get("name"))
+        return RegisterExtern(name)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        result["name"] = from_str(self.name)
+        return result
+
+
+class ExternResources:
+    register_extern: List[RegisterExtern]
+
+    def __init__(self, register_extern: List[RegisterExtern]) -> None:
+        self.register_extern = register_extern
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'ExternResources':
+        assert isinstance(obj, dict)
+        register_extern = from_list(RegisterExtern.from_dict, obj.get("RegisterExtern"))
+        return ExternResources(register_extern)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        result["RegisterExtern"] = from_list(lambda x: to_class(RegisterExtern, x), self.register_extern)
+        return result
 
 class StageDescription:
     index: str
@@ -236,10 +276,10 @@ class StageDescription:
     sram_resources: SRAMResources
     tcam_mat_resources: TCAMMatResources
     sram_mat_resources: SRAMMatResources
-    alu_resources: List[Resource]
-    extern_resources: List[Resource]
+    # alu_resources: List[Resource]
+    extern_resources: ExternResources
 
-    def __init__(self, index: str, per_mat_instruction_memory_capacity: int, action_crossbar_bit_width: int, action_memory_block_width: int, action_memory_block_bitwdith: int,  sram_resources: SRAMResources, tcam_mat_resources: TCAMMatResources, sram_mat_resources: SRAMMatResources, alu_resources: List[Resource], extern_resources: List[Resource]) -> None:
+    def __init__(self, index: str, per_mat_instruction_memory_capacity: int, action_crossbar_bit_width: int, action_memory_block_width: int, action_memory_block_bitwdith: int,  sram_resources: SRAMResources, tcam_mat_resources: TCAMMatResources, sram_mat_resources: SRAMMatResources,  extern_resources: List[Resource]) -> None:
         self.index = index
         self.per_mat_instruction_memory_capacity = per_mat_instruction_memory_capacity
         self.action_crossbar_bit_width = action_crossbar_bit_width
@@ -248,7 +288,7 @@ class StageDescription:
         self.sram_resources = sram_resources
         self.tcam_mat_resources = tcam_mat_resources
         self.sram_mat_resources = sram_mat_resources
-        self.alu_resources = alu_resources
+        # self.alu_resources = alu_resources
         self.extern_resources = extern_resources
 
     @staticmethod
@@ -262,9 +302,9 @@ class StageDescription:
         sram_resources = SRAMResources.from_dict(obj.get("SRAMResources"))
         tcam_mat_resources = TCAMMatResources.from_dict(obj.get("TCAMMatResources"))
         sram_mat_resources = SRAMMatResources.from_dict(obj.get("SRAMMatResources"))
-        alu_resources = from_list(Resource.from_dict, obj.get("ALUResources"))
-        extern_resources = from_list(Resource.from_dict, obj.get("ExternResources"))
-        return StageDescription(index, per_mat_instruction_memory_capacity, action_crossbar_bit_width, action_memory_block_width, action_memory_block_bitwdith, sram_resources, tcam_mat_resources, sram_mat_resources, alu_resources, extern_resources)
+        # alu_resources = from_list(Resource.from_dict, obj.get("ALUResources"))
+        extern_resources = ExternResources.from_dict(obj.get("ExternResources"))
+        return StageDescription(index, per_mat_instruction_memory_capacity, action_crossbar_bit_width, action_memory_block_width, action_memory_block_bitwdith, sram_resources, tcam_mat_resources, sram_mat_resources,  extern_resources)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -276,8 +316,8 @@ class StageDescription:
         result["SRAMResources"] = to_class(SRAMResources, self.sram_resources)
         result["TCAMMatResources"] = to_class(TCAMMatResources, self.tcam_mat_resources)
         result["SRAMMatResources"] = to_class(SRAMMatResources, self.sram_mat_resources)
-        result["ALUResources"] = from_list(lambda x: to_class(Resource, x), self.alu_resources)
-        result["ExternResources"] = from_list(lambda x: to_class(Resource, x), self.extern_resources)
+        # result["ALUResources"] = from_list(lambda x: to_class(Resource, x), self.alu_resources)
+        result["ExternResources"] = to_class(ExternResources, self.extern_resources)
         return result
 
 class ParserSpecs:

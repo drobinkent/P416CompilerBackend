@@ -5,15 +5,18 @@
   "HeaderVectorSpecs": [
     {
       "BitWidth": 8,
-      "Count": 100
+      "Count": 100,
+      "ALU": "8BitAlu"
     },
     {
       "BitWidth": 16,
-      "Count": 124
+      "Count": 124,
+      "ALU": "16BitAlu"
     },
     {
       "BitWidth": 32,
-      "Count": 96
+      "Count": 96,
+      "ALU": "32BitAlu"
     }
   ],
   "ParserSpecs": {
@@ -27,71 +30,63 @@
     "MaxExtractableData": 4
   },
   "StageDescription": [
-    {
-      "Index": "0-31",
-      "PerMATInstructionMemoryCapacity": 32,
-      "ActionCrossbarBitWidth": 1280,
-      "ActionMemoryBlockWidth": 8,
-      "ActionMemoryBlockBitwdith": 80,
-      "SRAMResources": {
-        "MemoryPortWidth": 112,
-        "MemoryPortCount": 8,
-        "MemoryBlockCount": 106,
-        "MemoryBlockBitWidth": 112,
-        "MemoroyBlockRowCount": 1024
-      },
-      "TCAMMatResources": {
-        "MatchCrossbarBitWidth": 640,
-        "BlockCount": 16,
-        "SupportedMatchTypes": {
-          "exact": true,
-          "lpm": true,
-          "range": true,
-          "ternary": true
+      {
+        "Index": "0-31",
+        "PerMATInstructionMemoryCapacity": 32,
+        "ActionCrossbarBitWidth": 1280,
+        "ActionMemoryBlockWidth": 8,
+        "ActionMemoryBlockBitwdith": 80,
+        "SRAMResources": {
+          "MemoryPortWidth": 112,
+          "MemoryPortCount": 8,
+          "MemoryBlockCount": 106,
+          "MemoryBlockBitWidth": 112,
+          "MemoroyBlockRowCount": 1024
         },
-        "PerTCAMMatBlockSpec": {
-          "TCAMBitWidth": 40,
-          "TCAMRowCount": 2048
-        }
-      },
-      "SRAMMatResources": {
-        "MatchCrossbarBitWidth": 640,
-        "BlockCount": 8,
-        "SupportedMatchTypes": {
-          "exact": true,
-          "lpm": false,
-          "range": false,
-          "ternary": false
+        "TCAMMatResources": {
+          "MatchCrossbarBitWidth": 640,
+          "BlockCount": 16,
+          "SupportedMatchTypes": {
+            "exact": true,
+            "lpm": true,
+            "range": true,
+            "ternary": true
+          },
+          "PerTCAMMatBlockSpec": {
+            "TCAMBitWidth": 40,
+            "TCAMRowCount": 2048
+          }
         },
-        "PerSRAMMatBlockSpec": {
-          "SRAMBitWidth": 80,
-          "HashingWay": 4
-        }
-      },
-      "ALUResources": [
-        {
-          "name": "8BitAlu",
-          "count": 64
+        "SRAMMatResources": {
+          "MatchCrossbarBitWidth": 640,
+          "BlockCount": 8,
+          "SupportedMatchTypes": {
+            "exact": true,
+            "lpm": false,
+            "range": false,
+            "ternary": false
+          },
+          "PerSRAMMatBlockSpec": {
+            "SRAMBitWidth": 80,
+            "HashingWay": 4
+          }
         },
-        {
-          "name": "16BitAlu",
-          "count": 96
-        },
-        {
-          "name": "32BitAlu",
-          "count": 64
-        }
-      ],
-      "ExternResources": [
-        {
-          "name": "RegisterReadExtern",
-          "count": 8
-        },
-        {
-          "name": "RegisterWriteExtern",
-          "count": 8
-        }
-      ]
+        "ExternResources": {
+            "RegisterExtern": [
+            {
+              "name": "RegisterExtern_8"
+            },
+            {
+              "name": "RegisterExtern_16"
+            },
+            {
+              "name": "RegisterExtern_32"
+            },
+            {
+              "name": "RegisterExtern_64"
+            }
+        ]
+      }
     }
   ],
   "SingleStageCycleLength": 14,

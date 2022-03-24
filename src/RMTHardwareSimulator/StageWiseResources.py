@@ -43,7 +43,7 @@ class StageWiseResource:
         self.sramResource = SRAMResource(stageResourceDescription.sram_resources, self.rmtHWSpec)
         self.sramMatResource = SRAMMatResource(stageResourceDescription.sram_mat_resources, self.rmtHWSpec)
         self.tcamMatResource = TCAMMatResource(stageResourceDescription.tcam_mat_resources, self.rmtHWSpec)
-        self.aluResource = AluResource(stageResourceDescription.alu_resources, self.rmtHWSpec)
+        # self.aluResource = AluResource(stageResourceDescription.alu_resources, self.rmtHWSpec)
         self.externResource = ExternResource(stageResourceDescription.extern_resources, self.rmtHWSpec)
 
     def printAvailableResourceStatistics(self):
@@ -599,6 +599,11 @@ class AluResource:
                 self.availableBitwidthToAluInstructionMap[aluInstructionBitwidth] = bitWiseInstructionList
 
 
+class RegisterExtern:
+
+    def __init__(self, regExSpec):
+        self.rawSpec = regExSpec
+        pass
 
 class ExternResource:
 
@@ -608,19 +613,29 @@ class ExternResource:
     # that in this stage we can read 640 bit in total among them 512 bit are used for ingress and 108 bit for egress.
 
     def __init__(self,externResourcesDescription, rmtHWSpec):
-        self.availableBitwidthToRegisterInstructionMap= {}
-        self.usedBitwidthToRegisterExternInstructionMap= {}
-        for externRsrcDes in externResourcesDescription:
-            # print(externRsrcDes)
-            if (externRsrcDes.name in )
-            instructionSpec = rmtHWSpec.nameToExternInstructionMap.get(externRsrcDes.name)
-            if(instructionSpec == None):
-                logger.info("Instruction specification for instruction type: "+externRsrcDes.name+ " is not found in hardware specification. Exiting")
-                exit(1)
-            externInstructionBitwidth = instructionSpec.extern_bitwidth
-            if(self.availableBitwidthToRegisterInstructionMap.get(externInstructionBitwidth) == None):
-                self.availableBitwidthToRegisterInstructionMap[externInstructionBitwidth] = []
-            for i in range(0, externRsrcDes.count):
-                bitWiseInstructionList = self.availableBitwidthToRegisterInstructionMap.get(externInstructionBitwidth)
-                bitWiseInstructionList.append(instructionSpec)
-                self.availableBitwidthToRegisterInstructionMap[externInstructionBitwidth] = bitWiseInstructionList
+        self.registerExternList = []
+        self.bitWidthToRegisterExternMap = {}
+        if(externResourcesDescription.register_extern != None):
+            for reg_ex in externResourcesDescription.register_extern:
+                regExSpec = rmtHWSpec.nameToExternInstructionMap.get(reg_ex.name)
+                if(regExSpec==None):
+                    print("Severe Error. Specification for "+str(reg_ex.name)+" not  found in instruction set. Exiting")
+                    exit(1)
+                self.registerExternList.append(RegisterExtern(regExSpec))
+                self.bitWidthToRegisterExternMap[regExSpec.extern_bitwidth] = regExSpec
+
+        # for externRsrcDes in externResourcesDescription:
+        #     # print(externRsrcDes)
+        #     # if (externRsrcDes.name in )
+        #     instructionSpec = rmtHWSpec.nameToExternInstructionMap.get(externRsrcDes.name)
+        #     if(instructionSpec == None):
+        #         logger.info("Instruction specification for instruction type: "+externRsrcDes.name+ " is not found in hardware specification. Exiting")
+        #         print("Instruction specification for instruction type: "+externRsrcDes.name+ " is not found in hardware specification. Exiting")
+        #         exit(1)
+        #     externInstructionBitwidth = instructionSpec.extern_bitwidth
+        #     if(self.availableBitwidthToRegisterInstructionMap.get(externInstructionBitwidth) == None):
+        #         self.availableBitwidthToRegisterInstructionMap[externInstructionBitwidth] = []
+        #     for i in range(0, externRsrcDes.count):
+        #         bitWiseInstructionList = self.availableBitwidthToRegisterInstructionMap.get(externInstructionBitwidth)
+        #         bitWiseInstructionList.append(instructionSpec)
+        #         self.availableBitwidthToRegisterInstructionMap[externInstructionBitwidth] = bitWiseInstructionList
