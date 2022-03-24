@@ -271,11 +271,24 @@ class RMTV1ModelHardware:
         return p4ProgramFieldSizeVsPHVFieldSizeMap
 
     def getLargestPHVFieldsForGivenp4HeaderField(self,p4ProgramHeaderBitWidth,phvFieldSizeVsCountMap):
-        phvfieldSizes = list(phvFieldSizeVsCountMap.keys())
+        phvfieldSizes =[]
+        for pfSize in phvFieldSizeVsCountMap.keys():
+            pfCount = phvFieldSizeVsCountMap.get(pfSize)
+            for i in range (0, pfCount):
+                phvfieldSizes.append(pfSize)
         phvfieldSizes.sort(reverse=True)
         for phvFieldSize in phvfieldSizes:
             if (phvFieldSize<=p4ProgramHeaderBitWidth) and (phvFieldSizeVsCountMap.get(phvFieldSize)>0):
                 return phvFieldSize
+        phvfieldSizes.sort()
+        waste = 999999999
+        selectedPhvFieldWidth = None
+        for phvFieldSize in phvfieldSizes:
+            if((phvFieldSize - p4ProgramHeaderBitWidth)<waste ):
+                waste =phvFieldSize - p4ProgramHeaderBitWidth
+                selectedPhvFieldWidth = phvFieldSize
+        if(selectedPhvFieldWidth != None):
+            return  selectedPhvFieldWidth
         return -1
 
     def  fillP4HeaderFieldWithPhvFields(self,p4ProgramHeaderBitWidth,phvFieldSizeVsCountMap):
@@ -633,7 +646,7 @@ class RMTV1ModelHardware:
                 remainingMatEntries = remainingMatEntries - entriesToBePlacedInThisStage
                 remainingActionEntries = remainingActionEntries - entriesToBePlacedInThisStage
                 print("We may allocate the resource here")
-                currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode, numberOfMatEntriesToBeAllocated = entriesToBePlacedInThisStage, numberOfActionEntriesToBeAllocated = entriesToBePlacedInThisStage)
+                currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode, numberOfMatEntriesToBeAllocated = entriesToBePlacedInThisStage, numberOfActionEntriesToBeAllocated = entriesToBePlacedInThisStage, pipelineID=pipelineID)
                 if(remainingMatEntries ==0): #Becuse if this matnode is a conditional node and have nothing to embed as mat entry it only need embed action entries.
                     break
                 elif(remainingMatEntries>0):

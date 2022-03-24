@@ -5,17 +5,17 @@
   "HeaderVectorSpecs": [
     {
       "BitWidth": 8,
-      "Count": 100,
+      "Count": 64,
       "ALU": "8BitAlu"
     },
     {
       "BitWidth": 16,
-      "Count": 124,
+      "Count": 96,
       "ALU": "16BitAlu"
     },
     {
       "BitWidth": 32,
-      "Count": 96,
+      "Count": 64,
       "ALU": "32BitAlu"
     }
   ],

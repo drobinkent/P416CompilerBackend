@@ -497,9 +497,14 @@ class MATNode:
         #     return []
         #
         # return []
-        if(self.matchKeyFields != None) :
-            return  self.originalP4node.getAllMatchFieldsOfRawP4Table()
-        return []
+        if(self.nodeType == P4ProgramNodeType.TABLE_NODE):
+            if(self.matchKeyFields != None) :
+                return  self.originalP4node.getAllMatchFieldsOfRawP4Table()
+            return []
+        elif (self.nodeType == P4ProgramNodeType.CONDITIONAL_NODE):
+            return self.originalP4node.getAllMatchFieldsOfRawP4Conditional()
+        else:
+            return []
 
     def getListOfFieldsModifedAndUsed(self, parsedP4Program):
         listOfFieldBeingModifed = []

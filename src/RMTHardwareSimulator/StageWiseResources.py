@@ -46,6 +46,9 @@ class StageWiseResource:
         # self.aluResource = AluResource(stageResourceDescription.alu_resources, self.rmtHWSpec)
         self.externResource = ExternResource(stageResourceDescription.extern_resources, self.rmtHWSpec)
 
+
+
+
     def printAvailableResourceStatistics(self):
         print("Stage Index: "+str(self.stageIndex))
         print("availableActionCrossbarBitWidth is: "+str(self.availableActionCrossbarBitWidth)+" usedActionCrossbarBitWidth is : "+str(self.usedActionCrossbarBitWidth))
@@ -209,7 +212,7 @@ class StageWiseResource:
         isEmbeddable = True
         for regName in statefulMemSet:
             regBitwidth, regArrayLength = p4ProgramGraph.parsedP4Program.getRegisterArraysResourceRequirment(regName)
-            if(self.isIndirectStatefulMemoryAccomodatable(indirectStatefulMemoryBitwidth=regBitwidth, numberOfIndirectStatefulMemoryEntries=regArrayLength)):
+            if(self.isIndirectStatefulMemoryAccomodatable(regName, indirectStatefulMemoryBitwidth=regBitwidth, numberOfIndirectStatefulMemoryEntries=regArrayLength)):
                 self.allocateSramBlockForIndirectStatefulMemory(indirectStatefulMemoryBitwidth=regBitwidth, numberOfIndirectStatefulMemoryEntries=regArrayLength,indirectStatefulMemoryName=regName)
                 isEmbeddable = True
             else:
@@ -266,6 +269,51 @@ class StageWiseResource:
         self.sramResource.availableSramPortBitwidth = self.sramResource.availableSramPortBitwidth - requiredMemoryBlockWidth * self.sramResource.perMemoryBlockBitwidth
         self.sramResource.usedSramPortBitwidth = self.sramResource.usedSramPortBitwidth + requiredMemoryBlockWidth * self.sramResource.perMemoryBlockBitwidth
 
+    def getLargestPortWidth(self, bitWidth, hwPortWidthList):
+        hwPortWidthList.sort(reverse=True)
+        for portWidth in hwPortWidthList:
+            if (portWidth <= bitWidth) :
+                return portWidth
+        waste = 999999999
+        selectedPortWidth = None
+        hwPortWidthList.sort()
+        for portWidth in hwPortWidthList:
+            if((portWidth - bitWidth)<waste ):
+                waste =portWidth - bitWidth
+                selectedPortWidth = portWidth
+        if(selectedPortWidth != None):
+            return  selectedPortWidth
+        return -1
+
+
+
+    # def  fillP4HeaderFieldWithPhvFields(self, bitWidth, portWidthList):
+    #     originalHeaderFieldWidth = bitWidth
+    #     phvFieldListForThisHeaderField = []
+    #     while(bitWidth > 0):
+    #         nearestSizePhVField = self.getLargestPortWidth(bitWidth, portWidthList)
+    #
+    #         if(nearestSizePhVField == -1):
+    #             print("A header field of bitwidth "+str(originalHeaderFieldWidth)+" can not be allocated PHV fields in this system. Hence The P4 program can not be mapped tothis hardware. Extiting!!")
+    #             exit(1)
+    #         else:
+    #             portWidthList[nearestSizePhVField]= portWidthList.get(nearestSizePhVField) - 1
+    #             bitWidth = bitWidth - nearestSizePhVField
+    #             phvFieldListForThisHeaderField.append(nearestSizePhVField)
+    #
+    #     return phvFieldListForThisHeaderField
+    def bitWidthToMemoryPortWidthConsumption(self, bitWidth, hwPortWidthList):
+        portWidthList = []
+        bitWidth = self.externResource.getNearestIntegralMultipleOfLeaseWidthPort(bitWidth)
+        while (bitWidth > 0):
+            nearestPortWidth = self.getLargestPortWidth(bitWidth, hwPortWidthList)
+            if(nearestPortWidth == -1):
+                print("An Indirect Stateful memory  of bitwidth "+str(nearestPortWidth)+" can not be allocated using available memory port widths of this system. Hence The P4 program can not be mapped tothis hardware. Extiting!!")
+                exit(1)
+            else:
+                bitWidth = bitWidth - nearestPortWidth
+                portWidthList.append(nearestPortWidth)
+        return portWidthList
 
     def getMemoryBlockWidthAndBlockCountFromBitWidthAndRequiredNumberOfEntries(self,bitWidth,memoryBlockBitwidth,memoryBlockRowCount,requiredNumberOfEntries):
         '''
@@ -276,47 +324,49 @@ class StageWiseResource:
         :return: return only how many sram blocks are required
         '''
         if(bitWidth == 0) or (requiredNumberOfEntries == 0):
-            return 0
+            return 0,0
         if(bitWidth < memoryBlockBitwidth) and ((memoryBlockBitwidth/bitWidth)>=2): # implies at least two entries can be acomodated in one cell
             perMemoryBlockAccomodatableEntries = math.floor((memoryBlockBitwidth/bitWidth))
             totalBlockRequired = math.ceil(requiredNumberOfEntries/(perMemoryBlockAccomodatableEntries*memoryBlockRowCount))
             #return 1, totalBlockRequired, perMemoryBlockAccomodatableEntries  # the entries requires totalBlockRequired of one block wide units and able to store perMemoryBlockAccomodatableEntries
-            return 1*totalBlockRequired
+            return 1, 1*totalBlockRequired
         elif (bitWidth < memoryBlockBitwidth) and ((memoryBlockBitwidth/bitWidth)>=1): # implies only one entry can be fully accomodated in one cell, so we do packing here
             if(requiredNumberOfEntries <= memoryBlockRowCount):
                 # return 1, 1, requiredNumberOfEntries  # Because we allocate sram in total block granulairuty
-                return 1
+                return 1,1
             else:
                 accomodatableEntriesInPackingFactorNumberOfCells = math.floor((CompilerConfigurations.PACKING_FACTOR *  memoryBlockBitwidth)/bitWidth)
                 totalBlockRequired = math.ceil(requiredNumberOfEntries/(accomodatableEntriesInPackingFactorNumberOfCells*memoryBlockRowCount))
                 # return  CompilerConfigurations.PACKING_FACTOR, totalBlockRequired, accomodatableEntriesInPackingFactorNumberOfCells
-                return CompilerConfigurations.PACKING_FACTOR*totalBlockRequired
+                return CompilerConfigurations.PACKING_FACTOR, CompilerConfigurations.PACKING_FACTOR*totalBlockRequired
         else: # implies one entry requires more than one sram block
             if (bitWidth <= CompilerConfigurations.PACKING_FACTOR*memoryBlockBitwidth):
                 accomodatableEntriesInPackingFactorNumberOfCells = math.floor((CompilerConfigurations.PACKING_FACTOR *  memoryBlockBitwidth)/bitWidth)
                 totalBlockRequired = math.ceil(requiredNumberOfEntries/(accomodatableEntriesInPackingFactorNumberOfCells*memoryBlockRowCount))
                 # return  CompilerConfigurations.PACKING_FACTOR,totalBlockRequired, accomodatableEntriesInPackingFactorNumberOfCells
-                return  CompilerConfigurations.PACKING_FACTOR*totalBlockRequired
+                return CompilerConfigurations.PACKING_FACTOR, CompilerConfigurations.PACKING_FACTOR*totalBlockRequired
             else: # this condtion applies when the bitwidth is more than the packed factor number of sram block's combined width
                 blockWidth = math.ceil(bitWidth/memoryBlockBitwidth)
                 totalBlockRequired = math.ceil(requiredNumberOfEntries/memoryBlockRowCount)
-                return blockWidth* totalBlockRequired
+                return blockWidth, blockWidth* totalBlockRequired
 
-    def isIndirectStatefulMemoryAccomodatable(self, indirectStatefulMemoryBitwidth, numberOfIndirectStatefulMemoryEntries): #TODO: at this moment we are assuming that
-        requiredMemoryBlockWidth = math.ceil(indirectStatefulMemoryBitwidth / self.sramResource.perMemoryBlockBitwidth) # if we have an action entry with parameters width 120 bit and
-        print("This fucntion calculates the requiremnt in wrong way. including its allocation method")
-        #the action memory block bidwidth is 80 then we need at least 2 blocks.
-        #This requiredActionMemoryBlockWidth will be always less than or equal to the number of availalb eaction memory block width. Assuming that we will precheck it
-        if(requiredMemoryBlockWidth*self.sramResource.perMemoryBlockBitwidth <= self.sramResource.availableSramPortBitwidth) \
+    def isIndirectStatefulMemoryAccomodatable(self, indirectStatefulMemoryName, indirectStatefulMemoryBitwidth, numberOfIndirectStatefulMemoryEntries): #TODO: at this moment we are assuming that
+        isAccomodatable = False
+        blockWidth, requiredSramBlocks = self.getMemoryBlockWidthAndBlockCountFromBitWidthAndRequiredNumberOfEntries(bitWidth=indirectStatefulMemoryBitwidth,
+                         memoryBlockBitwidth=self.sramResource.perMemoryBlockBitwidth,memoryBlockRowCount=self.sramResource.perMemoryBlockRowCount,
+                         requiredNumberOfEntries=numberOfIndirectStatefulMemoryEntries)
+        memoryPortWidthList = self.bitWidthToMemoryPortWidthConsumption(indirectStatefulMemoryBitwidth, list(self.externResource.bitWidthToRegisterExternMap.keys()))
+        totalMemoryPortWidth = sum(memoryPortWidthList)
+        if(totalMemoryPortWidth <= self.sramResource.perMemoryBlockBitwidth) \
                 and (self.sramResource.availableSramBlocks>= requiredMemoryBlockWidth):
             accomodatableIndirectStatefulMemoryBlocksInSRAM = math.floor(self.sramResource.availableSramBlocks/requiredMemoryBlockWidth)
             totalAccmmodatableEntries = accomodatableIndirectStatefulMemoryBlocksInSRAM * self.sramResource.perMemoryBlockRowCount
             if(accomodatableIndirectStatefulMemoryBlocksInSRAM >0) and (numberOfIndirectStatefulMemoryEntries <= totalAccmmodatableEntries):
-                return True
+                isAccomodatable =  True
         else:
-            print("The action entries can not be accomodated in this stage. Becuase the reqruired amount of resource is not available")
+            print("The indirect stateful memory entries for "+str(indirectStatefulMemoryName) +" can not be accomodated in this stage. Becuase the reqruired amount of resource is not available")
             exit(1)
-        return False
+        return isAccomodatable
 
 
     def isIndirectStatefulMemoryAccomodatableOld(self, indirectStatefulMemoryBitwidth, numberOfIndirectStatefulMemoryEntries): #TODO: at this moment we are assuming that
@@ -639,6 +689,12 @@ class ExternResource:
                 self.registerExternList.append(RegisterExtern(regExSpec))
                 self.bitWidthToRegisterExternMap[regExSpec.extern_bitwidth] = regExSpec
 
+    def getNearestIntegralMultipleOfLeaseWidthPort(self, bitWidth):
+        portWidthList = list(self.bitWidthToRegisterExternMap.keys())
+        portWidthList.sort()
+        minWidthList = portWidthList[0]
+        c = math.ceil(bitWidth/minWidthList)
+        return c*minWidthList
         # for externRsrcDes in externResourcesDescription:
         #     # print(externRsrcDes)
         #     # if (externRsrcDes.name in )
