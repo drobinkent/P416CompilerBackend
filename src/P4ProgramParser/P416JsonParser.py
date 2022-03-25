@@ -1676,7 +1676,7 @@ class Action:
                 pass
             elif (prim.op == PrimitiveOp.CLONE_EGRESS_PKT_TO_EGRESS) or (prim.op == PrimitiveOp.RECIRCULATE):
                 #TODO: in future add more types of recirculation and also automate the bitwidth
-                logger.info("CONING AND RECIRCULATION need to write only one field in standard_metadata to indicate what is the type of operation. To write a vlaue in that filed we need two parmameters")
+                logger.info("CLONING AND RECIRCULATION need to write only one field in standard_metadata to indicate what is the type of operation. To write a vlaue in that filed we need two parmameters")
                 actionCrossbarBitwidth = actionCrossbarBitwidth + 2*8
                 pass
             elif (prim.op == PrimitiveOp.EXECUTE_METER):

@@ -270,8 +270,8 @@ class StageDescription:
     index: str
     per_mat_instruction_memory_capacity: int
     action_crossbar_bit_width: int
-    action_memory_block_width: int
-    action_memory_block_bitwdith: int
+    # action_memory_block_width: int
+    # action_memory_block_bitwdith: int
     maximum_actions_supported: int
     sram_resources: SRAMResources
     tcam_mat_resources: TCAMMatResources
@@ -279,12 +279,12 @@ class StageDescription:
     # alu_resources: List[Resource]
     extern_resources: ExternResources
 
-    def __init__(self, index: str, per_mat_instruction_memory_capacity: int, action_crossbar_bit_width: int, action_memory_block_width: int, action_memory_block_bitwdith: int,  sram_resources: SRAMResources, tcam_mat_resources: TCAMMatResources, sram_mat_resources: SRAMMatResources,  extern_resources: List[Resource]) -> None:
+    def __init__(self, index: str, per_mat_instruction_memory_capacity: int, action_crossbar_bit_width: int,  sram_resources: SRAMResources, tcam_mat_resources: TCAMMatResources, sram_mat_resources: SRAMMatResources,  extern_resources: List[Resource]) -> None:
         self.index = index
         self.per_mat_instruction_memory_capacity = per_mat_instruction_memory_capacity
         self.action_crossbar_bit_width = action_crossbar_bit_width
-        self.action_memory_block_width = action_memory_block_width
-        self.action_memory_block_bitwdith = action_memory_block_bitwdith
+        # self.action_memory_block_width = action_memory_block_width
+        # self.action_memory_block_bitwdith = action_memory_block_bitwdith
         self.sram_resources = sram_resources
         self.tcam_mat_resources = tcam_mat_resources
         self.sram_mat_resources = sram_mat_resources
@@ -297,22 +297,22 @@ class StageDescription:
         index = from_str(obj.get("Index"))
         per_mat_instruction_memory_capacity = from_int(obj.get("PerMATInstructionMemoryCapacity"))
         action_crossbar_bit_width = from_int(obj.get("ActionCrossbarBitWidth"))
-        action_memory_block_width = from_int(obj.get("ActionMemoryBlockWidth"))
-        action_memory_block_bitwdith = from_int(obj.get("ActionMemoryBlockBitwdith"))
+        # action_memory_block_width = from_int(obj.get("ActionMemoryBlockWidth"))
+        # action_memory_block_bitwdith = from_int(obj.get("ActionMemoryBlockBitwdith"))
         sram_resources = SRAMResources.from_dict(obj.get("SRAMResources"))
         tcam_mat_resources = TCAMMatResources.from_dict(obj.get("TCAMMatResources"))
         sram_mat_resources = SRAMMatResources.from_dict(obj.get("SRAMMatResources"))
         # alu_resources = from_list(Resource.from_dict, obj.get("ALUResources"))
         extern_resources = ExternResources.from_dict(obj.get("ExternResources"))
-        return StageDescription(index, per_mat_instruction_memory_capacity, action_crossbar_bit_width, action_memory_block_width, action_memory_block_bitwdith, sram_resources, tcam_mat_resources, sram_mat_resources,  extern_resources)
+        return StageDescription(index, per_mat_instruction_memory_capacity, action_crossbar_bit_width,  sram_resources, tcam_mat_resources, sram_mat_resources,  extern_resources)
 
     def to_dict(self) -> dict:
         result: dict = {}
         result["Index"] = from_str(self.index)
         result["PerMATInstructionMemoryCapacity"] = from_int(self.per_mat_instruction_memory_capacity)
         result["ActionCrossbarBitWidth"] = from_int(self.action_crossbar_bit_width)
-        result["ActionMemoryBlockWidth"] = from_int(self.action_memory_block_width)
-        result["ActionMemoryBlockBitwdith"] = from_int(self.action_memory_block_bitwdith)
+        # result["ActionMemoryBlockWidth"] = from_int(self.action_memory_block_width)
+        # result["ActionMemoryBlockBitwdith"] = from_int(self.action_memory_block_bitwdith)
         result["SRAMResources"] = to_class(SRAMResources, self.sram_resources)
         result["TCAMMatResources"] = to_class(TCAMMatResources, self.tcam_mat_resources)
         result["SRAMMatResources"] = to_class(SRAMMatResources, self.sram_mat_resources)
