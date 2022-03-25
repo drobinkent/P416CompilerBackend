@@ -180,12 +180,12 @@ class StageWiseResource:
 
 
 
-    def getTotalAccomodatableSRAMMatEntriesForGivenMatKeyBitwidth(self, matKeyBitWidth):
-        matKeyBitWidth = self.convertMatKeyBitWidthLengthToSRAMMatKeyLength(matKeyBitWidth)
-        matKeySRAMBlockWidth = math.ceil(matKeyBitWidth / self.sramMatResource.perSramMatBitWidth) *self.sramMatResource.sramMatHashingWay# Means how many blocks we need to merge to form a key. For example: for 80 bit mat key we need 2 40 bit tcam block
-        availableKeyBlock = math.floor(self.sramResource.availableSramBlocks/matKeySRAMBlockWidth) # if we need 3 blocks to form a mat key and we have 5 tcam block then we can accomodate only 1 block for the matkey
-        accomodatableSRAMEntries = availableKeyBlock * self.sramResource.perMemoryBlockRowCount
-        return  accomodatableSRAMEntries
+    # def getTotalAccomodatableSRAMMatEntriesForGivenMatKeyBitwidth(self, matKeyBitWidth):
+    #     matKeyBitWidth = self.convertMatKeyBitWidthLengthToSRAMMatKeyLength(matKeyBitWidth)
+    #     matKeySRAMBlockWidth = math.ceil(matKeyBitWidth / self.sramMatResource.perSramMatBitWidth) *self.sramMatResource.sramMatHashingWay# Means how many blocks we need to merge to form a key. For example: for 80 bit mat key we need 2 40 bit tcam block
+    #     availableKeyBlock = math.floor(self.sramResource.availableSramBlocks/matKeySRAMBlockWidth) # if we need 3 blocks to form a mat key and we have 5 tcam block then we can accomodate only 1 block for the matkey
+    #     accomodatableSRAMEntries = availableKeyBlock * self.sramResource.perMemoryBlockRowCount
+    #     return  accomodatableSRAMEntries
     def isMatEntriesAccomodatableInSRAMBasedMATInThisStage(self,matKeyBitWidth, requiredMatEntries):
         isAccomodatable = False
         blockWidth, requiredSramBlocks = self.getMemoryBlockWidthAndBlockCountFromBitWidthAndRequiredNumberOfEntries(bitWidth=matKeyBitWidth,
@@ -339,6 +339,25 @@ class StageWiseResource:
                 portWidthList.append(nearestPortWidth)
         return portWidthList
 
+    def getTotalNumberOfAccomodatableEntriesForGivenBitWidth(self, bitWidth, memoryBlockBitwidth,memoryBlockRowCount):
+        if(bitWidth == 0) :
+            return 0
+        if(bitWidth < memoryBlockBitwidth) and ((memoryBlockBitwidth/bitWidth)>=2): # implies at least two entries can be acomodated in one cell
+            perMemoryBlockAccomodatableEntries = math.floor((memoryBlockBitwidth/bitWidth))
+            return perMemoryBlockAccomodatableEntries*self.sramResource.availableSramBlocks*memoryBlockRowCount
+        elif (bitWidth < memoryBlockBitwidth) and ((memoryBlockBitwidth/bitWidth)>=1): # implies only one entry can be fully accomodated in one cell, so we do packing here
+            accomodatableEntriesInPackingFactorNumberOfCells = math.floor((CompilerConfigurations.PACKING_FACTOR *  memoryBlockBitwidth)/bitWidth)
+            totalAccomodatablePackedBlocks = math.floor(self.sramResource.availableSramBlocks/CompilerConfigurations.PACKING_FACTOR)
+            return accomodatableEntriesInPackingFactorNumberOfCells * totalAccomodatablePackedBlocks * memoryBlockRowCount
+        else: # implies one entry requires more than one sram block
+            if (bitWidth <= CompilerConfigurations.PACKING_FACTOR*memoryBlockBitwidth):
+                accomodatableEntriesInPackingFactorNumberOfCells = math.floor((CompilerConfigurations.PACKING_FACTOR *  memoryBlockBitwidth)/bitWidth)
+                totalAccomodatablePackedBlocks = math.floor(self.sramResource.availableSramBlocks/CompilerConfigurations.PACKING_FACTOR)
+                return accomodatableEntriesInPackingFactorNumberOfCells * totalAccomodatablePackedBlocks * memoryBlockRowCount
+            else: # this condtion applies when the bitwidth is more than the packed factor number of sram block's combined width
+                blockWidth = math.ceil(bitWidth/memoryBlockBitwidth)
+                totalAccomodatablePackedBlocks = math.floor(self.sramResource.availableSramBlocks/blockWidth)
+                return totalAccomodatablePackedBlocks * memoryBlockRowCount
     def getMemoryBlockWidthAndBlockCountFromBitWidthAndRequiredNumberOfEntries(self,bitWidth,memoryBlockBitwidth,memoryBlockRowCount,requiredNumberOfEntries):
         '''
         :param bitWidth:
@@ -418,14 +437,8 @@ class StageWiseResource:
         self.listOfLogicalTableMappedToThisStage.get(pipelineID).append(matNode)
 
     def allocateMatNodeOverTCAMMat(self, matNode, numberOfMatEntriesToBeAllocated, numberOfActionEntriesToBeAllocated,pipelineID):
-        # if(self.usedActionCrossbarBitWidth < matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction()): #Because We are embedding all nodes on a sp-ecific level one by one. so any
-        #     #table in same stage do need the maximum action crossbar among it's sibilings.
-
-        # self.allocateTCAMMatKeyCount(matNode.totalKeysTobeMatched)
         self.allocateTCAMMatKeyCrossbarBitwidth(matNode.matKeyBitWidth)
-        # self.allocateTCAMMatBlocks(self.convertMatKeyBitWidthLengthToTCAMMatBlockCount(matNode.matKeyBitWidth))
         self.allocateMatEntriesOverTCAMBasedMATSinSingleStage(matNode.matKeyBitWidth, numberOfMatEntriesToBeAllocated) # This embeds both match-key and tables and entries in one stage
-        self.allocateActionMemoryBlockBitwidth( matNode.getMaxBitwidthOfActionParameter())
         self.allocateActionCrossbarBitwidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
         self.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= numberOfActionEntriesToBeAllocated)
         self.listOfLogicalTableMappedToThisStage.get(pipelineID).append(matNode)
@@ -443,10 +456,12 @@ class StageWiseResource:
         self.listOfLogicalTableMappedToThisStage.get(pipelineID).append(matNode)
     def allocateMatNodeOverSRAMMat(self, matNode, numberOfMatEntriesToBeAllocated, numberOfActionEntriesToBeAllocated,pipelineID):
         self.allocateSRAMMatKeyCrossbarBitwidth(matNode.matKeyBitWidth)
-        # self.allocateSRAMMatBlocks(self.convertMatKeyBitWidthLengthToSRAMMatBlockCount(matNode.matKeyBitWidth))
+        #For TCAM all tcam blocks are only used for MATCHing therefore allocating a tcam block automatically modifies the block count.
+        #However in the case of sram this is not the case. In sram based mat we can only use 8 SRAM based MAT (in bosshart paper), But there are 106 sram blocks,
+        #Therefore unlike tcam based mat, in sram based mat we need to explicitily keep track of the number of available SRAM based mat blocks.
+        self.allocateSRAMMatBlocks(self.convertMatKeyBitWidthLengthToSRAMMatBlockCount(matNode.matKeyBitWidth))
         self.allocateMatEntriesOverSRAMBasedMATSInSingleStage(matNode.matKeyBitWidth, numberOfMatEntriesToBeAllocated) # This embeds both match-key and tables and entries in one stage
         self.allocateActionCrossbarBitwidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
-        self.allocateActionMemoryBlockBitwidth( matNode.getMaxBitwidthOfActionParameter())
         self.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= numberOfActionEntriesToBeAllocated)
         self.listOfLogicalTableMappedToThisStage.get(pipelineID).append(matNode)
         # print("Test")
@@ -486,7 +501,7 @@ class StageWiseResource:
 
 
 
-    def isMatNodeEmbeddableOnTCAMMatBlocks(self, matNode,maxActionCrossbarBitwidth):
+    def isMatNodeEmbeddableOnTCAMMatBlocks(self, matNode,maxActionCrossbarBitwidth,maxActionMemoryBitwidth):
 
         # check whther, the key bit width and lengths are within available bitwdth and range
         # Then check, number of entries is accomodatable or not
@@ -562,7 +577,7 @@ class StageWiseResource:
                 else:
                     isEmbeddable = False
         if(isEmbeddable == True):
-            pass # todo allocate action memory loading [port bitwidth. Becuase all of these tables will be executed disjointly
+            self.allocateActionMemoryPortWidth(maxActionMemoryBitwidth)
 
         return isEmbeddable
 

@@ -360,7 +360,6 @@ class RMTV1ModelHardware:
                         startingPhysicalStageListForLogicalStageIndex.append(physicalStageIndexForIndirectStatefulMemory)
                         endingPhysicalStageListForLogicalStageIndex.append(physicalStageIndexForIndirectStatefulMemory)
 
-upto here we have checked. start from next part
                 matListNotUsingStatefulMem = self.sortNodesBasedOnMatchType(matListNotUsingStatefulMem) # sorting and prioritizing the tables that needs TCAM for matching
                 # deepCopiedHW = copy.deepcopy(hardware)
                 if(startingPhyicalStageIndex >= hardware.totalStages):
@@ -476,14 +475,19 @@ upto here we have checked. start from next part
             else:
                 accmodatableMatEntries = currentStageHardwareResource.getTotalAccomodatableTCAMMatEntriesForGivenMatKeyBitwidth(matNode.matKeyBitWidth)
             accmodatableActionEntries = 0
+            totalMemoryPortWidth = 0
             if(matNode.getMaxBitwidthOfActionParameter() == 0):
                 accmodatableActionEntries = matNode.getRequiredNumberOfActionEntries()
             else:
-                accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth \
-                    (actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter())
-            if((matNode.matKeyBitWidth <= currentStageHardwareResource.getAvailableTCAMMatKeyCrossbarBitwidth()) and \
+                accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableEntriesForGivenBitWidth(bitWidth =  matNode.getMaxBitwidthOfActionParameter(),
+                  memoryBlockBitwidth= currentStageHardwareResource.sramResource.perMemoryBlockBitwidth,memoryBlockRowCount=currentStageHardwareResource.sramResource.perMemoryBlockRowCount)
+                memoryPortWidthList = currentStageHardwareResource.bitWidthToMemoryPortWidthConsumption(matNode.getMaxBitwidthOfActionParameter(), list(currentStageHardwareResource.externResource.bitWidthToRegisterExternMap.keys()))
+                totalMemoryPortWidth = sum(memoryPortWidthList)
+            if(currentStageHardwareResource.convertMatKeyBitWidthLengthToTCAMMatBlockCount(matNode.matKeyBitWidth) <= currentStageHardwareResource.getAvailableSRAMMatKeyBlockCount()) and \
+                    (matNode.matKeyBitWidth <= currentStageHardwareResource.getAvailableTCAMMatKeyCrossbarBitwidth()) and \
+                    (currentStageHardwareResource.sramResource.availableSramPortWidthForActionLoading >= totalMemoryPortWidth) and \
                     (currentStageHardwareResource.getAvailableActionCrossbarBitwidth() >= matNode.getMaxBitwidthOfActionParameter()) and \
-                    (accmodatableActionEntries >= remainingActionEntries) ):
+                    (remainingActionEntries <= accmodatableActionEntries): # last checking is required if action entries are not accomodatable then need to go to next stage
                 # Becuase this fucntion assumes a fixed and small number of action for every mat. and replicats these actions in every stages where the mat entries needed to be deivided.
                 if(startingStage == -1):
                     startingStage = currentStageIndex
@@ -522,16 +526,22 @@ upto here we have checked. start from next part
             if(matNode.matKeyBitWidth == 0):
                 accmodatableMatEntries = matNode.getRequiredNumberOfMatEntries()
             else:
-                accmodatableMatEntries = currentStageHardwareResource.getTotalAccomodatableSRAMMatEntriesForGivenMatKeyBitwidth(matNode.matKeyBitWidth)
+                accmodatableMatEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableEntriesForGivenBitWidth(bitWidth = matNode.matKeyBitWidth,
+                   memoryBlockBitwidth= currentStageHardwareResource.sramResource.perMemoryBlockBitwidth,memoryBlockRowCount=currentStageHardwareResource.sramResource.perMemoryBlockRowCount)
             accmodatableActionEntries = 0
+            totalMemoryPortWidth = 0
             if(matNode.getMaxBitwidthOfActionParameter() == 0):
                 accmodatableActionEntries = matNode.getRequiredNumberOfActionEntries()
             else:
-                accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth \
-                    (actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter())
-            if((matNode.matKeyBitWidth <= currentStageHardwareResource.getAvailableSRAMMatKeyCrossbarBitwidth()) and \
-                    (accmodatableActionEntries >= remainingActionEntries) and \
-                    (currentStageHardwareResource.getAvailableActionCrossbarBitwidth() >= matNode.getMaxBitwidthOfActionParameter()) ):
+                accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableEntriesForGivenBitWidth(bitWidth =  matNode.getMaxBitwidthOfActionParameter(),
+                  memoryBlockBitwidth= currentStageHardwareResource.sramResource.perMemoryBlockBitwidth,memoryBlockRowCount=currentStageHardwareResource.sramResource.perMemoryBlockRowCount)
+                memoryPortWidthList = currentStageHardwareResource.bitWidthToMemoryPortWidthConsumption(matNode.getMaxBitwidthOfActionParameter(), list(currentStageHardwareResource.externResource.bitWidthToRegisterExternMap.keys()))
+                totalMemoryPortWidth = sum(memoryPortWidthList)
+            if(currentStageHardwareResource.convertMatKeyBitWidthLengthToSRAMMatBlockCount(matNode.matKeyBitWidth) <= currentStageHardwareResource.getAvailableSRAMMatKeyBlockCount()) \
+                    and (matNode.matKeyBitWidth <= currentStageHardwareResource.getAvailableSRAMMatKeyCrossbarBitwidth()) and \
+                    (currentStageHardwareResource.sramResource.availableSramPortWidthForActionLoading >= totalMemoryPortWidth) and \
+                    (currentStageHardwareResource.getAvailableActionCrossbarBitwidth() >= matNode.getMaxBitwidthOfActionParameter()) and \
+                    (remainingActionEntries <= accmodatableActionEntries): # last checking is required if action entries are not accomodatable then need to go to next stage
                 if(startingStage == -1):
                     startingStage = currentStageIndex
                 endingStage = currentStageIndex
@@ -572,18 +582,23 @@ upto here we have checked. start from next part
             else:
                 accmodatableMatEntries = currentStageHardwareResource.getTotalAccomodatableTCAMMatEntriesForGivenMatKeyBitwidth(matNode.matKeyBitWidth)
             accmodatableActionEntries = 0
+            totalMemoryPortWidth = 0
             if(matNode.getMaxBitwidthOfActionParameter() == 0):
                 accmodatableActionEntries = matNode.getRequiredNumberOfActionEntries()
             else:
-                accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth \
-                    (actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter())
-            if((matNode.matKeyBitWidth <= currentStageHardwareResource.getAvailableTCAMMatKeyCrossbarBitwidth()) and \
-                    (currentStageHardwareResource.getAvailableActionCrossbarBitwidth() >= matNode.getMaxBitwidthOfActionParameter()) ):
+                accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableEntriesForGivenBitWidth(bitWidth =  matNode.getMaxBitwidthOfActionParameter(),
+                      memoryBlockBitwidth= currentStageHardwareResource.sramResource.perMemoryBlockBitwidth,memoryBlockRowCount=currentStageHardwareResource.sramResource.perMemoryBlockRowCount)
+                memoryPortWidthList = currentStageHardwareResource.bitWidthToMemoryPortWidthConsumption(matNode.getMaxBitwidthOfActionParameter(), list(currentStageHardwareResource.externResource.bitWidthToRegisterExternMap.keys()))
+                totalMemoryPortWidth = sum(memoryPortWidthList)
+            if(currentStageHardwareResource.convertMatKeyBitWidthLengthToTCAMMatBlockCount(matNode.matKeyBitWidth) <= currentStageHardwareResource.getAvailableSRAMMatKeyBlockCount()) and \
+                    (matNode.matKeyBitWidth <= currentStageHardwareResource.getAvailableTCAMMatKeyCrossbarBitwidth()) and \
+                    (currentStageHardwareResource.sramResource.availableSramPortWidthForActionLoading >= totalMemoryPortWidth) and \
+                    (currentStageHardwareResource.getAvailableActionCrossbarBitwidth() >= matNode.getMaxBitwidthOfActionParameter()) :
                 if(startingStage == -1):
                     startingStage = currentStageIndex
                 endingStage = currentStageIndex
                 # Follwoing line is the main differenc between the replication and distribution method
-                entriesToBePlacedInThisStage = min(accmodatableMatEntries, remainingMatEntries, accmodatableActionEntries, remainingMatEntries)
+                entriesToBePlacedInThisStage = min(accmodatableMatEntries, remainingMatEntries, accmodatableActionEntries, remainingActionEntries)
                 remainingMatEntries = remainingMatEntries - entriesToBePlacedInThisStage
                 remainingActionEntries = remainingActionEntries - entriesToBePlacedInThisStage
                 print("We may allocate the resource here")
@@ -596,9 +611,9 @@ upto here we have checked. start from next part
                     if(currentStageHardwareResource==None):
                         print("In embedMatNodeOverTCAMMatInMultipleStageWithActionEntriesDistribution The mapping algorithm has reached to stage "+str(currentStageIndex)+" Which is invalid. Exiting!!")
             else:
-                startingStage = endingStage = -1
-                remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
-                remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
+                # startingStage = endingStage = -1
+                # remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
+                # remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
                 currentStageIndex = currentStageIndex + 1
                 currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
                 if(currentStageHardwareResource==None):
@@ -618,15 +633,22 @@ upto here we have checked. start from next part
             if(matNode.matKeyBitWidth == 0):
                 accmodatableMatEntries = matNode.getRequiredNumberOfMatEntries()
             else:
-                accmodatableMatEntries = currentStageHardwareResource.getTotalAccomodatableSRAMMatEntriesForGivenMatKeyBitwidth(matNode.matKeyBitWidth)
+                # accmodatableMatEntries = currentStageHardwareResource.getTotalAccomodatableSRAMMatEntriesForGivenMatKeyBitwidth(matNode.matKeyBitWidth)
+                accmodatableMatEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableEntriesForGivenBitWidth(bitWidth = matNode.matKeyBitWidth,
+                        memoryBlockBitwidth= currentStageHardwareResource.sramResource.perMemoryBlockBitwidth,memoryBlockRowCount=currentStageHardwareResource.sramResource.perMemoryBlockRowCount)
             accmodatableActionEntries = 0
+            totalMemoryPortWidth = 0
             if(matNode.getMaxBitwidthOfActionParameter() == 0):
                 accmodatableActionEntries = matNode.getRequiredNumberOfActionEntries()
             else:
-                accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableActionEntriesForGivenActionEntryBitWidth \
-                    (actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter())
-            if((matNode.matKeyBitWidth <= currentStageHardwareResource.getAvailableSRAMMatKeyCrossbarBitwidth()) and \
-                    (currentStageHardwareResource.getAvailableActionCrossbarBitwidth() >= matNode.getMaxBitwidthOfActionParameter()) ):
+                accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableEntriesForGivenBitWidth(bitWidth =  matNode.getMaxBitwidthOfActionParameter(),
+                       memoryBlockBitwidth= currentStageHardwareResource.sramResource.perMemoryBlockBitwidth,memoryBlockRowCount=currentStageHardwareResource.sramResource.perMemoryBlockRowCount)
+                memoryPortWidthList = self.bitWidthToMemoryPortWidthConsumption(matNode.getMaxBitwidthOfActionParameter(), list(self.externResource.bitWidthToRegisterExternMap.keys()))
+                totalMemoryPortWidth = sum(memoryPortWidthList)
+
+            if(self.convertMatKeyBitWidthLengthToSRAMMatBlockCount(matNode.matKeyBitWidth) <= self.getAvailableSRAMMatKeyBlockCount()) \
+              and (matNode.matKeyBitWidth <= self.getAvailableSRAMMatKeyCrossbarBitwidth()) and (self.sramResource.availableSramPortWidthForActionLoading >= totalMemoryPortWidth) and \
+                    (currentStageHardwareResource.getAvailableActionCrossbarBitwidth() >= matNode.getMaxBitwidthOfActionParameter()):
                 if(startingStage == -1):
                     startingStage = currentStageIndex
                 endingStage = currentStageIndex
@@ -643,9 +665,9 @@ upto here we have checked. start from next part
                     if(currentStageHardwareResource==None):
                         print("In embedMatNodeOverSRAMMatInMultipleStageWithActionEntriesDistribution The mapping algorithm has reached to stage "+str(currentStageIndex)+" Which is invalid. Exiting!!")
             else:
-                startingStage = endingStage = -1
-                remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
-                remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
+                # startingStage = endingStage = -1
+                # remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
+                # remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
                 currentStageIndex = currentStageIndex + 1
                 currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
                 if(currentStageHardwareResource==None):
