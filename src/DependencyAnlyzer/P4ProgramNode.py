@@ -203,7 +203,7 @@ class MATNode:
         if IS_ACTION_ENTRIES_PER_TABLE_FIXED_SIZE == True:
             return PER_TABLE_ACTION_ENTRY_COUNT
         else:
-            self.originalP4node.max_size
+            return self.originalP4node.max_size
         # return 1024  #TODO: not always 1024 action entries are enough
 
     def getMaxBitwidthOfActionParameter(self):

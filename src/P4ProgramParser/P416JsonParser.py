@@ -3018,6 +3018,7 @@ class HeaderField:
         for phvField in phvfieldList:
             totalBitWidth = totalBitWidth+phvField
         return totalBitWidth
+        # return self.bitWidth
 
     def setMappedPhyscialHeaderVectorFieldBitwdith(self, mappedPhyscialHeaderVectorFieldBitwdith):
         self.mappedPhyscialHeaderVectorFieldBitwdith = mappedPhyscialHeaderVectorFieldBitwdith
@@ -3300,6 +3301,14 @@ class ParsedP416ProgramForV1ModelArchitecture:
         totalKeysTobeMatched = len(matNode.matchKeyFields)
         return totalKeysTobeMatched, matKeyBitWidth, headerFieldWiseBitwidthOfMatKeys
 
+    def printMatNodeResourceRequirement(self, matNode, p4ProgramGraph, pipelineID):
+        print(" For Mat: "+matNode.name+" resource Requirement is follwoing : ")
+        print("\t \t totalKeysTobeMatched: "+str(matNode.totalKeysTobeMatched))
+        print("\t \t matKeyBitWidth: "+str(matNode.matKeyBitWidth))
+        print("\t \t headerFieldWiseBitwidthOfMatKeys: "+str(matNode.headerFieldWiseBitwidthOfMatKeys))
+        for a in matNode.actions:
+            # matNode.actionNameToResourceConsumptionStatisticsMap[a.name] = a.getResourceRequirementOfTheAction(p4ProgramGraph, pipelineID)
+            print("\t\t\t\t"+str(matNode.actionNameToResourceConsumptionStatisticsMap[a.name]))
     def computeMatchActionResourceRequirementForMatNode(self, matNode, p4ProgramGraph, pipelineID):
         # Need to maintain a list or map for which header field is using how manu bytes
         #     for each action buidl a method that will calculate, fields being modified, fields being used as parameter, stateful memory .
@@ -3314,13 +3323,13 @@ class ParsedP416ProgramForV1ModelArchitecture:
         # sram's level finding
 
         matNode.totalKeysTobeMatched, matNode.matKeyBitWidth, matNode.headerFieldWiseBitwidthOfMatKeys = p4ProgramGraph.parsedP4Program.getMatchKeyResourceRequirementForMatNode(matNode,pipelineID)
-        print(" For Mat: "+matNode.name+" resource Requirement is follwoing : ")
-        print("\t \t totalKeysTobeMatched: "+str(matNode.totalKeysTobeMatched))
-        print("\t \t matKeyBitWidth: "+str(matNode.matKeyBitWidth))
-        print("\t \t headerFieldWiseBitwidthOfMatKeys: "+str(matNode.headerFieldWiseBitwidthOfMatKeys))
+        # print(" For Mat: "+matNode.name+" resource Requirement is follwoing : ")
+        # print("\t \t totalKeysTobeMatched: "+str(matNode.totalKeysTobeMatched))
+        # print("\t \t matKeyBitWidth: "+str(matNode.matKeyBitWidth))
+        # print("\t \t headerFieldWiseBitwidthOfMatKeys: "+str(matNode.headerFieldWiseBitwidthOfMatKeys))
         for a in matNode.actions:
             matNode.actionNameToResourceConsumptionStatisticsMap[a.name] = a.getResourceRequirementOfTheAction(p4ProgramGraph, pipelineID)
-            print("\t\t\t\t"+str(matNode.actionNameToResourceConsumptionStatisticsMap[a.name]))
+            # print("\t\t\t\t"+str(matNode.actionNameToResourceConsumptionStatisticsMap[a.name]))
 
 # def ParsedP416Program_from_dict(s: Any) -> ParsedP416ProgramForV1ModelArchitecture:
 #     return ParsedP416ProgramForV1ModelArchitecture.from_dict(s)
