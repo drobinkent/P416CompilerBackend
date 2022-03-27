@@ -345,7 +345,7 @@ class StageWiseResource:
         if(bitWidth < memoryBlockBitwidth) and ((memoryBlockBitwidth/bitWidth)>=2): # implies at least two entries can be acomodated in one cell
             perMemoryBlockAccomodatableEntries = math.floor((memoryBlockBitwidth/bitWidth))
             totalAccomodatablePackedBlocks = math.floor((self.sramResource.availableSramBlocks)/hashingWay)
-            return math.floor((perMemoryBlockAccomodatableEntries*memoryBlockRowCount))
+            return math.floor((totalAccomodatablePackedBlocks * perMemoryBlockAccomodatableEntries*memoryBlockRowCount))
         elif (bitWidth < memoryBlockBitwidth) and ((memoryBlockBitwidth/bitWidth)>=1): # implies only one entry can be fully accomodated in one cell, so we do packing here
             accomodatableEntriesInPackingFactorNumberOfCells = math.floor((CompilerConfigurations.PACKING_FACTOR *  memoryBlockBitwidth)/bitWidth)
             totalAccomodatablePackedBlocks = math.floor(self.sramResource.availableSramBlocks/(CompilerConfigurations.PACKING_FACTOR*hashingWay))
@@ -434,6 +434,7 @@ class StageWiseResource:
         self.allocateMatEntriesOverTCAMBasedMATSinSingleStage(matNode.matKeyBitWidth, matNode.getRequiredNumberOfMatEntries()) # This embeds both match-key and tables and entries in one stage
         self.allocateActionCrossbarBitwidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
         self.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= matNode.getRequiredNumberOfActionEntries())
+        self.allocateActionMemoryPortWidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
         #TODO need to allocate direct stateful memories here
         self.listOfLogicalTableMappedToThisStage.get(pipelineID).append(matNode)
 
@@ -442,6 +443,7 @@ class StageWiseResource:
         self.allocateMatEntriesOverTCAMBasedMATSinSingleStage(matNode.matKeyBitWidth, numberOfMatEntriesToBeAllocated) # This embeds both match-key and tables and entries in one stage
         self.allocateActionCrossbarBitwidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
         self.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= numberOfActionEntriesToBeAllocated)
+        self.allocateActionMemoryPortWidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
         self.listOfLogicalTableMappedToThisStage.get(pipelineID).append(matNode)
 
     def allocateMatNodeOverSRAMMatWithoutParam(self, matNode,pipelineID):
@@ -453,6 +455,7 @@ class StageWiseResource:
         self.allocateMatEntriesOverSRAMBasedMATSInSingleStage(matNode.matKeyBitWidth, matNode.getRequiredNumberOfMatEntries()) # This embeds both match-key and tables and entries in one stage
         self.allocateActionCrossbarBitwidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
         self.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= matNode.getRequiredNumberOfActionEntries())
+        self.allocateActionMemoryPortWidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
         #TODO need to allocate direct stateful memories here
         self.listOfLogicalTableMappedToThisStage.get(pipelineID).append(matNode)
     def allocateMatNodeOverSRAMMat(self, matNode, numberOfMatEntriesToBeAllocated, numberOfActionEntriesToBeAllocated,pipelineID):
@@ -464,6 +467,7 @@ class StageWiseResource:
         self.allocateMatEntriesOverSRAMBasedMATSInSingleStage(matNode.matKeyBitWidth, numberOfMatEntriesToBeAllocated,self.sramMatResource.sramMatHashingWay) # This embeds both match-key and tables and entries in one stage
         self.allocateActionCrossbarBitwidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
         self.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= numberOfActionEntriesToBeAllocated)
+        self.allocateActionMemoryPortWidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
         self.listOfLogicalTableMappedToThisStage.get(pipelineID).append(matNode)
         # print("Test")
 
@@ -580,8 +584,8 @@ class StageWiseResource:
                     self.allocateMatNodeOverTCAMMatWithOutParam(matNode,pipelineID)
                 else:
                     isEmbeddable = False
-        if(isEmbeddable == True):
-            self.allocateActionMemoryPortWidth(maxActionMemoryBitwidth)
+        # if(isEmbeddable == True):
+        #     self.allocateActionMemoryPortWidth(maxActionMemoryBitwidth)
 
         return isEmbeddable
 

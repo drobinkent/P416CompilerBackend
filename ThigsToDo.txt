@@ -112,3 +112,9 @@ maximum of them will be its possible start time.
 
 
 ingress embed korar pore egress embed korar age reintitialize korte hobe -- shekhane shudhu action memory load ing er jonno used portwidth ta k 0 kora lagbe.
+
+*) indirect stateful memory user table gulo k embed kore tarpor tader maximum action width k nicchi crossbar a.
+
+task:
+
+allocation of block width is not yet done
