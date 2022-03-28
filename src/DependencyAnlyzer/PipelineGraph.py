@@ -229,6 +229,10 @@ class PipelineGraph:
         # self.calculateLevelsWithOneParentOptimization( self.allTDGNode.get(confConst.DUMMY_START_NODE))
         # self.pipeline.resetAllIsVisitedVariableForGraph()
         self.reoptimizeLevels(self.allTDGNode.get(confConst.DUMMY_START_NODE))
+        self.levelWiseLogicalMatList = self.calculateStageWiseMatNodes()
+        self.reoptimizelevelWiseLogicalMatList()
+        self.sfMemNameWiseLevelList = self.gatherLevelsOfStatefulMemories()
+        # self.calculateStageWiseTotalReousrceRequirements(self.stageWiseLogicalMatList)
         graphTobedrawn = nx.MultiDiGraph()
         self.pipeline.resetAllIsVisitedVariableForGraph()
         if(self.allTDGNode.get(confConst.DUMMY_START_NODE) != None):
@@ -237,9 +241,7 @@ class PipelineGraph:
             self.allTDGNode.get(confConst.DUMMY_END_NODE).originalP4node.is_visited_for_graph_drawing = GraphColor.WHITE
         self.getTDGGraphWithAllDepenedencyAndMatNode(curNode = self.allTDGNode.get(confConst.DUMMY_START_NODE), predNode=None, dependencyBetweenCurAndPred=None, tdgGraph=graphTobedrawn, printLevel=True)
         self.drawPipeline(nxGraph = graphTobedrawn, filePath="final-graph"+str(self.pipelineID)+".jpg")
-        self.levelWiseLogicalMatList = self.calculateStageWiseMatNodes()
-        self.sfMemNameWiseLevelList = self.gatherLevelsOfStatefulMemories()
-        # self.calculateStageWiseTotalReousrceRequirements(self.stageWiseLogicalMatList)
+
         pass
 
 
@@ -862,12 +864,10 @@ class PipelineGraph:
         for depKey in curMatNode.dependencies.keys():
             dep = curMatNode.dependencies.get(depKey)
             nxtMatNode = dep.dst
-            if((((dep.dependencyType == DependencyType.SUCCESOR_DEPENDENCY) or \
-                 dep.dependencyType == DependencyType.NO_DEPNDENCY) or \
-                dep.dependencyType == DependencyType.REVERSE_MATCH_DEPENDENCY) ) and \
-                    (len(nxtMatNode.ancestors) == 1) and (len(nxtMatNode.statefulMemoryDependencies) ==0) and \
-                    (dep.dependencyType != DependencyType.DUMMY_DEPENDENCY_TO_END) and (dep.dependencyType != DependencyType.DUMMY_DEPENDENCY_FROM_START) :
+            if(((dep.dependencyType == DependencyType.SUCCESOR_DEPENDENCY) or (dep.dependencyType == DependencyType.NO_DEPNDENCY) or (dep.dependencyType == DependencyType.REVERSE_MATCH_DEPENDENCY) ) \
+                and ((len(nxtMatNode.predecessors) == 1) and (len(nxtMatNode.statefulMemoryDependencies) ==0) and (dep.dependencyType != DependencyType.DUMMY_DEPENDENCY_TO_END) and (dep.dependencyType != DependencyType.DUMMY_DEPENDENCY_FROM_START))) :
                 nxtMatNode.setLevelOfAllStatefulMemories(curMatNode.getMaxLevelOfAllStatefulMemories())
+                fromPArent = curMatNode.getMaxLevelOfAllStatefulMemories()
                 val = self.reoptimizeLevels(nxtMatNode)
                 print("Only one node found with condition the pair is "+str(curMatNode.name)+ "--"+str(list(curMatNode.dependencies.values())[0].dst.name))
                 # curMatNode.originalP4node.is_visited_for_TDG_processing == GraphColor.BLACK
@@ -893,6 +893,18 @@ class PipelineGraph:
                 if(temp != -1):
                     maxLevel = temp
                     curMatNode.setLevelOfAllStatefulMemories(maxLevel)
+
+        # for depKey in curMatNode.dependencies.keys():
+        #     dep = curMatNode.dependencies.get(depKey)
+        #     nxtMatNode = dep.dst
+        #     if(curMatNode.name == confConst.DUMMY_START_NODE) or (nxtMatNode == confConst.DUMMY_END_NODE):
+        #         pass
+        #     else:
+        #         if(len(nxtMatNode.predecessors) == 1):
+        #             if curMatNode.getMaxLevelOfAllStatefulMemories()> nxtMatNode.getMaxLevelOfAllStatefulMemories() + 1:
+        #                 nxtMatNode.setLevelOfAllStatefulMemories(curMatNode.getMaxLevelOfAllStatefulMemories()-1)
+
+
         return
 
     def calculateLevels(self, curMatNode):
@@ -1025,6 +1037,30 @@ class PipelineGraph:
     #                 if(totalBitWidthOfTheAction > maxBitWidthOfAction):
     #                     maxBitWidthOfAction = totalBitWidthOfTheAction
     #         perStageHwRequirementsForThePipeline[k] = (totalnumberofFieldsBeingModified,headerBitWidthOfFieldsBeingModified, totalNumberOfFieldsUsedAsParameter,totalBitWidthOfFieldsUsedAsParameter, listOfFieldBeingModifedInThisStage, listOfFieldBeingUsedAsParameterInThisStage,maxBitWidthOfAction, matKeyLength, matKeyBitWidth)
+    def reoptimizelevelWiseLogicalMatList(self):
+        levelList= list(self.levelWiseLogicalMatList.keys())
+        levelList.sort(reverse= True)
+        for l in levelList:
+            for curMatNode in self.levelWiseLogicalMatList.get(l):
+                for depKey in curMatNode.dependencies.keys():
+                    dep = curMatNode.dependencies.get(depKey)
+                    nxtMatNode = dep.dst
+                    if(curMatNode.name == confConst.DUMMY_START_NODE) or (nxtMatNode == confConst.DUMMY_END_NODE):
+                        pass
+                    else:
+                        if(len(nxtMatNode.predecessors) == 1):
+                            if curMatNode.getMaxLevelOfAllStatefulMemories()> nxtMatNode.getMaxLevelOfAllStatefulMemories() + 1:
+                                suitableLevel = self.getSuitableLevel(curMatNode.getMaxLevelOfAllStatefulMemories(), nxtMatNode.getMaxLevelOfAllStatefulMemories(), levelList)
+                                if(suitableLevel != -1):
+                                    nxtMatNode.setLevelOfAllStatefulMemories(suitableLevel)
+        pass
+
+
+    def getSuitableLevel(self, parentLevel, myLevel, levelList):
+        for l in levelList:
+            if l<parentLevel and l>myLevel:
+                return l
+        return -1
 
 
 

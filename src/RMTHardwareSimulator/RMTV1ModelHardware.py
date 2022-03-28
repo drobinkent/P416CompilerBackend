@@ -466,6 +466,8 @@ class RMTV1ModelHardware:
         currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
         remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
         remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
+        if(remainingMatEntries < remainingActionEntries):
+            remainingActionEntries = remainingMatEntries
         if(remainingMatEntries == 0):
             startingStage, endingStage = startingStageIndex, startingStageIndex
         while(currentStageHardwareResource != None) and (remainingMatEntries > 0):
@@ -518,6 +520,8 @@ class RMTV1ModelHardware:
         currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
         remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
         remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
+        if(remainingMatEntries < remainingActionEntries):
+            remainingActionEntries = remainingMatEntries
 
         # if(remainingMatEntries == 0):
         #     startingStage, endingStage = startingStageIndex, startingStageIndex
@@ -578,6 +582,8 @@ class RMTV1ModelHardware:
         currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
         remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
         remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
+        if(remainingMatEntries < remainingActionEntries):
+            remainingActionEntries = remainingMatEntries
         # if(remainingMatEntries == 0):
         #     startingStage, endingStage = startingStageIndex, startingStageIndex
         while(currentStageHardwareResource != None) and (remainingMatEntries >= 0):
@@ -631,6 +637,8 @@ class RMTV1ModelHardware:
         currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
         remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
         remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
+        if(remainingMatEntries < remainingActionEntries):
+            remainingActionEntries = remainingMatEntries
         if(remainingMatEntries == 0):
             startingStage, endingStage = startingStageIndex, startingStageIndex
         while(currentStageHardwareResource != None) and (remainingMatEntries > 0):
