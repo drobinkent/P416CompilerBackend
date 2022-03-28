@@ -1,7 +1,7 @@
-# 0 "Resources/test_1.p4"
+# 0 "test_1.p4"
 # 0 "<built-in>"
 # 0 "<command-line>"
-# 1 "Resources/test_1.p4"
+# 1 "test_1.p4"
 /* -*- P4_16 -*- */
 # 1 "/usr/local/share/p4c/p4include/core.p4" 1
 /*
@@ -86,7 +86,7 @@ match_kind {
     /// Longest-prefix match.
     lpm
 }
-# 3 "Resources/test_1.p4" 2
+# 3 "test_1.p4" 2
 # 1 "/usr/local/share/p4c/p4include/v1model.p4" 1
 /*
 Copyright 2013-present Barefoot Networks, Inc.
@@ -872,7 +872,7 @@ package V1Switch<H, M>(Parser<H, M> p,
                        ComputeChecksum<H, M> ck,
                        Deparser<H> dep
                        );
-# 4 "Resources/test_1.p4" 2
+# 4 "test_1.p4" 2
 
 const bit<16> TYPE_IPV4 = 0x800;
 

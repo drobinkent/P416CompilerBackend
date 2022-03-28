@@ -290,8 +290,8 @@ class StageWiseResource:
 
         self.sramResource.availableSramBlocks = self.sramResource.availableSramBlocks - requiredSramBlocks
         self.sramResource.usedSramBlocks = self.sramResource.usedSramBlocks + requiredSramBlocks
-        self.sramResource.availableSramPortWidthForActionExecution = self.sramResource.availableSramPortWidthForActionExecution - totalMemoryPortWidth
-        self.sramResource.usedSramPortWidthForActionExecution = self.sramResource.usedSramPortWidthForActionExecution + totalMemoryPortWidth
+        # self.sramResource.availableSramPortWidthForActionExecution = self.sramResource.availableSramPortWidthForActionExecution - totalMemoryPortWidth
+        # self.sramResource.usedSramPortWidthForActionExecution = self.sramResource.usedSramPortWidthForActionExecution + totalMemoryPortWidth
 
     def getLargestPortWidth(self, bitWidth, hwPortWidthList):
         hwPortWidthList.sort(reverse=True)

@@ -181,6 +181,9 @@ class PipelineGraph:
             conditional.is_visited_for_conditional_preprocessing = True
             return
 
+    def analyzeRMWActions(self):
+        pass 
+
     def preProcessPipelineGraph(self):
         nxGraph = nx.MultiDiGraph()
         alreadyVisitedNodesMap = {}

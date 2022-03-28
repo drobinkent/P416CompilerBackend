@@ -4,17 +4,18 @@
       "name" : "scalars_0",
       "id" : 0,
       "fields" : [
+        ["tmp", 32, false],
         ["userMetadata.nsf", 4, false],
         ["userMetadata.nsf_0", 16, false],
         ["userMetadata.nsf_1", 8, false],
         ["userMetadata.nsf_2", 8, false],
-        ["userMetadata.nsf_3", 8, false],
-        ["userMetadata.nsf_4", 8, false],
+        ["userMetadata.nsf_3", 16, false],
+        ["userMetadata.nsf_4", 16, false],
         ["userMetadata.nsf_5", 8, false],
         ["userMetadata.nsf_6", 8, false],
         ["userMetadata.nsf_7", 8, false],
         ["userMetadata.nsf_8", 8, false],
-        ["userMetadata.nsf_9", 8, false],
+        ["userMetadata.nsf_9", 32, false],
         ["_padding_0", 4, false]
       ]
     },
@@ -178,7 +179,7 @@
       "id" : 0,
       "source_info" : {
         "filename" : "test.p4",
-        "line" : 181,
+        "line" : 185,
         "column" : 8,
         "source_fragment" : "MyDeparser"
       },
@@ -194,8 +195,8 @@
       "id" : 0,
       "source_info" : {
         "filename" : "test.p4",
-        "line" : 124,
-        "column" : 28,
+        "line" : 94,
+        "column" : 46,
         "source_fragment" : "sf_1"
       },
       "size" : 1024,
@@ -206,8 +207,8 @@
       "id" : 1,
       "source_info" : {
         "filename" : "test.p4",
-        "line" : 125,
-        "column" : 28,
+        "line" : 95,
+        "column" : 46,
         "source_fragment" : "sf_2"
       },
       "size" : 1024,
@@ -218,8 +219,8 @@
       "id" : 2,
       "source_info" : {
         "filename" : "test.p4",
-        "line" : 126,
-        "column" : 28,
+        "line" : 96,
+        "column" : 46,
         "source_fragment" : "sf_3"
       },
       "size" : 1024,
@@ -265,7 +266,7 @@
           ],
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 94,
+            "line" : 99,
             "column" : 7,
             "source_fragment" : "meta.nsf_3 = action_param"
           }
@@ -278,7 +279,7 @@
       "runtime_data" : [
         {
           "name" : "action_param",
-          "bitwidth" : 8
+          "bitwidth" : 16
         }
       ],
       "primitives" : [
@@ -296,18 +297,119 @@
           ],
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 108,
+            "line" : 113,
             "column" : 6,
             "source_fragment" : "meta.nsf_6 = action_param"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "local",
+                    "value" : 0
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0xffffffff"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "test.p4",
+            "line" : 114,
+            "column" : 28,
+            "source_fragment" : "(bit<32>)meta.nsf_6"
+          }
+        },
+        {
+          "op" : "register_read",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.nsf_3"]
+            },
+            {
+              "type" : "register_array",
+              "value" : "MyIngress.sf_1"
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "test.p4",
+            "line" : 114,
+            "column" : 6,
+            "source_fragment" : "sf_1.read(meta.nsf_5, (bit<32>)meta.nsf_6)"
+          }
+        },
+        {
+          "op" : "register_read",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.nsf_4"]
+            },
+            {
+              "type" : "register_array",
+              "value" : "MyIngress.sf_2"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000002"
+            }
+          ],
+          "source_info" : {
+            "filename" : "test.p4",
+            "line" : 115,
+            "column" : 18,
+            "source_fragment" : "sf_2.read(meta.nsf_6, (bit<32>)2)"
           }
         }
       ]
     },
     {
-      "name" : "test131",
+      "name" : "test134",
       "id" : 4,
       "runtime_data" : [],
       "primitives" : [
+        {
+          "op" : "register_read",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.nsf_4"]
+            },
+            {
+              "type" : "register_array",
+              "value" : "MyIngress.sf_3"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000002"
+            }
+          ],
+          "source_info" : {
+            "filename" : "test.p4",
+            "line" : 134,
+            "column" : 16,
+            "source_fragment" : "sf_3.read(meta.nsf_6, (bit<32>)2)"
+          }
+        },
         {
           "op" : "register_write",
           "parameters" : [
@@ -316,19 +418,19 @@
               "value" : "MyIngress.sf_1"
             },
             {
-              "type" : "hexstr",
-              "value" : "0x00000001"
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.nsf_9"]
             },
             {
-              "type" : "hexstr",
-              "value" : "0x0000"
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.nsf_4"]
             }
           ],
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 131,
+            "line" : 135,
             "column" : 16,
-            "source_fragment" : "sf_1.write((bit<32>)(1), (bit<16>) 0)"
+            "source_fragment" : "sf_1.write((bit<32>)meta.nsf_11, (bit<16>)meta.nsf_6)"
           }
         },
         {
@@ -339,19 +441,19 @@
               "value" : "MyIngress.sf_2"
             },
             {
-              "type" : "hexstr",
-              "value" : "0x00000001"
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.nsf_9"]
             },
             {
-              "type" : "hexstr",
-              "value" : "0x0000"
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.nsf_4"]
             }
           ],
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 132,
+            "line" : 136,
             "column" : 16,
-            "source_fragment" : "sf_2.write((bit<32>)(1), (bit<16>) 0)"
+            "source_fragment" : "sf_2.write((bit<32>)meta.nsf_11, (bit<16>)meta.nsf_6)"
           }
         },
         {
@@ -362,25 +464,48 @@
               "value" : "MyIngress.sf_3"
             },
             {
-              "type" : "hexstr",
-              "value" : "0x00000001"
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.nsf_9"]
             },
             {
-              "type" : "hexstr",
-              "value" : "0x0000"
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.nsf_4"]
             }
           ],
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 133,
+            "line" : 137,
             "column" : 16,
-            "source_fragment" : "sf_3.write((bit<32>)(1), (bit<16>) 0)"
+            "source_fragment" : "sf_3.write((bit<32>)meta.nsf_11, (bit<16>)meta.nsf_6)"
+          }
+        },
+        {
+          "op" : "register_read",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.nsf_4"]
+            },
+            {
+              "type" : "register_array",
+              "value" : "MyIngress.sf_3"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000002"
+            }
+          ],
+          "source_info" : {
+            "filename" : "test.p4",
+            "line" : 138,
+            "column" : 16,
+            "source_fragment" : "sf_3.read(meta.nsf_6, (bit<32>)2)"
           }
         }
       ]
     },
     {
-      "name" : "test139",
+      "name" : "test144",
       "id" : 5,
       "runtime_data" : [],
       "primitives" : [
@@ -398,7 +523,7 @@
           ],
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 139,
+            "line" : 144,
             "column" : 16,
             "source_fragment" : "meta.nsf_4 = 10"
           }
@@ -406,7 +531,7 @@
       ]
     },
     {
-      "name" : "test142",
+      "name" : "test147",
       "id" : 6,
       "runtime_data" : [],
       "primitives" : [
@@ -419,12 +544,12 @@
             },
             {
               "type" : "hexstr",
-              "value" : "0x0a"
+              "value" : "0x000a"
             }
           ],
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 142,
+            "line" : 147,
             "column" : 16,
             "source_fragment" : "meta.nsf_5 = 10"
           }
@@ -432,7 +557,7 @@
       ]
     },
     {
-      "name" : "test144",
+      "name" : "test149",
       "id" : 7,
       "runtime_data" : [],
       "primitives" : [
@@ -444,8 +569,8 @@
               "value" : "MyIngress.sf_2"
             },
             {
-              "type" : "hexstr",
-              "value" : "0x00000001"
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.nsf_9"]
             },
             {
               "type" : "hexstr",
@@ -454,15 +579,15 @@
           ],
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 144,
+            "line" : 149,
             "column" : 12,
-            "source_fragment" : "sf_2.write((bit<32>)(1), (bit<16>) 0)"
+            "source_fragment" : "sf_2.write((bit<32>)meta.nsf_11, (bit<16>) 0)"
           }
         }
       ]
     },
     {
-      "name" : "test150",
+      "name" : "test154",
       "id" : 8,
       "runtime_data" : [],
       "primitives" : [
@@ -474,19 +599,19 @@
               "value" : "MyIngress.sf_3"
             },
             {
-              "type" : "hexstr",
-              "value" : "0x00000001"
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.nsf_9"]
             },
             {
-              "type" : "hexstr",
-              "value" : "0x0000"
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.nsf_4"]
             }
           ],
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 150,
+            "line" : 154,
             "column" : 16,
-            "source_fragment" : "sf_3.write((bit<32>)(1), (bit<16>) 0)"
+            "source_fragment" : "sf_3.write((bit<32>)meta.nsf_11, meta.nsf_6)"
           }
         }
       ]
@@ -509,7 +634,7 @@
           "id" : 0,
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 97,
+            "line" : 102,
             "column" : 9,
             "source_fragment" : "mat_nsf2"
           },
@@ -532,7 +657,7 @@
           "base_default_next" : null,
           "next_tables" : {
             "__MISS__" : null,
-            "__HIT__" : "tbl_test131"
+            "__HIT__" : "tbl_test134"
           },
           "default_entry" : {
             "action_id" : 0,
@@ -542,13 +667,13 @@
           }
         },
         {
-          "name" : "tbl_test131",
+          "name" : "tbl_test134",
           "id" : 1,
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 131,
+            "line" : 134,
             "column" : 16,
-            "source_fragment" : "sf_1.write((bit<32>)(1), (bit<16>) 0); ..."
+            "source_fragment" : "sf_3.read(meta.nsf_6, (bit<32>)2); ..."
           },
           "key" : [],
           "match_type" : "exact",
@@ -558,10 +683,10 @@
           "support_timeout" : false,
           "direct_meters" : null,
           "action_ids" : [4],
-          "actions" : ["test131"],
+          "actions" : ["test134"],
           "base_default_next" : null,
           "next_tables" : {
-            "test131" : null
+            "test134" : null
           },
           "default_entry" : {
             "action_id" : 4,
@@ -571,11 +696,11 @@
           }
         },
         {
-          "name" : "tbl_test139",
+          "name" : "tbl_test144",
           "id" : 2,
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 139,
+            "line" : 144,
             "column" : 27,
             "source_fragment" : "="
           },
@@ -587,10 +712,10 @@
           "support_timeout" : false,
           "direct_meters" : null,
           "action_ids" : [5],
-          "actions" : ["test139"],
+          "actions" : ["test144"],
           "base_default_next" : "node_8",
           "next_tables" : {
-            "test139" : "node_8"
+            "test144" : "node_8"
           },
           "default_entry" : {
             "action_id" : 5,
@@ -600,11 +725,11 @@
           }
         },
         {
-          "name" : "tbl_test142",
+          "name" : "tbl_test147",
           "id" : 3,
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 142,
+            "line" : 147,
             "column" : 27,
             "source_fragment" : "="
           },
@@ -616,10 +741,10 @@
           "support_timeout" : false,
           "direct_meters" : null,
           "action_ids" : [6],
-          "actions" : ["test142"],
-          "base_default_next" : "tbl_test144",
+          "actions" : ["test147"],
+          "base_default_next" : "tbl_test149",
           "next_tables" : {
-            "test142" : "tbl_test144"
+            "test147" : "tbl_test149"
           },
           "default_entry" : {
             "action_id" : 6,
@@ -629,13 +754,13 @@
           }
         },
         {
-          "name" : "tbl_test144",
+          "name" : "tbl_test149",
           "id" : 4,
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 144,
+            "line" : 149,
             "column" : 12,
-            "source_fragment" : "sf_2.write((bit<32>)(1), (bit<16>) 0)"
+            "source_fragment" : "sf_2.write((bit<32>)meta.nsf_11, (bit<16>) 0)"
           },
           "key" : [],
           "match_type" : "exact",
@@ -645,10 +770,10 @@
           "support_timeout" : false,
           "direct_meters" : null,
           "action_ids" : [7],
-          "actions" : ["test144"],
+          "actions" : ["test149"],
           "base_default_next" : null,
           "next_tables" : {
-            "test144" : null
+            "test149" : null
           },
           "default_entry" : {
             "action_id" : 7,
@@ -662,7 +787,7 @@
           "id" : 5,
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 110,
+            "line" : 117,
             "column" : 9,
             "source_fragment" : "mat_nsf5"
           },
@@ -685,7 +810,7 @@
           "base_default_next" : null,
           "next_tables" : {
             "__MISS__" : null,
-            "__HIT__" : "tbl_test150"
+            "__HIT__" : "tbl_test154"
           },
           "default_entry" : {
             "action_id" : 1,
@@ -695,13 +820,13 @@
           }
         },
         {
-          "name" : "tbl_test150",
+          "name" : "tbl_test154",
           "id" : 6,
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 150,
+            "line" : 154,
             "column" : 16,
-            "source_fragment" : "sf_3.write((bit<32>)(1), (bit<16>) 0)"
+            "source_fragment" : "sf_3.write((bit<32>)meta.nsf_11, meta.nsf_6)"
           },
           "key" : [],
           "match_type" : "exact",
@@ -711,10 +836,10 @@
           "support_timeout" : false,
           "direct_meters" : null,
           "action_ids" : [8],
-          "actions" : ["test150"],
+          "actions" : ["test154"],
           "base_default_next" : null,
           "next_tables" : {
-            "test150" : null
+            "test154" : null
           },
           "default_entry" : {
             "action_id" : 8,
@@ -731,7 +856,7 @@
           "id" : 0,
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 129,
+            "line" : 132,
             "column" : 12,
             "source_fragment" : "meta.nsf_1 == 1"
           },
@@ -757,7 +882,7 @@
           "id" : 1,
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 135,
+            "line" : 140,
             "column" : 18,
             "source_fragment" : "meta.nsf_1 == 2"
           },
@@ -783,7 +908,7 @@
           "id" : 2,
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 138,
+            "line" : 143,
             "column" : 15,
             "source_fragment" : "meta.nsf_3 >2"
           },
@@ -801,7 +926,7 @@
               }
             }
           },
-          "true_next" : "tbl_test139",
+          "true_next" : "tbl_test144",
           "false_next" : "node_8"
         },
         {
@@ -809,7 +934,7 @@
           "id" : 3,
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 141,
+            "line" : 146,
             "column" : 15,
             "source_fragment" : "meta.nsf_4 >2"
           },
@@ -827,15 +952,15 @@
               }
             }
           },
-          "true_next" : "tbl_test142",
-          "false_next" : "tbl_test144"
+          "true_next" : "tbl_test147",
+          "false_next" : "tbl_test149"
         },
         {
           "name" : "node_11",
           "id" : 4,
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 145,
+            "line" : 150,
             "column" : 18,
             "source_fragment" : "meta.nsf_1 == 3"
           },
@@ -863,7 +988,7 @@
       "id" : 1,
       "source_info" : {
         "filename" : "test.p4",
-        "line" : 161,
+        "line" : 165,
         "column" : 8,
         "source_fragment" : "MyEgress"
       },

@@ -32,13 +32,13 @@ struct local_metadata_t {
         bit<16>    nsf_2;
         bit<8>    nsf_3;
         bit<8>    nsf_4;
-        bit<8>    nsf_5;
-        bit<8>    nsf_6;
+        bit<16>    nsf_5;
+        bit<16>    nsf_6;
         bit<8>    nsf_7;
         bit<8>    nsf_8;
         bit<8>    nsf_9;
         bit<8>    nsf_10;
-        bit<8>    nsf_11;
+        bit<32>    nsf_11;
 }
 
 struct headers {
@@ -90,6 +90,11 @@ control MyVerifyChecksum(inout headers hdr, inout local_metadata_t meta) {
 control MyIngress(inout headers hdr,
                   inout local_metadata_t meta,
                   inout standard_metadata_t standard_metadata) {
+                   /*----------------Stateful memory declaration -------------------*------------------*/
+                      register<bit<16>>(1024) sf_1;
+                      register<bit<16>>(1024) sf_2;
+                      register<bit<16>>(1024) sf_3;
+
    action set_nsf_3(bit<8> action_param) {
        meta.nsf_3 = action_param;
    }
@@ -104,8 +109,10 @@ control MyIngress(inout headers hdr,
        size = 131072;
 
    }
-   action set_nsf_6(bit<8> action_param) {
+   action set_nsf_6(bit<16> action_param) {
       meta.nsf_6 = action_param;
+      sf_1.read(meta.nsf_5, (bit<32>)meta.nsf_6);
+                  sf_2.read(meta.nsf_6, (bit<32>)2);
     }
    table mat_nsf5 {
       key = {
@@ -120,34 +127,31 @@ control MyIngress(inout headers hdr,
 
 
 
-    /*----------------Stateful memory declaration -------------------*------------------*/
-    register<bit<16>>(1024) sf_1;
-    register<bit<16>>(1024) sf_2;
-    register<bit<16>>(1024) sf_3;
 
     apply {
         if (meta.nsf_1 == 1) {
             if(mat_nsf2.apply().hit){
-                sf_1.write((bit<32>)(1), (bit<16>) 0);
-                sf_2.write((bit<32>)(1), (bit<16>) 0);
-                sf_3.write((bit<32>)(1), (bit<16>) 0);
+                sf_3.read(meta.nsf_6, (bit<32>)2);
+                sf_1.write((bit<32>)meta.nsf_11, (bit<16>)meta.nsf_6);
+                sf_2.write((bit<32>)meta.nsf_11, (bit<16>)meta.nsf_6);
+                sf_3.write((bit<32>)meta.nsf_11, (bit<16>)meta.nsf_6);
+                sf_3.read(meta.nsf_6, (bit<32>)2);
             }
         }else if (meta.nsf_1 == 2) {
             bit<16> result = 0;
-            sf_1.read(result, (bit<32>)2);
+            sf_1.read(result, (bit<32>)meta.nsf_6);
             if(meta.nsf_3 >2) {
                 meta.nsf_4 = 10;
             }
             if(meta.nsf_4 >2) {
                 meta.nsf_5 = 10;
             }
-            sf_2.write((bit<32>)(1), (bit<16>) 0);
+            sf_2.write((bit<32>)meta.nsf_11, (bit<16>) 0);
         }else if (meta.nsf_1 == 3) {
             bit<16> result = 0;
-            sf_1.read(result, (bit<32>)2);
-            sf_2.read(result, (bit<32>)2);
+
             if(mat_nsf5.apply().hit){
-                sf_3.write((bit<32>)(1), (bit<16>) 0);
+                sf_3.write((bit<32>)meta.nsf_11, meta.nsf_6);
             }
 
         }

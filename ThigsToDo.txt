@@ -131,3 +131,18 @@ header/metadata -- modify (index j)
 
 if i<j<k then we can say it is a RMW sequence.
 
+
+---------------------------- VVI ---------------
+
+1) write a function to check whther a matNode's action requirement ( alu, memory port etc.) can be accomodated within the available buidget.
+and write another function to allocate direct stateful memory's resource requirement checking
+
+then use them in condition checking then write function to allccate reource
+
+then write function for shwing the results in nice way
+
+---- Look at the previous example of how to serialize the operations in an action. We will do this for all actions. And do a bit of checking to show that we do check the instructions.
+
+case to be aded : 2 reads in one action is not allowed. 2 operations on a header or metadata not allowed. but we may suppor tread modify write. But no register action. we will say that
+these are future goals
+
