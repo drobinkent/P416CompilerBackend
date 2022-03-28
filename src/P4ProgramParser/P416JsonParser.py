@@ -1337,6 +1337,8 @@ class Action:
     #Point to remember: in this class runtime_data indicates te fields passed by cp as parameter of the action
     #On the other hand, in the other functions of this class, when we use parameter that indicates the parameters of a primitive used in the action.
 
+
+
     def getTotalBitwidthOfRuntimeData(self):
         '''
         This function returns the total bitwidth of all the  runtime data (parameters passed by CP as action parameter).
@@ -1608,7 +1610,7 @@ class Action:
             print("Parameter type "+str(type(param))+"not supported in getParamaterBitWidth. exiting")
             exit(1)
 
-    def getResourceRequirementOfTheAction(self,p4ProgramGraph,pipelineID):
+    def analyzeAction(self, p4ProgramGraph, pipelineID,matNode):
         #For each header field must retrieve it from the parsedP4PRogram.nametoheaderobjectmap. that value contains the actual bitwidth.
 
         listOfFieldBeingModifed = []
@@ -1616,6 +1618,9 @@ class Action:
         listOfStatefulMemoryBeingAccessed= []
         actionCrossbarBitwidth= 0
         allActionParameterSizeInBits = self.getTotalBitwidthOfRuntimeData()
+
+        deepCopiedHeaderList = copy.deepcopy(p4ProgramGraph.parsedP4Program.nameToHeaderTypeObjectMap)
+        deepCopiedRegisterList = copy.deepcopy(p4ProgramGraph.parsedP4Program.nameToRegisterArrayMap)
 
         for prim in self.primitives:
             if(prim.op == PrimitiveOp.ASSIGN) :
@@ -1710,17 +1715,28 @@ class Action:
             totalSramRequirement, totalBitWidth = p4ProgramGraph.parsedP4Program.getRegisterArraysResourceRequirment(sfMem)
             totalMemoryBitwdithRequired = totalMemoryBitwdithRequired + totalBitWidth
 
-        return ActionResourceConsumptionStatistics(listOfFieldBeingModifed, listOfFieldBeingUsed,listOfStatefulMemoryBeingAccessed, actionCrossbarBitwidth,allActionParameterSizeInBits, totalMemoryBitwdithRequired)
+        directCounterList = []
+        for c in p4ProgramGraph.parsedP4Program.counter_arrays:
+            if c.is_direct == True and c.binding == matNode.name:
+                directCounterList.append(c)
+        directMeterList = []
+        for m in p4ProgramGraph.parsedP4Program.meter_arrays:
+            if m.is_direct == True and m.binding == matNode.name:
+                directMeterList.append(m)
+
+        return ActionResourceConsumptionStatistics(listOfFieldBeingModifed, listOfFieldBeingUsed,listOfStatefulMemoryBeingAccessed, actionCrossbarBitwidth,allActionParameterSizeInBits, totalMemoryBitwdithRequired,directCounterList, directMeterList)
 
 
 class ActionResourceConsumptionStatistics:
-    def __init__(self,listOfFieldBeingModifed, listOfFieldBeingUsed,listOfStatefulMemoryBeingAccessed, actionCrossbarBitwidth,allActionParameterSizeInBits, totalMemoryBitwdithRequired):
+    def __init__(self,listOfFieldBeingModifed, listOfFieldBeingUsed,listOfStatefulMemoryBeingAccessed, actionCrossbarBitwidth,allActionParameterSizeInBits, totalMemoryBitwdithRequired,directCounterList, directMeterList):
         self.listOfFieldBeingModifed = listOfFieldBeingModifed
         self.listOfFieldBeingUsed = listOfFieldBeingUsed
         self.listOfStatefulMemoryBeingAccessed= listOfStatefulMemoryBeingAccessed
         self.actionCrossbarBitwidth = actionCrossbarBitwidth
         self.allActionParameterSizeInBits = allActionParameterSizeInBits
         self.totalMemoryBitwdithRequired = totalMemoryBitwdithRequired
+        self.directCounterList= directCounterList
+        self.directMeterList = directMeterList
 
     def __str__(self):
         val = ""
@@ -2972,6 +2988,7 @@ class RegisterArray:
     source_info: SourceInfo
     size: int
     bitwidth: int
+    primitiveListAccessingTheRegister:{}
 
     @staticmethod
     def from_dict(obj: Any) -> 'RegisterArray':
@@ -2981,7 +2998,7 @@ class RegisterArray:
         source_info = str(obj.get("source_info"))
         size = from_int(obj.get("size"))
         bitwidth = from_int(obj.get("bitwidth"))
-        return RegisterArray(name, id, source_info, size, bitwidth)
+        return RegisterArray(name, id, source_info, size, bitwidth, {})
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -2994,13 +3011,14 @@ class RegisterArray:
 
 class HeaderField:
 
-    def __init__(self, name, bitWidth, isSigned, mutlipleOf8Bitwidth=0,mappedPhyscialHeaderVectorFieldBitwdith=0):
+    def __init__(self, name, bitWidth, isSigned, mutlipleOf8Bitwidth=0,mappedPhyscialHeaderVectorFieldBitwdith=0,primitiveListAccessingTheHeaderField={}):
         self.name = name
         self.bitWidth = bitWidth
         self.isSigned = isSigned
         self.mutlipleOf8Bitwidth = mutlipleOf8Bitwidth
         self.mappedPhyscialHeaderVectorFieldBitwdith =mappedPhyscialHeaderVectorFieldBitwdith
         self.pipelineIDToPHVListMap = {}
+        self.primitiveListAccessingTheHeaderField = {}
 
     def setPipelineIDToPHVListMap(self, pipelineID, phvList):
         self.pipelineIDToPHVListMap[pipelineID] = phvList
@@ -3328,7 +3346,7 @@ class ParsedP416ProgramForV1ModelArchitecture:
         # print("\t \t matKeyBitWidth: "+str(matNode.matKeyBitWidth))
         # print("\t \t headerFieldWiseBitwidthOfMatKeys: "+str(matNode.headerFieldWiseBitwidthOfMatKeys))
         for a in matNode.actions:
-            matNode.actionNameToResourceConsumptionStatisticsMap[a.name] = a.getResourceRequirementOfTheAction(p4ProgramGraph, pipelineID)
+            matNode.actionNameToResourceConsumptionStatisticsMap[a.name] = a.analyzeAction(p4ProgramGraph, pipelineID, matNode)
             # print("\t\t\t\t"+str(matNode.actionNameToResourceConsumptionStatisticsMap[a.name]))
 
 # def ParsedP416Program_from_dict(s: Any) -> ParsedP416ProgramForV1ModelArchitecture:

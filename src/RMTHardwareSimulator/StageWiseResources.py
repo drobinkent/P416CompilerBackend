@@ -99,6 +99,7 @@ class StageWiseResource:
         self.tcamMatResource.usedTcamMatBlocks = self.tcamMatResource.usedTcamMatBlocks + blockCount
 
     def allocateSRAMMatBlocks(self, blockCount):
+
         self.sramMatResource.availableSramMatBlocks = self.sramMatResource.availableSramMatBlocks - blockCount
         self.sramMatResource.usedSramMatBlocks = self.sramMatResource.usedSramMatBlocks + blockCount
 
@@ -280,6 +281,22 @@ class StageWiseResource:
             isAccomodatable = False
         return isAccomodatable
 
+    # def isAllDirectStatefulMemoryAccomodatable(self,matNode):
+
+    # def isDirectStatefulMemoryAccomodatableWithoutParam(self, directSfMemBitwidth, numberOfEntries): #TODO: at this moment we are assuming that
+    #     isAccomodatable = False
+    #     blockWidth, requiredSramBlocks = self.getMemoryBlockWidthAndBlockCountFromBitWidthAndRequiredNumberOfEntries(bitWidth=directSfMemBitwidth,
+    #                  memoryBlockBitwidth=self.sramResource.perMemoryBlockBitwidth,memoryBlockRowCount=self.sramResource.perMemoryBlockRowCount,
+    #                  requiredNumberOfEntries=numberOfEntries,hashingWay=1)
+    #     memoryPortWidthList = self.bitWidthToMemoryPortWidthConsumption(directSfMemBitwidth, list(self.externResource.bitWidthToRegisterExternMap.keys()))
+    #     totalMemoryPortWidth = sum(memoryPortWidthList)
+    #
+    #     if(self.sramResource.availableSramBlocks >= requiredSramBlocks) and (self.sramResource.availableSramPortWidthForActionLoading >= totalMemoryPortWidth):
+    #         isAccomodatable = True
+    #     else:
+    #         isAccomodatable = False
+    #     return isAccomodatable
+
     def allocateSramBlockAndPortWidthForIndirectStatefulMemory(self, indirectStatefulMemoryBitwidth, numberOfIndirectStatefulMemoryEntries, indirectStatefulMemoryName):
         #TODO : record here which stateful register array (indirectStatefulMemoryName) is using these blocks
         blockWidth, requiredSramBlocks = self.getMemoryBlockWidthAndBlockCountFromBitWidthAndRequiredNumberOfEntries(bitWidth=indirectStatefulMemoryBitwidth,
@@ -290,8 +307,8 @@ class StageWiseResource:
 
         self.sramResource.availableSramBlocks = self.sramResource.availableSramBlocks - requiredSramBlocks
         self.sramResource.usedSramBlocks = self.sramResource.usedSramBlocks + requiredSramBlocks
-        # self.sramResource.availableSramPortWidthForActionExecution = self.sramResource.availableSramPortWidthForActionExecution - totalMemoryPortWidth
-        # self.sramResource.usedSramPortWidthForActionExecution = self.sramResource.usedSramPortWidthForActionExecution + totalMemoryPortWidth
+        self.sramResource.availableSramPortWidthForActionExecution = self.sramResource.availableSramPortWidthForActionExecution - totalMemoryPortWidth
+        self.sramResource.usedSramPortWidthForActionExecution = self.sramResource.usedSramPortWidthForActionExecution + totalMemoryPortWidth
 
     def getLargestPortWidth(self, bitWidth, hwPortWidthList):
         hwPortWidthList.sort(reverse=True)
@@ -492,6 +509,7 @@ class StageWiseResource:
             else:
                 print("The SRAM based mat node: "+matNode.name+" requires total "+str(matNode.getRequiredNumberOfActionEntries())+" action entries for the SRAM based table.")
                 print("But the avialble resource at stage is unable to embed these action entires in SRAM.")
+                self.deAllocateMatEntriesOverSRAMBasedMATSInSingleStage(self.convertMatKeyBitWidthLengthToSRAMMatKeyLength(matNode.matKeyBitWidth), matNode.getRequiredNumberOfMatEntries())
                 isEmbeddable=False
             if (self.availableActionCrossbarBitWidth>= maxActionCrossbarBitwidth):
                 isEmbeddable = True
@@ -532,6 +550,9 @@ class StageWiseResource:
         #The isActionMemoryAccomodatable checks both action entry and meomry port width required for the action entries.
         if(self.isActionMemoryAccomodatable(actionEntryBitwidth=matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries=matNode.getRequiredNumberOfActionEntries())):
             isEmbeddable= True
+            # deepCopiedStageResource = copy.deepcopy(self)
+            # deepCopiedStageResource.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= matNode.getRequiredNumberOfActionEntries())
+            # if(deepCopiedStageResource.)
         else:
             print("The mat node: "+matNode.name+" requires total "+str(matNode.getRequiredNumberOfActionEntries())+" action entries for the TCAM based table.")
             print("But the avialble resource at stage is unable to embed these action entires in sram.")

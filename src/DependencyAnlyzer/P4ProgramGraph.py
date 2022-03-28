@@ -34,8 +34,16 @@ class P4ProgramGraph:
         self.pipelineIdToMultipleOf8BitWidthByHeadercount = {}
         self.pipelineIdToMultipleOf8bitwidthWiseHeaderFields = {}
 
+
+    # def analyzeActions(self):
+    #     print("Inside action analyzer")
+    #     for a in self.parsedP4Program.actions:
+    #         a.
+    #
+    #     pass
     def loadPipelines(self, hw):
         logger.info("Loading pipelines")
+        # self.analyzeActions()
         if (len(self.parsedP4Program.pipelines) <= 0):
             logger.info("There is no pipelines found in the parsed Json representation. Exiting")
             exit(0)
@@ -44,13 +52,13 @@ class P4ProgramGraph:
                 newPipelineGraph = PipelineGraph(pipelineID=PipelineID.INGRESS_PIPELINE, pipeline = pipeline, actions= self.parsedP4Program.actions,parsedP4Program = self.parsedP4Program)
                 self.pipelineIdToPipelineGraphMap[PipelineID.INGRESS_PIPELINE] = newPipelineGraph
                 self.pipelineIdToPipelineMap[PipelineID.INGRESS_PIPELINE] = pipeline
-                newPipelineGraph.preProcessPipelineGraph()
+                newPipelineGraph.preProcessPipelineGraph(hw)
                 # hw.embedP4ProgramAccordingToSingleMatrix(self)
             if(pipeline.name == PipelineID.EGRESS_PIPELINE.value):
                 newPipelineGraph = PipelineGraph(pipelineID=PipelineID.EGRESS_PIPELINE, pipeline = pipeline, actions= self.parsedP4Program.actions,parsedP4Program = self.parsedP4Program)
                 self.pipelineIdToPipelineGraphMap[PipelineID.EGRESS_PIPELINE] = newPipelineGraph
                 self.pipelineIdToPipelineMap[PipelineID.EGRESS_PIPELINE] = pipeline
-                newPipelineGraph.preProcessPipelineGraph()
+                newPipelineGraph.preProcessPipelineGraph(hw)
 
     def embedPipelines(self, hw):
         logger.info("Embeding pipelines")

@@ -3,7 +3,7 @@ from DependencyAnlyzer.DefinitionConstants import P4ProgramNodeType, PipelineID,
 from P4ProgramParser.P416JsonParser import PrimitiveOpblock, Expression, PrimitiveField, RegisterArrayPrimitive, HexStr, \
     PrimitiveHeader, BoolPrimitive, Table, Key, MatchType, TableType, GraphColor, HeaderField, \
     ActionResourceConsumptionStatistics
-from FrameworkConfigurations import IS_ACTION_ENTRIES_PER_TABLE_FIXED_SIZE, PER_TABLE_ACTION_ENTRY_COUNT
+from CompilerConfigurations import IS_ACTION_ENTRIES_PER_TABLE_FIXED_SIZE, PER_TABLE_ACTION_ENTRY_COUNT
 import networkx as nx
 import logging
 import ConfigurationConstants as confConst
@@ -167,10 +167,21 @@ class MATNode:
         self.totalKeysTobeMatched = 0
         self.matKeyBitWidth =0
         self.headerFieldWiseBitwidthOfMatKeys = {}
+        self.executionStartingCycle = 0
+        self.concurrentlyExecutableDependentTableList = []
 
         # self.neighbourAssignedStatefulMemoryNameToLevelMap={}  # TODO : this may not be necessary even . on that tcase we will remove it
         return
 
+    def isTableExistsInNoOrReverseOrSuccessorDependencyList(self, tbl):
+        if self.name == tbl.name:
+            return False
+        else:
+            returnValue = False
+            for dep in self.dependencies.values():
+                if(dep.dst.name == tbl.name) and ((dep.dependencyType != DependencyType.MATCH_DEPENDENCY) and (dep.dependencyType != DependencyType.ACTION_DEPENDENCY)):
+                    return True
+        return False
     def getMatchType(self):
         if(type(self.originalP4node) == Table):
             return self.originalP4node.match_type
@@ -192,7 +203,7 @@ class MATNode:
         if IS_ACTION_ENTRIES_PER_TABLE_FIXED_SIZE == True:
             return PER_TABLE_ACTION_ENTRY_COUNT
         else:
-            self.originalP4node.max_size
+            return self.originalP4node.max_size
         # return 1024  #TODO: not always 1024 action entries are enough
 
     def getMaxBitwidthOfActionParameter(self):
@@ -235,7 +246,7 @@ class MATNode:
         for m in statefulMemoryNameList:
             combinedStatefulMemName = combinedStatefulMemName + "_"+m
         for actionObject in self.actions:
-            statefulMemoeryBeingUsed = actionObject.getListOfStatefulMemoriesBeingUsed()
+            statefulMemoeryBeingUsed = actionObject.getListOfIndirectStatefulMemoriesBeingUsed()
             for statefulMem in statefulMemoeryBeingUsed:
                 if ((self.name in pipelineGraph.registerNameToTableMap.get(statefulMem))):
                     pipelineGraph.registerNameToTableMap.get(statefulMem).remove(self.name)
@@ -323,14 +334,14 @@ class MATNode:
         #     if(self.selfStatefulMemoryNameToLevelMap.get(sfName)!= None):
         #         self.selfStatefulMemoryNameToLevelMap.pop(sfName)
         for actionObject in newMatNode.actions:
-            statefulMemoeryBeingUsed = actionObject.getListOfStatefulMemoriesBeingUsed()
+            statefulMemoeryBeingUsed = actionObject.getListOfIndirectStatefulMemoriesBeingUsed()
             for statefulMem in statefulMemoeryBeingUsed:
                 if(pipelineGraph.registerNameToTableMap.get(statefulMem) == None):
                     pipelineGraph.registerNameToTableMap[statefulMem] = []
                 if (not(newMatNode.name in pipelineGraph.registerNameToTableMap.get(statefulMem))):
                     pipelineGraph.registerNameToTableMap.get(statefulMem).append(newMatNode.name)
         for actionObject in self.actions:
-            statefulMemoeryBeingUsed = actionObject.getListOfStatefulMemoriesBeingUsed()
+            statefulMemoeryBeingUsed = actionObject.getListOfIndirectStatefulMemoriesBeingUsed()
             for statefulMem in statefulMemoeryBeingUsed:
                 if(pipelineGraph.registerNameToTableMap.get(statefulMem) == None):
                     pipelineGraph.registerNameToTableMap[statefulMem] = []
@@ -374,6 +385,12 @@ class MATNode:
     #             self.neighbourAssignedStatefulMemoryNameToLevelMap[statefulMemeoryName] = level
     #             return level
 
+    def getSetOfAllDependencyType(self):
+        depList = []
+        for dep in self.dependencies.values():
+            depList.append(dep.dependencyType)
+
+        return set(depList)
     def getStatefulMemoryNameToLevelMap(self):
         return self.selfStatefulMemoryNameToLevelMap
     def getMaxLevelOfAllStatefulMemories(self):
@@ -439,14 +456,14 @@ class MATNode:
             returnValue.append(k)
         return set(returnValue)
 
-    def getListOfStatefulMemoriesBeingUsedByMatNodeAsSet(self):
+    def getListOfIndirectStatefulMemoriesBeingUsedByMatNodeAsSet(self):
         # if type(self.originalP4node) == Table:
         #     for a in self.actions
         # else:
         #     return set([])
         stafeulMemorySet= set()
         for a in self.actions:
-            stafeulMemorySet = stafeulMemorySet.union(set(a.getListOfStatefulMemoriesBeingUsed()))
+            stafeulMemorySet = stafeulMemorySet.union(set(a.getListOfIndirectStatefulMemoriesBeingUsed()))
         return stafeulMemorySet
 
 
@@ -474,11 +491,20 @@ class MATNode:
         Maek sure  the mathod is called after a node is propoerly loaded up with its originial P4 node
         :return:
         '''
-        if(self.matchKeyFields == None) and (self.nodeType == P4ProgramNodeType.TABLE_NODE):
-            return  self.originalP4node.getAllMatchFieldsOfRawP4Table()
-        elif(self.matchKeyFields == None) and (self.nodeType == P4ProgramNodeType.CONDITIONAL_NODE):
-            self.matchKeyFields = []
-        return self.matchKeyFields
+        # if(self.matchKeyFields == None) and (self.nodeType == P4ProgramNodeType.TABLE_NODE):
+        #     return  self.originalP4node.getAllMatchFieldsOfRawP4Table()
+        # elif(self.matchKeyFields == None) and (self.nodeType == P4ProgramNodeType.CONDITIONAL_NODE):
+        #     return []
+        #
+        # return []
+        if(self.nodeType == P4ProgramNodeType.TABLE_NODE):
+            if(self.matchKeyFields != None) :
+                return  self.originalP4node.getAllMatchFieldsOfRawP4Table()
+            return []
+        elif (self.nodeType == P4ProgramNodeType.CONDITIONAL_NODE):
+            return self.originalP4node.getAllMatchFieldsOfRawP4Conditional()
+        else:
+            return []
 
     def getListOfFieldsModifedAndUsed(self, parsedP4Program):
         listOfFieldBeingModifed = []
@@ -502,6 +528,7 @@ class Dependency:
         self.dependencyType = dependencyType
         self.src = src
         self.dst = dst
+        # print("New dependency: src "+src.name+" dest: "+dst.name+" dependeny Type :"+str(dependencyType))
 
 
 

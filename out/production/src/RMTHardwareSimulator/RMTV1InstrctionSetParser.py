@@ -147,15 +147,21 @@ class ExternInstructionParameter:
 @dataclass
 class ExternInstruction:
     name: str
-    op: str
+    op: List[str]
     extern_bitwidth: int
     parameters: List[ExternInstructionParameter]
+
+    def __init__(self, name: str, op: List[str], extern_bitwidth: int, parameters: List[ExternInstructionParameter]) -> None:
+        self.name = name
+        self.op = op
+        self.extern_bitwidth = extern_bitwidth
+        self.parameters = parameters
 
     @staticmethod
     def from_dict(obj: Any) -> 'ExternInstruction':
         assert isinstance(obj, dict)
         name = from_str(obj.get("name"))
-        op = from_str(obj.get("op"))
+        op = from_list(from_str, obj.get("op"))
         extern_bitwidth = from_int(obj.get("ExternBitwidth"))
         parameters = from_list(ExternInstructionParameter.from_dict, obj.get("parameters"))
         return ExternInstruction(name, op, extern_bitwidth, parameters)
@@ -163,7 +169,7 @@ class ExternInstruction:
     def to_dict(self) -> dict:
         result: dict = {}
         result["name"] = from_str(self.name)
-        result["op"] = from_str(self.op)
+        result["op"] = from_list(from_str, self.op)
         result["ExternBitwidth"] = from_int(self.extern_bitwidth)
         result["parameters"] = from_list(lambda x: to_class(ExternInstructionParameter, x), self.parameters)
         return result

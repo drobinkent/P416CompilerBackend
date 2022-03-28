@@ -59,34 +59,11 @@ per mat rule sram entries.
 
 -------------------------- VVI things to do
 
-a) memory packing--- simple check kore dao. jodi 20 bit hoy 80 bit block a 4 ta dhukabo. r packing factor name ekta paremter add koro. r bole dibo amra block granularity te sram allocation kori.
-jhotapt implement koro. same thing korbo sram mat er jonno.
+
 c) direct stateful memory allocation is not done. add it.
 d) checking register capability
 
 
-How we will handle memory
-
-the memory packing is used. now to read some register assume the actual data is 35 bit wide. therefore it need two 32 or one 48 bit wide register.
-at this moment we will not map to any register. But when we want to generate the instreuction we need to pass how many bits will be read from sram. and rest will be padding.
-Therefore in the register read instruction we need to pass follwoing information: index, actual bitwidth to be read, and rest will be padding.
-OR even more simply as we actually allocate sram enties in integral multiple of sram block width this will automatically gives us mapping to some register that is
-actually padded. for exmaple a 90 bit wide register is packed with 3 sram block of 80 bit wide. therefore onle 2 entries can be stored in 2 sram width block.
-NOw 180 bit requires three 64 bit wide reigster read operation. we can do that, or we can use whole 3*80 bit wide register. but as of now we do not know
-how it is actually handled in hardware. so we do not consider the second varioation. Therefore, we consider the first variation and consider that 90 bit will be read from memory.
-However there is a problem with this variation. For example, assume we need 32 bit wide register. Hence one 96 bit wide sram block can store three such entries.
-Now if we use a whole 96b wide port then it is waste of memory port. However, it depends on whther a memory port can read from a sram block or multiple block.
-If it can read from a single block only then to read a 32b wide entry we need the whole 96b wide port. so really waste.
-
-
-Best possible option is to follwo open toffino style 8,16,32, and 1 bit wide. This will reduce memory waste. r amra bole dibo j padding jekhane kortechi tar bakita
-waste hocche. memory optimization k amra future goal hisebe rakhchi. Now the issue becomes P4 language supports arbitrary length. So we do padding.
-
-now we need to implement a method for converting a bitwidth to accomodate how to accomodate usnig these registers. once we get that, the total width is the
-bitwidth required for that entry.
-
-we will say two things happen : a ) due to rounding upto the register bidwidths a loss occurs b) due to block granularity memory allocation loss occurs . we keep this as future
-goalq
 
 
 
@@ -110,9 +87,6 @@ ingress embed korar pore egress embed korar age reintitialize korte hobe -- shek
 
 *) indirect stateful memory user table gulo k embed kore tarpor tader maximum action width k nicchi crossbar a.
 
-task:
-
-allocation of block width is not yet done
 
 
 RMW support
@@ -133,8 +107,8 @@ if i<j<k then we can say it is a RMW sequence.
 
 
 ---------------------------- VVI ---------------
-
-1) write a function to check whther a matNode's action requirement ( alu, memory port etc.) can be accomodated within the available buidget.
+1) need to check one thing, if a table has no match key then how many blocks we are allocating. This is  a crucial issue. need to investigate it.
+2) write a function to check whther a matNode's action requirement ( alu, memory port etc.) can be accomodated within the available buidget.
 and write another function to allocate direct stateful memory's resource requirement checking
 
 then use them in condition checking then write function to allccate reource
@@ -145,4 +119,4 @@ then write function for shwing the results in nice way
 
 case to be aded : 2 reads in one action is not allowed. 2 operations on a header or metadata not allowed. but we may suppor tread modify write. But no register action. we will say that
 these are future goals
-
+-- task action analysis

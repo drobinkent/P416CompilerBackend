@@ -748,6 +748,11 @@ def typeValueParser(obj):
         value = BoolPrimitive.from_dict(obj)
     elif (type == ValueType.LOCAL):
         value = LocalPrimitive.from_dict(obj)
+    else:
+        logger.info("Value type "+str(type)+" is not defined. Unsupported operation alarm. Storing as  a simple object")
+        # print("Value type "+str(type)+" is not defined. Unsupported operation alarm. exiting")
+        # exit(1)
+        value = obj
     return value
 
 
@@ -773,13 +778,16 @@ class SourceInfo:
 
     @staticmethod
     def from_dict(obj: Any) -> 'SourceInfo':
-        assert isinstance(obj, dict)
+        if (isinstance(obj, dict)):
+            return SourceInfo(str(obj))
+        else:
+            return None
         # filename = Program(obj.get("filename"))
         # line = from_int(obj.get("line"))
         # column = from_int(obj.get("column"))
         # source_fragment = from_str(obj.get("source_fragment"))
         # return SourceInfo(filename, line, column, source_fragment)
-        return SourceInfo(str(obj))
+
 
     # def to_dict(self) -> dict:
     #     result: dict = {}
@@ -1329,6 +1337,8 @@ class Action:
     #Point to remember: in this class runtime_data indicates te fields passed by cp as parameter of the action
     #On the other hand, in the other functions of this class, when we use parameter that indicates the parameters of a primitive used in the action.
 
+
+
     def getTotalBitwidthOfRuntimeData(self):
         '''
         This function returns the total bitwidth of all the  runtime data (parameters passed by CP as action parameter).
@@ -1447,7 +1457,7 @@ class Action:
             exit(1)
         return fieldList
 
-    def getListOfStatefulMemoriesBeingUsed(self):
+    def getListOfIndirectStatefulMemoriesBeingUsed(self):
         listOfStatefulMemoeriesBeingUsed = []
         for prim in self.primitives:
             if ((prim.op == PrimitiveOp.REGISTER_WRITE) ):
@@ -1546,6 +1556,9 @@ class Action:
                 else:
                     print("The first parameter in a count operation must have to be a counter. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
                     exit(1)
+            elif (prim.op == PrimitiveOp.LOG_MSG):
+                logger.info("Primitive OP:"+ str(prim.op)+" is required only for debigging. We are not suporting it to hardware leevel. and Skipping")
+                logger.info("Primitive OP:"+ str(prim.op)+" is required only for debigging. We are not suporting it to hardware leevel. and Skipping")
             else:
                 logger.info("Primitive OP:"+ str(prim.op)+" not supported yet.Exiting")
                 print("Primitive OP:"+ str(prim.op)+" not supported yet.Exiting")
@@ -1597,7 +1610,7 @@ class Action:
             print("Parameter type "+str(type(param))+"not supported in getParamaterBitWidth. exiting")
             exit(1)
 
-    def getResourceRequirementOfTheAction(self,p4ProgramGraph,pipelineID):
+    def analyzeAction(self, p4ProgramGraph, pipelineID,matNode):
         #For each header field must retrieve it from the parsedP4PRogram.nametoheaderobjectmap. that value contains the actual bitwidth.
 
         listOfFieldBeingModifed = []
@@ -1605,6 +1618,9 @@ class Action:
         listOfStatefulMemoryBeingAccessed= []
         actionCrossbarBitwidth= 0
         allActionParameterSizeInBits = self.getTotalBitwidthOfRuntimeData()
+
+        deepCopiedHeaderList = copy.deepcopy(p4ProgramGraph.nameToHeaderTypeObjectMap)
+        deepCopiedRegisterList = copy.deepcopy(p4ProgramGraph.nameToRegisterArrayMap)
 
         for prim in self.primitives:
             if(prim.op == PrimitiveOp.ASSIGN) :
@@ -1665,7 +1681,7 @@ class Action:
                 pass
             elif (prim.op == PrimitiveOp.CLONE_EGRESS_PKT_TO_EGRESS) or (prim.op == PrimitiveOp.RECIRCULATE):
                 #TODO: in future add more types of recirculation and also automate the bitwidth
-                logger.info("CONING AND RECIRCULATION need to write only one field in standard_metadata to indicate what is the type of operation. To write a vlaue in that filed we need two parmameters")
+                logger.info("CLONING AND RECIRCULATION need to write only one field in standard_metadata to indicate what is the type of operation. To write a vlaue in that filed we need two parmameters")
                 actionCrossbarBitwidth = actionCrossbarBitwidth + 2*8
                 pass
             elif (prim.op == PrimitiveOp.EXECUTE_METER):
@@ -1699,17 +1715,28 @@ class Action:
             totalSramRequirement, totalBitWidth = p4ProgramGraph.parsedP4Program.getRegisterArraysResourceRequirment(sfMem)
             totalMemoryBitwdithRequired = totalMemoryBitwdithRequired + totalBitWidth
 
-        return ActionResourceConsumptionStatistics(listOfFieldBeingModifed, listOfFieldBeingUsed,listOfStatefulMemoryBeingAccessed, actionCrossbarBitwidth,allActionParameterSizeInBits, totalMemoryBitwdithRequired)
+        directCounterList = []
+        for c in p4ProgramGraph.parsedP4Program.counter_arrays:
+            if c.is_direct == True and c.binding == matNode.name:
+                directCounterList.append(c)
+        directMeterList = []
+        for m in p4ProgramGraph.parsedP4Program.meter_arrays:
+            if m.is_direct == True and m.binding == matNode.name:
+                directMeterList.append(m)
+
+        return ActionResourceConsumptionStatistics(listOfFieldBeingModifed, listOfFieldBeingUsed,listOfStatefulMemoryBeingAccessed, actionCrossbarBitwidth,allActionParameterSizeInBits, totalMemoryBitwdithRequired,directCounterList, directMeterList)
 
 
 class ActionResourceConsumptionStatistics:
-    def __init__(self,listOfFieldBeingModifed, listOfFieldBeingUsed,listOfStatefulMemoryBeingAccessed, actionCrossbarBitwidth,allActionParameterSizeInBits, totalMemoryBitwdithRequired):
+    def __init__(self,listOfFieldBeingModifed, listOfFieldBeingUsed,listOfStatefulMemoryBeingAccessed, actionCrossbarBitwidth,allActionParameterSizeInBits, totalMemoryBitwdithRequired,directCounterList, directMeterList):
         self.listOfFieldBeingModifed = listOfFieldBeingModifed
         self.listOfFieldBeingUsed = listOfFieldBeingUsed
         self.listOfStatefulMemoryBeingAccessed= listOfStatefulMemoryBeingAccessed
         self.actionCrossbarBitwidth = actionCrossbarBitwidth
         self.allActionParameterSizeInBits = allActionParameterSizeInBits
         self.totalMemoryBitwdithRequired = totalMemoryBitwdithRequired
+        self.directCounterList= directCounterList
+        self.directMeterList = directMeterList
 
     def __str__(self):
         val = ""
@@ -1729,6 +1756,7 @@ class ParserValueType(Enum):
     FIELD = "field"
     HEXSTR = "hexstr"
     REGULAR = "regular"
+
 
 
 @dataclass
@@ -2960,6 +2988,7 @@ class RegisterArray:
     source_info: SourceInfo
     size: int
     bitwidth: int
+    primitiveListAccessingTheRegister:{}
 
     @staticmethod
     def from_dict(obj: Any) -> 'RegisterArray':
@@ -2969,7 +2998,7 @@ class RegisterArray:
         source_info = str(obj.get("source_info"))
         size = from_int(obj.get("size"))
         bitwidth = from_int(obj.get("bitwidth"))
-        return RegisterArray(name, id, source_info, size, bitwidth)
+        return RegisterArray(name, id, source_info, size, bitwidth, {})
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -2982,13 +3011,14 @@ class RegisterArray:
 
 class HeaderField:
 
-    def __init__(self, name, bitWidth, isSigned, mutlipleOf8Bitwidth=0,mappedPhyscialHeaderVectorFieldBitwdith=0):
+    def __init__(self, name, bitWidth, isSigned, mutlipleOf8Bitwidth=0,mappedPhyscialHeaderVectorFieldBitwdith=0,primitiveListAccessingTheHeaderField={}):
         self.name = name
         self.bitWidth = bitWidth
         self.isSigned = isSigned
         self.mutlipleOf8Bitwidth = mutlipleOf8Bitwidth
         self.mappedPhyscialHeaderVectorFieldBitwdith =mappedPhyscialHeaderVectorFieldBitwdith
         self.pipelineIDToPHVListMap = {}
+        self.primitiveListAccessingTheHeaderField = {}
 
     def setPipelineIDToPHVListMap(self, pipelineID, phvList):
         self.pipelineIDToPHVListMap[pipelineID] = phvList
@@ -3006,6 +3036,7 @@ class HeaderField:
         for phvField in phvfieldList:
             totalBitWidth = totalBitWidth+phvField
         return totalBitWidth
+        # return self.bitWidth
 
     def setMappedPhyscialHeaderVectorFieldBitwdith(self, mappedPhyscialHeaderVectorFieldBitwdith):
         self.mappedPhyscialHeaderVectorFieldBitwdith = mappedPhyscialHeaderVectorFieldBitwdith
@@ -3109,19 +3140,19 @@ class ParsedP416ProgramForV1ModelArchitecture:
                     if(hType.name == h.header_type):
                         return hType.fields
         return None
-    def buildHeaderVectorForGivenStruct(self, headerTypeName, headerType):
+    def buildHeaderVectorForGivenStruct(self, headerTypeName, headerType, hw):
         returnValue = {}
         headerType = self.getHeaderTypeFromName(headerTypeName)
         if (headerType == None):
             logger.error("Header Type for the header "+headerTypeName+" is not found. Exiting")
             exit(1)
         for htf in headerType.fields:
-            bitWidth = math.ceil(float(htf[1]/8))*8
+            bitWidth = math.ceil(float(htf[1]/hw.getMinBitwidthOfPHVFields()))*hw.getMinBitwidthOfPHVFields()
             hdrObj = HeaderField(name=headerTypeName+"."+htf[0], bitWidth= float(htf[1]), isSigned= htf[2],  mutlipleOf8Bitwidth= bitWidth)
             returnValue[hdrObj.name] = hdrObj
         return returnValue
 
-    def buildHeaderVector(self):
+    def buildHeaderVector(self,hw):
         for h in self.headers:
             headerTypeName = h.header_type
             # headertypeNameUsedInSource =
@@ -3133,7 +3164,7 @@ class ParsedP416ProgramForV1ModelArchitecture:
                 logger.error("Header Type for the header "+ h.get("name")+" is not found. Exiting")
                 exit(1)
             for htf in headerType.fields:
-                bitWidth = math.ceil(float(htf[1]/8))*8
+                bitWidth = math.ceil(float(htf[1]/hw.getMinBitwidthOfPHVFields()))*hw.getMinBitwidthOfPHVFields()
                 # bitWidth = int(htf[1])
                 hdrObj = HeaderField(name=h.name+"."+htf[0], bitWidth= float(htf[1]), isSigned= htf[2], mutlipleOf8Bitwidth= bitWidth)
                 self.nameToHeaderTypeObjectMap[hdrObj.name] = hdrObj
@@ -3191,14 +3222,15 @@ class ParsedP416ProgramForV1ModelArchitecture:
         learn_lists = from_list(lambda x: x, obj.get("learn_lists"))
         actions = from_list(Action.from_dict, obj.get("actions"))
         pipelines = from_list(Pipeline.from_dict, obj.get("pipelines"))
-        checksums = from_list(Checksum.from_dict, obj.get("checksums"))
+        # checksums = from_list(Checksum.from_dict, obj.get("checksums"))
+        checksums = None
         force_arith = from_list(lambda x: x, obj.get("force_arith"))
         extern_instances = from_list(lambda x: x, obj.get("extern_instances"))
         field_aliases = from_list(lambda x: from_list(lambda x: from_union([lambda x: from_list(from_str, x), from_str], x), x), obj.get("field_aliases"))
         program = Program.from_dict(obj.get("program"))
         meta = Meta.from_dict(obj.get("__meta__"))
         parsedP4Program =  ParsedP416ProgramForV1ModelArchitecture(header_types, headers, header_stacks, header_union_types, header_unions, header_union_stacks, field_lists, errors, enums, parsers, parse_vsets, deparsers, meter_arrays, counter_arrays, register_arrays, calculations, learn_lists, actions, pipelines, checksums, force_arith, extern_instances, field_aliases, program, meta, {}, {})
-        parsedP4Program.buildHeaderVector()
+        
         return parsedP4Program
 
     def to_dict(self) -> dict:
@@ -3241,7 +3273,7 @@ class ParsedP416ProgramForV1ModelArchitecture:
             print("The match key: "+headerName+" is not found in the nameToHeaderTypeObjectMap. Severe error. Exiting. ")
             exit(1)
         else:
-            bitWidth = hdrObj.getOriginalbitwidth()
+            bitWidth = hdrObj.getPHVBitWidth(pipelineId)
             if(bitWidth<=0):
                 logger.info("bitwidth for header field : "+ headerName+" is found 0. This can not happen. Debug please . Exiting !!!!")
                 print("bitwidth for header field : "+ headerName+" is found 0. This can not happen. Debug please . Exiting !!!!")
@@ -3287,7 +3319,15 @@ class ParsedP416ProgramForV1ModelArchitecture:
         totalKeysTobeMatched = len(matNode.matchKeyFields)
         return totalKeysTobeMatched, matKeyBitWidth, headerFieldWiseBitwidthOfMatKeys
 
-    def getMatchActionResourceRequirementForMatNode(self, matNode,p4ProgramGraph,pipelineID):
+    def printMatNodeResourceRequirement(self, matNode, p4ProgramGraph, pipelineID):
+        print(" For Mat: "+matNode.name+" resource Requirement is follwoing : ")
+        print("\t \t totalKeysTobeMatched: "+str(matNode.totalKeysTobeMatched))
+        print("\t \t matKeyBitWidth: "+str(matNode.matKeyBitWidth))
+        print("\t \t headerFieldWiseBitwidthOfMatKeys: "+str(matNode.headerFieldWiseBitwidthOfMatKeys))
+        for a in matNode.actions:
+            # matNode.actionNameToResourceConsumptionStatisticsMap[a.name] = a.getResourceRequirementOfTheAction(p4ProgramGraph, pipelineID)
+            print("\t\t\t\t"+str(matNode.actionNameToResourceConsumptionStatisticsMap[a.name]))
+    def computeMatchActionResourceRequirementForMatNode(self, matNode, p4ProgramGraph, pipelineID):
         # Need to maintain a list or map for which header field is using how manu bytes
         #     for each action buidl a method that will calculate, fields being modified, fields being used as parameter, stateful memory .
         #     count and bitwidth and also their mapping of name to bitwidth.
@@ -3301,13 +3341,13 @@ class ParsedP416ProgramForV1ModelArchitecture:
         # sram's level finding
 
         matNode.totalKeysTobeMatched, matNode.matKeyBitWidth, matNode.headerFieldWiseBitwidthOfMatKeys = p4ProgramGraph.parsedP4Program.getMatchKeyResourceRequirementForMatNode(matNode,pipelineID)
-        print(" For Mat: "+matNode.name+" resource Requirement is follwoing : ")
-        print("\t \t totalKeysTobeMatched: "+str(matNode.totalKeysTobeMatched))
-        print("\t \t matKeyBitWidth: "+str(matNode.matKeyBitWidth))
-        print("\t \t headerFieldWiseBitwidthOfMatKeys: "+str(matNode.headerFieldWiseBitwidthOfMatKeys))
+        # print(" For Mat: "+matNode.name+" resource Requirement is follwoing : ")
+        # print("\t \t totalKeysTobeMatched: "+str(matNode.totalKeysTobeMatched))
+        # print("\t \t matKeyBitWidth: "+str(matNode.matKeyBitWidth))
+        # print("\t \t headerFieldWiseBitwidthOfMatKeys: "+str(matNode.headerFieldWiseBitwidthOfMatKeys))
         for a in matNode.actions:
-            matNode.actionNameToResourceConsumptionStatisticsMap[a.name] = a.getResourceRequirementOfTheAction(p4ProgramGraph, pipelineID)
-            print("\t\t\t\t"+str(matNode.actionNameToResourceConsumptionStatisticsMap[a.name]))
+            matNode.actionNameToResourceConsumptionStatisticsMap[a.name] = a.analyzeAction(p4ProgramGraph, pipelineID, matNode)
+            # print("\t\t\t\t"+str(matNode.actionNameToResourceConsumptionStatisticsMap[a.name]))
 
 # def ParsedP416Program_from_dict(s: Any) -> ParsedP416ProgramForV1ModelArchitecture:
 #     return ParsedP416ProgramForV1ModelArchitecture.from_dict(s)
