@@ -184,6 +184,7 @@ class PipelineGraph:
     def preProcessPipelineGraph(self):
         nxGraph = nx.MultiDiGraph()
         alreadyVisitedNodesMap = {}
+        self.analyzeRMWActions()
         self.getTDGGraphBeforeDependencyAnlaysis(self.pipeline.init_table, nxGraph, pred = confConst.DUMMY_START_NODE, indenter ="", alreadyVisitedNodesMap=alreadyVisitedNodesMap)
         self.drawPipeline(nxGraph = nxGraph, filePath="before-conditional-processing"+str(self.pipelineID)+".jpg")
         self.preprocessConditionalNodeRecursively(self.pipeline.init_table, confConst.DUMMY_START_NODE)

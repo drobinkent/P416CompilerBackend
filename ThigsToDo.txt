@@ -25,9 +25,7 @@ at first maps the mats that useing indirect stateful memories. so we have to exp
 and indirect stateful memory usage
 
 
-*) These two function sneed  closer look
-self.allocateActionMemoryBitwidth(maxActionMemoryBitwidth) -- are we going to allocate
-            self.allocateActionCrossbarBitwidth(maxActionCrossbarBitwidth)
+
 
 
 
@@ -63,12 +61,9 @@ per mat rule sram entries.
 
 a) memory packing--- simple check kore dao. jodi 20 bit hoy 80 bit block a 4 ta dhukabo. r packing factor name ekta paremter add koro. r bole dibo amra block granularity te sram allocation kori.
 jhotapt implement koro. same thing korbo sram mat er jonno.
-b) need to check can whether action memory bitwidth is crossing the memory bitwidth or not
 c) direct stateful memory allocation is not done. add it.
 d) checking register capability
-e) dhori ekta stage a ram port ache, 8x80 bit. so 8 bit er extern thakte pare 80 ta. 16 biut er 40 ta. but at the end of the day we  need to make sure they confform the mempry port
-constrinats. evabe bole dite hobe. R amra instruction set asole temon kono kaje use kortechina. just for later stage.
---then we need a function to convert the bitwidth size to size of the register extern. just like h eader mapping.
+
 
 How we will handle memory
 
@@ -118,3 +113,21 @@ ingress embed korar pore egress embed korar age reintitialize korte hobe -- shek
 task:
 
 allocation of block width is not yet done
+
+
+RMW support
+
+we have a list of all headers and indirect registers.
+we can deep copy all of them. then we will analyze one or more action of tdg to analyze who is operating on whom.
+
+a) if we find more than one action on a header field, we have to divide it in multiple stages.
+b) if we find rmw sequence we need to embed on identify them
+
+at first give every primitive operations in a action a increasing number which is already given by an array index. if we are combining moe than one actions then we can
+add the previsous action max primitive + current index
+
+register -- read to some header or metadata (index i) -- write (index k
+header/metadata -- modify (index j)
+
+if i<j<k then we can say it is a RMW sequence.
+
