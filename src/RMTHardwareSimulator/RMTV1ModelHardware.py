@@ -734,21 +734,21 @@ class RMTV1ModelHardware:
                 matListNotUsingStatefulMem.append(matNode)
         return  statefulMemoryNameToUserMatListMap, matListNotUsingStatefulMem, usedStatefulMemSet
 
-    def calculateTotalLatency(self,p4ProgramGraph):
+    def calculateTotalLatency(self,p4ProgramGraph, hw):
         ingressPipepine1Delay = 0
         egressPipepineDelay = 0
         for pipeline in p4ProgramGraph.parsedP4Program.pipelines:
             if(pipeline.name == PipelineID.INGRESS_PIPELINE.value):
-                ingressPipepine1Delay = self.calculateTotalLatencyOfPipeline(p4ProgramGraph, PipelineID.INGRESS_PIPELINE)
+                ingressPipepine1Delay = self.calculateTotalLatencyOfPipeline(p4ProgramGraph, PipelineID.INGRESS_PIPELINE, hw)
                 print("ingressPipeline1Delay = 0 is "+str(ingressPipepine1Delay))
             if(pipeline.name == PipelineID.EGRESS_PIPELINE.value):
-                egressPipepineDelay = self.calculateTotalLatencyOfPipeline(p4ProgramGraph, PipelineID.EGRESS_PIPELINE)
+                egressPipepineDelay = self.calculateTotalLatencyOfPipeline(p4ProgramGraph, PipelineID.EGRESS_PIPELINE, hw)
                 print("egressPipelineDelay = 0 is "+str(egressPipepineDelay))
         # print("Total delay is :"+str(ingressPipepine1Delay+egressPipepineDelay))
         # return ingressPipepine1Delay + egressPipepineDelay
 
-    def calculateTotalLatencyOfPipeline(self,p4ProgramGraph, pipelineID):
-        stageIndexToTableMap = self.assignStartAndEndTimeForAllMatForOnePipeline(p4ProgramGraph, pipelineID=pipelineID)
+    def calculateTotalLatencyOfPipeline(self,p4ProgramGraph, pipelineID, hw):
+        stageIndexToTableMap = self.assignStartAndEndTimeForAllMatForOnePipeline(p4ProgramGraph, pipelineID=pipelineID, hw=hw)
         stageIndexList = list(stageIndexToTableMap.keys())
         stageIndexList.sort()
         prevStageStartTime = 0
@@ -767,48 +767,78 @@ class RMTV1ModelHardware:
             prevStageEndTime = endingTimeList[len(endingTimeList)-1]
             print("Stage: "+str(stageIndex)+" starts execution at cycle "+str(startTimeList[0])+" and finishes execution at cycle "+str(endingTimeList[len(endingTimeList)-1]))
 
+    def assignStartAndEndTimeForAllMatForOnePipeline(self, p4ProgramGraph, pipelineID, hw):
 
-
-    def assignStartAndEndTimeForAllMatForOnePipeline(self, p4ProgramGraph, pipelineID):
+    def assignStartAndEndTimeForAllMatForOnePipelineOld(self, p4ProgramGraph, pipelineID, hw):
         stageIndexList = list(self.stageWiseResources.keys())
         stageIndexList.sort()
         stageIndexToTableMap = {}
         for stageIndex in range(0, len(stageIndexList)):
             tblList = self.stageWiseResources.get(stageIndex).listOfLogicalTableMappedToThisStage.get(pipelineID)
-            # tblList1 = self.preProcessInterStageTableDependencies(tblList)
-            stageIndexToTableMap[stageIndex] = tblList
+            tblList1 = self.preProcessInterStageTableDependencies(tblList)
+            stageIndexToTableMap[stageIndex] = tblList1
         stageIndexList = list(stageIndexToTableMap.keys())
         stageIndexList.sort()
-        allTableMappedToThisStage = self.stageWiseResources.get(0).listOfLogicalTableMappedToThisStage.get(pipelineID)
-        tableNameForThisStage = [x.name for x in allTableMappedToThisStage]
-        print("Tables mapped to physical stage "+str(stageIndexList[0])+" are ",tableNameForThisStage)
-        for stageIndex in range(1, len(stageIndexList)):
+        # allTableMappedToThisStage = self.stageWiseResources.get(0).listOfLogicalTableMappedToThisStage.get(pipelineID)
+        # tableNameForThisStage = [x.name for x in allTableMappedToThisStage]
+        # print("Tables mapped to physical stage "+str(stageIndexList[0])+" are ",tableNameForThisStage)
+        for stageIndex in range(0, len(stageIndexList)):
+            print("\n\nStage index : "+str(stageIndex))
             allTableMappedToThisStage = self.stageWiseResources.get(stageIndex).listOfLogicalTableMappedToThisStage.get(pipelineID)
             tableNameForThisStage = [x.name for x in allTableMappedToThisStage]
-            print("Tables mapped to physical stage "+str(stageIndex)+" are ",tableNameForThisStage)
+            # print("Tables mapped to physical stage "+str(stageIndex)+" are ",tableNameForThisStage)
             allTableMappedToPreviousStage = self.getAllTableForStage(stageIndexToTableMap.get(stageIndex-1))
             superTablesInCurrentStage = stageIndexToTableMap.get(stageIndex) # we will only consider the the lonely tables or any table that have some other table as
             # their concurrently exxecutable table list. Because if a table has some concurrently executable tables with it, that means these child tables are actually
             #direct child of this super table in the TDG. Therefore they will not have any direct dependency with any table in previous stage.
             for tbl1 in superTablesInCurrentStage:
                 maxCycleDelay = 0
+                print("Super table Name "+str(tbl1.name))
                 for tbl2 in allTableMappedToPreviousStage:
                     delayInCycleLEngth = self.getDependencyDelayBetweenTwoLogicalTable(tbl2, tbl1, p4ProgramGraph, pipelineID)
                     if(maxCycleDelay <delayInCycleLEngth):
                         maxCycleDelay = delayInCycleLEngth
+                        print("Prev stage  table Name "+str(tbl2.name))
+                        print("New max delay : "+str(maxCycleDelay))
                 for predecessor in tbl1.predecessors.values():
+
                     delayInCycleLEngth = self.getDependencyDelayBetweenTwoLogicalTable(predecessor, tbl1, p4ProgramGraph, pipelineID)
                     if(maxCycleDelay <delayInCycleLEngth):
                         maxCycleDelay = delayInCycleLEngth
+                        print("Predecesor   table Name "+str(predecessor.name))
+                        print("New max delay : "+str(maxCycleDelay))
                 tbl1.executionStartingCycle = tbl1.executionStartingCycle + maxCycleDelay
+                tbl1.executionEndingCycle = tbl1.executionStartingCycle+hw.hardwareSpecRawJsonObjects.single_stage_cycle_length
+                print("Super  table "+str(tbl1.name)+" Starting cycle "+str(tbl1.executionStartingCycle)+" Ending cycle "+str(tbl1.executionEndingCycle))
                 for child in tbl1.concurrentlyExecutableDependentTableList:
-                    child.executionStartingCycle = child.executionStartingCycle + maxCycleDelay
+                    child.executionStartingCycle = tbl1.executionStartingCycle+ 1 + maxCycleDelay
+                    child.executionEndingCycle  = tbl1.executionStartingCycle+ 1 + maxCycleDelay + hw.hardwareSpecRawJsonObjects.single_stage_cycle_length
+                    print("Concucrrently executable table "+str(child.name)+" Starting cycle "+str(child.executionStartingCycle)+" Ending cycle "+str(child.executionEndingCycle))
+
+        for stageIndex in stageIndexToTableMap.keys():
+            tblList = stageIndexToTableMap.get(stageIndex)
+            print("Stage index: "+str(stageIndex))
+            for t in tblList:
+                print("\tTable: "+(t.name)+" -- Start time :"+str(t.executionStartingCycle)+" End time :"+str(t.executionEndingCycle))
+                for child in t.concurrentlyExecutableDependentTableList:
+                    print("\t\tTable: "+(child.name)+" -- Start time :"+str(child.executionStartingCycle)+" End time :"+str(child.executionEndingCycle))
         return stageIndexToTableMap
 
+algo
 
+for first stage assign normally and with thwir own dependency.
+
+    for next stages
+        for every table check whther it's part was  assigned on any previous stage or not
+        if assigned on previous stage then that table's starting cycle plus 1 (if on immediate previous stage, or if not on immediate previous stage then number of differences in stage number
+        else it's predecessor is in some other previous stage that table's (last stage : because it may be embedded on more than one stage) starting cycle plus max( dependency, stage number diff)
+
+then for every stage calculate all table's start and end cycle. from that as usual find the max latency
 
     def getAllTableForStage(self,tblListInHierarchialFormat):
         allTable = []
+        if(tblListInHierarchialFormat == None):
+            return []
         for t in tblListInHierarchialFormat:
             if t!= None:
                 allTable.append(t)
@@ -816,16 +846,18 @@ class RMTV1ModelHardware:
                 allTable.append(depTable)
         return allTable
     def preProcessInterStageTableDependencies(self, tblList):
-        copyOfTableList = copy.deepcopy(tblList)
+
         tblListForThisStage = []
+        for tbl in tblList:
+            self.clearTable(tbl)
+        copyOfTableList = copy.deepcopy(tblList)
         for tbl in tblList:
             for tbl1 in tblList:
                 if (tbl.isTableExistsInNoOrReverseOrSuccessorDependencyList(tbl1)) and (len(copyOfTableList)>0):
-
-                    copiedTable = self.removeTableFromTableList(copyOfTableList, tbl)
                     if(self.isTableAlreadyInTTblList(tblListForThisStage,tbl) and (self.isTableAlreadyInTTblList(tblListForThisStage,tbl1))):
                         pass
                     else:
+                        copiedTable = self.removeTableFromTableList(copyOfTableList, tbl)
                         if (copiedTable == None):
                             copiedTable = self.getTableReferenceFromTableList(tblListForThisStage,tbl)
                         dependentTable = self.removeTableFromTableList(copyOfTableList,tbl1)
@@ -833,15 +865,16 @@ class RMTV1ModelHardware:
                             # print("Severer error. This should not happen becuase tbl1 will have dependency with tbl only if there is a NO/Reverse/Successor dependency. Exiting !!")
                             # exit(1)
                             dependentTable = self.getTableReferenceFromTableList(tblListForThisStage,tbl1)
-
-                        copiedTable.concurrentlyExecutableDependentTableList.append(dependentTable)
-                        dependentTable.executionStartingCycle = dependentTable.executionStartingCycle +  self.hardwareSpecRawJsonObjects.dependency_delay_in_cycle_legth.successor_dependency
+                        if(self.isTableAlreadyInTTblList(tblListForThisStage,dependentTable) == False):
+                            copiedTable.concurrentlyExecutableDependentTableList.append(dependentTable)
+                        dependentTable.executionStartingCycle = dependentTable.executionStartingCycle +  self.hardwareSpecRawJsonObjects.dependency_delay_in_cycle_legth.successor_dependency + copiedTable.executionStartingCycle
                         if(self.isTableAlreadyInTTblList(tblListForThisStage,copiedTable) == False):
                             tblListForThisStage.append(copiedTable)
 
 
         for tbl in copyOfTableList:  # adding the remainigntable who are totallty independent
-            tblListForThisStage.append(tbl)
+            if(self.isTableAlreadyInTTblList(tblListForThisStage,tbl) == False):
+                tblListForThisStage.append(tbl)
         return tblListForThisStage
 
     def isTableAlreadyInTTblList(self,tblList,tbl):
@@ -862,6 +895,15 @@ class RMTV1ModelHardware:
                     val1 = self.getTableReferenceFromTableList(tblList[i].concurrentlyExecutableDependentTableList, tbl)
                     if(val1 != None):
                         val = val1
+        return val
+
+    def clearTable(self, tbl):
+        val = None
+        if (len(tbl.concurrentlyExecutableDependentTableList) ==0):
+            return
+        for concurrentTable in tbl.concurrentlyExecutableDependentTableList:
+            self.clearTable(concurrentTable)
+        tbl.concurrentlyExecutableDependentTableList = []
         return val
 
     def removeTableFromTableList(self,tblList, tbl):

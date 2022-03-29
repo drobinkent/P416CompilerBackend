@@ -30,7 +30,7 @@ mappedPacketHeaderVector = hw.mapHeaderFields(headerFieldSpecsInP4Program)
 print(mappedPacketHeaderVector)
 p4ProgramGraph.storePHVFieldMappingForHeaderFields(mappedPacketHeaderVector=mappedPacketHeaderVector)
 p4ProgramGraph.embedPipelines(hw)
-hw.calculateTotalLatency(p4ProgramGraph)
+hw.calculateTotalLatency(p4ProgramGraph, hw)
 
 
 

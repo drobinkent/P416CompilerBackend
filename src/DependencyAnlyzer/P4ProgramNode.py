@@ -168,6 +168,7 @@ class MATNode:
         self.matKeyBitWidth =0
         self.headerFieldWiseBitwidthOfMatKeys = {}
         self.executionStartingCycle = 0
+        self.executionEndingCycle = 0
         self.concurrentlyExecutableDependentTableList = []
 
         # self.neighbourAssignedStatefulMemoryNameToLevelMap={}  # TODO : this may not be necessary even . on that tcase we will remove it
