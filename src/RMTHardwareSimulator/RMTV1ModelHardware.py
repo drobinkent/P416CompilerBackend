@@ -749,6 +749,7 @@ class RMTV1ModelHardware:
 
     def calculateTotalLatencyOfPipeline(self,p4ProgramGraph, pipelineID, hw):
         stageIndexToTableMap = self.assignStartAndEndTimeForAllMatForOnePipeline(p4ProgramGraph, pipelineID=pipelineID, hw=hw)
+        self.finalStartAndEndTimeForAllMatForOnePipeline(stageIndexToTableMap, p4ProgramGraph, pipelineID, hw)
         stageIndexList = list(stageIndexToTableMap.keys())
         stageIndexList.sort()
         prevStageStartTime = 0
@@ -767,7 +768,110 @@ class RMTV1ModelHardware:
             prevStageEndTime = endingTimeList[len(endingTimeList)-1]
             print("Stage: "+str(stageIndex)+" starts execution at cycle "+str(startTimeList[0])+" and finishes execution at cycle "+str(endingTimeList[len(endingTimeList)-1]))
 
+# algo
+#
+# for first stage assign normally and with thwir own dependency.
+#
+# for next stages
+#     for every table check whther it's part was  assigned on any previous stage or not
+#     if assigned on previous stage then that table's starting cycle plus 1 (if on immediate previous stage, or if not on immediate previous stage then number of differences in stage number
+#     else it's predecessor is in some other previous stage that table's (last stage : because it may be embedded on more than one stage) starting cycle plus max( dependency, stage number diff)
+#     else if it's predecessor is in same stage then calculate what is it's delay with it's predecessor then that predecesor's start  time plus the dependency delay is the starting time for this table
+#
+# then for every stage calculate all table's start and end cycle. from that as usual find the max latency
+
+    def finalStartAndEndTimeForAllMatForOnePipeline(self,stageIndexToTableMap, p4ProgramGraph, pipelineID, hw):
+        stageIndexList = list(stageIndexToTableMap.keys())
+        stageIndexList.sort()
+        for stageIndex in range(1, len(stageIndexList)):
+            hierarchialTableList = stageIndexToTableMap.get(stageIndex)
+            print("Assigining final start and end cycle for stage "+str(stageIndex))
+            for t in hierarchialTableList:
+                previousStageIndex, previousStartingCycle = self.findInstanceOfTable(stageIndexToTableMap, 0, stageIndex, t.name)
+                if(previousStageIndex != -1):
+                    print("Table "+t.name +" Found in previous stage "+str(previousStageIndex)+" With starting cycle "+str(previousStartingCycle)+" current stage index is "+str(stageIndex))
+                predecessorStageImdex, predecessorStartingCycle, dependencyType = self.findPredecessor(stageIndexToTableMap, startStageIndex=0, endStageIndex=stageIndex, table=t,p4ProgramGraph=p4ProgramGraph, pipelineID=pipelineID)
+                if(predecessorStageImdex != -1):
+                    print("Table "+t.name +"'s final predecessor found in stage: "+str(predecessorStageImdex)+" With starting cycle "+str(predecessorStartingCycle)+" current stage index is "+str(stageIndex)+" Dependency type  is"+str(dependencyType))
+                sameStagePredecessorStageImdex, sameStagePredecessorStartingCycle, sameStageDependencyType = self.findPredecessor(stageIndexToTableMap, startStageIndex=stageIndex, endStageIndex=stageIndex+1, table=t,p4ProgramGraph=p4ProgramGraph, pipelineID=pipelineID)
+                if(predecessorStageImdex != -1):
+                    print("Table "+t.name +"'s Same Stage predecessor found in stage: "+str(predecessorStageImdex)+" With starting cycle "+str(predecessorStartingCycle)+" current stage index is "+str(stageIndex)+" Dependency type  is"+str(dependencyType))
+                Now find which is the worst possible depedency of table t . then find how many cycle increase it is. then if a table's ctarting cycle is increase by x
+                then all of its concurently executale table's starting cycle is needed to be updated by x cycle
+
+    def findPredecessor(self,stageIndexToTableMap, startStageIndex, endStageIndex, table,p4ProgramGraph, pipelineID):
+        '''Only find predecessor within the stage boundary. Because if the predecessor is in some later stage of current table that means nothing'''
+        print("finding predecessor of "+table.name)
+        stageIndexList = list(stageIndexToTableMap.keys())
+        stageIndexList.sort()
+        predecessorsStageIndex = -1
+        predecessorsStartingCycle = -1
+        dependencyType = None
+        for p in table.predecessors:
+            if(p== confConst.DUMMY_START_NODE):
+                pass
+            else:
+                stIndex, startCycle = self.findInstanceOfTable(stageIndexToTableMap, startStageIndex, endStageIndex, p)
+                if(predecessorsStageIndex < stIndex):
+                    predecessorsStageIndex = stIndex
+                    predecessorsStartingCycle = startCycle
+                    dependencyType = self.getDependencyDelayBetweenTwoLogicalTable(table.predecessors.get(p), table, p4ProgramGraph, pipelineID)
+                    print("Predecessor table "+p+" Stage index: "+str(predecessorsStageIndex)+" starting cycle "+str(predecessorsStartingCycle))
+        return predecessorsStageIndex, predecessorsStartingCycle, dependencyType
+
+
+    def findInstanceOfTable(self,stageIndexToTableMap, startStageIndex, endStageIndex, tableName):
+        stageIndexList = list(stageIndexToTableMap.keys())
+        stageIndexList.sort()
+        tablesStageIndex = -1
+        tablesStartingCycle = -1
+        dependencyType = None
+        for stageIndex in range(startStageIndex, endStageIndex):
+            hierarchialTableList = stageIndexToTableMap.get(stageIndex)
+            tempTablesStartingCycle = self.findInstanceOfTableInTableList(hierarchialTableList, tableName)
+            if(tempTablesStartingCycle != -1):
+                if(stageIndex> tablesStageIndex):
+                    tablesStageIndex = stageIndex
+                    tablesStartingCycle = tempTablesStartingCycle
+        return tablesStageIndex, tablesStartingCycle
+
+    def findInstanceOfTableInTableList(self,tableList,  tableName):
+        startingCycle = -1
+        for t in tableList:
+            if(t.name == tableName) and (t.executionStartingCycle > startingCycle):
+                startingCycle = t.executionStartingCycle
+            # print("t.concurrentlyExecutableDependentTableList is "+str(type(t.concurrentlyExecutableDependentTableList)))
+            childListStartingCycle = self.findInstanceOfTableInTableList(t.concurrentlyExecutableDependentTableList, tableName)
+            if(startingCycle < childListStartingCycle):
+                startingCycle = childListStartingCycle
+        return startingCycle
+
+
+
     def assignStartAndEndTimeForAllMatForOnePipeline(self, p4ProgramGraph, pipelineID, hw):
+        stageIndexList = list(self.stageWiseResources.keys())
+        stageIndexList.sort()
+        stageIndexToTableMap = {}
+        for stageIndex in range(0, len(stageIndexList)):
+            tblList = self.stageWiseResources.get(stageIndex).listOfLogicalTableMappedToThisStage.get(pipelineID)
+            tblList1 = self.preProcessInterStageTableDependencies(tblList)
+            stageIndexToTableMap[stageIndex] = tblList1
+        stageIndexList = list(stageIndexToTableMap.keys())
+        stageIndexList.sort()
+        for stageIndex in range(0, len(stageIndexList)):
+            print("\n\nStage index : "+str(stageIndex))
+            allTableMappedToThisStage = stageIndexToTableMap.get(stageIndex)
+            self.assignStartAndFinishCycleToSuperTable(allTableMappedToThisStage, 0, hw)
+        return stageIndexToTableMap
+
+    def assignStartAndFinishCycleToSuperTable(self,tblList, startCycle, hw):
+        for tbl in tblList:
+            tbl.executionStartingCycle = startCycle
+            tbl.executionEndingCycle= tbl.executionStartingCycle + hw.hardwareSpecRawJsonObjects.single_stage_cycle_length
+            print("Table "+str(tbl.name)+" Starting cycle "+str(tbl.executionStartingCycle)+" Ending cycle "+str(tbl.executionEndingCycle))
+            for child in tbl.concurrentlyExecutableDependentTableList:
+                self.assignStartAndFinishCycleToSuperTable([child], tbl.executionStartingCycle+1,hw)
+
 
     def assignStartAndEndTimeForAllMatForOnePipelineOld(self, p4ProgramGraph, pipelineID, hw):
         stageIndexList = list(self.stageWiseResources.keys())
@@ -824,26 +928,16 @@ class RMTV1ModelHardware:
                     print("\t\tTable: "+(child.name)+" -- Start time :"+str(child.executionStartingCycle)+" End time :"+str(child.executionEndingCycle))
         return stageIndexToTableMap
 
-algo
 
-for first stage assign normally and with thwir own dependency.
 
-    for next stages
-        for every table check whther it's part was  assigned on any previous stage or not
-        if assigned on previous stage then that table's starting cycle plus 1 (if on immediate previous stage, or if not on immediate previous stage then number of differences in stage number
-        else it's predecessor is in some other previous stage that table's (last stage : because it may be embedded on more than one stage) starting cycle plus max( dependency, stage number diff)
-
-then for every stage calculate all table's start and end cycle. from that as usual find the max latency
-
-    def getAllTableForStage(self,tblListInHierarchialFormat):
-        allTable = []
+    def getAllTableForStage(self,tblListInHierarchialFormat, allTable):
         if(tblListInHierarchialFormat == None):
             return []
         for t in tblListInHierarchialFormat:
             if t!= None:
                 allTable.append(t)
             for depTable in t.concurrentlyExecutableDependentTableList:
-                allTable.append(depTable)
+                self.getAllTableForStage([depTable],allTable)
         return allTable
     def preProcessInterStageTableDependencies(self, tblList):
 
