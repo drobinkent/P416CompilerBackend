@@ -785,19 +785,29 @@ class RMTV1ModelHardware:
         stageIndexList.sort()
         for stageIndex in range(1, len(stageIndexList)):
             hierarchialTableList = stageIndexToTableMap.get(stageIndex)
-            print("Assigining final start and end cycle for stage "+str(stageIndex))
-            for t in hierarchialTableList:
+            allTblListOfThisStage = []
+            self.getAllTableForStage(hierarchialTableList,allTblListOfThisStage)
+            print("\n\nAssigining final start and end cycle for stage "+str(stageIndex))
+            startingCycleInducedFromPreviousStage =-1
+            startingCycleInducedFromPrdecessor = -1
+            startingCycleInducedFromSameStagePrdecessor = -1
+            for t in allTblListOfThisStage:
                 previousStageIndex, previousStartingCycle = self.findInstanceOfTable(stageIndexToTableMap, 0, stageIndex, t.name)
                 if(previousStageIndex != -1):
+                    startingCycleInducedFromPreviousStage = previousStartingCycle + (stageIndex-1- previousStageIndex) # exxtra stages for stage differences
                     print("Table "+t.name +" Found in previous stage "+str(previousStageIndex)+" With starting cycle "+str(previousStartingCycle)+" current stage index is "+str(stageIndex))
                 predecessorStageImdex, predecessorStartingCycle, dependencyType = self.findPredecessor(stageIndexToTableMap, startStageIndex=0, endStageIndex=stageIndex, table=t,p4ProgramGraph=p4ProgramGraph, pipelineID=pipelineID)
                 if(predecessorStageImdex != -1):
-                    print("Table "+t.name +"'s final predecessor found in stage: "+str(predecessorStageImdex)+" With starting cycle "+str(predecessorStartingCycle)+" current stage index is "+str(stageIndex)+" Dependency type  is"+str(dependencyType))
+                    startingCycleInducedFromPrdecessor = predecessorStartingCycle + dependencyType + (stageIndex-1- predecessorStageImdex) # exxtra stages for stage differences
+                    print("Table "+t.name +"'s final predecessor found in stage: "+str(predecessorStageImdex)+" With starting cycle "+str(predecessorStartingCycle)+" current stage index is "+str(stageIndex)+" Dependency type  is "+str(dependencyType))
                 sameStagePredecessorStageImdex, sameStagePredecessorStartingCycle, sameStageDependencyType = self.findPredecessor(stageIndexToTableMap, startStageIndex=stageIndex, endStageIndex=stageIndex+1, table=t,p4ProgramGraph=p4ProgramGraph, pipelineID=pipelineID)
-                if(predecessorStageImdex != -1):
-                    print("Table "+t.name +"'s Same Stage predecessor found in stage: "+str(predecessorStageImdex)+" With starting cycle "+str(predecessorStartingCycle)+" current stage index is "+str(stageIndex)+" Dependency type  is"+str(dependencyType))
-                Now find which is the worst possible depedency of table t . then find how many cycle increase it is. then if a table's ctarting cycle is increase by x
-                then all of its concurently executale table's starting cycle is needed to be updated by x cycle
+                if(sameStagePredecessorStageImdex != -1):
+                    startingCycleInducedFromSameStagePrdecessor = sameStagePredecessorStartingCycle + sameStageDependencyType
+                    print("Table "+t.name +"'s Same Stage predecessor found in stage: "+str(predecessorStageImdex)+" With starting cycle "+str(predecessorStartingCycle)+" current stage index is "+str(stageIndex)+" Dependency type  is "+str(dependencyType))
+                maxStartingCycle = max(startingCycleInducedFromPreviousStage,startingCycleInducedFromPrdecessor, startingCycleInducedFromSameStagePrdecessor)
+                deltaSratingCycle  = maxStartingCycle - t.executionStartingCycle
+                # Now find which is the worst possible depedency of table t . then find how many cycle increase it is. then if a table's ctarting cycle is increase by x
+                # then all of its concurently executale table's starting cycle is needed to be updated by x cycle
 
     def findPredecessor(self,stageIndexToTableMap, startStageIndex, endStageIndex, table,p4ProgramGraph, pipelineID):
         '''Only find predecessor within the stage boundary. Because if the predecessor is in some later stage of current table that means nothing'''
