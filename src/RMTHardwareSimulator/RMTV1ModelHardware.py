@@ -755,7 +755,8 @@ class RMTV1ModelHardware:
         prevStageStartTime = 0
         prevStageEndTime = 0
         for stageIndex in range(0, len(stageIndexList)):
-            allTables = stageIndexToTableMap.get(stageIndex)
+            allTables = []
+            self.getAllTableForStage(stageIndexToTableMap.get(stageIndex),allTables)
             startTimeList = [t.executionStartingCycle for t in allTables]
             endingTimeList = [x+self.hardwareSpecRawJsonObjects.single_stage_cycle_length for x in startTimeList]
             startTimeList.sort()
@@ -795,17 +796,26 @@ class RMTV1ModelHardware:
                 previousStageIndex, previousStartingCycle = self.findInstanceOfTable(stageIndexToTableMap, 0, stageIndex, t.name)
                 if(previousStageIndex != -1):
                     startingCycleInducedFromPreviousStage = previousStartingCycle + (stageIndex-1- previousStageIndex) # exxtra stages for stage differences
+                    if(startingCycleInducedFromPreviousStage == 0):
+                        startingCycleInducedFromPreviousStage = 1 #Because if they are in consecutive stages then we need at least 1 cycle
                     print("Table "+t.name +" Found in previous stage "+str(previousStageIndex)+" With starting cycle "+str(previousStartingCycle)+" current stage index is "+str(stageIndex))
                 predecessorStageImdex, predecessorStartingCycle, dependencyType = self.findPredecessor(stageIndexToTableMap, startStageIndex=0, endStageIndex=stageIndex, table=t,p4ProgramGraph=p4ProgramGraph, pipelineID=pipelineID)
                 if(predecessorStageImdex != -1):
                     startingCycleInducedFromPrdecessor = predecessorStartingCycle + dependencyType + (stageIndex-1- predecessorStageImdex) # exxtra stages for stage differences
+                    if(startingCycleInducedFromPrdecessor == 0):
+                        startingCycleInducedFromPrdecessor = 1 #Because if they are in consecutive stages then we need at least 1 cycle
                     print("Table "+t.name +"'s final predecessor found in stage: "+str(predecessorStageImdex)+" With starting cycle "+str(predecessorStartingCycle)+" current stage index is "+str(stageIndex)+" Dependency type  is "+str(dependencyType))
                 sameStagePredecessorStageImdex, sameStagePredecessorStartingCycle, sameStageDependencyType = self.findPredecessor(stageIndexToTableMap, startStageIndex=stageIndex, endStageIndex=stageIndex+1, table=t,p4ProgramGraph=p4ProgramGraph, pipelineID=pipelineID)
                 if(sameStagePredecessorStageImdex != -1):
                     startingCycleInducedFromSameStagePrdecessor = sameStagePredecessorStartingCycle + sameStageDependencyType
+                    if(startingCycleInducedFromSameStagePrdecessor == 0):
+                        startingCycleInducedFromSameStagePrdecessor = 1 #Because if they are in consecutive stages then we need at least 1 cycle
                     print("Table "+t.name +"'s Same Stage predecessor found in stage: "+str(predecessorStageImdex)+" With starting cycle "+str(predecessorStartingCycle)+" current stage index is "+str(stageIndex)+" Dependency type  is "+str(dependencyType))
                 maxStartingCycle = max(startingCycleInducedFromPreviousStage,startingCycleInducedFromPrdecessor, startingCycleInducedFromSameStagePrdecessor)
-                deltaSratingCycle  = maxStartingCycle - t.executionStartingCycle
+                # deltaSratingCycle  = maxStartingCycle - t.executionStartingCycle
+                t.executionStartingCycle = maxStartingCycle
+                t.executionEndingCycle = t.executionStartingCycle + hw.hardwareSpecRawJsonObjects.single_stage_cycle_length
+                print("Table: "+str(t.name)+ " Final Execution starting cycle : "+str(t.executionStartingCycle)+" Ending cycle: "+str(t.executionEndingCycle))
                 # Now find which is the worst possible depedency of table t . then find how many cycle increase it is. then if a table's ctarting cycle is increase by x
                 # then all of its concurently executale table's starting cycle is needed to be updated by x cycle
 
