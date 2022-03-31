@@ -120,3 +120,9 @@ then write function for shwing the results in nice way
 case to be aded : 2 reads in one action is not allowed. 2 operations on a header or metadata not allowed. but we may suppor tread modify write. But no register action. we will say that
 these are future goals
 -- task action analysis
+
+
+
+--------------------------- VVI
+
+last a kokhon ekta program k embed kora jay na setar decision making ta clear na. at least jokhon embed korte parena seta clear message diye bol auchit amader
