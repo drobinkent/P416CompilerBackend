@@ -119,6 +119,8 @@ class StageWiseResource:
     def convertMatKeyBitWidthLengthToSRAMMatBlockCount(self, matKeysBitWidth):
         # requiredSRAMMatBlockCount = math.ceil(matKeysBitWidth/self.sramMatResource.perSramMatBitWidth)*self.sramMatResource.sramMatHashingWay
         requiredSRAMMatBlockCount = math.ceil(matKeysBitWidth/self.sramMatResource.perSramMatBitWidth)
+        if(requiredSRAMMatBlockCount == 0):
+            requiredSRAMMatBlockCount = 1
         return requiredSRAMMatBlockCount
     def convertMatKeyBitWidthLengthToTCAMMatBlockCount(self, matKeysBitWidth):
         requiredTCAMMatBlockCount = math.ceil(matKeysBitWidth/self.tcamMatResource.perTcamBlockBitWidth)
