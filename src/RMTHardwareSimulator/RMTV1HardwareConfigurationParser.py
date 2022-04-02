@@ -248,22 +248,62 @@ class RegisterExtern:
         result["name"] = from_str(self.name)
         return result
 
+class CounterExtern:
+    name: str
+
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'CounterExtern':
+        assert isinstance(obj, dict)
+        name = from_str(obj.get("name"))
+        return CounterExtern(name)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        result["name"] = from_str(self.name)
+        return result
+class MeterExtern:
+    name: str
+
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'MeterExtern':
+        assert isinstance(obj, dict)
+        name = from_str(obj.get("name"))
+        return MeterExtern(name)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        result["name"] = from_str(self.name)
+        return result
 
 class ExternResources:
     register_extern: List[RegisterExtern]
+    counter_extern: List[CounterExtern]
+    meter_extern: List[MeterExtern]
 
-    def __init__(self, register_extern: List[RegisterExtern]) -> None:
+    def __init__(self, register_extern: List[RegisterExtern], counter_extern: List[CounterExtern], meter_extern: List[MeterExtern]) -> None:
         self.register_extern = register_extern
+        self.counter_extern = counter_extern
+        self.meter_extern = meter_extern
 
     @staticmethod
     def from_dict(obj: Any) -> 'ExternResources':
         assert isinstance(obj, dict)
         register_extern = from_list(RegisterExtern.from_dict, obj.get("RegisterExtern"))
-        return ExternResources(register_extern)
+        counter_extern = from_list(CounterExtern.from_dict, obj.get("CounterExtern"))
+        meter_extern = from_list(MeterExtern.from_dict, obj.get("MeterExtern"))
+        return ExternResources(register_extern, counter_extern, meter_extern)
 
     def to_dict(self) -> dict:
         result: dict = {}
         result["RegisterExtern"] = from_list(lambda x: to_class(RegisterExtern, x), self.register_extern)
+        result["CounterExtern"] = from_list(lambda x: to_class(CounterExtern, x), self.counter_extern)
+        result["MeterExtern"] = from_list(lambda x: to_class(MeterExtern, x), self.meter_extern)
         return result
 
 class StageDescription:

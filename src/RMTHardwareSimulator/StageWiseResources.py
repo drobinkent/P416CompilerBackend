@@ -228,7 +228,7 @@ class StageWiseResource:
         # print("Test")
         isEmbeddable = True
         for regName in statefulMemSet:
-            regBitwidth, regArrayLength = p4ProgramGraph.parsedP4Program.getRegisterArraysResourceRequirment(regName)
+            regBitwidth, regArrayLength = p4ProgramGraph.parsedP4Program.getIndirectStatefulMemoryResourceRequirment(regName)
             if(self.isIndirectStatefulMemoryAccomodatable(regName, indirectStatefulMemoryBitwidth=regBitwidth, numberOfIndirectStatefulMemoryEntries=regArrayLength)):
                 self.allocateSramBlockAndPortWidthForIndirectStatefulMemory(indirectStatefulMemoryBitwidth=regBitwidth, numberOfIndirectStatefulMemoryEntries=regArrayLength, indirectStatefulMemoryName=regName)
                 isEmbeddable = True
@@ -581,7 +581,7 @@ class StageWiseResource:
         maxActionCrossbarBitwidth = 0
         for matNode in matNodeList:
             #Calculate individual resource consumption of rach mat node
-            p4ProgramGraph.parsedP4Program.computeMatchActionResourceRequirementForMatNode(matNode, p4ProgramGraph, pipelineID)
+            p4ProgramGraph.parsedP4Program.computeMatchActionResourceRequirementForMatNode(matNode, p4ProgramGraph, pipelineID,hardware)
             # calculate max action memory bitwidth and action crossbar bitwidth-- they are maximum of any table. Because at any time a packet will go through one path in our system.
             # so we only need to accomodate about the maximum action memory bitwidth anc crossbarr
             if (matNode.getMaxBitwidthOfActionParameter() > maxActionMemoryBitwidth):
@@ -593,7 +593,7 @@ class StageWiseResource:
                 maxActionCrossbarBitwidth = matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction()
                 # print("new maxActionCrossbarBitwidth = "+str(maxActionCrossbarBitwidth))
         for matNode in matNodeList: # The matnode list already sorted and TCAM based tables will come first. So they will be embedded at first
-            p4ProgramGraph.parsedP4Program.computeMatchActionResourceRequirementForMatNode(matNode, p4ProgramGraph, pipelineID) # Though redundant but not harm in calling
+            p4ProgramGraph.parsedP4Program.computeMatchActionResourceRequirementForMatNode(matNode, p4ProgramGraph, pipelineID,hardware) # Though redundant but not harm in calling
             if(matNode.originalP4node.match_type.value != MatchType.EXACT):
                 #try to embed the matnode in tcam
                 if(self.isMatNodeEmbeddableOnTCAMMatBlocks(matNode,maxActionCrossbarBitwidth,maxActionMemoryBitwidth)):
@@ -751,6 +751,18 @@ class RegisterExtern:
         self.rawSpec = regExSpec
         pass
 
+class CounterExtern:
+
+    def __init__(self, regExSpec):
+        self.rawSpec = regExSpec
+        pass
+
+class MeterExtern:
+
+    def __init__(self, regExSpec):
+        self.rawSpec = regExSpec
+        pass
+
 class ExternResource:
 
     # Assume we have register read extern. And according to the hardware we can acccomodate 8 read in one stage. Then
@@ -762,13 +774,33 @@ class ExternResource:
         self.registerExternList = []
         self.bitWidthToRegisterExternMap = {}
         if(externResourcesDescription.register_extern != None):
-            for reg_ex in externResourcesDescription.register_extern:
-                regExSpec = rmtHWSpec.nameToExternInstructionMap.get(reg_ex.name)
-                if(regExSpec==None):
-                    print("Severe Error. Specification for "+str(reg_ex.name)+" not  found in instruction set. Exiting")
+            for register_ex in externResourcesDescription.register_extern:
+                register_ex_spec = rmtHWSpec.nameToExternInstructionMap.get(register_ex.name)
+                if(register_ex_spec==None):
+                    print("Severe Error. Specification for "+str(register_ex.name)+" not  found in instruction set. Exiting")
                     exit(1)
-                self.registerExternList.append(RegisterExtern(regExSpec))
-                self.bitWidthToRegisterExternMap[regExSpec.extern_bitwidth] = regExSpec
+                self.registerExternList.append(RegisterExtern(register_ex_spec))
+                self.bitWidthToRegisterExternMap[register_ex_spec.extern_bitwidth] = register_ex_spec
+        self.counterExternList = []
+        self.counterTypeToCounterExternMap = {}
+        if(externResourcesDescription.counter_extern != None):
+            for counter_ex in externResourcesDescription.counter_extern:
+                counter_ex_spec = rmtHWSpec.nameToExternInstructionMap.get(counter_ex.name)
+                if(counter_ex_spec==None):
+                    print("Severe Error. Specification for "+str(counter_ex.name)+" not  found in instruction set. Exiting")
+                    exit(1)
+                self.counterExternList.append(CounterExtern(counter_ex_spec))
+                self.counterTypeToCounterExternMap[counter_ex_spec.name] = counter_ex_spec
+        self.MeterExternList = []
+        self.meterTypeToCounterExternMap = {}
+        if(externResourcesDescription.meter_extern != None):
+            for meter_ex in externResourcesDescription.meter_extern:
+                meter_ex_spec = rmtHWSpec.nameToExternInstructionMap.get(meter_ex.name)
+                if(meter_ex_spec==None):
+                    print("Severe Error. Specification for "+str(meter_ex.name)+" not  found in instruction set. Exiting")
+                    exit(1)
+                self.MeterExternList.append(MeterExtern(meter_ex_spec))
+                self.meterTypeToCounterExternMap[meter_ex_spec.name] = meter_ex_spec
 
     def getNearestIntegralMultipleOfLeaseWidthPort(self, bitWidth):
         portWidthList = list(self.bitWidthToRegisterExternMap.keys())

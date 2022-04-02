@@ -85,7 +85,27 @@
             {
               "name": "RegisterExtern_64"
             }
-        ]
+        ],"CounterExtern": [
+            {
+              "name": "CounterExtern_Packet"
+            },
+            {
+              "name": "CounterExtern_Byte"
+            },
+            {
+              "name": "CounterExtern_PacketByte"
+            }
+          ],"MeterExtern": [
+            {
+              "name": "MeterExtern_Byte"
+            },
+            {
+              "name": "MeterExtern_Packet"
+            },
+            {
+              "name": "RegisterExtern_32"
+            }
+          ]
       }
     }
   ],

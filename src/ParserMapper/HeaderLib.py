@@ -38,6 +38,11 @@ def loadParseGraph(parserObject,p4ProgramGraph):
     headerList = []
     headers = {}
     # while (curParserState != None):
+    init_header = None
+    for curParserState in parserObject.parse_states:
+        if(len(curParserState.parser_ops) ==0) and (len(curParserState.transition_key)==0):
+            if(curParserState.name == parserObject.init_state):
+                parserObject.init_state = curParserState.transitions[0].next_state
     for curParserState in parserObject.parse_states:
         # print("Hello")
         # if(len(curParserState.parser_ops) ==0) and (curParserState.transition_key[0].value[0] != "standard_metadata"):
@@ -71,6 +76,7 @@ def loadParseGraph(parserObject,p4ProgramGraph):
                                 else:
                                     print("Error: header '%s' seen multiple times" % headerName)
                                     exit(-1)
+
                         else:
                             print("In the parser op non regular value is parameter. Not supporting this currently. ")
                             exit(1)
@@ -139,15 +145,19 @@ def loadParseGraph(parserObject,p4ProgramGraph):
             else:
                 print("Currently we only support parsing a header object (parser_op == extract) and based on some of its field go to next state. In future we will support rest of the ops in parser")
                 exit(1)
+            if(curParserState.name == parserObject.init_state) and (parserMapperHeader != None):
+                init_header = parserMapperHeader
 
     if shouldMergeFixedTransitions:
         headerList = mergeTransitions(headerList, headers)
 
     # Work out which headers are reachable
-    if shouldTrimNonReachable:
-        headerList = trimNonReachable(headerList, headers)
+    # if shouldTrimNonReachable:
+    #     headerList = trimNonReachable(headerList, headers,)
 
-    return (headerList, headers)
+
+
+    return (headerList, headers,init_header)
 
 # def getHeaderToBeExtractedForParserState(p4ProgramGraph, parserObject, parsersStateName):
 #     parserObject.getParserState(curParserState.name).parser_ops[0].parameters[0].value
@@ -407,7 +417,7 @@ def exploreHeader(hdr, headers, callback, callPerLenNxtHdr = True):
     
     # Walk through the combination of lengths and next headers
     # (assume that headers have been merged)
-    if hdr.nextHeader:
+    if hdr.nextHeader != None:
         # Case: one of N next headers
 
         # Get the fields that are used in the lookup and the set of
@@ -426,6 +436,8 @@ def exploreHeader(hdr, headers, callback, callPerLenNxtHdr = True):
 
             # Walk through all of the decision value combinations
             for (vals, nextHeaderName) in fieldMap:
+                if(hdr.name == nextHeaderName):
+                    continue
                 if nextHeaderName:
                     nxtHdr = headers[nextHeaderName]
                 else:

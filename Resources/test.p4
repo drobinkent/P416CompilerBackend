@@ -94,9 +94,11 @@ control MyIngress(inout headers hdr,
                       register<bit<16>>(1024) sf_1;
                       register<bit<16>>(1024) sf_2;
                       register<bit<16>>(1024) sf_3;
+                      counter(8192, CounterType.packets) my_counter;
 
-   action set_nsf_3(bit<8> action_param) {
-       meta.nsf_3 = action_param;
+   action set_nsf_3(bit<32> action_param) {
+       meta.nsf_11 = action_param;
+       my_counter.count(action_param);
    }
 
    table mat_nsf2 {

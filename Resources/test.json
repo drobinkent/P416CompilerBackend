@@ -179,7 +179,7 @@
       "id" : 0,
       "source_info" : {
         "filename" : "test.p4",
-        "line" : 185,
+        "line" : 187,
         "column" : 8,
         "source_fragment" : "MyDeparser"
       },
@@ -188,7 +188,20 @@
     }
   ],
   "meter_arrays" : [],
-  "counter_arrays" : [],
+  "counter_arrays" : [
+    {
+      "name" : "MyIngress.my_counter",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "test.p4",
+        "line" : 97,
+        "column" : 57,
+        "source_fragment" : "my_counter"
+      },
+      "size" : 8192,
+      "is_direct" : false
+    }
+  ],
   "register_arrays" : [
     {
       "name" : "MyIngress.sf_1",
@@ -248,7 +261,7 @@
       "runtime_data" : [
         {
           "name" : "action_param",
-          "bitwidth" : 8
+          "bitwidth" : 32
         }
       ],
       "primitives" : [
@@ -257,7 +270,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "userMetadata.nsf_1"]
+              "value" : ["scalars", "userMetadata.nsf_9"]
             },
             {
               "type" : "runtime_data",
@@ -266,9 +279,28 @@
           ],
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 99,
+            "line" : 100,
             "column" : 7,
-            "source_fragment" : "meta.nsf_3 = action_param"
+            "source_fragment" : "meta.nsf_11 = action_param"
+          }
+        },
+        {
+          "op" : "count",
+          "parameters" : [
+            {
+              "type" : "counter_array",
+              "value" : "MyIngress.my_counter"
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "test.p4",
+            "line" : 101,
+            "column" : 7,
+            "source_fragment" : "my_counter.count(action_param)"
           }
         }
       ]
@@ -297,7 +329,7 @@
           ],
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 113,
+            "line" : 115,
             "column" : 6,
             "source_fragment" : "meta.nsf_6 = action_param"
           }
@@ -329,7 +361,7 @@
           ],
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 114,
+            "line" : 116,
             "column" : 28,
             "source_fragment" : "(bit<32>)meta.nsf_6"
           }
@@ -352,7 +384,7 @@
           ],
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 114,
+            "line" : 116,
             "column" : 6,
             "source_fragment" : "sf_1.read(meta.nsf_5, (bit<32>)meta.nsf_6)"
           }
@@ -375,7 +407,7 @@
           ],
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 115,
+            "line" : 117,
             "column" : 18,
             "source_fragment" : "sf_2.read(meta.nsf_6, (bit<32>)2)"
           }
@@ -383,7 +415,7 @@
       ]
     },
     {
-      "name" : "test134",
+      "name" : "test136",
       "id" : 4,
       "runtime_data" : [],
       "primitives" : [
@@ -405,7 +437,7 @@
           ],
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 134,
+            "line" : 136,
             "column" : 16,
             "source_fragment" : "sf_3.read(meta.nsf_6, (bit<32>)2)"
           }
@@ -428,7 +460,7 @@
           ],
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 135,
+            "line" : 137,
             "column" : 16,
             "source_fragment" : "sf_1.write((bit<32>)meta.nsf_11, (bit<16>)meta.nsf_6)"
           }
@@ -451,7 +483,7 @@
           ],
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 136,
+            "line" : 138,
             "column" : 16,
             "source_fragment" : "sf_2.write((bit<32>)meta.nsf_11, (bit<16>)meta.nsf_6)"
           }
@@ -474,7 +506,7 @@
           ],
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 137,
+            "line" : 139,
             "column" : 16,
             "source_fragment" : "sf_3.write((bit<32>)meta.nsf_11, (bit<16>)meta.nsf_6)"
           }
@@ -497,7 +529,7 @@
           ],
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 138,
+            "line" : 140,
             "column" : 16,
             "source_fragment" : "sf_3.read(meta.nsf_6, (bit<32>)2)"
           }
@@ -505,7 +537,7 @@
       ]
     },
     {
-      "name" : "test144",
+      "name" : "test146",
       "id" : 5,
       "runtime_data" : [],
       "primitives" : [
@@ -523,7 +555,7 @@
           ],
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 144,
+            "line" : 146,
             "column" : 16,
             "source_fragment" : "meta.nsf_4 = 10"
           }
@@ -531,7 +563,7 @@
       ]
     },
     {
-      "name" : "test147",
+      "name" : "test149",
       "id" : 6,
       "runtime_data" : [],
       "primitives" : [
@@ -549,7 +581,7 @@
           ],
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 147,
+            "line" : 149,
             "column" : 16,
             "source_fragment" : "meta.nsf_5 = 10"
           }
@@ -557,7 +589,7 @@
       ]
     },
     {
-      "name" : "test149",
+      "name" : "test151",
       "id" : 7,
       "runtime_data" : [],
       "primitives" : [
@@ -579,7 +611,7 @@
           ],
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 149,
+            "line" : 151,
             "column" : 12,
             "source_fragment" : "sf_2.write((bit<32>)meta.nsf_11, (bit<16>) 0)"
           }
@@ -587,7 +619,7 @@
       ]
     },
     {
-      "name" : "test154",
+      "name" : "test156",
       "id" : 8,
       "runtime_data" : [],
       "primitives" : [
@@ -609,7 +641,7 @@
           ],
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 154,
+            "line" : 156,
             "column" : 16,
             "source_fragment" : "sf_3.write((bit<32>)meta.nsf_11, meta.nsf_6)"
           }
@@ -634,7 +666,7 @@
           "id" : 0,
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 102,
+            "line" : 104,
             "column" : 9,
             "source_fragment" : "mat_nsf2"
           },
@@ -657,7 +689,7 @@
           "base_default_next" : null,
           "next_tables" : {
             "__MISS__" : null,
-            "__HIT__" : "tbl_test134"
+            "__HIT__" : "tbl_test136"
           },
           "default_entry" : {
             "action_id" : 0,
@@ -667,11 +699,11 @@
           }
         },
         {
-          "name" : "tbl_test134",
+          "name" : "tbl_test136",
           "id" : 1,
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 134,
+            "line" : 136,
             "column" : 16,
             "source_fragment" : "sf_3.read(meta.nsf_6, (bit<32>)2); ..."
           },
@@ -683,10 +715,10 @@
           "support_timeout" : false,
           "direct_meters" : null,
           "action_ids" : [4],
-          "actions" : ["test134"],
+          "actions" : ["test136"],
           "base_default_next" : null,
           "next_tables" : {
-            "test134" : null
+            "test136" : null
           },
           "default_entry" : {
             "action_id" : 4,
@@ -696,11 +728,11 @@
           }
         },
         {
-          "name" : "tbl_test144",
+          "name" : "tbl_test146",
           "id" : 2,
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 144,
+            "line" : 146,
             "column" : 27,
             "source_fragment" : "="
           },
@@ -712,10 +744,10 @@
           "support_timeout" : false,
           "direct_meters" : null,
           "action_ids" : [5],
-          "actions" : ["test144"],
+          "actions" : ["test146"],
           "base_default_next" : "node_8",
           "next_tables" : {
-            "test144" : "node_8"
+            "test146" : "node_8"
           },
           "default_entry" : {
             "action_id" : 5,
@@ -725,11 +757,11 @@
           }
         },
         {
-          "name" : "tbl_test147",
+          "name" : "tbl_test149",
           "id" : 3,
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 147,
+            "line" : 149,
             "column" : 27,
             "source_fragment" : "="
           },
@@ -741,10 +773,10 @@
           "support_timeout" : false,
           "direct_meters" : null,
           "action_ids" : [6],
-          "actions" : ["test147"],
-          "base_default_next" : "tbl_test149",
+          "actions" : ["test149"],
+          "base_default_next" : "tbl_test151",
           "next_tables" : {
-            "test147" : "tbl_test149"
+            "test149" : "tbl_test151"
           },
           "default_entry" : {
             "action_id" : 6,
@@ -754,11 +786,11 @@
           }
         },
         {
-          "name" : "tbl_test149",
+          "name" : "tbl_test151",
           "id" : 4,
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 149,
+            "line" : 151,
             "column" : 12,
             "source_fragment" : "sf_2.write((bit<32>)meta.nsf_11, (bit<16>) 0)"
           },
@@ -770,10 +802,10 @@
           "support_timeout" : false,
           "direct_meters" : null,
           "action_ids" : [7],
-          "actions" : ["test149"],
+          "actions" : ["test151"],
           "base_default_next" : null,
           "next_tables" : {
-            "test149" : null
+            "test151" : null
           },
           "default_entry" : {
             "action_id" : 7,
@@ -787,7 +819,7 @@
           "id" : 5,
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 117,
+            "line" : 119,
             "column" : 9,
             "source_fragment" : "mat_nsf5"
           },
@@ -810,7 +842,7 @@
           "base_default_next" : null,
           "next_tables" : {
             "__MISS__" : null,
-            "__HIT__" : "tbl_test154"
+            "__HIT__" : "tbl_test156"
           },
           "default_entry" : {
             "action_id" : 1,
@@ -820,11 +852,11 @@
           }
         },
         {
-          "name" : "tbl_test154",
+          "name" : "tbl_test156",
           "id" : 6,
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 154,
+            "line" : 156,
             "column" : 16,
             "source_fragment" : "sf_3.write((bit<32>)meta.nsf_11, meta.nsf_6)"
           },
@@ -836,10 +868,10 @@
           "support_timeout" : false,
           "direct_meters" : null,
           "action_ids" : [8],
-          "actions" : ["test154"],
+          "actions" : ["test156"],
           "base_default_next" : null,
           "next_tables" : {
-            "test154" : null
+            "test156" : null
           },
           "default_entry" : {
             "action_id" : 8,
@@ -856,7 +888,7 @@
           "id" : 0,
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 132,
+            "line" : 134,
             "column" : 12,
             "source_fragment" : "meta.nsf_1 == 1"
           },
@@ -882,7 +914,7 @@
           "id" : 1,
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 140,
+            "line" : 142,
             "column" : 18,
             "source_fragment" : "meta.nsf_1 == 2"
           },
@@ -908,7 +940,7 @@
           "id" : 2,
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 143,
+            "line" : 145,
             "column" : 15,
             "source_fragment" : "meta.nsf_3 >2"
           },
@@ -926,7 +958,7 @@
               }
             }
           },
-          "true_next" : "tbl_test144",
+          "true_next" : "tbl_test146",
           "false_next" : "node_8"
         },
         {
@@ -934,7 +966,7 @@
           "id" : 3,
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 146,
+            "line" : 148,
             "column" : 15,
             "source_fragment" : "meta.nsf_4 >2"
           },
@@ -952,15 +984,15 @@
               }
             }
           },
-          "true_next" : "tbl_test147",
-          "false_next" : "tbl_test149"
+          "true_next" : "tbl_test149",
+          "false_next" : "tbl_test151"
         },
         {
           "name" : "node_11",
           "id" : 4,
           "source_info" : {
             "filename" : "test.p4",
-            "line" : 150,
+            "line" : 152,
             "column" : 18,
             "source_fragment" : "meta.nsf_1 == 3"
           },
@@ -988,7 +1020,7 @@
       "id" : 1,
       "source_info" : {
         "filename" : "test.p4",
-        "line" : 165,
+        "line" : 167,
         "column" : 8,
         "source_fragment" : "MyEgress"
       },

@@ -22,7 +22,7 @@
         ["userMetadata.nsf_6", 8, false],
         ["userMetadata.nsf_7", 8, false],
         ["userMetadata.nsf_8", 8, false],
-        ["userMetadata.nsf_9", 8, false]
+        ["userMetadata.nsf_9", 32, false]
       ]
     },
     {
@@ -185,7 +185,7 @@
       "id" : 0,
       "source_info" : {
         "filename" : "test_1.p4",
-        "line" : 281,
+        "line" : 283,
         "column" : 8,
         "source_fragment" : "MyDeparser"
       },
@@ -194,7 +194,20 @@
     }
   ],
   "meter_arrays" : [],
-  "counter_arrays" : [],
+  "counter_arrays" : [
+    {
+      "name" : "MyIngress.my_counter",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "test_1.p4",
+        "line" : 97,
+        "column" : 41,
+        "source_fragment" : "my_counter"
+      },
+      "size" : 8192,
+      "is_direct" : false
+    }
+  ],
   "register_arrays" : [
     {
       "name" : "MyIngress.sf_1",
@@ -320,7 +333,7 @@
           ],
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 98,
+            "line" : 99,
             "column" : 7,
             "source_fragment" : "meta.nsf_1 = action_param"
           }
@@ -351,7 +364,7 @@
           ],
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 111,
+            "line" : 112,
             "column" : 6,
             "source_fragment" : "meta.nsf_2 = action_param"
           }
@@ -364,7 +377,7 @@
       "runtime_data" : [
         {
           "name" : "action_param",
-          "bitwidth" : 8
+          "bitwidth" : 32
         }
       ],
       "primitives" : [
@@ -373,7 +386,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "userMetadata.nsf_1"]
+              "value" : ["scalars", "userMetadata.nsf_9"]
             },
             {
               "type" : "runtime_data",
@@ -382,9 +395,28 @@
           ],
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 124,
-            "column" : 7,
-            "source_fragment" : "meta.nsf_3 = action_param"
+            "line" : 125,
+            "column" : 11,
+            "source_fragment" : "meta.nsf_11 = action_param"
+          }
+        },
+        {
+          "op" : "count",
+          "parameters" : [
+            {
+              "type" : "counter_array",
+              "value" : "MyIngress.my_counter"
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "test_1.p4",
+            "line" : 126,
+            "column" : 11,
+            "source_fragment" : "my_counter.count(action_param)"
           }
         }
       ]
@@ -413,7 +445,7 @@
           ],
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 137,
+            "line" : 139,
             "column" : 7,
             "source_fragment" : "meta.nsf_3= action_param"
           }
@@ -444,7 +476,7 @@
           ],
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 150,
+            "line" : 152,
             "column" : 7,
             "source_fragment" : "meta.nsf_1 = action_param"
           }
@@ -488,7 +520,7 @@
           ],
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 164,
+            "line" : 166,
             "column" : 32,
             "source_fragment" : "(bit<16>) action_param"
           }
@@ -511,7 +543,7 @@
           ],
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 164,
+            "line" : 166,
             "column" : 7,
             "source_fragment" : "sf_1.write((bit<32>)(1), (bit<16>) action_param)"
           }
@@ -543,7 +575,7 @@
           ],
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 165,
+            "line" : 167,
             "column" : 32,
             "source_fragment" : "(bit<16>) action_param"
           }
@@ -566,7 +598,7 @@
           ],
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 165,
+            "line" : 167,
             "column" : 7,
             "source_fragment" : "sf_2.write((bit<32>)(1), (bit<16>) action_param)"
           }
@@ -598,7 +630,7 @@
           ],
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 166,
+            "line" : 168,
             "column" : 32,
             "source_fragment" : "(bit<16>) action_param"
           }
@@ -621,7 +653,7 @@
           ],
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 166,
+            "line" : 168,
             "column" : 7,
             "source_fragment" : "sf_3.write((bit<32>)(1), (bit<16>) action_param)"
           }
@@ -665,7 +697,7 @@
           ],
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 180,
+            "line" : 182,
             "column" : 32,
             "source_fragment" : "(bit<16>) action_param"
           }
@@ -688,7 +720,7 @@
           ],
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 180,
+            "line" : 182,
             "column" : 7,
             "source_fragment" : "sf_1.write((bit<32>)(1), (bit<16>) action_param)"
           }
@@ -720,7 +752,7 @@
           ],
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 181,
+            "line" : 183,
             "column" : 32,
             "source_fragment" : "(bit<16>) action_param"
           }
@@ -743,7 +775,7 @@
           ],
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 181,
+            "line" : 183,
             "column" : 7,
             "source_fragment" : "sf_2.write((bit<32>)(1), (bit<16>) action_param)"
           }
@@ -787,7 +819,7 @@
           ],
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 194,
+            "line" : 196,
             "column" : 32,
             "source_fragment" : "(bit<16>) action_param"
           }
@@ -810,7 +842,7 @@
           ],
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 194,
+            "line" : 196,
             "column" : 7,
             "source_fragment" : "sf_1.write((bit<32>)(1), (bit<16>) action_param)"
           }
@@ -854,7 +886,7 @@
           ],
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 207,
+            "line" : 209,
             "column" : 32,
             "source_fragment" : "(bit<16>) action_param"
           }
@@ -877,7 +909,7 @@
           ],
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 207,
+            "line" : 209,
             "column" : 7,
             "source_fragment" : "sf_3.write((bit<32>)(1), (bit<16>) action_param)"
           }
@@ -921,7 +953,7 @@
           ],
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 220,
+            "line" : 222,
             "column" : 32,
             "source_fragment" : "(bit<16>) action_param"
           }
@@ -944,7 +976,7 @@
           ],
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 220,
+            "line" : 222,
             "column" : 7,
             "source_fragment" : "sf_2.write((bit<32>)(1), (bit<16>) action_param)"
           }
@@ -969,7 +1001,7 @@
           "id" : 0,
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 101,
+            "line" : 102,
             "column" : 9,
             "source_fragment" : "mat_nsf1"
           },
@@ -1006,7 +1038,7 @@
           "id" : 1,
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 114,
+            "line" : 115,
             "column" : 10,
             "source_fragment" : "mat_nsf2"
           },
@@ -1043,7 +1075,7 @@
           "id" : 2,
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 169,
+            "line" : 171,
             "column" : 10,
             "source_fragment" : "mat_sf123"
           },
@@ -1080,7 +1112,7 @@
           "id" : 3,
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 197,
+            "line" : 199,
             "column" : 10,
             "source_fragment" : "mat_sf1"
           },
@@ -1117,7 +1149,7 @@
           "id" : 4,
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 127,
+            "line" : 129,
             "column" : 10,
             "source_fragment" : "mat_nsf3"
           },
@@ -1154,7 +1186,7 @@
           "id" : 5,
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 140,
+            "line" : 142,
             "column" : 10,
             "source_fragment" : "mat_nsf4"
           },
@@ -1191,7 +1223,7 @@
           "id" : 6,
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 223,
+            "line" : 225,
             "column" : 10,
             "source_fragment" : "mat_sf2"
           },
@@ -1228,7 +1260,7 @@
           "id" : 7,
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 184,
+            "line" : 186,
             "column" : 10,
             "source_fragment" : "mat_sf12"
           },
@@ -1265,7 +1297,7 @@
           "id" : 8,
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 153,
+            "line" : 155,
             "column" : 10,
             "source_fragment" : "mat_nsf5"
           },
@@ -1302,7 +1334,7 @@
           "id" : 9,
           "source_info" : {
             "filename" : "test_1.p4",
-            "line" : 210,
+            "line" : 212,
             "column" : 10,
             "source_fragment" : "mat_sf3"
           },
@@ -1343,7 +1375,7 @@
       "id" : 1,
       "source_info" : {
         "filename" : "test_1.p4",
-        "line" : 261,
+        "line" : 263,
         "column" : 8,
         "source_fragment" : "MyEgress"
       },

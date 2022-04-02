@@ -60,7 +60,7 @@ class PipelineGraph:
         self.alreadyLoadedTables={}
         self.nameToP4NodeMap ={}
         self.actions = actions
-        self.registerNameToTableMap = {}
+        self.indirectStatefulMemoryNameToTableMap = {}
         self.superTableNameToSubTableListMap= {}
         self.registerNameToSuperMatNameMap= {}
         self.conditionalNodes = {}
@@ -300,10 +300,10 @@ class PipelineGraph:
                 # print(self.getActionByName(a).getListOfFieldsModifedAndUsed())
                 statefulMemoeryBeingUsed = actionObject.getListOfIndirectStatefulMemoriesBeingUsed()
                 for statefulMem in statefulMemoeryBeingUsed:
-                    if(self.registerNameToTableMap.get(statefulMem) == None):
-                        self.registerNameToTableMap[statefulMem] = []
-                    if (not(name in self.registerNameToTableMap.get(statefulMem))):
-                        self.registerNameToTableMap.get(statefulMem).append(name)
+                    if(self.indirectStatefulMemoryNameToTableMap.get(statefulMem) == None):
+                        self.indirectStatefulMemoryNameToTableMap[statefulMem] = []
+                    if (not(name in self.indirectStatefulMemoryNameToTableMap.get(statefulMem))):
+                        self.indirectStatefulMemoryNameToTableMap.get(statefulMem).append(name)
 
             for a in list(tbl.next_tables.values()):
                 if(a!=None):
@@ -627,8 +627,8 @@ class PipelineGraph:
 
     def matToMatStatefulMemoryDependnecyAnalysis(self, matNode1, matNode2):
 
-        for k in self.registerNameToTableMap:
-            tblList = self.registerNameToTableMap.get(k)
+        for k in self.indirectStatefulMemoryNameToTableMap:
+            tblList = self.indirectStatefulMemoryNameToTableMap.get(k)
             if (matNode1.name in tblList) and (matNode2.name in tblList):
                 # print("Stateful memory dependency between "+matNode1.name +" and "+matNode2.name +" is "+str(k))
                 return k

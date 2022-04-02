@@ -328,6 +328,148 @@
           }
         }
       ]
+    },
+    {
+      "name": "CounterExtern_Packet",
+      "op": ["count"],
+      "ExternBitwidth": 32,
+      "parameters":[
+        {
+          "name": "index",
+          "bitwidth": 32,
+          "SupportedDataTypes": {
+            "header-field": true,
+            "standard-metadata": true,
+            "local-metadata": true,
+            "constant": true,
+            "register": true
+          }
+        },
+        {
+          "name": "value",
+          "bitwidth": 1,
+          "SupportedDataTypes": {
+            "header-field": true,
+            "standard-metadata": true,
+            "local-metadata": true,
+            "constant": true,
+            "register": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "CounterExtern_Byte",
+      "op": ["count"],
+      "ExternBitwidth": 64,
+      "parameters":[
+        {
+          "name": "index",
+          "bitwidth": 32,
+          "SupportedDataTypes": {
+            "header-field": true,
+            "standard-metadata": true,
+            "local-metadata": true,
+            "constant": true,
+            "register": true
+          }
+        },
+        {
+          "name": "value",
+          "bitwidth": 32,
+          "SupportedDataTypes": {
+            "header-field": false,
+            "standard-metadata": true,
+            "local-metadata": false,
+            "constant": false,
+            "register": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "CounterExtern_PacketByte",
+      "op": ["count"],
+      "ExternBitwidth": 64,
+      "parameters":[
+        {
+          "name": "index",
+          "bitwidth": 32,
+          "SupportedDataTypes": {
+            "header-field": true,
+            "standard-metadata": true,
+            "local-metadata": true,
+            "constant": true,
+            "register": true
+          }
+        },{
+          "name": "value",
+          "bitwidth": 32,
+          "SupportedDataTypes": {
+            "header-field": false,
+            "standard-metadata": true,
+            "local-metadata": false,
+            "constant": false,
+            "register": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "MeterExtern_Byte",
+      "op": ["execute_meter"],
+      "ExternBitwidth": 64,
+      "parameters":[
+        {
+          "name": "index",
+          "bitwidth": 32,
+          "SupportedDataTypes": {
+            "header-field": true,
+            "standard-metadata": true,
+            "local-metadata": true,
+            "constant": true,
+            "register": true
+          }
+        },{
+          "name": "value",
+          "bitwidth": 32,
+          "SupportedDataTypes": {
+            "header-field": false,
+            "standard-metadata": true,
+            "local-metadata": false,
+            "constant": false,
+            "register": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "MeterExtern_Packet",
+      "op": ["execute_meter"],
+      "ExternBitwidth": 32,
+      "parameters":[
+        {
+          "name": "index",
+          "bitwidth": 32,
+          "SupportedDataTypes": {
+            "header-field": true,
+            "standard-metadata": true,
+            "local-metadata": true,
+            "constant": true,
+            "register": true
+          }
+        },{
+          "name": "value",
+          "bitwidth": 8,
+          "SupportedDataTypes": {
+            "header-field": false,
+            "standard-metadata": true,
+            "local-metadata": false,
+            "constant": false,
+            "register": false
+          }
+        }
+      ]
     }
   ]
 }

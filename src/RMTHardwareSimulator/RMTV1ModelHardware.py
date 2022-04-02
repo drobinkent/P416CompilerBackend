@@ -437,7 +437,7 @@ class RMTV1ModelHardware:
         '''If embedding is successfull the function will return starting and ending stage index. if both index are equal then the node is embeddable over single stage.
         If both are -1 then the node is not embeddable. '''
         currentStageIndex = startingStageIndex
-        p4ProgramGraph.parsedP4Program.computeMatchActionResourceRequirementForMatNode(matNode, p4ProgramGraph, pipelineID) # computes the resource requirement of the mat node
+        p4ProgramGraph.parsedP4Program.computeMatchActionResourceRequirementForMatNode(matNode, p4ProgramGraph, pipelineID,hardware) # computes the resource requirement of the mat node
         remainingMatEntries = matNode.getRequiredNumberOfMatEntries()
         remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
         startingStage = -1

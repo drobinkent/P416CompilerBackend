@@ -249,8 +249,8 @@ class MATNode:
         for actionObject in self.actions:
             statefulMemoeryBeingUsed = actionObject.getListOfIndirectStatefulMemoriesBeingUsed()
             for statefulMem in statefulMemoeryBeingUsed:
-                if ((self.name in pipelineGraph.registerNameToTableMap.get(statefulMem))):
-                    pipelineGraph.registerNameToTableMap.get(statefulMem).remove(self.name)
+                if ((self.name in pipelineGraph.indirectStatefulMemoryNameToTableMap.get(statefulMem))):
+                    pipelineGraph.indirectStatefulMemoryNameToTableMap.get(statefulMem).remove(self.name)
 
         originalMatNodeActions=[]
         newMatNodeActions=[]
@@ -337,17 +337,17 @@ class MATNode:
         for actionObject in newMatNode.actions:
             statefulMemoeryBeingUsed = actionObject.getListOfIndirectStatefulMemoriesBeingUsed()
             for statefulMem in statefulMemoeryBeingUsed:
-                if(pipelineGraph.registerNameToTableMap.get(statefulMem) == None):
-                    pipelineGraph.registerNameToTableMap[statefulMem] = []
-                if (not(newMatNode.name in pipelineGraph.registerNameToTableMap.get(statefulMem))):
-                    pipelineGraph.registerNameToTableMap.get(statefulMem).append(newMatNode.name)
+                if(pipelineGraph.indirectStatefulMemoryNameToTableMap.get(statefulMem) == None):
+                    pipelineGraph.indirectStatefulMemoryNameToTableMap[statefulMem] = []
+                if (not(newMatNode.name in pipelineGraph.indirectStatefulMemoryNameToTableMap.get(statefulMem))):
+                    pipelineGraph.indirectStatefulMemoryNameToTableMap.get(statefulMem).append(newMatNode.name)
         for actionObject in self.actions:
             statefulMemoeryBeingUsed = actionObject.getListOfIndirectStatefulMemoriesBeingUsed()
             for statefulMem in statefulMemoeryBeingUsed:
-                if(pipelineGraph.registerNameToTableMap.get(statefulMem) == None):
-                    pipelineGraph.registerNameToTableMap[statefulMem] = []
-                if (not(self.name in pipelineGraph.registerNameToTableMap.get(statefulMem))):
-                    pipelineGraph.registerNameToTableMap.get(statefulMem).append(self.name)
+                if(pipelineGraph.indirectStatefulMemoryNameToTableMap.get(statefulMem) == None):
+                    pipelineGraph.indirectStatefulMemoryNameToTableMap[statefulMem] = []
+                if (not(self.name in pipelineGraph.indirectStatefulMemoryNameToTableMap.get(statefulMem))):
+                    pipelineGraph.indirectStatefulMemoryNameToTableMap.get(statefulMem).append(self.name)
 
         # graphTobedrawn = nx.MultiDiGraph()
         # pipelineGraph.pipeline.resetAllIsVisitedVariableForGraph()

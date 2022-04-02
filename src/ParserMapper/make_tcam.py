@@ -472,12 +472,13 @@ def allocateState(context, chain, availableState):
 
     return False
 
-def calcExtractLocs(hdrList, hdrs):
+def calcExtractLocs(hdrList, hdrs,initHeader):
     # Create a sorted list of header names
 
     global extractMaxDest, extractPos, extractOffset
 
-    firstHdr = hdrList[0]
+    # firstHdr = hdrList[0]
+    firstHdr = initHeader
     firstHdrName = firstHdr.name
 
     # Walk through all possible sequences of headers to identify the maximum count of each header type
@@ -485,11 +486,12 @@ def calcExtractLocs(hdrList, hdrs):
     stack = []
     stack.append((firstHdrName, 0, []))
     while len(stack) > 0:
+        print("printing stack"+str(stack))
         (hdrName, nxtIndex, seq) = stack.pop()
         hdr = hdrs[hdrName]
 
         # Verify we aren't exceeding the reference count
-        if hdr.refCount:
+        if hdr.refCount != None:
             maxCnt = hdr.refCount.maxVal
             maxName = hdr.refCount.name
             cnt = 1
@@ -506,7 +508,7 @@ def calcExtractLocs(hdrList, hdrs):
                 stack.append((hdrName, nxtIndex + 1, seq))
                 nxtHdrName = hdr.nextHeader[1][nxtIndex][1]
 
-                if nxtHdrName:
+                if nxtHdrName!=None:
                     nxtHdr = hdrs[nxtHdrName]
                     newSeq = copy.copy(seq)
                     newSeq.append(hdrName)
@@ -1672,7 +1674,7 @@ def findShortestLen(context, cluster, clusters):
 
     return context.shortestLenByCluster[cluster]
 
-def buildDAG(headerList, headers):
+def buildDAG(headerList, headers, initHeader):
     seenPath = set()
     #finalPaths = set()
 
@@ -1727,7 +1729,8 @@ def buildDAG(headerList, headers):
     #headHdr = Header(HEAD_NODE)
     #headNode = HeaderNode(headHdr, 0)
     buildDAG.headNode = None
-    exploreHeader(headerList[0], headers, exploreHdrChain)
+    # exploreHeader(headerList[0], headers, exploreHdrChain)
+    exploreHeader(initHeader, headers, exploreHdrChain)
 
     addPad(dagNodes)
 
@@ -2390,10 +2393,10 @@ def allocateResultVectorEntries(context):
             context.foundHdrNum[nodeName] = hdrNum
             hdrs.append(nodeName)
 
-            extractBytes = node.hdr.getExtractBytes()
-            fieldPos = extractPos[node.hdr.name] + (node.inst - 1) * extractOffset[node.hdr.name]
-            extractBytes = list(zip(extractBytes, list(range(fieldPos, fieldPos + len(extractBytes)))))
-            context.fieldPos[nodeName] = extractBytes
+            # extractBytes = node.hdr.getExtractBytes()
+            # fieldPos = extractPos[node.hdr.name] + (node.inst - 1) * extractOffset[node.hdr.name]
+            # extractBytes = list(zip(extractBytes, list(range(fieldPos, fieldPos + len(extractBytes)))))
+            # context.fieldPos[nodeName] = extractBytes
 
             hdrNum += 1
             #fieldPos += len(extractBytes)
@@ -2635,7 +2638,7 @@ def allocateResultVectorEntries(context):
 #         print("")
 #         printTCAMEntries(bestContext)
 
-def buildParserMapper(parseGraphHeaderList, parsedGraphHeaders,hw):
+def buildParserMapper(parseGraphHeaderList, parsedGraphHeaders,hw,initHeader):
     my_parser = argparse.ArgumentParser('Read headers from a given file')
     # my_parser.add_argument('hdr_file', type=str,
     #         help='Parse graph description file')
@@ -2770,9 +2773,9 @@ def buildParserMapper(parseGraphHeaderList, parsedGraphHeaders,hw):
         if hdr.nextHeader is not None and type(hdr.nextHeader) == tuple:
             hdr.optNextHeader()
 
-    ccontext.dag, ccontext.dagNodes = buildDAG(headerList, headers)
+    ccontext.dag, ccontext.dagNodes = buildDAG(headerList, headers,initHeader)
     printDAG(ccontext.dag)
-    calcExtractLocs(headerList, headers)
+    # calcExtractLocs(headerList, headers,initHeader)
     headNode = ccontext.dag
 
     sortDAG(ccontext)

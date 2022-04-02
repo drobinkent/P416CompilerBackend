@@ -134,6 +134,7 @@ class PrimitiveOp(Enum):
     BITWISE_XOR = "^"
     VALID = "VALID"
     LOG_MSG = "log_msg"
+    GENERATE_DIGEST = "generate_digest"
 
     # +, -, *, <<, >>, ==, !=, >, >=, <, <=, and, or, not, &, |, ^, ~, valid
     @staticmethod
@@ -1468,6 +1469,14 @@ class Action:
                 param = prim.parameters[1]
                 val = param.registerArrayName
                 listOfStatefulMemoeriesBeingUsed.append(val)
+            if ((prim.op == PrimitiveOp.COUNT)):
+                param = prim.parameters[0]
+                val = param.counterArrayName
+                listOfStatefulMemoeriesBeingUsed.append(val)
+            if ((prim.op == PrimitiveOp.EXECUTE_METER)):
+                param = prim.parameters[0]
+                val = param.meterArrayName
+                listOfStatefulMemoeriesBeingUsed.append(val)
         return  listOfStatefulMemoeriesBeingUsed
 
     def getListOfFieldsModifedAndUsedByTheAction(self,parsedP4Program):
@@ -1610,7 +1619,7 @@ class Action:
             print("Parameter type "+str(type(param))+"not supported in getParamaterBitWidth. exiting")
             exit(1)
 
-    def analyzeAction(self, p4ProgramGraph, pipelineID,matNode):
+    def analyzeAction(self, p4ProgramGraph, pipelineID,matNode,hw):
         #For each header field must retrieve it from the parsedP4PRogram.nametoheaderobjectmap. that value contains the actual bitwidth.
 
         listOfFieldBeingModifed = []
@@ -1697,6 +1706,26 @@ class Action:
             elif (prim.op == PrimitiveOp.COUNT):
                 if(type(prim.parameters[0])==CounterArrayPrimitive):
                     listOfStatefulMemoryBeingAccessed.append(prim.parameters[0].counterArrayName)
+                    #TODO : a piece of caution counter is not well supported in bmv2 json. The json does not provide the counter index as parameter
+                else:
+                    print("The first parameter in a count operation must have to be a counter name. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
+                    exit(1)
+                for i in range (1, len(prim.parameters)):
+                    actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[i],pipelineID,self)
+                    listOfFieldBeingUsed.append(prim.parameters[i])
+            elif (prim.op == PrimitiveOp.EXECUTE_METER):
+                if(type(prim.parameters[0])==MeterArrayPrimitive):
+                    listOfStatefulMemoryBeingAccessed.append(prim.parameters[0].meterArrayName)
+                    #TODO : a piece of caution counter is not well supported in bmv2 json. The json does not provide the counter index as parameter
+                else:
+                    print("The first parameter in a execute meter operation must have to be a meter name. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
+                    exit(1)
+                for i in range (1, len(prim.parameters)):
+                    actionCrossbarBitwidth = actionCrossbarBitwidth + self.getParamaterBitWidth(p4ProgramGraph,prim.parameters[i],pipelineID,self)
+                    listOfFieldBeingUsed.append(prim.parameters[i])
+            elif (prim.op == PrimitiveOp.COUNT):
+                if(type(prim.parameters[0])==CounterArrayPrimitive):
+                    listOfStatefulMemoryBeingAccessed.append(prim.parameters[0].counterArrayName)
                     #TODO : a piece of caution:::  counter is not well supported in bmv2 json. The json does not provide the counter index as parameter
                 else:
                     print("The first parameter in a count operation must have to be a counter. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
@@ -1712,7 +1741,7 @@ class Action:
         listOfStatefulMemoryBeingAccessed = list(listOfStatefulMemoryBeingAccessed)
         totalMemoryBitwdithRequired = 0
         for sfMem in listOfStatefulMemoryBeingAccessed:
-            totalSramRequirement, totalBitWidth = p4ProgramGraph.parsedP4Program.getRegisterArraysResourceRequirment(sfMem)
+            totalSramRequirement, totalBitWidth = p4ProgramGraph.parsedP4Program.getIndirectStatefulMemoryResourceRequirment(sfMem)
             totalMemoryBitwdithRequired = totalMemoryBitwdithRequired + totalBitWidth
 
         directCounterList = []
@@ -3080,12 +3109,18 @@ class ParsedP416ProgramForV1ModelArchitecture:
     meta: Meta
     nameToHeaderTypeObjectMap : {}
     nameToRegisterArrayMap: {}
+    nameToCounterArrayMap: {}
+    nameToMeterArrayMap: {}
 
 
 
-    def buildRegisterVector(self):
+    def buildIndirectStatefulMemoryVector(self):
         for r in self.register_arrays:
             self.nameToRegisterArrayMap[r.name] = r
+        for c in self.counter_arrays:
+            self.nameToCounterArrayMap[c.name] = c
+        for m in self.meter_arrays:
+            self.nameToMeterArrayMap[m.name] = m
 
     def getRegisterArrayLength(self,registerArrayName):
         regArrObj = self.nameToRegisterArrayMap.get(registerArrayName)
@@ -3095,15 +3130,25 @@ class ParsedP416ProgramForV1ModelArchitecture:
         else:
             return regArrObj.size
 
-    def getRegisterArraysResourceRequirment(self, registerArrayName):
+    def getIndirectStatefulMemoryResourceRequirment(self, indirectStatefulMemoryArrayName):
         totalSramRequirement = 0
         totalBitWidth = 0
-        regArrObj = self.nameToRegisterArrayMap.get(registerArrayName)
+        regArrObj = self.nameToRegisterArrayMap.get(indirectStatefulMemoryArrayName)
         if(regArrObj == None):
-            print("RegisterArray object is not found in nameToRegisterArrayMap. Sever error. Exiting ")
-            exit(1)
+            pass
         else:
             return regArrObj.bitwidth, regArrObj.size
+        counterArrObj = self.nameToCounterArrayMap.get(indirectStatefulMemoryArrayName)
+        if(counterArrObj == None):
+            pass
+        else:
+            return counterArrObj.bitwidth, regArrObj.size
+        meterArrObj = self.nameToMeterArrayMap.get(indirectStatefulMemoryArrayName)
+        if(meterArrObj == None):
+            pass
+        else:
+            return meterArrObj.bitwidth, regArrObj.size
+
 
 
 
@@ -3188,7 +3233,7 @@ class ParsedP416ProgramForV1ModelArchitecture:
                         bitWidth=confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_EGRESS_BIT_WIDTH, isSigned=True \
                         , mutlipleOf8Bitwidth= confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH, \
                         mappedPhyscialHeaderVectorFieldBitwdith= confConst.SPECIAL_KEY_FOR_CARRYING_CODNDITIONAL_RESULT_IN_INGRESS_BIT_WIDTH)
-        self.buildRegisterVector()
+        self.buildIndirectStatefulMemoryVector()
         return self.nameToHeaderTypeObjectMap
 
 
@@ -3229,7 +3274,7 @@ class ParsedP416ProgramForV1ModelArchitecture:
         field_aliases = from_list(lambda x: from_list(lambda x: from_union([lambda x: from_list(from_str, x), from_str], x), x), obj.get("field_aliases"))
         program = Program.from_dict(obj.get("program"))
         meta = Meta.from_dict(obj.get("__meta__"))
-        parsedP4Program =  ParsedP416ProgramForV1ModelArchitecture(header_types, headers, header_stacks, header_union_types, header_unions, header_union_stacks, field_lists, errors, enums, parsers, parse_vsets, deparsers, meter_arrays, counter_arrays, register_arrays, calculations, learn_lists, actions, pipelines, checksums, force_arith, extern_instances, field_aliases, program, meta, {}, {})
+        parsedP4Program =  ParsedP416ProgramForV1ModelArchitecture(header_types, headers, header_stacks, header_union_types, header_unions, header_union_stacks, field_lists, errors, enums, parsers, parse_vsets, deparsers, meter_arrays, counter_arrays, register_arrays, calculations, learn_lists, actions, pipelines, checksums, force_arith, extern_instances, field_aliases, program, meta, {}, {}, {}, {})
         
         return parsedP4Program
 
@@ -3327,7 +3372,7 @@ class ParsedP416ProgramForV1ModelArchitecture:
         for a in matNode.actions:
             # matNode.actionNameToResourceConsumptionStatisticsMap[a.name] = a.getResourceRequirementOfTheAction(p4ProgramGraph, pipelineID)
             print("\t\t\t\t"+str(matNode.actionNameToResourceConsumptionStatisticsMap[a.name]))
-    def computeMatchActionResourceRequirementForMatNode(self, matNode, p4ProgramGraph, pipelineID):
+    def computeMatchActionResourceRequirementForMatNode(self, matNode, p4ProgramGraph, pipelineID,hw):
         # Need to maintain a list or map for which header field is using how manu bytes
         #     for each action buidl a method that will calculate, fields being modified, fields being used as parameter, stateful memory .
         #     count and bitwidth and also their mapping of name to bitwidth.
@@ -3346,7 +3391,7 @@ class ParsedP416ProgramForV1ModelArchitecture:
         # print("\t \t matKeyBitWidth: "+str(matNode.matKeyBitWidth))
         # print("\t \t headerFieldWiseBitwidthOfMatKeys: "+str(matNode.headerFieldWiseBitwidthOfMatKeys))
         for a in matNode.actions:
-            matNode.actionNameToResourceConsumptionStatisticsMap[a.name] = a.analyzeAction(p4ProgramGraph, pipelineID, matNode)
+            matNode.actionNameToResourceConsumptionStatisticsMap[a.name] = a.analyzeAction(p4ProgramGraph, pipelineID, matNode,hw)
             # print("\t\t\t\t"+str(matNode.actionNameToResourceConsumptionStatisticsMap[a.name]))
 
 # def ParsedP416Program_from_dict(s: Any) -> ParsedP416ProgramForV1ModelArchitecture:
