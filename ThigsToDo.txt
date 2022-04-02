@@ -134,3 +134,10 @@ indirect stateful memory r jegulo kono stateful memory dependency nai segulo k n
 so ekta function likhte hobe jeta
 
 both unnembedded indirectstateful memory r direct stateful memory r total kore bolbe j embed kora jay ki na. r gele embed kore dibe.
+
+A table might have both indirect stateful memory and direct stateful memory on that case we need to make decision
+
+
+------- VVI
+
+hashing way ta j amra input dichi onek function a seta k avoid korte hobe

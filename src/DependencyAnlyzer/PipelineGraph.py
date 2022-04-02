@@ -230,8 +230,9 @@ class PipelineGraph:
         # self.pipeline.resetAllIsVisitedVariableForGraph()
         self.reoptimizeLevels(self.allTDGNode.get(confConst.DUMMY_START_NODE))
         self.levelWiseLogicalMatList = self.calculateStageWiseMatNodes()
-        self.reoptimizelevelWiseLogicalMatList()
+
         self.sfMemNameWiseLevelList = self.gatherLevelsOfStatefulMemories()
+        self.reoptimizelevelWiseLogicalMatList()
         # self.calculateStageWiseTotalReousrceRequirements(self.stageWiseLogicalMatList)
         graphTobedrawn = nx.MultiDiGraph()
         self.pipeline.resetAllIsVisitedVariableForGraph()
