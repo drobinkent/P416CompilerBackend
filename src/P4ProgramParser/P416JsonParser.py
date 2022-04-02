@@ -954,11 +954,18 @@ class Checksum:
 @dataclass
 class CounterArray:
     name: str
+    isEmbedded : bool
     id: int
     source_info: str
     is_direct: bool
     binding: Optional[str] = None
     size: Optional[int] = None
+
+    def markAsEmbedded(self):
+        self.isEmbedded = True
+
+    # def isEmbedded(self):
+    #     return self.isEmbedded
 
     @staticmethod
     def from_dict(obj: Any) -> 'CounterArray':
@@ -969,7 +976,7 @@ class CounterArray:
         is_direct = from_bool(obj.get("is_direct"))
         binding = from_union([from_str, from_none], obj.get("binding"))
         size = from_union([from_int, from_none], obj.get("size"))
-        return CounterArray(name, id, source_info, is_direct, binding, size)
+        return CounterArray(name,  False, id, source_info, is_direct, binding, size)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -1107,6 +1114,7 @@ class Meta:
 @dataclass
 class MeterArray:
     name: str
+    isEmbedded : bool
     id: int
     source_info: SourceInfo
     is_direct: bool
@@ -1115,6 +1123,7 @@ class MeterArray:
     type: str
     binding: Optional[str] = None
     result_target: Optional[List[str]] = None
+
 
     @staticmethod
     def from_dict(obj: Any) -> 'MeterArray':
@@ -1128,7 +1137,7 @@ class MeterArray:
         type = from_str(obj.get("type"))
         binding = from_union([from_str, from_none], obj.get("binding"))
         result_target = from_union([lambda x: from_list(from_str, x), from_none], obj.get("result_target"))
-        return MeterArray(name, id, source_info, is_direct, size, rate_count, type, binding, result_target)
+        return MeterArray(name, False,  id, source_info, is_direct, size, rate_count, type, binding, result_target)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -1143,7 +1152,10 @@ class MeterArray:
         result["result_target"] = from_union([lambda x: from_list(from_str, x), from_none], self.result_target)
         return result
 
-
+    def markAsEmbedded(self):
+        self.isEmbedded = True
+    # def isEmbedded(self):
+    #     return self.isEmbedded
 
 
 class Expression:
@@ -1526,8 +1538,11 @@ class Action:
                 if(type(prim.parameters[2])==PrimitiveField) or (type(prim.parameters[2])==HexStr):
                     listOfFieldBeingUsed = listOfFieldBeingUsed + self.getParameterNameAsList(prim.parameters[2])
                 else:
-                    print("The third parameter in a reigster read must have to be a HexStr or header field. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
-                    exit(1)
+                    if(type(prim.parameters[2])==PrimitiveRuntimeData):
+                        pass
+                    else:
+                        print("The third parameter in a reigster read must have to be a HexStr or header field or primitive runtime data. But we have found "+str(type(prim.parameters[0]))+". Severe error Exiting. ")
+                        exit(1)
 
                 pass
             elif ((prim.op == PrimitiveOp.REGISTER_WRITE) ):
@@ -1741,7 +1756,7 @@ class Action:
         listOfStatefulMemoryBeingAccessed = list(listOfStatefulMemoryBeingAccessed)
         totalMemoryBitwdithRequired = 0
         for sfMem in listOfStatefulMemoryBeingAccessed:
-            totalSramRequirement, totalBitWidth = p4ProgramGraph.parsedP4Program.getIndirectStatefulMemoryResourceRequirment(sfMem)
+            totalSramRequirement, totalBitWidth = p4ProgramGraph.parsedP4Program.getIndirectStatefulMemoryResourceRequirment(sfMem,hw)
             totalMemoryBitwdithRequired = totalMemoryBitwdithRequired + totalBitWidth
 
         directCounterList = []
@@ -3013,11 +3028,17 @@ class Pipeline:
 @dataclass
 class RegisterArray:
     name: str
+    isEmbedded : bool
     id: int
     source_info: SourceInfo
     size: int
     bitwidth: int
     primitiveListAccessingTheRegister:{}
+
+    def markAsEmbedded(self):
+        self.isEmbedded = True
+    # def isEmbedded(self):
+    #     return self.isEmbedded
 
     @staticmethod
     def from_dict(obj: Any) -> 'RegisterArray':
@@ -3027,7 +3048,7 @@ class RegisterArray:
         source_info = str(obj.get("source_info"))
         size = from_int(obj.get("size"))
         bitwidth = from_int(obj.get("bitwidth"))
-        return RegisterArray(name, id, source_info, size, bitwidth, {})
+        return RegisterArray(name, False, id, source_info, size, bitwidth, {})
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -3112,6 +3133,18 @@ class ParsedP416ProgramForV1ModelArchitecture:
     nameToCounterArrayMap: {}
     nameToMeterArrayMap: {}
 
+    def isStatefulMemoryAlreadyEmbedded(self,statefulMemoryName):
+        statefulMemObject = self.nameToCounterArrayMap.get(statefulMemoryName)
+        if(statefulMemObject == None):
+            statefulMemObject = self.nameToRegisterArrayMap.get(statefulMemoryName)
+            if(statefulMemObject == None):
+                statefulMemObject = self.nameToMeterArrayMap.get(statefulMemoryName)
+        if(statefulMemObject == None):
+            print("Stateful memory object to be checked:"+statefulMemoryName+"  can notbe found in the parsed P4 program. Severe Error. Exiting ")
+
+        statefulMemObject.isEmbedded()
+
+
 
 
     def buildIndirectStatefulMemoryVector(self):
@@ -3130,7 +3163,8 @@ class ParsedP416ProgramForV1ModelArchitecture:
         else:
             return regArrObj.size
 
-    def getIndirectStatefulMemoryResourceRequirment(self, indirectStatefulMemoryArrayName):
+    def getIndirectStatefulMemoryResourceRequirment(self, indirectStatefulMemoryArrayName,hw):
+
         totalSramRequirement = 0
         totalBitWidth = 0
         regArrObj = self.nameToRegisterArrayMap.get(indirectStatefulMemoryArrayName)
@@ -3138,16 +3172,18 @@ class ParsedP416ProgramForV1ModelArchitecture:
             pass
         else:
             return regArrObj.bitwidth, regArrObj.size
+        #TODO : here we are retruning 64 for counter and 32 for meter because we do not know the actual hw signature and the bmv2 json dpes not give any clear information on counter and register type
         counterArrObj = self.nameToCounterArrayMap.get(indirectStatefulMemoryArrayName)
         if(counterArrObj == None):
             pass
         else:
-            return counterArrObj.bitwidth, regArrObj.size
+            # hw.nameToExternInstructionMap.get()
+            return 32, counterArrObj.size
         meterArrObj = self.nameToMeterArrayMap.get(indirectStatefulMemoryArrayName)
         if(meterArrObj == None):
             pass
         else:
-            return meterArrObj.bitwidth, regArrObj.size
+            return 32, meterArrObj.size
 
 
 
@@ -3315,8 +3351,11 @@ class ParsedP416ProgramForV1ModelArchitecture:
 
         hdrObj = self.nameToHeaderTypeObjectMap.get(headerName)
         if hdrObj == None:
-            print("The match key: "+headerName+" is not found in the nameToHeaderTypeObjectMap. Severe error. Exiting. ")
-            exit(1)
+            if("valid" in headerName):
+                return 1
+            else:
+                print("The match key: "+headerName+" is not found in the nameToHeaderTypeObjectMap. Severe error. Exiting. ")
+                exit(1)
         else:
             bitWidth = hdrObj.getPHVBitWidth(pipelineId)
             if(bitWidth<=0):

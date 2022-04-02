@@ -4,37 +4,38 @@
       "name" : "scalars_0",
       "id" : 0,
       "fields" : [
-        ["tmp", 48, false],
+        ["tmp", 6, false],
         ["tmp_0", 48, false],
-        ["tmp_1", 16, false],
-        ["tmp_2", 32, false],
+        ["tmp_1", 48, false],
+        ["tmp_2", 16, false],
         ["tmp_3", 32, false],
-        ["tmp_4", 8, false],
-        ["tmp_5", 16, false],
+        ["tmp_4", 32, false],
+        ["tmp_5", 8, false],
         ["tmp_6", 16, false],
         ["tmp_7", 16, false],
         ["tmp_8", 16, false],
-        ["tmp_9", 32, false],
+        ["tmp_9", 16, false],
         ["tmp_10", 32, false],
-        ["tmp_11", 8, false],
-        ["tmp_12", 16, false],
+        ["tmp_11", 32, false],
+        ["tmp_12", 8, false],
         ["tmp_13", 16, false],
         ["tmp_14", 16, false],
         ["tmp_15", 16, false],
-        ["tmp_16", 128, false],
+        ["tmp_16", 16, false],
         ["tmp_17", 128, false],
-        ["tmp_18", 8, false],
-        ["tmp_19", 16, false],
+        ["tmp_18", 128, false],
+        ["tmp_19", 8, false],
         ["tmp_20", 16, false],
         ["tmp_21", 16, false],
         ["tmp_22", 16, false],
-        ["tmp_23", 128, false],
+        ["tmp_23", 16, false],
         ["tmp_24", 128, false],
-        ["tmp_25", 8, false],
-        ["tmp_26", 16, false],
+        ["tmp_25", 128, false],
+        ["tmp_26", 8, false],
         ["tmp_27", 16, false],
         ["tmp_28", 16, false],
         ["tmp_29", 16, false],
+        ["tmp_30", 16, false],
         ["userMetadata._hop_metadata_bd_index0", 16, false],
         ["userMetadata._hop_metadata_ig_lif1", 16, false],
         ["userMetadata._hop_metadata_vrf_index2", 12, false],
@@ -52,7 +53,9 @@
         ["userMetadata._hop_metadata_urpf_check_fail14", 1, false],
         ["userMetadata._hop_metadata_drop_code15", 8, false],
         ["userMetadata._hop_metadata_eg_lif16", 16, false],
-        ["userMetadata._hop_metadata_storm_control_color17", 1, false]
+        ["userMetadata._hop_metadata_storm_control_color17", 1, false],
+        ["userMetadata._hop_metadata_register_tmp18", 32, false],
+        ["_padding_0", 2, false]
       ]
     },
     {
@@ -751,7 +754,14 @@
     }
   ],
   "counter_arrays" : [],
-  "register_arrays" : [],
+  "register_arrays" : [
+    {
+      "name" : "my_register",
+      "id" : 0,
+      "size" : 16384,
+      "bitwidth" : 32
+    }
+  ],
   "calculations" : [
     {
       "name" : "calc",
@@ -760,15 +770,15 @@
       "input" : [
         {
           "type" : "field",
-          "value" : ["scalars", "tmp"]
-        },
-        {
-          "type" : "field",
           "value" : ["scalars", "tmp_0"]
         },
         {
           "type" : "field",
           "value" : ["scalars", "tmp_1"]
+        },
+        {
+          "type" : "field",
+          "value" : ["scalars", "tmp_2"]
         }
       ]
     },
@@ -777,10 +787,6 @@
       "id" : 1,
       "algo" : "crc16",
       "input" : [
-        {
-          "type" : "field",
-          "value" : ["scalars", "tmp_2"]
-        },
         {
           "type" : "field",
           "value" : ["scalars", "tmp_3"]
@@ -804,6 +810,10 @@
         {
           "type" : "field",
           "value" : ["scalars", "tmp_8"]
+        },
+        {
+          "type" : "field",
+          "value" : ["scalars", "tmp_9"]
         }
       ]
     },
@@ -812,10 +822,6 @@
       "id" : 2,
       "algo" : "crc16",
       "input" : [
-        {
-          "type" : "field",
-          "value" : ["scalars", "tmp_9"]
-        },
         {
           "type" : "field",
           "value" : ["scalars", "tmp_10"]
@@ -839,6 +845,10 @@
         {
           "type" : "field",
           "value" : ["scalars", "tmp_15"]
+        },
+        {
+          "type" : "field",
+          "value" : ["scalars", "tmp_16"]
         }
       ]
     },
@@ -847,10 +857,6 @@
       "id" : 3,
       "algo" : "crc16",
       "input" : [
-        {
-          "type" : "field",
-          "value" : ["scalars", "tmp_16"]
-        },
         {
           "type" : "field",
           "value" : ["scalars", "tmp_17"]
@@ -874,6 +880,10 @@
         {
           "type" : "field",
           "value" : ["scalars", "tmp_22"]
+        },
+        {
+          "type" : "field",
+          "value" : ["scalars", "tmp_23"]
         }
       ]
     },
@@ -882,10 +892,6 @@
       "id" : 4,
       "algo" : "crc16",
       "input" : [
-        {
-          "type" : "field",
-          "value" : ["scalars", "tmp_23"]
-        },
         {
           "type" : "field",
           "value" : ["scalars", "tmp_24"]
@@ -909,6 +915,10 @@
         {
           "type" : "field",
           "value" : ["scalars", "tmp_29"]
+        },
+        {
+          "type" : "field",
+          "value" : ["scalars", "tmp_30"]
         }
       ]
     },
@@ -1369,7 +1379,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 121,
+            "line" : 128,
             "column" : 16,
             "source_fragment" : "vlan_id) { ..."
           }
@@ -1404,7 +1414,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 116,
+            "line" : 123,
             "column" : 24,
             "source_fragment" : "bd_acl_label, lif_acl_label) { ..."
           }
@@ -1423,7 +1433,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 116,
+            "line" : 123,
             "column" : 38,
             "source_fragment" : "lif_acl_label) { ..."
           }
@@ -1466,7 +1476,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 112,
+            "line" : 119,
             "column" : 23,
             "source_fragment" : "e_port) { ..."
           }
@@ -1479,10 +1489,52 @@
       "runtime_data" : [
         {
           "name" : "meter_idx",
-          "bitwidth" : 6
+          "bitwidth" : 14
         }
       ],
       "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "&",
+                      "left" : {
+                        "type" : "local",
+                        "value" : 0
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0x003f"
+                      }
+                    }
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0x3f"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "actions.p4",
+            "line" : 55,
+            "column" : 29,
+            "source_fragment" : "meter_idx"
+          }
+        },
         {
           "op" : "execute_meter",
           "parameters" : [
@@ -1491,8 +1543,8 @@
               "value" : "storm_control_meter"
             },
             {
-              "type" : "runtime_data",
-              "value" : 0
+              "type" : "field",
+              "value" : ["scalars", "tmp"]
             },
             {
               "type" : "field",
@@ -1501,9 +1553,32 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 50,
+            "line" : 56,
             "column" : 4,
             "source_fragment" : "execute_meter(storm_control_meter, meter_idx, ..."
+          }
+        },
+        {
+          "op" : "register_read",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._hop_metadata_register_tmp18"]
+            },
+            {
+              "type" : "register_array",
+              "value" : "my_register"
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "actions.p4",
+            "line" : 58,
+            "column" : 4,
+            "source_fragment" : "register_read(hop_metadata.register_tmp, my_register, meter_idx)"
           }
         }
       ]
@@ -1532,28 +1607,9 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 107,
+            "line" : 114,
             "column" : 18,
             "source_fragment" : "eg_lif) { ..."
-          }
-        },
-        {
-          "op" : "assign",
-          "parameters" : [
-            {
-              "type" : "field",
-              "value" : ["scalars", "tmp"]
-            },
-            {
-              "type" : "field",
-              "value" : ["ethernet", "srcAddr"]
-            }
-          ],
-          "source_info" : {
-            "filename" : "headers.p4",
-            "line" : 82,
-            "column" : 4,
-            "source_fragment" : "ethernet.srcAddr"
           }
         },
         {
@@ -1565,14 +1621,14 @@
             },
             {
               "type" : "field",
-              "value" : ["ethernet", "dstAddr"]
+              "value" : ["ethernet", "srcAddr"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 83,
             "column" : 4,
-            "source_fragment" : "ethernet.dstAddr"
+            "source_fragment" : "ethernet.srcAddr"
           }
         },
         {
@@ -1584,12 +1640,31 @@
             },
             {
               "type" : "field",
-              "value" : ["ethernet", "etherType"]
+              "value" : ["ethernet", "dstAddr"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 84,
+            "column" : 4,
+            "source_fragment" : "ethernet.dstAddr"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_2"]
+            },
+            {
+              "type" : "field",
+              "value" : ["ethernet", "etherType"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "headers.p4",
+            "line" : 85,
             "column" : 4,
             "source_fragment" : "ethernet.etherType"
           }
@@ -1616,7 +1691,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 109,
+            "line" : 116,
             "column" : 4,
             "source_fragment" : "modify_field_with_hash_based_offset(hop_metadata.l2_hash, 0, l2_hash_calc, 0)"
           }
@@ -1713,7 +1788,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 54,
+            "line" : 61,
             "column" : 20,
             "source_fragment" : "vrf_index, urpf, bd_acl_label, lif_acl_label) { ..."
           }
@@ -1732,7 +1807,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 54,
+            "line" : 61,
             "column" : 31,
             "source_fragment" : "urpf, bd_acl_label, lif_acl_label) { ..."
           }
@@ -1751,7 +1826,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 54,
+            "line" : 61,
             "column" : 37,
             "source_fragment" : "bd_acl_label, lif_acl_label) { ..."
           }
@@ -1770,7 +1845,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 54,
+            "line" : 61,
             "column" : 51,
             "source_fragment" : "lif_acl_label) { ..."
           }
@@ -1857,7 +1932,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 85,
+            "line" : 92,
             "column" : 38,
             "source_fragment" : "mc_index) { ..."
           }
@@ -1888,7 +1963,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 85,
+            "line" : 92,
             "column" : 38,
             "source_fragment" : "mc_index) { ..."
           }
@@ -1923,7 +1998,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 73,
+            "line" : 80,
             "column" : 25,
             "source_fragment" : "next_hop_index, ecmp_index) { ..."
           }
@@ -1942,28 +2017,9 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 73,
+            "line" : 80,
             "column" : 41,
             "source_fragment" : "ecmp_index) { ..."
-          }
-        },
-        {
-          "op" : "assign",
-          "parameters" : [
-            {
-              "type" : "field",
-              "value" : ["scalars", "tmp_2"]
-            },
-            {
-              "type" : "field",
-              "value" : ["ipv4", "srcAddr"]
-            }
-          ],
-          "source_info" : {
-            "filename" : "headers.p4",
-            "line" : 46,
-            "column" : 4,
-            "source_fragment" : "ipv4.srcAddr"
           }
         },
         {
@@ -1975,14 +2031,14 @@
             },
             {
               "type" : "field",
-              "value" : ["ipv4", "dstAddr"]
+              "value" : ["ipv4", "srcAddr"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 47,
             "column" : 4,
-            "source_fragment" : "ipv4.dstAddr"
+            "source_fragment" : "ipv4.srcAddr"
           }
         },
         {
@@ -1994,14 +2050,14 @@
             },
             {
               "type" : "field",
-              "value" : ["ipv4", "protocol"]
+              "value" : ["ipv4", "dstAddr"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 48,
             "column" : 4,
-            "source_fragment" : "ipv4.protocol"
+            "source_fragment" : "ipv4.dstAddr"
           }
         },
         {
@@ -2013,14 +2069,14 @@
             },
             {
               "type" : "field",
-              "value" : ["tcp", "srcPort"]
+              "value" : ["ipv4", "protocol"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 49,
             "column" : 4,
-            "source_fragment" : "tcp.srcPort"
+            "source_fragment" : "ipv4.protocol"
           }
         },
         {
@@ -2032,14 +2088,14 @@
             },
             {
               "type" : "field",
-              "value" : ["tcp", "dstPort"]
+              "value" : ["tcp", "srcPort"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 50,
             "column" : 4,
-            "source_fragment" : "tcp.dstPort"
+            "source_fragment" : "tcp.srcPort"
           }
         },
         {
@@ -2051,14 +2107,14 @@
             },
             {
               "type" : "field",
-              "value" : ["udp", "srcPort"]
+              "value" : ["tcp", "dstPort"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 51,
             "column" : 4,
-            "source_fragment" : "udp.srcPort"
+            "source_fragment" : "tcp.dstPort"
           }
         },
         {
@@ -2070,12 +2126,31 @@
             },
             {
               "type" : "field",
-              "value" : ["udp", "dstPort"]
+              "value" : ["udp", "srcPort"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 52,
+            "column" : 4,
+            "source_fragment" : "udp.srcPort"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_9"]
+            },
+            {
+              "type" : "field",
+              "value" : ["udp", "dstPort"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "headers.p4",
+            "line" : 53,
             "column" : 4,
             "source_fragment" : "udp.dstPort"
           }
@@ -2102,7 +2177,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 76,
+            "line" : 83,
             "column" : 4,
             "source_fragment" : "modify_field_with_hash_based_offset(hop_metadata.l3_hash, 0, l3_hash_ipv4, 0)"
           }
@@ -2137,7 +2212,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 73,
+            "line" : 80,
             "column" : 25,
             "source_fragment" : "next_hop_index, ecmp_index) { ..."
           }
@@ -2156,28 +2231,9 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 73,
+            "line" : 80,
             "column" : 41,
             "source_fragment" : "ecmp_index) { ..."
-          }
-        },
-        {
-          "op" : "assign",
-          "parameters" : [
-            {
-              "type" : "field",
-              "value" : ["scalars", "tmp_9"]
-            },
-            {
-              "type" : "field",
-              "value" : ["ipv4", "srcAddr"]
-            }
-          ],
-          "source_info" : {
-            "filename" : "headers.p4",
-            "line" : 46,
-            "column" : 4,
-            "source_fragment" : "ipv4.srcAddr"
           }
         },
         {
@@ -2189,14 +2245,14 @@
             },
             {
               "type" : "field",
-              "value" : ["ipv4", "dstAddr"]
+              "value" : ["ipv4", "srcAddr"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 47,
             "column" : 4,
-            "source_fragment" : "ipv4.dstAddr"
+            "source_fragment" : "ipv4.srcAddr"
           }
         },
         {
@@ -2208,14 +2264,14 @@
             },
             {
               "type" : "field",
-              "value" : ["ipv4", "protocol"]
+              "value" : ["ipv4", "dstAddr"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 48,
             "column" : 4,
-            "source_fragment" : "ipv4.protocol"
+            "source_fragment" : "ipv4.dstAddr"
           }
         },
         {
@@ -2227,14 +2283,14 @@
             },
             {
               "type" : "field",
-              "value" : ["tcp", "srcPort"]
+              "value" : ["ipv4", "protocol"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 49,
             "column" : 4,
-            "source_fragment" : "tcp.srcPort"
+            "source_fragment" : "ipv4.protocol"
           }
         },
         {
@@ -2246,14 +2302,14 @@
             },
             {
               "type" : "field",
-              "value" : ["tcp", "dstPort"]
+              "value" : ["tcp", "srcPort"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 50,
             "column" : 4,
-            "source_fragment" : "tcp.dstPort"
+            "source_fragment" : "tcp.srcPort"
           }
         },
         {
@@ -2265,14 +2321,14 @@
             },
             {
               "type" : "field",
-              "value" : ["udp", "srcPort"]
+              "value" : ["tcp", "dstPort"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 51,
             "column" : 4,
-            "source_fragment" : "udp.srcPort"
+            "source_fragment" : "tcp.dstPort"
           }
         },
         {
@@ -2284,12 +2340,31 @@
             },
             {
               "type" : "field",
-              "value" : ["udp", "dstPort"]
+              "value" : ["udp", "srcPort"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 52,
+            "column" : 4,
+            "source_fragment" : "udp.srcPort"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_16"]
+            },
+            {
+              "type" : "field",
+              "value" : ["udp", "dstPort"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "headers.p4",
+            "line" : 53,
             "column" : 4,
             "source_fragment" : "udp.dstPort"
           }
@@ -2316,7 +2391,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 76,
+            "line" : 83,
             "column" : 4,
             "source_fragment" : "modify_field_with_hash_based_offset(hop_metadata.l3_hash, 0, l3_hash_ipv4, 0)"
           }
@@ -2363,7 +2438,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 79,
+            "line" : 86,
             "column" : 25,
             "source_fragment" : "next_hop_index, ecmp_index) { ..."
           }
@@ -2382,28 +2457,9 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 79,
+            "line" : 86,
             "column" : 41,
             "source_fragment" : "ecmp_index) { ..."
-          }
-        },
-        {
-          "op" : "assign",
-          "parameters" : [
-            {
-              "type" : "field",
-              "value" : ["scalars", "tmp_16"]
-            },
-            {
-              "type" : "field",
-              "value" : ["ipv6", "srcAddr"]
-            }
-          ],
-          "source_info" : {
-            "filename" : "headers.p4",
-            "line" : 64,
-            "column" : 4,
-            "source_fragment" : "ipv6.srcAddr"
           }
         },
         {
@@ -2415,14 +2471,14 @@
             },
             {
               "type" : "field",
-              "value" : ["ipv6", "dstAddr"]
+              "value" : ["ipv6", "srcAddr"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 65,
             "column" : 4,
-            "source_fragment" : "ipv6.dstAddr"
+            "source_fragment" : "ipv6.srcAddr"
           }
         },
         {
@@ -2434,14 +2490,14 @@
             },
             {
               "type" : "field",
-              "value" : ["ipv6", "nextHdr"]
+              "value" : ["ipv6", "dstAddr"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 66,
             "column" : 4,
-            "source_fragment" : "ipv6.nextHdr"
+            "source_fragment" : "ipv6.dstAddr"
           }
         },
         {
@@ -2453,14 +2509,14 @@
             },
             {
               "type" : "field",
-              "value" : ["tcp", "srcPort"]
+              "value" : ["ipv6", "nextHdr"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 67,
             "column" : 4,
-            "source_fragment" : "tcp.srcPort"
+            "source_fragment" : "ipv6.nextHdr"
           }
         },
         {
@@ -2472,14 +2528,14 @@
             },
             {
               "type" : "field",
-              "value" : ["tcp", "dstPort"]
+              "value" : ["tcp", "srcPort"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 68,
             "column" : 4,
-            "source_fragment" : "tcp.dstPort"
+            "source_fragment" : "tcp.srcPort"
           }
         },
         {
@@ -2491,14 +2547,14 @@
             },
             {
               "type" : "field",
-              "value" : ["udp", "srcPort"]
+              "value" : ["tcp", "dstPort"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 69,
             "column" : 4,
-            "source_fragment" : "udp.srcPort"
+            "source_fragment" : "tcp.dstPort"
           }
         },
         {
@@ -2510,12 +2566,31 @@
             },
             {
               "type" : "field",
-              "value" : ["udp", "dstPort"]
+              "value" : ["udp", "srcPort"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 70,
+            "column" : 4,
+            "source_fragment" : "udp.srcPort"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_23"]
+            },
+            {
+              "type" : "field",
+              "value" : ["udp", "dstPort"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "headers.p4",
+            "line" : 71,
             "column" : 4,
             "source_fragment" : "udp.dstPort"
           }
@@ -2542,7 +2617,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 82,
+            "line" : 89,
             "column" : 4,
             "source_fragment" : "modify_field_with_hash_based_offset(hop_metadata.l3_hash, 0, l3_hash_ipv6, 0)"
           }
@@ -2577,7 +2652,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 79,
+            "line" : 86,
             "column" : 25,
             "source_fragment" : "next_hop_index, ecmp_index) { ..."
           }
@@ -2596,28 +2671,9 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 79,
+            "line" : 86,
             "column" : 41,
             "source_fragment" : "ecmp_index) { ..."
-          }
-        },
-        {
-          "op" : "assign",
-          "parameters" : [
-            {
-              "type" : "field",
-              "value" : ["scalars", "tmp_23"]
-            },
-            {
-              "type" : "field",
-              "value" : ["ipv6", "srcAddr"]
-            }
-          ],
-          "source_info" : {
-            "filename" : "headers.p4",
-            "line" : 64,
-            "column" : 4,
-            "source_fragment" : "ipv6.srcAddr"
           }
         },
         {
@@ -2629,14 +2685,14 @@
             },
             {
               "type" : "field",
-              "value" : ["ipv6", "dstAddr"]
+              "value" : ["ipv6", "srcAddr"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 65,
             "column" : 4,
-            "source_fragment" : "ipv6.dstAddr"
+            "source_fragment" : "ipv6.srcAddr"
           }
         },
         {
@@ -2648,14 +2704,14 @@
             },
             {
               "type" : "field",
-              "value" : ["ipv6", "nextHdr"]
+              "value" : ["ipv6", "dstAddr"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 66,
             "column" : 4,
-            "source_fragment" : "ipv6.nextHdr"
+            "source_fragment" : "ipv6.dstAddr"
           }
         },
         {
@@ -2667,14 +2723,14 @@
             },
             {
               "type" : "field",
-              "value" : ["tcp", "srcPort"]
+              "value" : ["ipv6", "nextHdr"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 67,
             "column" : 4,
-            "source_fragment" : "tcp.srcPort"
+            "source_fragment" : "ipv6.nextHdr"
           }
         },
         {
@@ -2686,14 +2742,14 @@
             },
             {
               "type" : "field",
-              "value" : ["tcp", "dstPort"]
+              "value" : ["tcp", "srcPort"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 68,
             "column" : 4,
-            "source_fragment" : "tcp.dstPort"
+            "source_fragment" : "tcp.srcPort"
           }
         },
         {
@@ -2705,14 +2761,14 @@
             },
             {
               "type" : "field",
-              "value" : ["udp", "srcPort"]
+              "value" : ["tcp", "dstPort"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 69,
             "column" : 4,
-            "source_fragment" : "udp.srcPort"
+            "source_fragment" : "tcp.dstPort"
           }
         },
         {
@@ -2724,12 +2780,31 @@
             },
             {
               "type" : "field",
-              "value" : ["udp", "dstPort"]
+              "value" : ["udp", "srcPort"]
             }
           ],
           "source_info" : {
             "filename" : "headers.p4",
             "line" : 70,
+            "column" : 4,
+            "source_fragment" : "udp.srcPort"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_30"]
+            },
+            {
+              "type" : "field",
+              "value" : ["udp", "dstPort"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "headers.p4",
+            "line" : 71,
             "column" : 4,
             "source_fragment" : "udp.dstPort"
           }
@@ -2756,7 +2831,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 82,
+            "line" : 89,
             "column" : 4,
             "source_fragment" : "modify_field_with_hash_based_offset(hop_metadata.l3_hash, 0, l3_hash_ipv6, 0)"
           }
@@ -2799,7 +2874,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 93,
+            "line" : 100,
             "column" : 30,
             "source_fragment" : "dst_index) { ..."
           }
@@ -2844,7 +2919,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 101,
+            "line" : 108,
             "column" : 25,
             "source_fragment" : "bd_index, smac, dmac) { ..."
           }
@@ -2863,7 +2938,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 101,
+            "line" : 108,
             "column" : 35,
             "source_fragment" : "smac, dmac) { ..."
           }
@@ -2882,7 +2957,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 101,
+            "line" : 108,
             "column" : 41,
             "source_fragment" : "dmac) { ..."
           }
@@ -2908,7 +2983,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 90,
+            "line" : 97,
             "column" : 4,
             "source_fragment" : "modify_field(hop_metadata.urpf_check_fail, 1)"
           }
@@ -2945,7 +3020,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 97,
+            "line" : 104,
             "column" : 30,
             "source_fragment" : "dst_index) { ..."
           }
@@ -2990,7 +3065,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 101,
+            "line" : 108,
             "column" : 25,
             "source_fragment" : "bd_index, smac, dmac) { ..."
           }
@@ -3009,7 +3084,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 101,
+            "line" : 108,
             "column" : 35,
             "source_fragment" : "smac, dmac) { ..."
           }
@@ -3028,7 +3103,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 101,
+            "line" : 108,
             "column" : 41,
             "source_fragment" : "dmac) { ..."
           }
@@ -3054,7 +3129,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 90,
+            "line" : 97,
             "column" : 4,
             "source_fragment" : "modify_field(hop_metadata.urpf_check_fail, 1)"
           }

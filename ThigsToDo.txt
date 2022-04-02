@@ -126,3 +126,11 @@ these are future goals
 --------------------------- VVI
 
 last a kokhon ekta program k embed kora jay na setar decision making ta clear na. at least jokhon embed korte parena seta clear message diye bol auchit amader
+
+
+-------- VVI
+
+indirect stateful memory r jegulo kono stateful memory dependency nai segulo k non stateful memory depndency r moto embed korte hobe.
+so ekta function likhte hobe jeta
+
+both unnembedded indirectstateful memory r direct stateful memory r total kore bolbe j embed kora jay ki na. r gele embed kore dibe.

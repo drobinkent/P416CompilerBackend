@@ -227,14 +227,24 @@ class StageWiseResource:
     def allocateStatefulMemoerySetOnStage(self, p4ProgramGraph, pipelineID, statefulMemSet, hardware):
         # print("Test")
         isEmbeddable = True
-        for regName in statefulMemSet:
-            regBitwidth, regArrayLength = p4ProgramGraph.parsedP4Program.getIndirectStatefulMemoryResourceRequirment(regName)
-            if(self.isIndirectStatefulMemoryAccomodatable(regName, indirectStatefulMemoryBitwidth=regBitwidth, numberOfIndirectStatefulMemoryEntries=regArrayLength)):
-                self.allocateSramBlockAndPortWidthForIndirectStatefulMemory(indirectStatefulMemoryBitwidth=regBitwidth, numberOfIndirectStatefulMemoryEntries=regArrayLength, indirectStatefulMemoryName=regName)
+        for statefulMemoryName in statefulMemSet:
+            regBitwidth, regArrayLength = p4ProgramGraph.parsedP4Program.getIndirectStatefulMemoryResourceRequirment(statefulMemoryName, hardware)
+            if(self.isIndirectStatefulMemoryAccomodatable(statefulMemoryName, indirectStatefulMemoryBitwidth=regBitwidth, numberOfIndirectStatefulMemoryEntries=regArrayLength)):
+                self.allocateSramBlockAndPortWidthForIndirectStatefulMemory(indirectStatefulMemoryBitwidth=regBitwidth, numberOfIndirectStatefulMemoryEntries=regArrayLength, indirectStatefulMemoryName=statefulMemoryName)
+                p4ProgramGraph.pipelineIdToPipelineGraphMap.get(pipelineID).indirectStatefulMemoryNameToTableMap.get(statefulMemoryName)
+                statefulMemObject = p4ProgramGraph.parsedP4Program.nameToCounterArrayMap.get(statefulMemoryName)
+                if(statefulMemObject == None):
+                    statefulMemObject = p4ProgramGraph.parsedP4Program.nameToRegisterArrayMap.get(statefulMemoryName)
+                    if(statefulMemObject == None):
+                        statefulMemObject = p4ProgramGraph.parsedP4Program.nameToMeterArrayMap.get(statefulMemoryName)
+                if(statefulMemObject == None):
+                    print("Stafule memory embedded on stage: "+str(self.stageIndex)+" however it can not be narked in parsed P4 program. Severer Error. Exiting!!")
+                else:
+                    statefulMemObject.markAsEmbedded()
                 isEmbeddable = True
             else:
                 isEmbeddable = False
-                print("The resource requirement for the indirect stateful memory: "+regName + " can not be fulfilled with the available resources in stage  "+str(self.stageIndex))
+                print("The resource requirement for the indirect stateful memory: "+statefulMemoryName + " can not be fulfilled with the available resources in stage  "+str(self.stageIndex))
         return  isEmbeddable
 
 

@@ -965,6 +965,7 @@ class RMTV1ModelHardware:
         for tbl in tblList:
             self.clearTable(tbl)
         copyOfTableList = copy.deepcopy(tblList)
+        # print("CopyOfTableList : "+str([x.name for x in copyOfTableList]))
         for tbl in tblList:
             for tbl1 in tblList:
                 if (tbl.isTableExistsInNoOrReverseOrSuccessorDependencyList(tbl1)) and (len(copyOfTableList)>0):
@@ -1009,6 +1010,7 @@ class RMTV1ModelHardware:
                     val1 = self.getTableReferenceFromTableList(tblList[i].concurrentlyExecutableDependentTableList, tbl)
                     if(val1 != None):
                         val = val1
+                        return val
         return val
 
     def clearTable(self, tbl):

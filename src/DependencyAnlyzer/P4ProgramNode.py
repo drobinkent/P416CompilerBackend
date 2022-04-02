@@ -208,6 +208,7 @@ class MATNode:
         # return 1024  #TODO: not always 1024 action entries are enough
 
     def getMaxBitwidthOfActionParameter(self):
+
         maxValue = -1
         for actionName in self.actionNameToResourceConsumptionStatisticsMap.keys():
             actionResourceConsumptionStatistics = self.actionNameToResourceConsumptionStatisticsMap.get(actionName)

@@ -68,7 +68,7 @@
           },
           "PerSRAMMatBlockSpec": {
             "SRAMBitWidth": 80,
-            "HashingWay": 4
+            "HashingWay": 1
           }
         },
         "ExternResources": {
