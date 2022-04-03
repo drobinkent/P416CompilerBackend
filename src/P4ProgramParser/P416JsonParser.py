@@ -828,7 +828,7 @@ class Primitive:
     def from_dict(obj: Any) -> 'Primitive':
         assert isinstance(obj, dict)
         op = PrimitiveOp(obj.get("op"))
-        print("Op is "+str(op))
+        # print("Op is "+str(op))
         # parameters = from_list(PrimitiveParameter.from_dict, obj.get("parameters"))
         parametersList = []
         for p in obj.get("parameters"):
@@ -1406,7 +1406,7 @@ class Action:
     def from_dict(obj: Any) -> 'Action':
         assert isinstance(obj, dict)
         name = from_str(obj.get("name"))
-        print("Loading Action: "+name)
+        # print("Loading Action: "+name)
         id = from_int(obj.get("id"))
         runtime_data = from_list(RuntimeDatum.from_dict, obj.get("runtime_data"))
         primitives = from_list(Primitive.from_dict, obj.get("primitives"))

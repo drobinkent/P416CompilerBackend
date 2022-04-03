@@ -560,11 +560,13 @@ class RMTV1ModelHardware:
                        memoryBlockBitwidth= copiedStageResource.sramResource.perMemoryBlockBitwidth,memoryBlockRowCount=copiedStageResource.sramResource.perMemoryBlockRowCount,
                         hashingWay=copiedStageResource.sramMatResource.sramMatHashingWay)
 
-                    for direct stateful memories we need equal number of mat entries in a table. so we need to write a wrapper class that will claculate in together how many mat entries
-                    we can embed.
-
-                    there is onew more trouble: mat, action and direct stateful memory all share same sram mat blocks. if we give too much sram to mat entries it will
-                    leve too few for action or direct stateful memory. how to decide which mechanism to follow?
+                    # for direct stateful memories we need equal number of mat entries in a table. so we need to write a wrapper class that will claculate in together how many mat entries
+                    # we can embed.
+                    #
+                    # there is onew more trouble: mat, action and direct stateful memory all share same sram mat blocks. if we give too much sram to mat entries it will
+                    # leve too few for action or direct stateful memory. how to decide which mechanism to follow?
+                    #
+                    # so better hobe amra drect stateful memory bad diya dei. taile jhamelas kom. r bolbo j eta r problem holo counter r meter well supported na
 
                 matEntriesAccomodatationPossible = min(accmodatableMatEntries, remainingMatEntries)
 
@@ -575,7 +577,7 @@ class RMTV1ModelHardware:
                     actionEntriesAccomodatationPossible = matEntriesAccomodatationPossible
 
 
-                allocate mat entries on copied resource then check whther direct stateful memories are acoomodatable or not
+                # allocate mat entries on copied resource then check whther direct stateful memories are acoomodatable or not
 
                 endingStage = currentStageIndex
                 currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode, matEntriesAccomodatationPossible, actionEntriesAccomodatationPossible,pipelineID) # write a method with this signature.
@@ -834,7 +836,7 @@ class RMTV1ModelHardware:
     def finalStartAndEndTimeForAllMatForOnePipeline(self,stageIndexToTableMap, p4ProgramGraph, pipelineID, hw):
         stageIndexList = list(stageIndexToTableMap.keys())
         stageIndexList.sort()
-        for stageIndex in range(1, len(stageIndexList)):
+        for stageIndex in range(0,1):
             hierarchialTableList = stageIndexToTableMap.get(stageIndex)
             allTblListOfThisStage = []
             self.getAllTableForStage(hierarchialTableList,allTblListOfThisStage)
@@ -843,24 +845,37 @@ class RMTV1ModelHardware:
             startingCycleInducedFromPrdecessor = -1
             startingCycleInducedFromSameStagePrdecessor = -1
             for t in allTblListOfThisStage:
+                print("Table: "+str(t.name)+ " Final Execution starting cycle : "+str(t.executionStartingCycle)+" Ending cycle: "+str(t.executionEndingCycle))
+
+        for stageIndex in range(1, len(stageIndexList)):
+            hierarchialTableList = stageIndexToTableMap.get(stageIndex)
+            allTblListOfThisStage = []
+            self.getAllTableForStage(hierarchialTableList,allTblListOfThisStage)
+
+            startingCycleInducedFromPreviousStage =-1
+            startingCycleInducedFromPrdecessor = -1
+            startingCycleInducedFromSameStagePrdecessor = -1
+            if(len(allTblListOfThisStage)>0):
+                print("\n\nAssigining final start and end cycle for stage "+str(stageIndex))
+            for t in allTblListOfThisStage:
                 previousStageIndex, previousStartingCycle = self.findInstanceOfTable(stageIndexToTableMap, 0, stageIndex, t.name)
                 if(previousStageIndex != -1):
-                    startingCycleInducedFromPreviousStage = previousStartingCycle + (stageIndex-1- previousStageIndex) # exxtra stages for stage differences
+                    startingCycleInducedFromPreviousStage = previousStartingCycle + (stageIndex-1- previousStageIndex) + 1 # exxtra stages for stage differences
                     if(startingCycleInducedFromPreviousStage == 0):
                         startingCycleInducedFromPreviousStage = 1 #Because if they are in consecutive stages then we need at least 1 cycle
-                    print("Table "+t.name +" Found in previous stage "+str(previousStageIndex)+" With starting cycle "+str(previousStartingCycle)+" current stage index is "+str(stageIndex))
+                    # print("Table "+t.name +" Found in previous stage "+str(previousStageIndex)+" With starting cycle "+str(previousStartingCycle)+" current stage index is "+str(stageIndex))
                 predecessorStageImdex, predecessorStartingCycle, dependencyType = self.findPredecessor(stageIndexToTableMap, startStageIndex=0, endStageIndex=stageIndex, table=t,p4ProgramGraph=p4ProgramGraph, pipelineID=pipelineID)
                 if(predecessorStageImdex != -1):
-                    startingCycleInducedFromPrdecessor = predecessorStartingCycle + dependencyType + (stageIndex-1- predecessorStageImdex) # exxtra stages for stage differences
+                    startingCycleInducedFromPrdecessor = predecessorStartingCycle + dependencyType + (stageIndex-1- predecessorStageImdex)  # exxtra stages for stage differences
                     if(startingCycleInducedFromPrdecessor == 0):
                         startingCycleInducedFromPrdecessor = 1 #Because if they are in consecutive stages then we need at least 1 cycle
-                    print("Table "+t.name +"'s final predecessor found in stage: "+str(predecessorStageImdex)+" With starting cycle "+str(predecessorStartingCycle)+" current stage index is "+str(stageIndex)+" Dependency type  is "+str(dependencyType))
+                    # print("Table "+t.name +"'s final predecessor found in stage: "+str(predecessorStageImdex)+" With starting cycle "+str(predecessorStartingCycle)+" current stage index is "+str(stageIndex)+" Dependency type  is "+str(dependencyType))
                 sameStagePredecessorStageImdex, sameStagePredecessorStartingCycle, sameStageDependencyType = self.findPredecessor(stageIndexToTableMap, startStageIndex=stageIndex, endStageIndex=stageIndex+1, table=t,p4ProgramGraph=p4ProgramGraph, pipelineID=pipelineID)
                 if(sameStagePredecessorStageImdex != -1):
                     startingCycleInducedFromSameStagePrdecessor = sameStagePredecessorStartingCycle + sameStageDependencyType
                     if(startingCycleInducedFromSameStagePrdecessor == 0):
                         startingCycleInducedFromSameStagePrdecessor = 1 #Because if they are in consecutive stages then we need at least 1 cycle
-                    print("Table "+t.name +"'s Same Stage predecessor found in stage: "+str(predecessorStageImdex)+" With starting cycle "+str(predecessorStartingCycle)+" current stage index is "+str(stageIndex)+" Dependency type  is "+str(dependencyType))
+                    # print("Table "+t.name +"'s Same Stage predecessor found in stage: "+str(predecessorStageImdex)+" With starting cycle "+str(predecessorStartingCycle)+" current stage index is "+str(stageIndex)+" Dependency type  is "+str(dependencyType))
                 maxStartingCycle = max(startingCycleInducedFromPreviousStage,startingCycleInducedFromPrdecessor, startingCycleInducedFromSameStagePrdecessor)
                 # deltaSratingCycle  = maxStartingCycle - t.executionStartingCycle
                 t.executionStartingCycle = maxStartingCycle
@@ -871,7 +886,7 @@ class RMTV1ModelHardware:
 
     def findPredecessor(self,stageIndexToTableMap, startStageIndex, endStageIndex, table,p4ProgramGraph, pipelineID):
         '''Only find predecessor within the stage boundary. Because if the predecessor is in some later stage of current table that means nothing'''
-        print("finding predecessor of "+table.name)
+        # print("finding predecessor of "+table.name)
         stageIndexList = list(stageIndexToTableMap.keys())
         stageIndexList.sort()
         predecessorsStageIndex = -1
@@ -886,7 +901,7 @@ class RMTV1ModelHardware:
                     predecessorsStageIndex = stIndex
                     predecessorsStartingCycle = startCycle
                     dependencyType = self.getDependencyDelayBetweenTwoLogicalTable(table.predecessors.get(p), table, p4ProgramGraph, pipelineID)
-                    print("Predecessor table "+p+" Stage index: "+str(predecessorsStageIndex)+" starting cycle "+str(predecessorsStartingCycle))
+                    # print("Predecessor table "+p+" Stage index: "+str(predecessorsStageIndex)+" starting cycle "+str(predecessorsStartingCycle))
         return predecessorsStageIndex, predecessorsStartingCycle, dependencyType
 
 
@@ -929,7 +944,7 @@ class RMTV1ModelHardware:
         stageIndexList = list(stageIndexToTableMap.keys())
         stageIndexList.sort()
         for stageIndex in range(0, len(stageIndexList)):
-            print("\n\nStage index : "+str(stageIndex))
+            # print("\n\nStage index : "+str(stageIndex))
             allTableMappedToThisStage = stageIndexToTableMap.get(stageIndex)
             self.assignStartAndFinishCycleToSuperTable(allTableMappedToThisStage, 0, hw)
         return stageIndexToTableMap
@@ -938,7 +953,7 @@ class RMTV1ModelHardware:
         for tbl in tblList:
             tbl.executionStartingCycle = startCycle
             tbl.executionEndingCycle= tbl.executionStartingCycle + hw.hardwareSpecRawJsonObjects.single_stage_cycle_length
-            print("Table "+str(tbl.name)+" Starting cycle "+str(tbl.executionStartingCycle)+" Ending cycle "+str(tbl.executionEndingCycle))
+            # print("Table "+str(tbl.name)+" Starting cycle "+str(tbl.executionStartingCycle)+" Ending cycle "+str(tbl.executionEndingCycle))
             for child in tbl.concurrentlyExecutableDependentTableList:
                 self.assignStartAndFinishCycleToSuperTable([child], tbl.executionStartingCycle+1,hw)
 
@@ -967,7 +982,7 @@ class RMTV1ModelHardware:
             #direct child of this super table in the TDG. Therefore they will not have any direct dependency with any table in previous stage.
             for tbl1 in superTablesInCurrentStage:
                 maxCycleDelay = 0
-                print("Super table Name "+str(tbl1.name))
+                # print("Super table Name "+str(tbl1.name))
                 for tbl2 in allTableMappedToPreviousStage:
                     delayInCycleLEngth = self.getDependencyDelayBetweenTwoLogicalTable(tbl2, tbl1, p4ProgramGraph, pipelineID)
                     if(maxCycleDelay <delayInCycleLEngth):

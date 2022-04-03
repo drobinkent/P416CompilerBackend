@@ -41,8 +41,37 @@ class P4ProgramGraph:
     #         a.
     #
     #     pass
+
+    def checkExistenceOfDirectStatefulMemory(self):
+        for c in self.parsedP4Program.nameToCounterArrayMap.values():
+            if(c.is_direct == True):
+                print("We do not suport direct counter at this moment. Can not compute mapping for this P4 program. Exiting!!")
+                exit(1)
+        for m in self.parsedP4Program.nameToMeterArrayMap.values():
+            if(m.is_direct == True):
+                print("We do not suport direct meter at this moment. Can not compute mapping for this P4 program. Exiting!!")
+                exit(1)
+        # for r in self.parsedP4Program.nameToMeterArrayMap:
+        #     if(m.is_direct == True):
+        #         print("We do not suport direct meter at this moment. Can not compute mapping for this P4 program. Exiting!!")
+        #         exit(1)
+        pass
+
+    def checkActionCountForEachTable(self,hw):
+        for pipieline in self.parsedP4Program.pipelines:
+            for t in pipieline.tables:
+                if(len(t.actions) > hw.hardwareSpecRawJsonObjects.stage_description[0].per_mat_instruction_memory_capacity):
+                    print("The hardware can support onle "+str(hw.hardwareSpecRawJsonObjects.stage_description[0].per_mat_instruction_memory_capacity)+" actions per MAT.")
+                    print("However the program reequires "+str(len(t.actions)) + " actions for "+str(t.name))
+                    print("Can't map the P4 program exiting")
+                    exit(1)
+        pass
+
     def loadPipelines(self, hw):
         logger.info("Loading pipelines")
+        print("Initial Checking")
+        self.checkExistenceOfDirectStatefulMemory()
+        self.checkActionCountForEachTable(hw)
         # self.analyzeActions()
         if (len(self.parsedP4Program.pipelines) <= 0):
             logger.info("There is no pipelines found in the parsed Json representation. Exiting")

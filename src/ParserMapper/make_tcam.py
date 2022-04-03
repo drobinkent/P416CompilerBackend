@@ -2763,7 +2763,7 @@ def buildParserMapper(parseGraphHeaderList, parsedGraphHeaders,hw,initHeader):
         print("Stopping: minSkip parameter does not work correctly. Specified: %d" % minSkip)
         sys.exit(1)
 
-    printParams()
+    # printParams()
 
     (headerList, headers) = parseGraphHeaderList, parsedGraphHeaders
     firstHdr = headerList[0]
