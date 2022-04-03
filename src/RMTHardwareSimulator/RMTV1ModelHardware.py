@@ -561,7 +561,11 @@ class RMTV1ModelHardware:
                         hashingWay=copiedStageResource.sramMatResource.sramMatHashingWay)
 
                     for direct stateful memories we need equal number of mat entries in a table. so we need to write a wrapper class that will claculate in together how many mat entries
-                    we can embed. 
+                    we can embed.
+
+                    there is onew more trouble: mat, action and direct stateful memory all share same sram mat blocks. if we give too much sram to mat entries it will
+                    leve too few for action or direct stateful memory. how to decide which mechanism to follow?
+
                 matEntriesAccomodatationPossible = min(accmodatableMatEntries, remainingMatEntries)
 
                 # here there may be one case, assume we are trying to accomodate 16k action entries. but may be  we can accomdate only 4k mat entries in one stage. then do we need
@@ -576,7 +580,7 @@ class RMTV1ModelHardware:
                 endingStage = currentStageIndex
                 currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode, matEntriesAccomodatationPossible, actionEntriesAccomodatationPossible,pipelineID) # write a method with this signature.
                 remainingMatEntries = remainingMatEntries - min(accmodatableMatEntries, remainingMatEntries)
-                remainingActionEntries = remainingActionEntries - actionEntriesAccomodatationPossible
+                # remainingActionEntries = remainingActionEntries - actionEntriesAccomodatationPossible
                 # currentStageIndex = currentStageIndex + 1
                 currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
                 if(remainingMatEntries ==0): #Becuse if this matnode is a conditional node and have nothing to embed as mat entry it only need embed action entries.
