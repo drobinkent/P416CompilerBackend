@@ -238,7 +238,7 @@ class StageWiseResource:
                     if(statefulMemObject == None):
                         statefulMemObject = p4ProgramGraph.parsedP4Program.nameToMeterArrayMap.get(statefulMemoryName)
                 if(statefulMemObject == None):
-                    print("Stafule memory embedded on stage: "+str(self.stageIndex)+" however it can not be narked in parsed P4 program. Severer Error. Exiting!!")
+                    print("Stafule memory embedded on stage: "+str(self.stageIndex)+" however it can not be narked in parsed P4 program.")
                 else:
                     statefulMemObject.markAsEmbedded()
                 isEmbeddable = True

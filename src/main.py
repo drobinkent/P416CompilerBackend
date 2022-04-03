@@ -14,7 +14,7 @@ p4ProgramParserFactory = P4ProgramParserFactory()
 hw = RMTHardwareFactory.createRmtHardware(rmtHardwaRemodelName = "RMT_V1",
     instructionSetConfigurationJsonFile= "../Resources/HardwareConfigs/RMTV1ModelInstructions.json",
     hardwareSpecConfigurationJsonFile = "../Resources/HardwareConfigs/RMTV1model32Stages.json")
-p4program = p4ProgramParserFactory.getParsedP4Program(p4JsonFile="../Resources/l2l3_nsdi.json",p4VersionAndArchitecture="P416_V1_Model")
+p4program = p4ProgramParserFactory.getParsedP4Program(p4JsonFile="../Resources/test_1.json",p4VersionAndArchitecture="P416_V1_Model")
 p4program.buildHeaderVector(hw)
 p4ProgramGraph = P4ProgramGraph(p4program)
 

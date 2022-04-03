@@ -105,6 +105,7 @@ class PrimitiveOp(Enum):
     EXIT = "exit"
     MARK_TO_DROP = "mark_to_drop"
     MODIFY_FIELD_WITH_HASH_BASED_OFFSET = "modify_field_with_hash_based_offset"
+    MODIFY_FIELD_RNG_UNIFORM = "modify_field_rng_uniform"
     RECIRCULATE = "recirculate"
     REGISTER_READ = "register_read"
     REGISTER_WRITE = "register_write"
@@ -135,6 +136,7 @@ class PrimitiveOp(Enum):
     VALID = "VALID"
     LOG_MSG = "log_msg"
     GENERATE_DIGEST = "generate_digest"
+
 
     # +, -, *, <<, >>, ==, !=, >, >=, <, <=, and, or, not, &, |, ^, ~, valid
     @staticmethod
@@ -826,6 +828,7 @@ class Primitive:
     def from_dict(obj: Any) -> 'Primitive':
         assert isinstance(obj, dict)
         op = PrimitiveOp(obj.get("op"))
+        print("Op is "+str(op))
         # parameters = from_list(PrimitiveParameter.from_dict, obj.get("parameters"))
         parametersList = []
         for p in obj.get("parameters"):
@@ -1403,6 +1406,7 @@ class Action:
     def from_dict(obj: Any) -> 'Action':
         assert isinstance(obj, dict)
         name = from_str(obj.get("name"))
+        print("Loading Action: "+name)
         id = from_int(obj.get("id"))
         runtime_data = from_list(RuntimeDatum.from_dict, obj.get("runtime_data"))
         primitives = from_list(Primitive.from_dict, obj.get("primitives"))
@@ -1512,7 +1516,7 @@ class Action:
                     or (prim.op == PrimitiveOp.LESS_THAN_WRITE) or (prim.op == PrimitiveOp.LESS_THAN_EQUAL_WRITE) \
                     or (prim.op == PrimitiveOp.NOT_EQUAL_WRITE) or (prim.op == PrimitiveOp.EQUAL_WRITE) \
                     or (prim.op == PrimitiveOp.AND_WRITE) or (prim.op == PrimitiveOp.OR_WRITE) or \
-                    (prim.op == PrimitiveOp.MODIFY_FIELD_WITH_HASH_BASED_OFFSET):
+                    (prim.op == PrimitiveOp.MODIFY_FIELD_WITH_HASH_BASED_OFFSET) or (prim.op == PrimitiveOp.MODIFY_FIELD_RNG_UNIFORM):
                 param = prim.parameters[0]
                 listOfFieldBeingModifed = listOfFieldBeingModifed + self.getParameterNameAsList(param)
                 for i in range (1, len(prim.parameters)):
@@ -1657,7 +1661,7 @@ class Action:
                     or (prim.op == PrimitiveOp.LESS_THAN_WRITE) or (prim.op == PrimitiveOp.LESS_THAN_EQUAL_WRITE) \
                     or (prim.op == PrimitiveOp.NOT_EQUAL_WRITE) or (prim.op == PrimitiveOp.EQUAL_WRITE) \
                     or (prim.op == PrimitiveOp.AND_WRITE) or (prim.op == PrimitiveOp.OR_WRITE) or \
-                    (prim.op == PrimitiveOp.MODIFY_FIELD_WITH_HASH_BASED_OFFSET):
+                    (prim.op == PrimitiveOp.MODIFY_FIELD_WITH_HASH_BASED_OFFSET) or (prim.op == PrimitiveOp.MODIFY_FIELD_RNG_UNIFORM):
                 # first param should be one 8 bit special field.
                 # others are as usual, from the expression.
                 # so effectively we are assuming that, ifperdicate is true, the atom will a 8 bit field.

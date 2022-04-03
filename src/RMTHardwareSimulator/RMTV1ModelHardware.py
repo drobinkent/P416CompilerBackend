@@ -352,15 +352,23 @@ class RMTV1ModelHardware:
                 hardware.printStageHardwareAvailableResourceStatistics(startingPhyicalStageIndex)
                 logicalMatList = pipelineGraph.levelWiseLogicalMatList.get(logicalStageIndex)
                 # Currently only supporting register. If want to support counter and meter "in Action class there is a function "getListOfStatefulMemoriesBeingUsed" add read counter and meter supprt there
-                statefulMemoryNameToUserMatListMap, matListNotUsingStatefulMem, usedIndirectStatefulMemSet = self.divideMatNodeListInIndirectStatefulMemoryUserAndNonUser(p4ProgramGraph, logicalMatList)
+                statefulMemoryNameToUserMatListMap, matListNotUsingStatefulMem, usedIndirectStatefulMemSet = self.divideMatNodeListInCrossAccessIndirectStatefulMemoryUserAndNonUser(p4ProgramGraph, logicalMatList)
                 if(len(statefulMemoryNameToUserMatListMap) >0):
                     physicalStageIndexForIndirectStatefulMemory, deepCopiedResourcesOfStage = self.embedIndirectStatefulMemoryAndDependentMatNodes(p4ProgramGraph,pipelineID, hardware, usedIndirectStatefulMemSet, statefulMemoryNameToUserMatListMap, startingPhyicalStageIndex)
                     if (physicalStageIndexForIndirectStatefulMemory != -1) and (deepCopiedResourcesOfStage != None):
                         hardware.stageWiseResources[physicalStageIndexForIndirectStatefulMemory]= deepCopiedResourcesOfStage
                         startingPhysicalStageListForLogicalStageIndex.append(physicalStageIndexForIndirectStatefulMemory)
                         endingPhysicalStageListForLogicalStageIndex.append(physicalStageIndexForIndirectStatefulMemory)
-
+                #Previous stateful memoery wise analysis handles those indirect stateful memories who are cross accessed by more than one logical mat. but the analysis in next
+                #line handle the case : where the tables only uses a indirect stateful memory ny itself only
+                statefulMemoryNameToUserMatListMap, matListNotUsingStatefulMem, usedIndirectStatefulMemSet = self.divideMatNodeListInIndividualAccessIndirectStatefulMemoryUserAndNonUser(p4ProgramGraph, matListNotUsingStatefulMem)
                 matListNotUsingStatefulMem = self.sortNodesBasedOnMatchType(matListNotUsingStatefulMem) # sorting and prioritizing the tables that needs TCAM for matching
+                if(len(statefulMemoryNameToUserMatListMap) >0):
+                    physicalStageIndexForIndirectStatefulMemory, deepCopiedResourcesOfStage = self.embedIndirectStatefulMemoryAndDependentMatNodes(p4ProgramGraph,pipelineID, hardware, usedIndirectStatefulMemSet, statefulMemoryNameToUserMatListMap, startingPhyicalStageIndex)
+                    if (physicalStageIndexForIndirectStatefulMemory != -1) and (deepCopiedResourcesOfStage != None):
+                        hardware.stageWiseResources[physicalStageIndexForIndirectStatefulMemory]= deepCopiedResourcesOfStage
+                        startingPhysicalStageListForLogicalStageIndex.append(physicalStageIndexForIndirectStatefulMemory)
+                        endingPhysicalStageListForLogicalStageIndex.append(physicalStageIndexForIndirectStatefulMemory)
                 # deepCopiedHW = copy.deepcopy(hardware)
                 if(startingPhyicalStageIndex >= hardware.totalStages):
                     print("The matListNotUsingStatefulMem needs to be embedded from stage "+str(startingPhyicalStageIndex)+" Which is more than avilable stages. Can't map the P4 program. Exiting!!!")
@@ -551,11 +559,24 @@ class RMTV1ModelHardware:
                     accmodatableMatEntries = copiedStageResource.getTotalNumberOfAccomodatableEntriesForGivenBitWidth(bitWidth = matNode.matKeyBitWidth,
                        memoryBlockBitwidth= copiedStageResource.sramResource.perMemoryBlockBitwidth,memoryBlockRowCount=copiedStageResource.sramResource.perMemoryBlockRowCount,
                         hashingWay=copiedStageResource.sramMatResource.sramMatHashingWay)
-                entriesAccomodatationPossible = min(accmodatableMatEntries, remainingMatEntries)
+
+                    for direct stateful memories we need equal number of mat entries in a table. so we need to write a wrapper class that will claculate in together how many mat entries
+                    we can embed. 
+                matEntriesAccomodatationPossible = min(accmodatableMatEntries, remainingMatEntries)
+
+                # here there may be one case, assume we are trying to accomodate 16k action entries. but may be  we can accomdate only 4k mat entries in one stage. then do we need
+                # the whole 16K action entires in first stage? nope probably. On that case we will embed action entires equal to the number of mat entries.
+                actionEntriesAccomodatationPossible = remainingActionEntries
+                if matEntriesAccomodatationPossible < remainingActionEntries:
+                    actionEntriesAccomodatationPossible = matEntriesAccomodatationPossible
+
+
+                allocate mat entries on copied resource then check whther direct stateful memories are acoomodatable or not
 
                 endingStage = currentStageIndex
-                currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode, entriesAccomodatationPossible, remainingActionEntries,pipelineID) # write a method with this signature.
+                currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode, matEntriesAccomodatationPossible, actionEntriesAccomodatationPossible,pipelineID) # write a method with this signature.
                 remainingMatEntries = remainingMatEntries - min(accmodatableMatEntries, remainingMatEntries)
+                remainingActionEntries = remainingActionEntries - actionEntriesAccomodatationPossible
                 # currentStageIndex = currentStageIndex + 1
                 currentStageHardwareResource = hardware.stageWiseResources.get(currentStageIndex)
                 if(remainingMatEntries ==0): #Becuse if this matnode is a conditional node and have nothing to embed as mat entry it only need embed action entries.
@@ -710,7 +731,7 @@ class RMTV1ModelHardware:
 
 
 
-    def divideMatNodeListInIndirectStatefulMemoryUserAndNonUser(self, p4ProgramGraph, matNodeList):
+    def divideMatNodeListInCrossAccessIndirectStatefulMemoryUserAndNonUser(self, p4ProgramGraph, matNodeList):
         '''
         This function divides the given matNodelist into two subsets. First set contains all the nodes that uses a stateful memoery. Second set contains the MAtnodes that do not uses a stateful memeory in its action
         :param p4ProgramGraph:
@@ -723,6 +744,31 @@ class RMTV1ModelHardware:
         statefulMemoryNameToUserMatListMap={}
         for matNode in matNodeList:
             if(len(matNode.getStatefulMemoeryNamesAsSet()) >0):
+                usedStatefulMemSet = usedStatefulMemSet.union(matNode.getListOfIndirectStatefulMemoriesBeingUsedByMatNodeAsSet())
+                for sfMemName in usedStatefulMemSet:
+                    if(statefulMemoryNameToUserMatListMap.get(sfMemName) == None):
+                        statefulMemoryNameToUserMatListMap[sfMemName] = []
+                    matList = statefulMemoryNameToUserMatListMap.get(sfMemName)
+                    matList.append(matNode)
+                    statefulMemoryNameToUserMatListMap[sfMemName] = matList
+            else:
+                matListNotUsingStatefulMem.append(matNode)
+        return  statefulMemoryNameToUserMatListMap, matListNotUsingStatefulMem, usedStatefulMemSet
+
+    def divideMatNodeListInIndividualAccessIndirectStatefulMemoryUserAndNonUser(self, p4ProgramGraph, matNodeList):
+        '''
+        This function divides the given matNodelist into two subsets. First set contains all the nodes that uses a stateful memoery individually.
+        Second set contains the MAtnodes that do not uses a stateful memeory in its action. Here we assume that the matnodeList do not contain any matnode list who cross access any indirectStateful memory
+        :param p4ProgramGraph:
+        :param matNodeList:
+        :return:
+        '''
+        usedStatefulMemSet = set()
+        matListNotUsingStatefulMem= []
+        matListUsingStatefulMem= []
+        statefulMemoryNameToUserMatListMap={}
+        for matNode in matNodeList:
+            if(len(matNode.getListOfIndirectStatefulMemoriesBeingUsedByMatNodeAsSet()) >0):
                 usedStatefulMemSet = usedStatefulMemSet.union(matNode.getListOfIndirectStatefulMemoriesBeingUsedByMatNodeAsSet())
                 for sfMemName in usedStatefulMemSet:
                     if(statefulMemoryNameToUserMatListMap.get(sfMemName) == None):
