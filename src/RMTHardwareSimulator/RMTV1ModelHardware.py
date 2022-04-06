@@ -490,7 +490,7 @@ class RMTV1ModelHardware:
                 accmodatableActionEntries = matNode.getRequiredNumberOfActionEntries()
             else:
                 accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableEntriesForGivenBitWidth(bitWidth =  matNode.getMaxBitwidthOfActionParameter(),
-                  memoryBlockBitwidth= currentStageHardwareResource.sramResource.perMemoryBlockBitwidth,memoryBlockRowCount=currentStageHardwareResource.sramResource.perMemoryBlockRowCount,hashingWay=1)
+                  memoryBlockBitwidth= currentStageHardwareResource.sramResource.perMemoryBlockBitwidth,memoryBlockRowCount=currentStageHardwareResource.sramResource.perMemoryBlockRowCount)
                 memoryPortWidthList = currentStageHardwareResource.bitWidthToMemoryPortWidthConsumption(matNode.getMaxBitwidthOfActionParameter(), list(currentStageHardwareResource.externResource.bitWidthToRegisterExternMap.keys()))
                 totalMemoryPortWidth = sum(memoryPortWidthList)
             if(currentStageHardwareResource.convertMatKeyBitWidthLengthToTCAMMatBlockCount(matNode.matKeyBitWidth) <= currentStageHardwareResource.getAvailableSRAMMatKeyBlockCount()) and \
@@ -541,7 +541,7 @@ class RMTV1ModelHardware:
             #     accmodatableActionEntries = matNode.getRequiredNumberOfActionEntries()
             # else:
             accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableEntriesForGivenBitWidth(bitWidth =  matNode.getMaxBitwidthOfActionParameter(),
-              memoryBlockBitwidth= currentStageHardwareResource.sramResource.perMemoryBlockBitwidth,memoryBlockRowCount=currentStageHardwareResource.sramResource.perMemoryBlockRowCount,hashingWay=1)
+              memoryBlockBitwidth= currentStageHardwareResource.sramResource.perMemoryBlockBitwidth,memoryBlockRowCount=currentStageHardwareResource.sramResource.perMemoryBlockRowCount)#,hashingWay=1)
             memoryPortWidthList = currentStageHardwareResource.bitWidthToMemoryPortWidthConsumption(matNode.getMaxBitwidthOfActionParameter(), list(currentStageHardwareResource.externResource.bitWidthToRegisterExternMap.keys()))
             totalMemoryPortWidth = sum(memoryPortWidthList)
             if(currentStageHardwareResource.convertMatKeyBitWidthLengthToSRAMMatBlockCount(matNode.matKeyBitWidth) <= currentStageHardwareResource.getAvailableSRAMMatKeyBlockCount()) \
@@ -557,8 +557,8 @@ class RMTV1ModelHardware:
                 else:
                     copiedStageResource.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= remainingActionEntries)
                     accmodatableMatEntries = copiedStageResource.getTotalNumberOfAccomodatableEntriesForGivenBitWidth(bitWidth = matNode.matKeyBitWidth,
-                       memoryBlockBitwidth= copiedStageResource.sramResource.perMemoryBlockBitwidth,memoryBlockRowCount=copiedStageResource.sramResource.perMemoryBlockRowCount,
-                        hashingWay=copiedStageResource.sramMatResource.sramMatHashingWay)
+                       memoryBlockBitwidth= copiedStageResource.sramResource.perMemoryBlockBitwidth,memoryBlockRowCount=copiedStageResource.sramResource.perMemoryBlockRowCount)
+                        # hashingWay=copiedStageResource.sramMatResource.sramMatHashingWay)
 
                     # for direct stateful memories we need equal number of mat entries in a table. so we need to write a wrapper class that will claculate in together how many mat entries
                     # we can embed.
@@ -625,7 +625,7 @@ class RMTV1ModelHardware:
                 accmodatableActionEntries = matNode.getRequiredNumberOfActionEntries()
             else:
                 accmodatableActionEntries = currentStageHardwareResource.getTotalNumberOfAccomodatableEntriesForGivenBitWidth(bitWidth =  matNode.getMaxBitwidthOfActionParameter(),
-                      memoryBlockBitwidth= currentStageHardwareResource.sramResource.perMemoryBlockBitwidth,memoryBlockRowCount=currentStageHardwareResource.sramResource.perMemoryBlockRowCount,hashingWay=1)
+                      memoryBlockBitwidth= currentStageHardwareResource.sramResource.perMemoryBlockBitwidth,memoryBlockRowCount=currentStageHardwareResource.sramResource.perMemoryBlockRowCount)
                 memoryPortWidthList = currentStageHardwareResource.bitWidthToMemoryPortWidthConsumption(matNode.getMaxBitwidthOfActionParameter(), list(currentStageHardwareResource.externResource.bitWidthToRegisterExternMap.keys()))
                 totalMemoryPortWidth = sum(memoryPortWidthList)
             if(currentStageHardwareResource.convertMatKeyBitWidthLengthToTCAMMatBlockCount(matNode.matKeyBitWidth) <= currentStageHardwareResource.getAvailableSRAMMatKeyBlockCount()) and \
@@ -698,7 +698,7 @@ class RMTV1ModelHardware:
                     copiedStageResource.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= remainingActionEntries)
                     accmodatableMatEntries = copiedStageResource.getTotalNumberOfAccomodatableEntriesForGivenBitWidth(bitWidth = matNode.matKeyBitWidth,
                             memoryBlockBitwidth= copiedStageResource.sramResource.perMemoryBlockBitwidth,
-                            memoryBlockRowCount=copiedStageResource.sramResource.perMemoryBlockRowCount,hashingWay=copiedStageResource.sramMatResource.sramMatHashingWay)
+                            memoryBlockRowCount=copiedStageResource.sramResource.perMemoryBlockRowCount)#,hashingWay=copiedStageResource.sramMatResource.sramMatHashingWay)
                 # entriesAccomodatationPossible = min(accmodatableMatEntries, remainingMatEntries)
                 endingStage = currentStageIndex
                 entriesToBePlacedInThisStage = min(accmodatableMatEntries, remainingMatEntries, accmodatableActionEntries, remainingMatEntries)

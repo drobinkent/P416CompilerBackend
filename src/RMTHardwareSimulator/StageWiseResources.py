@@ -160,7 +160,7 @@ class StageWiseResource:
         self.allocateTCAMMatBlockCount(requiredTCAMBlocks)
         return
 
-    def allocateMatEntriesOverSRAMBasedMATSInSingleStage(self,matKeyBitWidth, requiredMatEntries, hashingWay):
+    def allocateMatEntriesOverSRAMBasedMATSInSingleStage(self,matKeyBitWidth, requiredMatEntries, hashingWay=1):
         blockWidth, requiredSramBlocks = self.getMemoryBlockWidthAndBlockCountFromBitWidthAndRequiredNumberOfEntries(bitWidth=matKeyBitWidth,
                          memoryBlockBitwidth=self.sramResource.perMemoryBlockBitwidth,memoryBlockRowCount=self.sramResource.perMemoryBlockRowCount,
                          requiredNumberOfEntries=requiredMatEntries, hashingWay=hashingWay)
@@ -170,7 +170,7 @@ class StageWiseResource:
         self.sramResource.availableSramBlocks = self.sramResource.availableSramBlocks - requiredSramBlocks
         self.sramResource.usedSramBlocks = self.sramResource.usedSramBlocks + requiredSramBlocks
 
-    def deAllocateMatEntriesOverSRAMBasedMATSInSingleStage(self,matKeyBitWidth, requiredMatEntries,hashingWay):
+    def deAllocateMatEntriesOverSRAMBasedMATSInSingleStage(self,matKeyBitWidth, requiredMatEntries,hashingWay=1):
         blockWidth, requiredSramBlocks = self.getMemoryBlockWidthAndBlockCountFromBitWidthAndRequiredNumberOfEntries(bitWidth=matKeyBitWidth,
                  memoryBlockBitwidth=self.sramResource.perMemoryBlockBitwidth,memoryBlockRowCount=self.sramResource.perMemoryBlockRowCount,
                  requiredNumberOfEntries=requiredMatEntries,hashingWay=hashingWay)
@@ -368,7 +368,7 @@ class StageWiseResource:
                 portWidthList.append(nearestPortWidth)
         return portWidthList
 
-    def getTotalNumberOfAccomodatableEntriesForGivenBitWidth(self, bitWidth, memoryBlockBitwidth,memoryBlockRowCount, hashingWay):
+    def getTotalNumberOfAccomodatableEntriesForGivenBitWidth(self, bitWidth, memoryBlockBitwidth,memoryBlockRowCount, hashingWay=1):
         if(bitWidth == 0) :
             return self.sramResource.availableSramBlocks * memoryBlockRowCount*memoryBlockBitwidth # Because if there is nothing to embed we can go for maximum. it doesn't matter . so we are considering only one bit
         if(bitWidth < memoryBlockBitwidth) and ((memoryBlockBitwidth/bitWidth)>=2): # implies at least two entries can be acomodated in one cell
@@ -493,7 +493,7 @@ class StageWiseResource:
         #However in the case of sram this is not the case. In sram based mat we can only use 8 SRAM based MAT (in bosshart paper), But there are 106 sram blocks,
         #Therefore unlike tcam based mat, in sram based mat we need to explicitily keep track of the number of available SRAM based mat blocks.
         self.allocateSRAMMatBlocks(self.convertMatKeyBitWidthLengthToSRAMMatBlockCount(matNode.matKeyBitWidth))
-        self.allocateMatEntriesOverSRAMBasedMATSInSingleStage(matNode.matKeyBitWidth, numberOfMatEntriesToBeAllocated,self.sramMatResource.sramMatHashingWay) # This embeds both match-key and tables and entries in one stage
+        self.allocateMatEntriesOverSRAMBasedMATSInSingleStage(matNode.matKeyBitWidth, numberOfMatEntriesToBeAllocated)#,self.sramMatResource.sramMatHashingWay) # This embeds both match-key and tables and entries in one stage
         self.allocateActionCrossbarBitwidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
         self.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= numberOfActionEntriesToBeAllocated)
         self.allocateActionMemoryPortWidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
@@ -512,7 +512,7 @@ class StageWiseResource:
             print("The mat node: "+matNode.name+" requires total "+str(matNode.totalKeysTobeMatched)+" match keys and their bitwidth is "+str(self.convertMatKeyBitWidthLengthToSRAMMatKeyLength(matNode.matKeyBitWidth)))
             print("But the SRAM based MATS at stage " + str(self.stageIndex) +" can accomodate  bttwidth for matkey: " + str(self.getAvailableTCAMMatKeyCrossbarBitwidth()))
             isEmbeddable = False
-        if(self.isMatEntriesAccomodatableInSRAMBasedMATInThisStage(self.convertMatKeyBitWidthLengthToSRAMMatKeyLength(matNode.matKeyBitWidth), matNode.getRequiredNumberOfMatEntries(), self.sramMatResource.sramMatHashingWay)):
+        if(self.isMatEntriesAccomodatableInSRAMBasedMATInThisStage(self.convertMatKeyBitWidthLengthToSRAMMatKeyLength(matNode.matKeyBitWidth), matNode.getRequiredNumberOfMatEntries())): #, self.sramMatResource.sramMatHashingWay)):
             isEmbeddable=True
             self.allocateMatEntriesOverSRAMBasedMATSInSingleStage(self.convertMatKeyBitWidthLengthToSRAMMatKeyLength(matNode.matKeyBitWidth), matNode.getRequiredNumberOfMatEntries())
             if(self.isActionMemoryAccomodatable(actionEntryBitwidth=matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries=matNode.getRequiredNumberOfActionEntries())):
@@ -664,6 +664,7 @@ class SRAMMatResource:
         self.usedSramMatBlocks = 0
         self.supportedMatchTypes = sram_mat_resources.supported_match_types
         self.sramMatHashingWay = sram_mat_resources.per_sram_mat_block_spec.hashing_way
+        # self.sramMatHashingWay = 1
         self.perSramMatBitWidth = sram_mat_resources.per_sram_mat_block_spec.sram_bit_width
         pass
     def printAvailableResourceStatistics(self):
