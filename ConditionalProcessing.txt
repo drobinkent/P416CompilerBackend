@@ -1,0 +1,23 @@
+assume a if else pair as follwoing
+
+if (x==3)
+  execute table 1
+else
+  execute table 2
+
+and another code segment
+if (x==3)
+  h.f = h.x *12
+else
+  h.f = h.x *13
+
+and another code segment
+if (x==3)
+  execute table 1
+else
+  h.f = h.x *13
+
+In first case the result of conditional stores a value to the special field and add that field to table 1 and table 2. This is optimal.
+However in case 2 and 3 our mechanism is not optimal. Because for case 2 , we can store that conditional's result into a
+special field and based on that special field we can exucute either one of the aciton in case 2. That will be the optimal solution.
+Hoever in case 3, it is a mix. we still need 3 table. one for conditional execution and 2 for the true and false branch.
