@@ -141,3 +141,9 @@ A table might have both indirect stateful memory and direct stateful memory on t
 ------- VVI
 
 hashing way ta j amra input dichi onek function a seta k avoid korte hobe
+
+
+
+----vvi
+
+probably we need to writ a function to ge the bitrwidth of a hrxstring and use it in action bitwidth calculation

@@ -327,6 +327,9 @@ class PipelineGraph:
             return p4teConditionalNode
         pass
 
+    #The upper method for condition processing works because for if-else pair we may need to apply a table directly or some simple actions. in first case we must add the special key directly to next nddes.
+    # however for if the tru and false next are simple actions then we can simply convert them to seperate actions and based on the special field we can execute one of those actions.
+
 
     def getNextNodeForconditionalPreprocessing(self, nodeName, isArrivingFromConditional=False):
         nextNodeList = []
