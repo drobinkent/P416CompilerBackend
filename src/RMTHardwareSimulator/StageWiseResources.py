@@ -356,17 +356,20 @@ class StageWiseResource:
     #
     #     return phvFieldListForThisHeaderField
     def bitWidthToMemoryPortWidthConsumption(self, bitWidth, hwPortWidthList):
-        portWidthList = []
-        bitWidth = self.externResource.getNearestIntegralMultipleOfLeaseWidthPort(bitWidth)
-        while (bitWidth > 0):
-            nearestPortWidth = self.getLargestPortWidth(bitWidth, hwPortWidthList)
-            if(nearestPortWidth == -1):
-                print("An Indirect Stateful memory  of bitwidth "+str(nearestPortWidth)+" can not be allocated using available memory port widths of this system. Hence The P4 program can not be mapped tothis hardware. Extiting!!")
-                exit(1)
-            else:
-                bitWidth = bitWidth - nearestPortWidth
-                portWidthList.append(nearestPortWidth)
-        return portWidthList
+        # portWidthList = []
+        # bitWidth = self.externResource.getNearestIntegralMultipleOfLeaseWidthPort(bitWidth)
+        # while (bitWidth > 0):
+        #     nearestPortWidth = self.getLargestPortWidth(bitWidth, hwPortWidthList)
+        #     if(nearestPortWidth == -1):
+        #         print("An Indirect Stateful memory  of bitwidth "+str(nearestPortWidth)+" can not be allocated using available memory port widths of this system. Hence The P4 program can not be mapped tothis hardware. Extiting!!")
+        #         exit(1)
+        #     else:
+        #         bitWidth = bitWidth - nearestPortWidth
+        #         portWidthList.append(nearestPortWidth)
+        # return portWidthList
+        blockWidth = math.ceil(bitWidth/self.unprocessedStageResourceDescription.sram_resources.memory_block_bit_width)
+        totalBitwidth = blockWidth * self.unprocessedStageResourceDescription.sram_resources.memory_block_bit_width
+        return [totalBitwidth]
 
     def getTotalNumberOfAccomodatableEntriesForGivenBitWidth(self, bitWidth, memoryBlockBitwidth,memoryBlockRowCount, hashingWay=1):
         if(bitWidth == 0) :
