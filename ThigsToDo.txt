@@ -90,6 +90,7 @@ ingress embed korar pore egress embed korar age reintitialize korte hobe -- shek
 
 
 RMW support
+==========================
 
 we have a list of all headers and indirect registers.
 we can deep copy all of them. then we will analyze one or more action of tdg to analyze who is operating on whom.
@@ -104,6 +105,12 @@ register -- read to some header or metadata (index i) -- write (index k
 header/metadata -- modify (index j)
 
 if i<j<k then we can say it is a RMW sequence.
+
+the main challenge in RMW support is --
+in real life the register actions only support 2 conditional and 4 aru op. now in P4C IR, the true  next and false next may contain  more than 4 aLU operations.
+Thats why toffino has introduced aspecialized register extern so that developers can call only limited number action sthat can match with the extern atom.
+
+
 
 
 ---------------------------- VVI ---------------
