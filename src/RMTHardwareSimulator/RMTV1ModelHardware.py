@@ -359,6 +359,11 @@ class RMTV1ModelHardware:
                         hardware.stageWiseResources[physicalStageIndexForIndirectStatefulMemory]= deepCopiedResourcesOfStage
                         startingPhysicalStageListForLogicalStageIndex.append(physicalStageIndexForIndirectStatefulMemory)
                         endingPhysicalStageListForLogicalStageIndex.append(physicalStageIndexForIndirectStatefulMemory)
+                    else:
+                        print("The indirect stateful memories are "+str(usedIndirectStatefulMemSet))
+                        print("The  indirect stateful memoery user MAT list is : "+str([x for x in statefulMemoryNameToUserMatListMap]))
+                        print("The logical mat list uses stateful memory and they are not embeddable on this hardware. Exiting")
+                        exit(1)
                 #Previous stateful memoery wise analysis handles those indirect stateful memories who are cross accessed by more than one logical mat. but the analysis in next
                 #line handle the case : where the tables only uses a indirect stateful memory ny itself only
                 statefulMemoryNameToUserMatListMap, matListNotUsingStatefulMem, usedIndirectStatefulMemSet = self.divideMatNodeListInIndividualAccessIndirectStatefulMemoryUserAndNonUser(p4ProgramGraph, matListNotUsingStatefulMem)
@@ -369,6 +374,11 @@ class RMTV1ModelHardware:
                         hardware.stageWiseResources[physicalStageIndexForIndirectStatefulMemory]= deepCopiedResourcesOfStage
                         startingPhysicalStageListForLogicalStageIndex.append(physicalStageIndexForIndirectStatefulMemory)
                         endingPhysicalStageListForLogicalStageIndex.append(physicalStageIndexForIndirectStatefulMemory)
+                    else:
+                        print("The indirect stateful memories are "+str(usedIndirectStatefulMemSet))
+                        print("The  indirect stateful memory user MAT list (they access the imemory lonely no cross access) is : "+str([x for x in statefulMemoryNameToUserMatListMap]))
+                        print("The logical mat list uses stateful memory and they are not embeddable on this hardware. Exiting")
+                        exit(1)
                 # deepCopiedHW = copy.deepcopy(hardware)
                 if(startingPhyicalStageIndex >= hardware.totalStages):
                     print("The matListNotUsingStatefulMem needs to be embedded from stage "+str(startingPhyicalStageIndex)+" Which is more than avilable stages. Can't map the P4 program. Exiting!!!")

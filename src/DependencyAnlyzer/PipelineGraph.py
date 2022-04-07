@@ -1055,7 +1055,7 @@ class PipelineGraph:
                         if(len(nxtMatNode.predecessors) == 1):
                             if curMatNode.getMaxLevelOfAllStatefulMemories()> nxtMatNode.getMaxLevelOfAllStatefulMemories() + 1:
                                 suitableLevel = self.getSuitableLevel(curMatNode.getMaxLevelOfAllStatefulMemories(), nxtMatNode.getMaxLevelOfAllStatefulMemories(), levelList)
-                                if(suitableLevel != -1):
+                                if(suitableLevel != -1) and (len(nxtMatNode.statefulMemoryDependencies)<=0):
                                     nxtMatNode.setLevelOfAllStatefulMemories(suitableLevel)
         pass
 

@@ -220,7 +220,7 @@ class StageWiseResource:
             return True
         else:
             print("The TCAM based MAT  requires total "+str(requiredMatEntries)+ " entries where each one is "+str(matKeyBitWidth)+"  bit wide. ")
-            print("But the stage can only accomodatee "+str(accomodatableTcamEntries))
+            print("But the stage: "+str(self.stageIndex)+"  can only accomodatee "+str(accomodatableTcamEntries))
             return False
 
 
@@ -379,13 +379,13 @@ class StageWiseResource:
             totalAccomodatablePackedBlocks = math.floor((self.sramResource.availableSramBlocks)/hashingWay)
             return math.floor((totalAccomodatablePackedBlocks * perMemoryBlockAccomodatableEntries*memoryBlockRowCount))
         elif (bitWidth < memoryBlockBitwidth) and ((memoryBlockBitwidth/bitWidth)>=1): # implies only one entry can be fully accomodated in one cell, so we do packing here
-            accomodatableEntriesInPackingFactorNumberOfCells = math.floor((CompilerConfigurations.PACKING_FACTOR *  memoryBlockBitwidth)/bitWidth)
-            totalAccomodatablePackedBlocks = math.floor(self.sramResource.availableSramBlocks/(CompilerConfigurations.PACKING_FACTOR*hashingWay))
+            accomodatableEntriesInPackingFactorNumberOfCells = math.floor((CompilerConfigurations.MEMORY_BLOCK_COUNT_FOR_PACKING * memoryBlockBitwidth) / bitWidth)
+            totalAccomodatablePackedBlocks = math.floor(self.sramResource.availableSramBlocks / (CompilerConfigurations.MEMORY_BLOCK_COUNT_FOR_PACKING * hashingWay))
             return math.floor((accomodatableEntriesInPackingFactorNumberOfCells * totalAccomodatablePackedBlocks * memoryBlockRowCount))
         else: # implies one entry requires more than one sram block
-            if (bitWidth <= CompilerConfigurations.PACKING_FACTOR*memoryBlockBitwidth):
-                accomodatableEntriesInPackingFactorNumberOfCells = math.floor((CompilerConfigurations.PACKING_FACTOR *  memoryBlockBitwidth)/bitWidth)
-                totalAccomodatablePackedBlocks = math.floor(self.sramResource.availableSramBlocks/(CompilerConfigurations.PACKING_FACTOR*hashingWay))
+            if (bitWidth <= CompilerConfigurations.MEMORY_BLOCK_COUNT_FOR_PACKING*memoryBlockBitwidth):
+                accomodatableEntriesInPackingFactorNumberOfCells = math.floor((CompilerConfigurations.MEMORY_BLOCK_COUNT_FOR_PACKING * memoryBlockBitwidth) / bitWidth)
+                totalAccomodatablePackedBlocks = math.floor(self.sramResource.availableSramBlocks / (CompilerConfigurations.MEMORY_BLOCK_COUNT_FOR_PACKING * hashingWay))
                 return math.floor((accomodatableEntriesInPackingFactorNumberOfCells * totalAccomodatablePackedBlocks * memoryBlockRowCount))
             else: # this condtion applies when the bitwidth is more than the packed factor number of sram block's combined width
                 blockWidth = math.ceil(bitWidth/memoryBlockBitwidth)
@@ -411,16 +411,16 @@ class StageWiseResource:
                 # return 1, 1, requiredNumberOfEntries  # Because we allocate sram in total block granulairuty
                 return 1,1*hashingWay
             else:
-                accomodatableEntriesInPackingFactorNumberOfCells = math.floor((CompilerConfigurations.PACKING_FACTOR *  memoryBlockBitwidth)/bitWidth)
+                accomodatableEntriesInPackingFactorNumberOfCells = math.floor((CompilerConfigurations.MEMORY_BLOCK_COUNT_FOR_PACKING * memoryBlockBitwidth) / bitWidth)
                 totalBlockRequired = math.ceil(requiredNumberOfEntries/(accomodatableEntriesInPackingFactorNumberOfCells*memoryBlockRowCount))
                 # return  CompilerConfigurations.PACKING_FACTOR, totalBlockRequired, accomodatableEntriesInPackingFactorNumberOfCells
-                return CompilerConfigurations.PACKING_FACTOR, CompilerConfigurations.PACKING_FACTOR*totalBlockRequired*hashingWay
+                return CompilerConfigurations.MEMORY_BLOCK_COUNT_FOR_PACKING, CompilerConfigurations.MEMORY_BLOCK_COUNT_FOR_PACKING * totalBlockRequired * hashingWay
         else: # implies one entry requires more than one sram block
-            if (bitWidth <= CompilerConfigurations.PACKING_FACTOR*memoryBlockBitwidth):
-                accomodatableEntriesInPackingFactorNumberOfCells = math.floor((CompilerConfigurations.PACKING_FACTOR *  memoryBlockBitwidth)/bitWidth)
+            if (bitWidth <= CompilerConfigurations.MEMORY_BLOCK_COUNT_FOR_PACKING*memoryBlockBitwidth):
+                accomodatableEntriesInPackingFactorNumberOfCells = math.floor((CompilerConfigurations.MEMORY_BLOCK_COUNT_FOR_PACKING * memoryBlockBitwidth) / bitWidth)
                 totalBlockRequired = math.ceil(requiredNumberOfEntries/(accomodatableEntriesInPackingFactorNumberOfCells*memoryBlockRowCount))
                 # return  CompilerConfigurations.PACKING_FACTOR,totalBlockRequired, accomodatableEntriesInPackingFactorNumberOfCells
-                return CompilerConfigurations.PACKING_FACTOR, CompilerConfigurations.PACKING_FACTOR*totalBlockRequired*hashingWay
+                return CompilerConfigurations.MEMORY_BLOCK_COUNT_FOR_PACKING, CompilerConfigurations.MEMORY_BLOCK_COUNT_FOR_PACKING * totalBlockRequired * hashingWay
             else: # this condtion applies when the bitwidth is more than the packed factor number of sram block's combined width
                 blockWidth = math.ceil(bitWidth/memoryBlockBitwidth)
                 totalBlockRequired = math.ceil(requiredNumberOfEntries/memoryBlockRowCount)
@@ -523,7 +523,7 @@ class StageWiseResource:
                 self.deAllocateMatEntriesOverSRAMBasedMATSInSingleStage(self.convertMatKeyBitWidthLengthToSRAMMatKeyLength(matNode.matKeyBitWidth), matNode.getRequiredNumberOfMatEntries())
             else:
                 print("The SRAM based mat node: "+matNode.name+" requires total "+str(matNode.getRequiredNumberOfActionEntries())+" action entries for the SRAM based table.")
-                print("But the avialble resource at stage is unable to embed these action entires in SRAM.")
+                print("But the avialble resource at stage:"+str(self.stageIndex)+" is unable to embed these action entires in SRAM.")
                 self.deAllocateMatEntriesOverSRAMBasedMATSInSingleStage(self.convertMatKeyBitWidthLengthToSRAMMatKeyLength(matNode.matKeyBitWidth), matNode.getRequiredNumberOfMatEntries())
                 isEmbeddable=False
             if (self.availableActionCrossbarBitWidth>= maxActionCrossbarBitwidth):
@@ -556,12 +556,14 @@ class StageWiseResource:
             print("The mat node: "+matNode.name+" requires total "+str(matNode.totalKeysTobeMatched)+" match keys and their bitwidth is "+str(self.convertMatKeyBitWidthLengthToTCAMMatKeyLength(matNode.matKeyBitWidth)))
             print("But the TCAM at stage " + str(self.stageIndex) +" can accomodate  MAT keys bttwidth of " + str(self.getAvailableTCAMMatKeyCrossbarBitwidth())+" bit only. So not embeddable")
             isEmbeddable = False
+            return isEmbeddable
         if(self.isMatEntriesAccomodatableInTCAMBasedMATInThisStage(self.convertMatKeyBitWidthLengthToTCAMMatKeyLength(matNode.matKeyBitWidth), matNode.getRequiredNumberOfMatEntries())):
             isEmbeddable=True
         else:
             print("The mat node: "+matNode.name+" requires total "+str(matNode.getRequiredNumberOfMatEntries())+" match entries in the TCAM based table")
-            print("But the TCAM at stage is not enough")
+            print("But the TCAM at stage:"+str(self.stageIndex)+" is not enough")
             isEmbeddable = False
+            return isEmbeddable
         #The isActionMemoryAccomodatable checks both action entry and meomry port width required for the action entries.
         if(self.isActionMemoryAccomodatable(actionEntryBitwidth=matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries=matNode.getRequiredNumberOfActionEntries())):
             isEmbeddable= True
@@ -570,13 +572,15 @@ class StageWiseResource:
             # if(deepCopiedStageResource.)
         else:
             print("The mat node: "+matNode.name+" requires total "+str(matNode.getRequiredNumberOfActionEntries())+" action entries for the TCAM based table.")
-            print("But the avialble resource at stage is unable to embed these action entires in sram.")
+            print("But the avialble resource at stage:"+str(self.stageIndex)+" is unable to embed these action entires in sram.")
             isEmbeddable=False
+            return isEmbeddable
         if (self.availableActionCrossbarBitWidth>= maxActionCrossbarBitwidth):
             isEmbeddable = True
         else:
             isEmbeddable = False
-            print("The mat node: "+matNode.name+" requires total "+str(maxActionCrossbarBitwidth)+" action crossbar width for TCAM Based MAR.however only "+str(self.availableActionCrossbarBitWidth)+" bit width is available. Can not accomodate in stage"+str(self.stageIndex))
+            print("The mat node: "+matNode.name+" requires total "+str(maxActionCrossbarBitwidth)+" action crossbar width for TCAM Based MAT.however only "+str(self.availableActionCrossbarBitWidth)+" bit width is available. Can not accomodate in stage"+str(self.stageIndex))
+            return isEmbeddable
         #TODO: we need to handle indirect stateful memory handling here
 
         return isEmbeddable
