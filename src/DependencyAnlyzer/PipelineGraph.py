@@ -873,7 +873,7 @@ class PipelineGraph:
                 nxtMatNode.setLevelOfAllStatefulMemories(curMatNode.getMaxLevelOfAllStatefulMemories())
                 fromPArent = curMatNode.getMaxLevelOfAllStatefulMemories()
                 val = self.reoptimizeLevels(nxtMatNode)
-                print("Only one node found with condition the pair is "+str(curMatNode.name)+ "--"+str(list(curMatNode.dependencies.values())[0].dst.name))
+                # print("Only one node found with condition the pair is "+str(curMatNode.name)+ "--"+str(list(curMatNode.dependencies.values())[0].dst.name))
                 # curMatNode.originalP4node.is_visited_for_TDG_processing == GraphColor.BLACK
                 # return val
             else:

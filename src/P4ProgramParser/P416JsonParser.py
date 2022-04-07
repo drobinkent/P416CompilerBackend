@@ -1796,7 +1796,7 @@ class ActionResourceConsumptionStatistics:
 
 class ParserOpOp(Enum):
     EXTRACT = "extract"
-    # SET = "set"
+    SET = "set"
     #TODO: in future we need tu spport all other types
 
 

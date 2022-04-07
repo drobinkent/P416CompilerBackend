@@ -50,10 +50,10 @@ def loadParseGraph(parserObject,p4ProgramGraph):
             pass
         else:
             parserMapperHeader = None
-            if(len(curParserState.parser_ops) == 1) or\
+            if(len(curParserState.parser_ops) >= 1) or\
                 ((len(curParserState.parser_ops) ==0) and (curParserState.transition_key[0].value[0] == "standard_metadata")):
 
-                if (len(curParserState.parser_ops)==1) and (curParserState.parser_ops[0].op== ParserOpOp.EXTRACT):
+                if (len(curParserState.parser_ops)>=1) and (curParserState.parser_ops[0].op== ParserOpOp.EXTRACT):
                     parserOp = curParserState.parser_ops[0]
                     if(len(parserOp.parameters) != 1):
                         print("As we are supporting only parse operation in the parser state machine, therefore there should be only one parameters. Exiting ")
@@ -142,8 +142,10 @@ def loadParseGraph(parserObject,p4ProgramGraph):
                     if rangeCount < 2 ** sum(widths) and wantWildcard:
                         hdrList.append((([0] * len(fromFields), [0] * len(fromFields)), None))
                     parserMapperHeader.setNextHeader((fromFields, hdrList))
+            elif(len(curParserState.parser_ops) == 1)  and (curParserState.parser_ops[0].op== ParserOpOp.SET):
+                print("We do not explicitly handle setting value for set operation in parser. It is part of confuguraiton generation part. Eill be used later")
             else:
-                print("Currently we only support parsing a header object (parser_op == extract) and based on some of its field go to next state. In future we will support rest of the ops in parser")
+                print("Currently we only support parsing a header object (parser_op == extract), set operation and based on some of its field go to next state. In future we will support rest of the ops in parser")
                 exit(1)
             if(curParserState.name == parserObject.init_state) and (parserMapperHeader != None):
                 init_header = parserMapperHeader
