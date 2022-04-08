@@ -40,6 +40,7 @@ class ParserMapperHeader():
         self.defNxtHdrVal = None
         self._decCombos = {}
         self._length = None
+        self.stackVisitDone = False
         
         self.hdrLengths = None
 
@@ -180,6 +181,9 @@ class ParserMapperHeader():
 
     def incRefCount(self):
         if self.refCount and isinstance(self.refCount, ParserMapper.RefCount.RefCount):
+            self.refCount.inc()
+        elif(self.refCount == None):
+            self.refCount = ParserMapper.RefCount.RefCount(self.name)
             self.refCount.inc()
 
     def decRefCount(self):

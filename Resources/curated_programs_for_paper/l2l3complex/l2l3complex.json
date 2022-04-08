@@ -582,24 +582,13 @@
           ],
           "transitions" : [
             {
-              "type" : "hexstr",
-              "value" : "0x00",
-              "mask" : null,
-              "next_state" : "parse_mpls"
-            },
-            {
               "type" : "default",
               "value" : null,
               "mask" : null,
               "next_state" : null
             }
           ],
-          "transition_key" : [
-            {
-              "type" : "field",
-              "value" : ["mpls", "bos"]
-            }
-          ]
+          "transition_key" : []
         },
         {
           "name" : "parse_tcp",
@@ -664,18 +653,6 @@
             }
           ],
           "transitions" : [
-            {
-              "type" : "hexstr",
-              "value" : "0x8100",
-              "mask" : null,
-              "next_state" : "parse_vlan"
-            },
-            {
-              "type" : "hexstr",
-              "value" : "0x9100",
-              "mask" : null,
-              "next_state" : "parse_vlan"
-            },
             {
               "type" : "hexstr",
               "value" : "0x8847",

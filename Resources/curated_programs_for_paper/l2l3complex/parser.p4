@@ -56,6 +56,14 @@ parser start {
         ETHERTYPE_RARP : parse_arp_rarp;                   \
         default: ingress
 
+#define PARSE_VLANTYPE                                 \
+        ETHERTYPE_MPLS : parse_mpls;                       \
+        ETHERTYPE_IPV4 : parse_ipv4;                       \
+        ETHERTYPE_IPV6 : parse_ipv6;                       \
+        ETHERTYPE_ARP : parse_arp_rarp;                    \
+        ETHERTYPE_RARP : parse_arp_rarp;                   \
+        default: ingress
+
 header ethernet_t ethernet;
 
 parser parse_ethernet {
@@ -71,7 +79,7 @@ header vlan_tag_t vlan_tag;
 parser parse_vlan {
     extract(vlan_tag);
     return select(latest.etherType) {
-        PARSE_ETHERTYPE;
+        PARSE_VLANTYPE;
     }
 }
 
@@ -80,10 +88,11 @@ header mpls_t mpls;
 
 parser parse_mpls {
     extract(mpls);
-    return select(latest.bos) {
-        0 : parse_mpls;
+    /*return select(latest.bos) {
+        //0 : parse_mpls;
         default: ingress;
-    }
+    }*/
+    return ingress;
 }
 
 #define IP_PROTOCOLS_ICMP              1

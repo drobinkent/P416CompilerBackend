@@ -487,39 +487,47 @@ def calcExtractLocs(hdrList, hdrs,initHeader):
     stack = []
     stack.append((firstHdrName, 0, []))
     while len(stack) > 0:
-        print("printing stack"+str(stack))
+        # print("printing stack"+str(stack))
         (hdrName, nxtIndex, seq) = stack.pop()
         hdr = hdrs[hdrName]
 
         # Verify we aren't exceeding the reference count
-        if hdr.refCount != None:
-            maxCnt = hdr.refCount.maxVal
-            maxName = hdr.refCount.name
-            cnt = 1
-            for prevHdrName in seq:
-                prevHdr = hdrs[prevHdrName]
-                if prevHdr.refCount and prevHdr.refCount.name == maxName:
-                    cnt += 1
-            if cnt > maxCnt:
-                continue
+        # if hdr.refCount != None:
+        #     maxCnt = hdr.refCount.maxVal
+        #     maxName = hdr.refCount.name
+        #     cnt = 1
+        #     for prevHdrName in seq:
+        #         prevHdr = hdrs[prevHdrName]
+        #         if prevHdr.refCount and prevHdr.refCount.name == maxName:
+        #             cnt += 1
+        #     if cnt > maxCnt:
+        #         continue
 
         endSeq = False
+        # print("Hdr name "+hdr.name)
         if hdr.nextHeader and type(hdr.nextHeader) == tuple:
             if nxtIndex < len(hdr.nextHeader[1]):
-                stack.append((hdrName, nxtIndex + 1, seq))
+                if(hdr.stackVisitDone == False):
+                    stack.append((hdrName, nxtIndex + 1, seq))
+
                 nxtHdrName = hdr.nextHeader[1][nxtIndex][1]
 
-                if nxtHdrName!=None:
+                if nxtHdrName!=None :
                     nxtHdr = hdrs[nxtHdrName]
                     newSeq = copy.copy(seq)
                     newSeq.append(hdrName)
-                    stack.append((nxtHdrName, 0, newSeq))
+                    if(nxtHdr.stackVisitDone == False):
+                        stack.append((nxtHdrName, 0, newSeq))
+                        # print("Next Hdr appended "+nxtHdrName)
                 else:
                     endSeq = True
+                    hdr.stackVisitDone = True
         else:
             endSeq = True
+            hdr.stackVisitDone = True
 
         if endSeq:
+            hdr.stackVisitDone = True
             newSeq = copy.copy(seq)
             newSeq.append(hdrName)
 
@@ -2781,7 +2789,7 @@ def buildParserMapper(parseGraphHeaderList, parsedGraphHeaders,hw,initHeader):
 
     ccontext.dag, ccontext.dagNodes = buildDAG(headerList, headers,initHeader)
     printDAG(ccontext.dag)
-    # calcExtractLocs(headerList, headers,initHeader)
+    calcExtractLocs(headerList, headers,initHeader)
     headNode = ccontext.dag
 
     sortDAG(ccontext)

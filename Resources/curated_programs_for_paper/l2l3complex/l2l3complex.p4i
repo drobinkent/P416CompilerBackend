@@ -73,7 +73,7 @@ parser start {
 }
 # 41 "parser.p4"
 /* Tunnel types */
-# 59 "parser.p4"
+# 67 "parser.p4"
 header ethernet_t ethernet;
 
 parser parse_ethernet {
@@ -89,7 +89,7 @@ header vlan_tag_t vlan_tag;
 parser parse_vlan {
     extract(vlan_tag);
     return select(latest.etherType) {
-        0x8100, 0x9100 : parse_vlan; 0x8847 : parse_mpls; 0x0800 : parse_ipv4; 0x86dd : parse_ipv6; 0x0806 : parse_arp_rarp; 0x8035 : parse_arp_rarp; default: ingress;
+        0x8847 : parse_mpls; 0x0800 : parse_ipv4; 0x86dd : parse_ipv6; 0x0806 : parse_arp_rarp; 0x8035 : parse_arp_rarp; default: ingress;
     }
 }
 
@@ -98,12 +98,13 @@ header mpls_t mpls;
 
 parser parse_mpls {
     extract(mpls);
-    return select(latest.bos) {
-        0 : parse_mpls;
+    /*return select(latest.bos) {
+        //0 : parse_mpls;
         default: ingress;
-    }
+    }*/
+    return ingress;
 }
-# 111 "parser.p4"
+# 120 "parser.p4"
 header ipv4_t ipv4;
 
 field_list ipv4_checksum_list {
