@@ -21,11 +21,11 @@
   ],
   "ParserSpecs": {
     "ParsingRate": 64,
-    "HeaderIdentificationBufferSize": 16,
+    "HeaderIdentificationBufferSize": 2,
     "MaxIdentifieableHeader": 1,
     "MaxMoveAheadBit": 32,
     "TCAMLength": 255,
-    "TCAMLookupFieldCount": 2,
+    "TCAMLookupFieldCount": 1,
     "TCAMLookupFieldWidth": 2,
     "MaxExtractableData": 2
   },

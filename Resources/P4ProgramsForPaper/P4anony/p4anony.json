@@ -1,0 +1,3699 @@
+{
+  "header_types" : [
+    {
+      "name" : "scalars_0",
+      "id" : 0,
+      "fields" : [
+        ["tmp_7", 24, false],
+        ["tmp_8", 24, false],
+        ["tmp_9", 24, false],
+        ["tmp_10", 24, false],
+        ["userMetadata.is_arp", 4, false],
+        ["userMetadata.is_ipv4", 4, false],
+        ["userMetadata.hashed_mac_srcAddr_oui", 4, false],
+        ["userMetadata.hashed_mac_srcAddr_id", 4, false],
+        ["userMetadata.hashed_mac_dstAddr_oui", 4, false],
+        ["userMetadata.hashed_mac_dstAddr_id", 4, false],
+        ["userMetadata.dst_mac_mc_oui", 24, false],
+        ["userMetadata.src_mac_oui", 24, false],
+        ["userMetadata.src_mac_id", 24, false],
+        ["userMetadata.dst_mac_oui", 24, false],
+        ["userMetadata.dst_mac_id", 24, false],
+        ["userMetadata.ipv4_srcip", 32, false],
+        ["userMetadata.ipv4_dstip", 32, false],
+        ["userMetadata.srcip_subnet_part", 32, false],
+        ["userMetadata.srcip_hash_part", 32, false],
+        ["userMetadata.dstip_subnet_part", 32, false],
+        ["userMetadata.dstip_hash_part", 32, false],
+        ["userMetadata.srcip_subnetmask", 32, false],
+        ["userMetadata.dstip_subnetmask", 32, false]
+      ]
+    },
+    {
+      "name" : "tuple_0",
+      "id" : 1,
+      "fields" : [
+        ["f0", 32, false]
+      ]
+    },
+    {
+      "name" : "standard_metadata",
+      "id" : 2,
+      "fields" : [
+        ["ingress_port", 9, false],
+        ["egress_spec", 9, false],
+        ["egress_port", 9, false],
+        ["instance_type", 32, false],
+        ["packet_length", 32, false],
+        ["enq_timestamp", 32, false],
+        ["enq_qdepth", 19, false],
+        ["deq_timedelta", 32, false],
+        ["deq_qdepth", 19, false],
+        ["ingress_global_timestamp", 48, false],
+        ["egress_global_timestamp", 48, false],
+        ["mcast_grp", 16, false],
+        ["egress_rid", 16, false],
+        ["checksum_error", 1, false],
+        ["parser_error", 32, false],
+        ["priority", 3, false],
+        ["_padding", 3, false]
+      ]
+    },
+    {
+      "name" : "ethernet_t",
+      "id" : 3,
+      "fields" : [
+        ["dstAddr_oui", 24, false],
+        ["dstAddr_id", 24, false],
+        ["srcAddr_oui", 24, false],
+        ["srcAddr_id", 24, false],
+        ["etherType", 16, false]
+      ]
+    },
+    {
+      "name" : "vlan_tag_t",
+      "id" : 4,
+      "fields" : [
+        ["pcp", 3, false],
+        ["cfi", 1, false],
+        ["vid", 12, false],
+        ["etherType", 16, false]
+      ]
+    },
+    {
+      "name" : "arp_rarp_t",
+      "id" : 5,
+      "fields" : [
+        ["hwType", 16, false],
+        ["protoType", 16, false],
+        ["hwAddrLen", 8, false],
+        ["protoAddrLen", 8, false],
+        ["opcode", 16, false]
+      ]
+    },
+    {
+      "name" : "arp_rarp_ipv4_t",
+      "id" : 6,
+      "fields" : [
+        ["srcHwAddr_oui", 24, false],
+        ["srcHwAddr_id", 24, false],
+        ["srcProtoAddr", 32, false],
+        ["dstHwAddr_oui", 24, false],
+        ["dstHwAddr_id", 24, false],
+        ["dstProtoAddr", 32, false]
+      ]
+    },
+    {
+      "name" : "ipv4_t",
+      "id" : 7,
+      "fields" : [
+        ["version", 4, false],
+        ["ihl", 4, false],
+        ["diffserv", 8, false],
+        ["totalLen", 16, false],
+        ["identification", 16, false],
+        ["flags", 3, false],
+        ["fragOffset", 13, false],
+        ["ttl", 8, false],
+        ["protocol", 8, false],
+        ["hdrChecksum", 16, false],
+        ["srcAddr", 32, false],
+        ["dstAddr", 32, false]
+      ]
+    },
+    {
+      "name" : "tcp_t",
+      "id" : 8,
+      "fields" : [
+        ["srcPort", 16, false],
+        ["dstPort", 16, false],
+        ["seqNo", 32, false],
+        ["ackNo", 32, false],
+        ["dataOffset", 4, false],
+        ["res", 3, false],
+        ["ecn", 3, false],
+        ["ctrl", 6, false],
+        ["window", 16, false],
+        ["checksum", 16, false],
+        ["urgentPtr", 16, false]
+      ]
+    },
+    {
+      "name" : "udp_t",
+      "id" : 9,
+      "fields" : [
+        ["srcPort", 16, false],
+        ["dstPort", 16, false],
+        ["hdr_length", 16, false],
+        ["checksum", 16, false]
+      ]
+    }
+  ],
+  "headers" : [
+    {
+      "name" : "tmp",
+      "id" : 0,
+      "header_type" : "tuple_0",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "tmp_0",
+      "id" : 1,
+      "header_type" : "tuple_0",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "tmp_1",
+      "id" : 2,
+      "header_type" : "tuple_0",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "tmp_2",
+      "id" : 3,
+      "header_type" : "tuple_0",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "tmp_3",
+      "id" : 4,
+      "header_type" : "tuple_0",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "tmp_4",
+      "id" : 5,
+      "header_type" : "tuple_0",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "tmp_5",
+      "id" : 6,
+      "header_type" : "tuple_0",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "tmp_6",
+      "id" : 7,
+      "header_type" : "tuple_0",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "scalars",
+      "id" : 8,
+      "header_type" : "scalars_0",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "standard_metadata",
+      "id" : 9,
+      "header_type" : "standard_metadata",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "ethernet",
+      "id" : 10,
+      "header_type" : "ethernet_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "vlan",
+      "id" : 11,
+      "header_type" : "vlan_tag_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "arp",
+      "id" : 12,
+      "header_type" : "arp_rarp_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "arp_ipv4",
+      "id" : 13,
+      "header_type" : "arp_rarp_ipv4_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "ipv4",
+      "id" : 14,
+      "header_type" : "ipv4_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "tcp",
+      "id" : 15,
+      "header_type" : "tcp_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "udp",
+      "id" : 16,
+      "header_type" : "udp_t",
+      "metadata" : false,
+      "pi_omit" : true
+    }
+  ],
+  "header_stacks" : [],
+  "header_union_types" : [],
+  "header_unions" : [],
+  "header_union_stacks" : [],
+  "field_lists" : [],
+  "errors" : [
+    ["NoError", 0],
+    ["PacketTooShort", 1],
+    ["NoMatch", 2],
+    ["StackOutOfBounds", 3],
+    ["HeaderTooShort", 4],
+    ["ParserTimeout", 5],
+    ["ParserInvalidArgument", 6]
+  ],
+  "enums" : [],
+  "parsers" : [
+    {
+      "name" : "parser",
+      "id" : 0,
+      "init_state" : "start",
+      "parse_states" : [
+        {
+          "name" : "start",
+          "id" : 0,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "ethernet"
+                }
+              ],
+              "op" : "extract"
+            },
+            {
+              "parameters" : [
+                {
+                  "type" : "field",
+                  "value" : ["scalars", "userMetadata.src_mac_oui"]
+                },
+                {
+                  "type" : "field",
+                  "value" : ["ethernet", "srcAddr_oui"]
+                }
+              ],
+              "op" : "set"
+            },
+            {
+              "parameters" : [
+                {
+                  "type" : "field",
+                  "value" : ["scalars", "userMetadata.src_mac_id"]
+                },
+                {
+                  "type" : "field",
+                  "value" : ["ethernet", "srcAddr_id"]
+                }
+              ],
+              "op" : "set"
+            },
+            {
+              "parameters" : [
+                {
+                  "type" : "field",
+                  "value" : ["scalars", "userMetadata.dst_mac_oui"]
+                },
+                {
+                  "type" : "field",
+                  "value" : ["ethernet", "dstAddr_oui"]
+                }
+              ],
+              "op" : "set"
+            },
+            {
+              "parameters" : [
+                {
+                  "type" : "field",
+                  "value" : ["scalars", "userMetadata.dst_mac_id"]
+                },
+                {
+                  "type" : "field",
+                  "value" : ["ethernet", "dstAddr_id"]
+                }
+              ],
+              "op" : "set"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "hexstr",
+              "value" : "0x8100",
+              "mask" : null,
+              "next_state" : "parse_vlan"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0800",
+              "mask" : null,
+              "next_state" : "parse_ipv4"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0806",
+              "mask" : null,
+              "next_state" : "parse_arp"
+            },
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : [
+            {
+              "type" : "field",
+              "value" : ["ethernet", "etherType"]
+            }
+          ]
+        },
+        {
+          "name" : "parse_ipv4",
+          "id" : 1,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "ipv4"
+                }
+              ],
+              "op" : "extract"
+            },
+            {
+              "parameters" : [
+                {
+                  "type" : "field",
+                  "value" : ["scalars", "userMetadata.is_ipv4"]
+                },
+                {
+                  "type" : "hexstr",
+                  "value" : "0x01"
+                }
+              ],
+              "op" : "set"
+            },
+            {
+              "parameters" : [
+                {
+                  "type" : "field",
+                  "value" : ["scalars", "userMetadata.ipv4_srcip"]
+                },
+                {
+                  "type" : "field",
+                  "value" : ["ipv4", "srcAddr"]
+                }
+              ],
+              "op" : "set"
+            },
+            {
+              "parameters" : [
+                {
+                  "type" : "field",
+                  "value" : ["scalars", "userMetadata.ipv4_dstip"]
+                },
+                {
+                  "type" : "field",
+                  "value" : ["ipv4", "dstAddr"]
+                }
+              ],
+              "op" : "set"
+            },
+            {
+              "parameters" : [
+                {
+                  "type" : "field",
+                  "value" : ["scalars", "userMetadata.srcip_subnet_part"]
+                },
+                {
+                  "type" : "field",
+                  "value" : ["ipv4", "srcAddr"]
+                }
+              ],
+              "op" : "set"
+            },
+            {
+              "parameters" : [
+                {
+                  "type" : "field",
+                  "value" : ["scalars", "userMetadata.dstip_subnet_part"]
+                },
+                {
+                  "type" : "field",
+                  "value" : ["ipv4", "dstAddr"]
+                }
+              ],
+              "op" : "set"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "hexstr",
+              "value" : "0x06",
+              "mask" : null,
+              "next_state" : "parse_tcp"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x11",
+              "mask" : null,
+              "next_state" : "parse_udp"
+            },
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : [
+            {
+              "type" : "field",
+              "value" : ["ipv4", "protocol"]
+            }
+          ]
+        },
+        {
+          "name" : "parse_vlan",
+          "id" : 2,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "vlan"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "hexstr",
+              "value" : "0x0800",
+              "mask" : null,
+              "next_state" : "parse_ipv4"
+            },
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : [
+            {
+              "type" : "field",
+              "value" : ["vlan", "etherType"]
+            }
+          ]
+        },
+        {
+          "name" : "parse_arp",
+          "id" : 3,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "arp"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "hexstr",
+              "value" : "0x0800",
+              "mask" : null,
+              "next_state" : "parse_arp_rarp_ipv4"
+            },
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : [
+            {
+              "type" : "field",
+              "value" : ["arp", "protoType"]
+            }
+          ]
+        },
+        {
+          "name" : "parse_arp_rarp_ipv4",
+          "id" : 4,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "arp_ipv4"
+                }
+              ],
+              "op" : "extract"
+            },
+            {
+              "parameters" : [
+                {
+                  "type" : "field",
+                  "value" : ["scalars", "userMetadata.is_arp"]
+                },
+                {
+                  "type" : "hexstr",
+                  "value" : "0x01"
+                }
+              ],
+              "op" : "set"
+            },
+            {
+              "parameters" : [
+                {
+                  "type" : "field",
+                  "value" : ["scalars", "userMetadata.ipv4_srcip"]
+                },
+                {
+                  "type" : "field",
+                  "value" : ["arp_ipv4", "srcProtoAddr"]
+                }
+              ],
+              "op" : "set"
+            },
+            {
+              "parameters" : [
+                {
+                  "type" : "field",
+                  "value" : ["scalars", "userMetadata.ipv4_dstip"]
+                },
+                {
+                  "type" : "field",
+                  "value" : ["arp_ipv4", "dstProtoAddr"]
+                }
+              ],
+              "op" : "set"
+            },
+            {
+              "parameters" : [
+                {
+                  "type" : "field",
+                  "value" : ["scalars", "userMetadata.srcip_subnet_part"]
+                },
+                {
+                  "type" : "field",
+                  "value" : ["arp_ipv4", "srcProtoAddr"]
+                }
+              ],
+              "op" : "set"
+            },
+            {
+              "parameters" : [
+                {
+                  "type" : "field",
+                  "value" : ["scalars", "userMetadata.dstip_subnet_part"]
+                },
+                {
+                  "type" : "field",
+                  "value" : ["arp_ipv4", "dstProtoAddr"]
+                }
+              ],
+              "op" : "set"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : []
+        },
+        {
+          "name" : "parse_tcp",
+          "id" : 5,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "tcp"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : []
+        },
+        {
+          "name" : "parse_udp",
+          "id" : 6,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "udp"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : []
+        }
+      ]
+    }
+  ],
+  "parse_vsets" : [],
+  "deparsers" : [
+    {
+      "name" : "deparser",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "p4anony.p4",
+        "line" : 612,
+        "column" : 8,
+        "source_fragment" : "OntasDeparser"
+      },
+      "order" : ["ethernet", "vlan", "arp", "arp_ipv4", "ipv4", "tcp", "udp"],
+      "primitives" : []
+    }
+  ],
+  "meter_arrays" : [],
+  "counter_arrays" : [],
+  "register_arrays" : [],
+  "calculations" : [
+    {
+      "name" : "calc",
+      "id" : 0,
+      "algo" : "crc32",
+      "input" : [
+        {
+          "type" : "field",
+          "value" : ["scalars", "tmp_7"]
+        }
+      ]
+    },
+    {
+      "name" : "calc_0",
+      "id" : 1,
+      "algo" : "crc32",
+      "input" : [
+        {
+          "type" : "field",
+          "value" : ["scalars", "tmp_8"]
+        }
+      ]
+    },
+    {
+      "name" : "calc_1",
+      "id" : 2,
+      "algo" : "crc32",
+      "input" : [
+        {
+          "type" : "field",
+          "value" : ["scalars", "tmp_9"]
+        }
+      ]
+    },
+    {
+      "name" : "calc_2",
+      "id" : 3,
+      "algo" : "crc32",
+      "input" : [
+        {
+          "type" : "field",
+          "value" : ["scalars", "tmp_10"]
+        }
+      ]
+    },
+    {
+      "name" : "calc_3",
+      "id" : 4,
+      "algo" : "crc32",
+      "input" : [
+        {
+          "type" : "field",
+          "value" : ["tmp", "f0"]
+        }
+      ]
+    },
+    {
+      "name" : "calc_4",
+      "id" : 5,
+      "algo" : "crc32_custom",
+      "input" : [
+        {
+          "type" : "field",
+          "value" : ["tmp_0", "f0"]
+        }
+      ]
+    },
+    {
+      "name" : "calc_5",
+      "id" : 6,
+      "algo" : "crc16",
+      "input" : [
+        {
+          "type" : "field",
+          "value" : ["tmp_1", "f0"]
+        }
+      ]
+    },
+    {
+      "name" : "calc_6",
+      "id" : 7,
+      "algo" : "crc16_custom",
+      "input" : [
+        {
+          "type" : "field",
+          "value" : ["tmp_2", "f0"]
+        }
+      ]
+    },
+    {
+      "name" : "calc_7",
+      "id" : 8,
+      "algo" : "crc32",
+      "input" : [
+        {
+          "type" : "field",
+          "value" : ["tmp_3", "f0"]
+        }
+      ]
+    },
+    {
+      "name" : "calc_8",
+      "id" : 9,
+      "algo" : "crc32_custom",
+      "input" : [
+        {
+          "type" : "field",
+          "value" : ["tmp_4", "f0"]
+        }
+      ]
+    },
+    {
+      "name" : "calc_9",
+      "id" : 10,
+      "algo" : "crc16",
+      "input" : [
+        {
+          "type" : "field",
+          "value" : ["tmp_5", "f0"]
+        }
+      ]
+    },
+    {
+      "name" : "calc_10",
+      "id" : 11,
+      "algo" : "crc16_custom",
+      "input" : [
+        {
+          "type" : "field",
+          "value" : ["tmp_6", "f0"]
+        }
+      ]
+    },
+    {
+      "name" : "calc_11",
+      "id" : 12,
+      "source_info" : {
+        "filename" : "p4anony.p4",
+        "line" : 589,
+        "column" : 5,
+        "source_fragment" : "update_checksum( ..."
+      },
+      "algo" : "csum16",
+      "input" : [
+        {
+          "type" : "field",
+          "value" : ["ipv4", "version"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "ihl"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "diffserv"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "totalLen"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "identification"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "flags"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "fragOffset"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "ttl"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "protocol"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "srcAddr"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "dstAddr"]
+        }
+      ]
+    }
+  ],
+  "learn_lists" : [],
+  "actions" : [
+    {
+      "name" : "NoAction",
+      "id" : 0,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 1,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 2,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 3,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 4,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 5,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 6,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 7,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 8,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 9,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 10,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 11,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 12,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 13,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 14,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 15,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 16,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 17,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 18,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 19,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 20,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 21,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "OntasIngress.set_egr_action",
+      "id" : 22,
+      "runtime_data" : [
+        {
+          "name" : "egress_spec",
+          "bitwidth" : 9
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["standard_metadata", "egress_spec"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 158,
+            "column" : 8,
+            "source_fragment" : "standard_metadata.egress_spec = egress_spec"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "OntasIngress.nop_action",
+      "id" : 23,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "OntasIngress.nop_action",
+      "id" : 24,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "OntasIngress.nop_action",
+      "id" : 25,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "OntasIngress.nop_action",
+      "id" : 26,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "OntasIngress.nop_action",
+      "id" : 27,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "OntasIngress.nop_action",
+      "id" : 28,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "OntasIngress.nop_action",
+      "id" : 29,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "OntasIngress.nop_action",
+      "id" : 30,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "OntasIngress.nop_action",
+      "id" : 31,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "OntasIngress.nop_action",
+      "id" : 32,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "OntasIngress.nop_action",
+      "id" : 33,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "OntasIngress.nop_action",
+      "id" : 34,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "OntasIngress.nop_action",
+      "id" : 35,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "OntasIngress.nop_action",
+      "id" : 36,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "OntasIngress.nop_action",
+      "id" : 37,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "OntasIngress.nop_action",
+      "id" : 38,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "OntasIngress.nop_action",
+      "id" : 39,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "OntasIngress.nop_action",
+      "id" : 40,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "OntasIngress.nop_action",
+      "id" : 41,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "OntasIngress.multicast_mac_catch_action",
+      "id" : 42,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.dst_mac_mc_oui"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "field",
+                    "value" : ["ethernet", "dstAddr_oui"]
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0x110000"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 169,
+            "column" : 8,
+            "source_fragment" : "meta.dst_mac_mc_oui = hdr.ethernet.dstAddr_oui & 0x110000"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "OntasIngress.prepare_srcip_hash_action",
+      "id" : 43,
+      "runtime_data" : [
+        {
+          "name" : "mask1",
+          "bitwidth" : 32
+        },
+        {
+          "name" : "mask2",
+          "bitwidth" : 32
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.srcip_subnet_part"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "field",
+                    "value" : ["scalars", "userMetadata.ipv4_srcip"]
+                  },
+                  "right" : {
+                    "type" : "local",
+                    "value" : 0
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 180,
+            "column" : 8,
+            "source_fragment" : "meta.srcip_subnet_part = meta.ipv4_srcip & mask1"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.srcip_hash_part"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "field",
+                    "value" : ["scalars", "userMetadata.ipv4_srcip"]
+                  },
+                  "right" : {
+                    "type" : "local",
+                    "value" : 1
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 181,
+            "column" : 8,
+            "source_fragment" : "meta.srcip_hash_part = meta.ipv4_srcip & mask2"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.srcip_subnetmask"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 183,
+            "column" : 8,
+            "source_fragment" : "meta.srcip_subnetmask = mask1"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "OntasIngress.prepare_dstip_hash_action",
+      "id" : 44,
+      "runtime_data" : [
+        {
+          "name" : "mask1",
+          "bitwidth" : 32
+        },
+        {
+          "name" : "mask2",
+          "bitwidth" : 32
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.dstip_subnet_part"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "field",
+                    "value" : ["scalars", "userMetadata.ipv4_dstip"]
+                  },
+                  "right" : {
+                    "type" : "local",
+                    "value" : 0
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 194,
+            "column" : 8,
+            "source_fragment" : "meta.dstip_subnet_part = meta.ipv4_dstip & mask1"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.dstip_hash_part"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "field",
+                    "value" : ["scalars", "userMetadata.ipv4_dstip"]
+                  },
+                  "right" : {
+                    "type" : "local",
+                    "value" : 1
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 195,
+            "column" : 8,
+            "source_fragment" : "meta.dstip_hash_part = meta.ipv4_dstip & mask2"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.dstip_subnetmask"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 197,
+            "column" : 8,
+            "source_fragment" : "meta.dstip_subnetmask = mask1"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "OntasIngress.hash_mac_src_id_action",
+      "id" : 45,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_7"]
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.src_mac_id"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 201,
+            "column" : 66,
+            "source_fragment" : "meta.src_mac_id"
+          }
+        },
+        {
+          "op" : "modify_field_with_hash_based_offset",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["ethernet", "srcAddr_id"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000000"
+            },
+            {
+              "type" : "calculation",
+              "value" : "calc"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000018"
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 201,
+            "column" : 8,
+            "source_fragment" : "hash(hdr.ethernet.srcAddr_id, HashAlgorithm.crc32, 32w0, {meta.src_mac_id}, 32w24)"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.hashed_mac_srcAddr_id"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x01"
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 202,
+            "column" : 8,
+            "source_fragment" : "meta.hashed_mac_srcAddr_id = (bit<4>) 1"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "OntasIngress.hash_mac_src_oui_action",
+      "id" : 46,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_8"]
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.src_mac_oui"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 206,
+            "column" : 67,
+            "source_fragment" : "meta.src_mac_oui"
+          }
+        },
+        {
+          "op" : "modify_field_with_hash_based_offset",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["ethernet", "srcAddr_oui"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000000"
+            },
+            {
+              "type" : "calculation",
+              "value" : "calc_0"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000018"
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 206,
+            "column" : 8,
+            "source_fragment" : "hash(hdr.ethernet.srcAddr_oui, HashAlgorithm.crc32, 32w0, {meta.src_mac_oui}, 32w24)"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.hashed_mac_srcAddr_oui"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x01"
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 207,
+            "column" : 8,
+            "source_fragment" : "meta.hashed_mac_srcAddr_oui = (bit<4>) 1"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "OntasIngress.hash_arp_mac_src_id_action",
+      "id" : 47,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["arp_ipv4", "srcHwAddr_id"]
+            },
+            {
+              "type" : "field",
+              "value" : ["ethernet", "srcAddr_id"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 211,
+            "column" : 8,
+            "source_fragment" : "hdr.arp_ipv4.srcHwAddr_id = hdr.ethernet.srcAddr_id"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "OntasIngress.hash_arp_mac_src_oui_action",
+      "id" : 48,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["arp_ipv4", "srcHwAddr_oui"]
+            },
+            {
+              "type" : "field",
+              "value" : ["ethernet", "srcAddr_oui"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 215,
+            "column" : 8,
+            "source_fragment" : "hdr.arp_ipv4.srcHwAddr_oui = hdr.ethernet.srcAddr_oui"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "OntasIngress.hash_mac_dst_id_action",
+      "id" : 49,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_9"]
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.dst_mac_id"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 219,
+            "column" : 66,
+            "source_fragment" : "meta.dst_mac_id"
+          }
+        },
+        {
+          "op" : "modify_field_with_hash_based_offset",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["ethernet", "dstAddr_id"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000000"
+            },
+            {
+              "type" : "calculation",
+              "value" : "calc_1"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000018"
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 219,
+            "column" : 8,
+            "source_fragment" : "hash(hdr.ethernet.dstAddr_id, HashAlgorithm.crc32, 32w0, {meta.dst_mac_id}, 32w24)"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.hashed_mac_dstAddr_id"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x01"
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 220,
+            "column" : 8,
+            "source_fragment" : "meta.hashed_mac_dstAddr_id = (bit<4>) 1"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "OntasIngress.hash_mac_dst_oui_action",
+      "id" : 50,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_10"]
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.dst_mac_oui"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 224,
+            "column" : 67,
+            "source_fragment" : "meta.dst_mac_oui"
+          }
+        },
+        {
+          "op" : "modify_field_with_hash_based_offset",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["ethernet", "dstAddr_oui"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000000"
+            },
+            {
+              "type" : "calculation",
+              "value" : "calc_2"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000018"
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 224,
+            "column" : 8,
+            "source_fragment" : "hash(hdr.ethernet.dstAddr_oui, HashAlgorithm.crc32, 32w0, {meta.dst_mac_oui}, 32w24)"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.hashed_mac_dstAddr_oui"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x01"
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 225,
+            "column" : 8,
+            "source_fragment" : "meta.hashed_mac_dstAddr_oui = (bit<4>) 1"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "OntasIngress.hash_arp_mac_dst_id_action",
+      "id" : 51,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["arp_ipv4", "dstHwAddr_id"]
+            },
+            {
+              "type" : "field",
+              "value" : ["ethernet", "dstAddr_id"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 229,
+            "column" : 8,
+            "source_fragment" : "hdr.arp_ipv4.dstHwAddr_id = hdr.ethernet.dstAddr_id"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "OntasIngress.hash_arp_mac_dst_oui_action",
+      "id" : 52,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["arp_ipv4", "dstHwAddr_oui"]
+            },
+            {
+              "type" : "field",
+              "value" : ["ethernet", "dstAddr_oui"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 233,
+            "column" : 8,
+            "source_fragment" : "hdr.arp_ipv4.dstHwAddr_oui = hdr.ethernet.dstAddr_oui"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "OntasIngress.hash_and_modify_src0_action",
+      "id" : 53,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["tmp", "f0"]
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.srcip_hash_part"]
+            }
+          ]
+        },
+        {
+          "op" : "modify_field_with_hash_based_offset",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.srcip_hash_part"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000000"
+            },
+            {
+              "type" : "calculation",
+              "value" : "calc_3"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000020"
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 237,
+            "column" : 8,
+            "source_fragment" : "hash(meta.srcip_hash_part, HashAlgorithm.crc32, 32w0, {meta.srcip_hash_part}, 32w32)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "OntasIngress.hash_and_modify_src8_action",
+      "id" : 54,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["tmp_0", "f0"]
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.srcip_hash_part"]
+            }
+          ]
+        },
+        {
+          "op" : "modify_field_with_hash_based_offset",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.srcip_hash_part"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000000"
+            },
+            {
+              "type" : "calculation",
+              "value" : "calc_4"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000018"
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 240,
+            "column" : 8,
+            "source_fragment" : "hash(meta.srcip_hash_part, HashAlgorithm.crc32_custom, 32w0, {meta.srcip_hash_part}, 32w24)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "OntasIngress.hash_and_modify_src16_action",
+      "id" : 55,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["tmp_1", "f0"]
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.srcip_hash_part"]
+            }
+          ]
+        },
+        {
+          "op" : "modify_field_with_hash_based_offset",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.srcip_hash_part"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000000"
+            },
+            {
+              "type" : "calculation",
+              "value" : "calc_5"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000010"
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 243,
+            "column" : 8,
+            "source_fragment" : "hash(meta.srcip_hash_part, HashAlgorithm.crc16, 32w0, {meta.srcip_hash_part}, 32w16)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "OntasIngress.hash_and_modify_src24_action",
+      "id" : 56,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["tmp_2", "f0"]
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.srcip_hash_part"]
+            }
+          ]
+        },
+        {
+          "op" : "modify_field_with_hash_based_offset",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.srcip_hash_part"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000000"
+            },
+            {
+              "type" : "calculation",
+              "value" : "calc_6"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000008"
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 246,
+            "column" : 8,
+            "source_fragment" : "hash(meta.srcip_hash_part, HashAlgorithm.crc16_custom, 32w0, {meta.srcip_hash_part}, 32w8)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "OntasIngress.hash_and_modify_dst0_action",
+      "id" : 57,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["tmp_3", "f0"]
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.dstip_hash_part"]
+            }
+          ]
+        },
+        {
+          "op" : "modify_field_with_hash_based_offset",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.dstip_hash_part"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000000"
+            },
+            {
+              "type" : "calculation",
+              "value" : "calc_7"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000020"
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 249,
+            "column" : 8,
+            "source_fragment" : "hash(meta.dstip_hash_part, HashAlgorithm.crc32, 32w0, {meta.dstip_hash_part}, 32w32)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "OntasIngress.hash_and_modify_dst8_action",
+      "id" : 58,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["tmp_4", "f0"]
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.dstip_hash_part"]
+            }
+          ]
+        },
+        {
+          "op" : "modify_field_with_hash_based_offset",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.dstip_hash_part"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000000"
+            },
+            {
+              "type" : "calculation",
+              "value" : "calc_8"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000018"
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 252,
+            "column" : 8,
+            "source_fragment" : "hash(meta.dstip_hash_part, HashAlgorithm.crc32_custom, 32w0, {meta.dstip_hash_part}, 32w24)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "OntasIngress.hash_and_modify_dst16_action",
+      "id" : 59,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["tmp_5", "f0"]
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.dstip_hash_part"]
+            }
+          ]
+        },
+        {
+          "op" : "modify_field_with_hash_based_offset",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.dstip_hash_part"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000000"
+            },
+            {
+              "type" : "calculation",
+              "value" : "calc_9"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000010"
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 255,
+            "column" : 8,
+            "source_fragment" : "hash(meta.dstip_hash_part, HashAlgorithm.crc16, 32w0, {meta.dstip_hash_part}, 32w16)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "OntasIngress.hash_and_modify_dst24_action",
+      "id" : 60,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["tmp_6", "f0"]
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.dstip_hash_part"]
+            }
+          ]
+        },
+        {
+          "op" : "modify_field_with_hash_based_offset",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata.dstip_hash_part"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000000"
+            },
+            {
+              "type" : "calculation",
+              "value" : "calc_10"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000008"
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 258,
+            "column" : 8,
+            "source_fragment" : "hash(meta.dstip_hash_part, HashAlgorithm.crc16_custom, 32w0, {meta.dstip_hash_part}, 32w8)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "OntasIngress.ip_overwrite_action",
+      "id" : 61,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["ipv4", "srcAddr"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "|",
+                  "left" : {
+                    "type" : "field",
+                    "value" : ["scalars", "userMetadata.srcip_subnet_part"]
+                  },
+                  "right" : {
+                    "type" : "field",
+                    "value" : ["scalars", "userMetadata.srcip_hash_part"]
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 262,
+            "column" : 8,
+            "source_fragment" : "hdr.ipv4.srcAddr = meta.srcip_subnet_part | meta.srcip_hash_part"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["ipv4", "dstAddr"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "|",
+                  "left" : {
+                    "type" : "field",
+                    "value" : ["scalars", "userMetadata.dstip_subnet_part"]
+                  },
+                  "right" : {
+                    "type" : "field",
+                    "value" : ["scalars", "userMetadata.dstip_hash_part"]
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 263,
+            "column" : 8,
+            "source_fragment" : "hdr.ipv4.dstAddr = meta.dstip_subnet_part | meta.dstip_hash_part"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "OntasIngress.arp_ip_overwrite_action",
+      "id" : 62,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["arp_ipv4", "srcProtoAddr"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "|",
+                  "left" : {
+                    "type" : "field",
+                    "value" : ["scalars", "userMetadata.srcip_subnet_part"]
+                  },
+                  "right" : {
+                    "type" : "field",
+                    "value" : ["scalars", "userMetadata.srcip_hash_part"]
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 268,
+            "column" : 8,
+            "source_fragment" : "hdr.arp_ipv4.srcProtoAddr = meta.srcip_subnet_part | meta.srcip_hash_part"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["arp_ipv4", "dstProtoAddr"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "|",
+                  "left" : {
+                    "type" : "field",
+                    "value" : ["scalars", "userMetadata.dstip_subnet_part"]
+                  },
+                  "right" : {
+                    "type" : "field",
+                    "value" : ["scalars", "userMetadata.dstip_hash_part"]
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 269,
+            "column" : 8,
+            "source_fragment" : "hdr.arp_ipv4.dstProtoAddr = meta.dstip_subnet_part | meta.dstip_hash_part"
+          }
+        }
+      ]
+    }
+  ],
+  "pipelines" : [
+    {
+      "name" : "ingress",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "p4anony.p4",
+        "line" : 150,
+        "column" : 8,
+        "source_fragment" : "OntasIngress"
+      },
+      "init_table" : "OntasIngress.multicast_mac_catch_tb",
+      "tables" : [
+        {
+          "name" : "OntasIngress.multicast_mac_catch_tb",
+          "id" : 0,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 463,
+            "column" : 10,
+            "source_fragment" : "multicast_mac_catch_tb"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "standard_metadata.ingress_port",
+              "target" : ["standard_metadata", "ingress_port"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [42, 19],
+          "actions" : ["OntasIngress.multicast_mac_catch_action", "NoAction"],
+          "base_default_next" : "OntasIngress.anony_mac_src_oui_tb",
+          "next_tables" : {
+            "OntasIngress.multicast_mac_catch_action" : "OntasIngress.anony_mac_src_oui_tb",
+            "NoAction" : "OntasIngress.anony_mac_src_oui_tb"
+          },
+          "default_entry" : {
+            "action_id" : 19,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "OntasIngress.anony_mac_src_oui_tb",
+          "id" : 1,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 284,
+            "column" : 10,
+            "source_fragment" : "anony_mac_src_oui_tb"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "standard_metadata.ingress_port",
+              "target" : ["standard_metadata", "ingress_port"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [46, 24, 1],
+          "actions" : ["OntasIngress.hash_mac_src_oui_action", "OntasIngress.nop_action", "NoAction"],
+          "base_default_next" : "OntasIngress.anony_mac_src_id_tb",
+          "next_tables" : {
+            "OntasIngress.hash_mac_src_oui_action" : "OntasIngress.anony_mac_src_id_tb",
+            "OntasIngress.nop_action" : "OntasIngress.anony_mac_src_id_tb",
+            "NoAction" : "OntasIngress.anony_mac_src_id_tb"
+          },
+          "default_entry" : {
+            "action_id" : 1,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "OntasIngress.anony_mac_src_id_tb",
+          "id" : 2,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 274,
+            "column" : 10,
+            "source_fragment" : "anony_mac_src_id_tb"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "standard_metadata.ingress_port",
+              "target" : ["standard_metadata", "ingress_port"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [45, 23, 0],
+          "actions" : ["OntasIngress.hash_mac_src_id_action", "OntasIngress.nop_action", "NoAction"],
+          "base_default_next" : "node_5",
+          "next_tables" : {
+            "OntasIngress.hash_mac_src_id_action" : "node_5",
+            "OntasIngress.nop_action" : "node_5",
+            "NoAction" : "node_5"
+          },
+          "default_entry" : {
+            "action_id" : 0,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "OntasIngress.anony_mac_dst_oui_tb",
+          "id" : 3,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 324,
+            "column" : 10,
+            "source_fragment" : "anony_mac_dst_oui_tb"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "standard_metadata.ingress_port",
+              "target" : ["standard_metadata", "ingress_port"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [50, 28, 5],
+          "actions" : ["OntasIngress.hash_mac_dst_oui_action", "OntasIngress.nop_action", "NoAction"],
+          "base_default_next" : "OntasIngress.anony_mac_dst_id_tb",
+          "next_tables" : {
+            "OntasIngress.hash_mac_dst_oui_action" : "OntasIngress.anony_mac_dst_id_tb",
+            "OntasIngress.nop_action" : "OntasIngress.anony_mac_dst_id_tb",
+            "NoAction" : "OntasIngress.anony_mac_dst_id_tb"
+          },
+          "default_entry" : {
+            "action_id" : 5,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "OntasIngress.anony_mac_dst_id_tb",
+          "id" : 4,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 314,
+            "column" : 10,
+            "source_fragment" : "anony_mac_dst_id_tb"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "standard_metadata.ingress_port",
+              "target" : ["standard_metadata", "ingress_port"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [49, 27, 4],
+          "actions" : ["OntasIngress.hash_mac_dst_id_action", "OntasIngress.nop_action", "NoAction"],
+          "base_default_next" : "node_10",
+          "next_tables" : {
+            "OntasIngress.hash_mac_dst_id_action" : "node_10",
+            "OntasIngress.nop_action" : "node_10",
+            "NoAction" : "node_10"
+          },
+          "default_entry" : {
+            "action_id" : 4,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "OntasIngress.anony_arp_mac_dst_id_tb",
+          "id" : 5,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 334,
+            "column" : 10,
+            "source_fragment" : "anony_arp_mac_dst_id_tb"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "standard_metadata.ingress_port",
+              "target" : ["standard_metadata", "ingress_port"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [51, 29, 6],
+          "actions" : ["OntasIngress.hash_arp_mac_dst_id_action", "OntasIngress.nop_action", "NoAction"],
+          "base_default_next" : "node_13",
+          "next_tables" : {
+            "OntasIngress.hash_arp_mac_dst_id_action" : "node_13",
+            "OntasIngress.nop_action" : "node_13",
+            "NoAction" : "node_13"
+          },
+          "default_entry" : {
+            "action_id" : 6,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "OntasIngress.anony_arp_mac_dst_oui_tb",
+          "id" : 6,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 344,
+            "column" : 10,
+            "source_fragment" : "anony_arp_mac_dst_oui_tb"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "standard_metadata.ingress_port",
+              "target" : ["standard_metadata", "ingress_port"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [52, 30, 7],
+          "actions" : ["OntasIngress.hash_arp_mac_dst_oui_action", "OntasIngress.nop_action", "NoAction"],
+          "base_default_next" : "node_15",
+          "next_tables" : {
+            "OntasIngress.hash_arp_mac_dst_oui_action" : "node_15",
+            "OntasIngress.nop_action" : "node_15",
+            "NoAction" : "node_15"
+          },
+          "default_entry" : {
+            "action_id" : 7,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "OntasIngress.anony_arp_mac_src_id_tb",
+          "id" : 7,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 294,
+            "column" : 10,
+            "source_fragment" : "anony_arp_mac_src_id_tb"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "standard_metadata.ingress_port",
+              "target" : ["standard_metadata", "ingress_port"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [47, 25, 2],
+          "actions" : ["OntasIngress.hash_arp_mac_src_id_action", "OntasIngress.nop_action", "NoAction"],
+          "base_default_next" : "node_17",
+          "next_tables" : {
+            "OntasIngress.hash_arp_mac_src_id_action" : "node_17",
+            "OntasIngress.nop_action" : "node_17",
+            "NoAction" : "node_17"
+          },
+          "default_entry" : {
+            "action_id" : 2,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "OntasIngress.anony_arp_mac_src_oui_tb",
+          "id" : 8,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 304,
+            "column" : 10,
+            "source_fragment" : "anony_arp_mac_src_oui_tb"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "standard_metadata.ingress_port",
+              "target" : ["standard_metadata", "ingress_port"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [48, 26, 3],
+          "actions" : ["OntasIngress.hash_arp_mac_src_oui_action", "OntasIngress.nop_action", "NoAction"],
+          "base_default_next" : "OntasIngress.anony_srcip_tb",
+          "next_tables" : {
+            "OntasIngress.hash_arp_mac_src_oui_action" : "OntasIngress.anony_srcip_tb",
+            "OntasIngress.nop_action" : "OntasIngress.anony_srcip_tb",
+            "NoAction" : "OntasIngress.anony_srcip_tb"
+          },
+          "default_entry" : {
+            "action_id" : 3,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "OntasIngress.anony_srcip_tb",
+          "id" : 9,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 354,
+            "column" : 10,
+            "source_fragment" : "anony_srcip_tb"
+          },
+          "key" : [
+            {
+              "match_type" : "ternary",
+              "name" : "meta.ipv4_srcip",
+              "target" : ["scalars", "userMetadata.ipv4_srcip"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "ternary",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [43, 31, 8],
+          "actions" : ["OntasIngress.prepare_srcip_hash_action", "OntasIngress.nop_action", "NoAction"],
+          "base_default_next" : "node_20",
+          "next_tables" : {
+            "OntasIngress.prepare_srcip_hash_action" : "node_20",
+            "OntasIngress.nop_action" : "node_20",
+            "NoAction" : "node_20"
+          },
+          "default_entry" : {
+            "action_id" : 8,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "OntasIngress.hashing_src0_tb",
+          "id" : 10,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 375,
+            "column" : 10,
+            "source_fragment" : "hashing_src0_tb"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "standard_metadata.ingress_port",
+              "target" : ["standard_metadata", "ingress_port"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [53, 33, 10],
+          "actions" : ["OntasIngress.hash_and_modify_src0_action", "OntasIngress.nop_action", "NoAction"],
+          "base_default_next" : "OntasIngress.anony_dstip_tb",
+          "next_tables" : {
+            "OntasIngress.hash_and_modify_src0_action" : "OntasIngress.anony_dstip_tb",
+            "OntasIngress.nop_action" : "OntasIngress.anony_dstip_tb",
+            "NoAction" : "OntasIngress.anony_dstip_tb"
+          },
+          "default_entry" : {
+            "action_id" : 10,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "OntasIngress.hashing_src8_tb",
+          "id" : 11,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 385,
+            "column" : 10,
+            "source_fragment" : "hashing_src8_tb"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "standard_metadata.ingress_port",
+              "target" : ["standard_metadata", "ingress_port"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [54, 34, 11],
+          "actions" : ["OntasIngress.hash_and_modify_src8_action", "OntasIngress.nop_action", "NoAction"],
+          "base_default_next" : "OntasIngress.anony_dstip_tb",
+          "next_tables" : {
+            "OntasIngress.hash_and_modify_src8_action" : "OntasIngress.anony_dstip_tb",
+            "OntasIngress.nop_action" : "OntasIngress.anony_dstip_tb",
+            "NoAction" : "OntasIngress.anony_dstip_tb"
+          },
+          "default_entry" : {
+            "action_id" : 11,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "OntasIngress.hashing_src16_tb",
+          "id" : 12,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 395,
+            "column" : 10,
+            "source_fragment" : "hashing_src16_tb"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "standard_metadata.ingress_port",
+              "target" : ["standard_metadata", "ingress_port"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [55, 35, 12],
+          "actions" : ["OntasIngress.hash_and_modify_src16_action", "OntasIngress.nop_action", "NoAction"],
+          "base_default_next" : "OntasIngress.anony_dstip_tb",
+          "next_tables" : {
+            "OntasIngress.hash_and_modify_src16_action" : "OntasIngress.anony_dstip_tb",
+            "OntasIngress.nop_action" : "OntasIngress.anony_dstip_tb",
+            "NoAction" : "OntasIngress.anony_dstip_tb"
+          },
+          "default_entry" : {
+            "action_id" : 12,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "OntasIngress.hashing_src24_tb",
+          "id" : 13,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 405,
+            "column" : 10,
+            "source_fragment" : "hashing_src24_tb"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "standard_metadata.ingress_port",
+              "target" : ["standard_metadata", "ingress_port"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [56, 36, 13],
+          "actions" : ["OntasIngress.hash_and_modify_src24_action", "OntasIngress.nop_action", "NoAction"],
+          "base_default_next" : "OntasIngress.anony_dstip_tb",
+          "next_tables" : {
+            "OntasIngress.hash_and_modify_src24_action" : "OntasIngress.anony_dstip_tb",
+            "OntasIngress.nop_action" : "OntasIngress.anony_dstip_tb",
+            "NoAction" : "OntasIngress.anony_dstip_tb"
+          },
+          "default_entry" : {
+            "action_id" : 13,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "OntasIngress.anony_dstip_tb",
+          "id" : 14,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 364,
+            "column" : 10,
+            "source_fragment" : "anony_dstip_tb"
+          },
+          "key" : [
+            {
+              "match_type" : "ternary",
+              "name" : "meta.ipv4_dstip",
+              "target" : ["scalars", "userMetadata.ipv4_dstip"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "ternary",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [44, 32, 9],
+          "actions" : ["OntasIngress.prepare_dstip_hash_action", "OntasIngress.nop_action", "NoAction"],
+          "base_default_next" : "node_28",
+          "next_tables" : {
+            "OntasIngress.prepare_dstip_hash_action" : "node_28",
+            "OntasIngress.nop_action" : "node_28",
+            "NoAction" : "node_28"
+          },
+          "default_entry" : {
+            "action_id" : 9,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "OntasIngress.hashing_dst0_tb",
+          "id" : 15,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 415,
+            "column" : 10,
+            "source_fragment" : "hashing_dst0_tb"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "standard_metadata.ingress_port",
+              "target" : ["standard_metadata", "ingress_port"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [57, 37, 14],
+          "actions" : ["OntasIngress.hash_and_modify_dst0_action", "OntasIngress.nop_action", "NoAction"],
+          "base_default_next" : "node_35",
+          "next_tables" : {
+            "OntasIngress.hash_and_modify_dst0_action" : "node_35",
+            "OntasIngress.nop_action" : "node_35",
+            "NoAction" : "node_35"
+          },
+          "default_entry" : {
+            "action_id" : 14,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "OntasIngress.hashing_dst8_tb",
+          "id" : 16,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 425,
+            "column" : 10,
+            "source_fragment" : "hashing_dst8_tb"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "standard_metadata.ingress_port",
+              "target" : ["standard_metadata", "ingress_port"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [58, 38, 15],
+          "actions" : ["OntasIngress.hash_and_modify_dst8_action", "OntasIngress.nop_action", "NoAction"],
+          "base_default_next" : "node_35",
+          "next_tables" : {
+            "OntasIngress.hash_and_modify_dst8_action" : "node_35",
+            "OntasIngress.nop_action" : "node_35",
+            "NoAction" : "node_35"
+          },
+          "default_entry" : {
+            "action_id" : 15,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "OntasIngress.hashing_dst16_tb",
+          "id" : 17,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 434,
+            "column" : 10,
+            "source_fragment" : "hashing_dst16_tb"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "standard_metadata.ingress_port",
+              "target" : ["standard_metadata", "ingress_port"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [59, 39, 16],
+          "actions" : ["OntasIngress.hash_and_modify_dst16_action", "OntasIngress.nop_action", "NoAction"],
+          "base_default_next" : "node_35",
+          "next_tables" : {
+            "OntasIngress.hash_and_modify_dst16_action" : "node_35",
+            "OntasIngress.nop_action" : "node_35",
+            "NoAction" : "node_35"
+          },
+          "default_entry" : {
+            "action_id" : 16,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "OntasIngress.hashing_dst24_tb",
+          "id" : 18,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 443,
+            "column" : 10,
+            "source_fragment" : "hashing_dst24_tb"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "standard_metadata.ingress_port",
+              "target" : ["standard_metadata", "ingress_port"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [60, 40, 17],
+          "actions" : ["OntasIngress.hash_and_modify_dst24_action", "OntasIngress.nop_action", "NoAction"],
+          "base_default_next" : "node_35",
+          "next_tables" : {
+            "OntasIngress.hash_and_modify_dst24_action" : "node_35",
+            "OntasIngress.nop_action" : "node_35",
+            "NoAction" : "node_35"
+          },
+          "default_entry" : {
+            "action_id" : 17,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "OntasIngress.arp_ip_overwrite_tb",
+          "id" : 19,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 472,
+            "column" : 10,
+            "source_fragment" : "arp_ip_overwrite_tb"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "standard_metadata.ingress_port",
+              "target" : ["standard_metadata", "ingress_port"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [62, 20],
+          "actions" : ["OntasIngress.arp_ip_overwrite_action", "NoAction"],
+          "base_default_next" : "node_37",
+          "next_tables" : {
+            "OntasIngress.arp_ip_overwrite_action" : "node_37",
+            "NoAction" : "node_37"
+          },
+          "default_entry" : {
+            "action_id" : 20,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "OntasIngress.ipv4_ip_overwite_tb",
+          "id" : 20,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 481,
+            "column" : 10,
+            "source_fragment" : "ipv4_ip_overwite_tb"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "standard_metadata.ingress_port",
+              "target" : ["standard_metadata", "ingress_port"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [61, 21],
+          "actions" : ["OntasIngress.ip_overwrite_action", "NoAction"],
+          "base_default_next" : "OntasIngress.forward_tb",
+          "next_tables" : {
+            "OntasIngress.ip_overwrite_action" : "OntasIngress.forward_tb",
+            "NoAction" : "OntasIngress.forward_tb"
+          },
+          "default_entry" : {
+            "action_id" : 21,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "OntasIngress.forward_tb",
+          "id" : 21,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 453,
+            "column" : 10,
+            "source_fragment" : "forward_tb"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "standard_metadata.ingress_port",
+              "target" : ["standard_metadata", "ingress_port"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [22, 41, 18],
+          "actions" : ["OntasIngress.set_egr_action", "OntasIngress.nop_action", "NoAction"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "OntasIngress.set_egr_action" : null,
+            "OntasIngress.nop_action" : null,
+            "NoAction" : null
+          },
+          "default_entry" : {
+            "action_id" : 18,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        }
+      ],
+      "action_profiles" : [],
+      "conditionals" : [
+        {
+          "name" : "node_5",
+          "id" : 0,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 501,
+            "column" : 12,
+            "source_fragment" : "hdr.ethernet.dstAddr_oui!=0xffffff"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "!=",
+              "left" : {
+                "type" : "field",
+                "value" : ["ethernet", "dstAddr_oui"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0xffffff"
+              }
+            }
+          },
+          "true_next" : "node_6",
+          "false_next" : "node_10"
+        },
+        {
+          "name" : "node_6",
+          "id" : 1,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 502,
+            "column" : 16,
+            "source_fragment" : "hdr.ethernet.dstAddr_id!=0xffffff"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "!=",
+              "left" : {
+                "type" : "field",
+                "value" : ["ethernet", "dstAddr_id"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0xffffff"
+              }
+            }
+          },
+          "true_next" : "node_7",
+          "false_next" : "node_10"
+        },
+        {
+          "name" : "node_7",
+          "id" : 2,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 503,
+            "column" : 20,
+            "source_fragment" : "meta.dst_mac_mc_oui!=0x010000"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "!=",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata.dst_mac_mc_oui"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x010000"
+              }
+            }
+          },
+          "true_next" : "OntasIngress.anony_mac_dst_oui_tb",
+          "false_next" : "node_10"
+        },
+        {
+          "name" : "node_10",
+          "id" : 3,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 512,
+            "column" : 12,
+            "source_fragment" : "hdr.arp.opcode == 2"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["arp", "opcode"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x0002"
+              }
+            }
+          },
+          "true_next" : "node_11",
+          "false_next" : "node_15"
+        },
+        {
+          "name" : "node_11",
+          "id" : 4,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 513,
+            "column" : 16,
+            "source_fragment" : "meta.hashed_mac_dstAddr_id == 1"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata.hashed_mac_dstAddr_id"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x01"
+              }
+            }
+          },
+          "true_next" : "OntasIngress.anony_arp_mac_dst_id_tb",
+          "false_next" : "node_13"
+        },
+        {
+          "name" : "node_13",
+          "id" : 5,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 516,
+            "column" : 16,
+            "source_fragment" : "meta.hashed_mac_dstAddr_oui == 1"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata.hashed_mac_dstAddr_oui"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x01"
+              }
+            }
+          },
+          "true_next" : "OntasIngress.anony_arp_mac_dst_oui_tb",
+          "false_next" : "node_15"
+        },
+        {
+          "name" : "node_15",
+          "id" : 6,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 523,
+            "column" : 12,
+            "source_fragment" : "meta.hashed_mac_srcAddr_id == 1"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata.hashed_mac_srcAddr_id"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x01"
+              }
+            }
+          },
+          "true_next" : "OntasIngress.anony_arp_mac_src_id_tb",
+          "false_next" : "node_17"
+        },
+        {
+          "name" : "node_17",
+          "id" : 7,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 526,
+            "column" : 12,
+            "source_fragment" : "meta.hashed_mac_srcAddr_oui == 1"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata.hashed_mac_srcAddr_oui"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x01"
+              }
+            }
+          },
+          "true_next" : "OntasIngress.anony_arp_mac_src_oui_tb",
+          "false_next" : "OntasIngress.anony_srcip_tb"
+        },
+        {
+          "name" : "node_20",
+          "id" : 8,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 532,
+            "column" : 12,
+            "source_fragment" : "meta.srcip_subnetmask == 0x0"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata.srcip_subnetmask"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x00000000"
+              }
+            }
+          },
+          "true_next" : "OntasIngress.hashing_src0_tb",
+          "false_next" : "node_22"
+        },
+        {
+          "name" : "node_22",
+          "id" : 9,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 535,
+            "column" : 17,
+            "source_fragment" : "meta.srcip_subnetmask == 0xff000000"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata.srcip_subnetmask"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0xff000000"
+              }
+            }
+          },
+          "true_next" : "OntasIngress.hashing_src8_tb",
+          "false_next" : "node_24"
+        },
+        {
+          "name" : "node_24",
+          "id" : 10,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 538,
+            "column" : 17,
+            "source_fragment" : "meta.srcip_subnetmask == 0xffff0000"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata.srcip_subnetmask"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0xffff0000"
+              }
+            }
+          },
+          "true_next" : "OntasIngress.hashing_src16_tb",
+          "false_next" : "OntasIngress.hashing_src24_tb"
+        },
+        {
+          "name" : "node_28",
+          "id" : 11,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 547,
+            "column" : 12,
+            "source_fragment" : "meta.dstip_subnetmask == 0x0"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata.dstip_subnetmask"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x00000000"
+              }
+            }
+          },
+          "true_next" : "OntasIngress.hashing_dst0_tb",
+          "false_next" : "node_30"
+        },
+        {
+          "name" : "node_30",
+          "id" : 12,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 550,
+            "column" : 17,
+            "source_fragment" : "meta.dstip_subnetmask == 0xff000000"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata.dstip_subnetmask"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0xff000000"
+              }
+            }
+          },
+          "true_next" : "OntasIngress.hashing_dst8_tb",
+          "false_next" : "node_32"
+        },
+        {
+          "name" : "node_32",
+          "id" : 13,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 553,
+            "column" : 17,
+            "source_fragment" : "meta.dstip_subnetmask == 0xffff0000"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata.dstip_subnetmask"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0xffff0000"
+              }
+            }
+          },
+          "true_next" : "OntasIngress.hashing_dst16_tb",
+          "false_next" : "OntasIngress.hashing_dst24_tb"
+        },
+        {
+          "name" : "node_35",
+          "id" : 14,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 562,
+            "column" : 12,
+            "source_fragment" : "meta.is_arp == 1"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata.is_arp"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x01"
+              }
+            }
+          },
+          "true_next" : "OntasIngress.arp_ip_overwrite_tb",
+          "false_next" : "node_37"
+        },
+        {
+          "name" : "node_37",
+          "id" : 15,
+          "source_info" : {
+            "filename" : "p4anony.p4",
+            "line" : 567,
+            "column" : 12,
+            "source_fragment" : "meta.is_ipv4 == 1"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata.is_ipv4"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x01"
+              }
+            }
+          },
+          "true_next" : "OntasIngress.ipv4_ip_overwite_tb",
+          "false_next" : "OntasIngress.forward_tb"
+        }
+      ]
+    },
+    {
+      "name" : "egress",
+      "id" : 1,
+      "source_info" : {
+        "filename" : "p4anony.p4",
+        "line" : 577,
+        "column" : 8,
+        "source_fragment" : "OntasEgress"
+      },
+      "init_table" : null,
+      "tables" : [],
+      "action_profiles" : [],
+      "conditionals" : []
+    }
+  ],
+  "checksums" : [
+    {
+      "name" : "cksum",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "p4anony.p4",
+        "line" : 589,
+        "column" : 5,
+        "source_fragment" : "update_checksum( ..."
+      },
+      "target" : ["ipv4", "hdrChecksum"],
+      "type" : "generic",
+      "calculation" : "calc_11",
+      "verify" : false,
+      "update" : true,
+      "if_cond" : {
+        "type" : "expression",
+        "value" : {
+          "op" : "d2b",
+          "left" : null,
+          "right" : {
+            "type" : "field",
+            "value" : ["ipv4", "$valid$"]
+          }
+        }
+      }
+    }
+  ],
+  "force_arith" : [],
+  "extern_instances" : [],
+  "field_aliases" : [
+    [
+      "queueing_metadata.enq_timestamp",
+      ["standard_metadata", "enq_timestamp"]
+    ],
+    [
+      "queueing_metadata.enq_qdepth",
+      ["standard_metadata", "enq_qdepth"]
+    ],
+    [
+      "queueing_metadata.deq_timedelta",
+      ["standard_metadata", "deq_timedelta"]
+    ],
+    [
+      "queueing_metadata.deq_qdepth",
+      ["standard_metadata", "deq_qdepth"]
+    ],
+    [
+      "intrinsic_metadata.ingress_global_timestamp",
+      ["standard_metadata", "ingress_global_timestamp"]
+    ],
+    [
+      "intrinsic_metadata.egress_global_timestamp",
+      ["standard_metadata", "egress_global_timestamp"]
+    ],
+    [
+      "intrinsic_metadata.mcast_grp",
+      ["standard_metadata", "mcast_grp"]
+    ],
+    [
+      "intrinsic_metadata.egress_rid",
+      ["standard_metadata", "egress_rid"]
+    ],
+    [
+      "intrinsic_metadata.priority",
+      ["standard_metadata", "priority"]
+    ]
+  ],
+  "program" : "./p4anony.p4i",
+  "__meta__" : {
+    "version" : [2, 23],
+    "compiler" : "https://github.com/p4lang/p4c"
+  }
+}
