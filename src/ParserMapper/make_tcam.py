@@ -104,17 +104,17 @@ def setParserMapperParameter(hw):
     clkFreq = hw.hardwareSpecRawJsonObjects.clock_rate
 
     # Bits per cycle
-    globalBPC = dataRate / clkFreq
-    windowSize = hw.parserSpecs.header_identification_buffer_size
-    maxHdrs = hw.parserSpecs.max_identifieable_header
-    maxSkip = hw.parserSpecs.max_move_ahead_bit #how much it can jump while extracting
-    tcamMaxState = hw.parserSpecs.tcam_length
-    lookups = hw.parserSpecs.tcam_lookup_field_count  # How many lookups per cycle in the tcam
-    lookupWidth = hw.parserSpecs.tcam_lookup_field_width# bitwidth of the lookups
-    extractBytes = hw.parserSpecs.max_extractable_data
-    minSkip = 0
-    firstLookupAtZero = True
-    extract = False
+    ParserMapper.make_tcam.globalBPC = dataRate / clkFreq
+    ParserMapper.make_tcam.windowSize = hw.parserSpecs.header_identification_buffer_size
+    ParserMapper.make_tcam.maxHdrs = hw.parserSpecs.max_identifieable_header
+    ParserMapper.make_tcam.maxSkip = hw.parserSpecs.max_move_ahead_bit #how much it can jump while extracting
+    ParserMapper.make_tcam.tcamMaxState = hw.parserSpecs.tcam_length
+    ParserMapper.make_tcam.lookups = hw.parserSpecs.tcam_lookup_field_count  # How many lookups per cycle in the tcam
+    ParserMapper.make_tcam.lookupWidth = hw.parserSpecs.tcam_lookup_field_width# bitwidth of the lookups
+    ParserMapper.make_tcam.extractBytes = hw.parserSpecs.max_extractable_data
+    ParserMapper.make_tcam.minSkip = 0
+    ParserMapper.make_tcam.firstLookupAtZero = True
+    ParserMapper.make_tcam.extract = False
 
 
 
@@ -251,6 +251,7 @@ def optFound(context):
     return len(context.optNodes) > 0
 
 def printBestOpt(context, printEdges=True):
+    totalEdges = 0
     if len(context.optNodes) > 0:
         # print("opt-algorithm best edge count: %d" % context.bestEdgeCount)
         # print("opt-algorithm worst bits-per-cycle: %1.3f   (%1.3f bytes-per-cycle)" % \
@@ -261,6 +262,7 @@ def printBestOpt(context, printEdges=True):
             # for cluster in sorted(context.bestClusters):
             for cluster in context.bestClusters:
                 print("  %s   (%d edges)" % (cluster, findEdgeCount(context, cluster)))
+                totalEdges = totalEdges + findEdgeCount(context, cluster)
                 # cnode = DAGChainNode(cluster.chain[0].dagNode, cluster.chain[0].startPos, 0, 0)
                 # coveredClusters = findClustersAndCovers(context,cnode)
                 # fringe = findFringeWithMinCoverLen(cluster, coveredClusters)
@@ -268,6 +270,7 @@ def printBestOpt(context, printEdges=True):
                 #for f in sorted(fringe):
                 #    print f,
                 #print ""
+        print("Total edges in the parse graph is :"+str(totalEdges))
     else:
         print("opt-algorithm could not find optimal that met required BPC (%d) or minimum skip amount (%d)" % (globalBPC, minSkip))
         print('Exiting!!')
@@ -2064,7 +2067,7 @@ def printDAG(dag):
         if strLen > maxLen:
             maxLen = strLen
 
-    print("Total edges in the parse graph: "+str(totalEdges))
+    # print("Total edges in the parse graph: "+str(totalEdges))
     formatStr = '%%%ds   %%s' % maxLen
     print(formatStr % ('NODE', 'CHILDREN'))
     for node in sorted(seen):

@@ -1,3 +1,4 @@
+import copy
 import logging
 from enum import Enum
 import sys
@@ -116,13 +117,15 @@ class P4ProgramGraph:
         bitWidthByHeadercountForIngress = None
         bitWidthByHeadercountForEgress= None
         self.parsedP4Program.getTotalHeaderLength()
+        totalRawBitWidthForIngress= 0
+        totalRawBitWidthForEgress = 0
         if(self.pipelineIdToPipelineGraphMap.get(PipelineID.INGRESS_PIPELINE)  != None):
             print("\n\n Ingress stage header analysis")
             fullListOfHeaderFieldsUsedInIngressPipeline =set(self.pipelineIdToPipelineGraphMap.get(PipelineID.INGRESS_PIPELINE).headeranalyzerForSinglePipeline())
             headerFeildInStandardMEtadta = set(headerfieldListOfMetadata.keys())
             fullListOfHeaderFieldsUsedInIngressPipeline = fullListOfHeaderFieldsUsedInIngressPipeline.union(headerFeildInStandardMEtadta)
             self.getTotalHeaderLengthForHeaderFieldList(fullListOfHeaderFieldsUsedInIngressPipeline)
-            bitWidthByHeadercountForIngress,bitWidthWiseHeaderFieldsForIngress = self.getHeaderCountByBitWidthForHeaderFieldList(fullListOfHeaderFieldsUsedInIngressPipeline)
+            bitWidthByHeadercountForIngress,bitWidthWiseHeaderFieldsForIngress, totalRawBitWidthForIngress = self.getHeaderCountByBitWidthForHeaderFieldList(fullListOfHeaderFieldsUsedInIngressPipeline)
             self.pipelineIdToMultipleOf8bitwidthWiseHeaderFields[PipelineID.INGRESS_PIPELINE] = bitWidthWiseHeaderFieldsForIngress
             self.pipelineIdToMultipleOf8BitWidthByHeadercount[PipelineID.INGRESS_PIPELINE] = bitWidthByHeadercountForIngress
             print("Bitwdith wise header count is ",bitWidthByHeadercountForIngress)
@@ -133,7 +136,7 @@ class P4ProgramGraph:
             headerFeildInStandardMEtadta = set(headerfieldListOfMetadata.keys())
             fullListOfHeaderFieldsUsedInEgressPipeline = fullListOfHeaderFieldsUsedInEgressPipeline.union(headerFeildInStandardMEtadta)
             self.getTotalHeaderLengthForHeaderFieldList(fullListOfHeaderFieldsUsedInEgressPipeline)
-            bitWidthByHeadercountForEgress,bitWidthWiseHeaderFieldsForEgress = self.getHeaderCountByBitWidthForHeaderFieldList(fullListOfHeaderFieldsUsedInEgressPipeline)
+            bitWidthByHeadercountForEgress,bitWidthWiseHeaderFieldsForEgress, totalRawBitWidthForEgress = self.getHeaderCountByBitWidthForHeaderFieldList(fullListOfHeaderFieldsUsedInEgressPipeline)
             self.pipelineIdToMultipleOf8bitwidthWiseHeaderFields[PipelineID.EGRESS_PIPELINE] = bitWidthWiseHeaderFieldsForEgress
             self.pipelineIdToMultipleOf8BitWidthByHeadercount[PipelineID.EGRESS_PIPELINE] = bitWidthByHeadercountForEgress
             print("Bitwdith wise header count is ",bitWidthByHeadercountForEgress)
@@ -175,7 +178,7 @@ class P4ProgramGraph:
         # for k in mapToAppend.keys():
         #     bitWidthByHeadercountForEgress[k] = mapToAppend.get(k)
         print("Bitwdith wise header count is ",mapToAppend)
-        return  mapToAppend
+        return  mapToAppend, totalRawBitWidthForEgress+ totalRawBitWidthForIngress
 
     def getTotalHeaderLengthForHeaderFieldList(self, headerFieldList):
         total = 0
@@ -200,6 +203,7 @@ class P4ProgramGraph:
         total = 0
         bitWidthByHeadercount = {}
         bitWidthWiseHeaderFields = {}
+        totalRawBitWidth = 0
         for k in headerFieldList:
             hf = None
             if(type(k)!=str):
@@ -209,6 +213,7 @@ class P4ProgramGraph:
             if (hf==None):
                 logger.info("Field not found in map . The field is "+str(k))
             else:
+                totalRawBitWidth =totalRawBitWidth+ hf.bitWidth
                 if(type(k)!=str):
                     if(bitWidthByHeadercount.get(self.parsedP4Program.nameToHeaderTypeObjectMap.get(k.name).mutlipleOf8Bitwidth) == None):
                         bitWidthByHeadercount[self.parsedP4Program.nameToHeaderTypeObjectMap.get(k.name).mutlipleOf8Bitwidth] = 1
@@ -229,9 +234,10 @@ class P4ProgramGraph:
                         fieldList = bitWidthWiseHeaderFields[self.parsedP4Program.nameToHeaderTypeObjectMap.get(k).mutlipleOf8Bitwidth]
                         fieldList.append(k)
                         bitWidthWiseHeaderFields[self.parsedP4Program.nameToHeaderTypeObjectMap.get(k).mutlipleOf8Bitwidth] = fieldList
-        return bitWidthByHeadercount,bitWidthWiseHeaderFields
+        return bitWidthByHeadercount,bitWidthWiseHeaderFields,totalRawBitWidth
 
     def storePHVFieldMappingForHeaderFields(self,mappedPacketHeaderVector):
+        mappedPacketHeaderVector = copy.deepcopy(mappedPacketHeaderVector)
         for pipelineKey in self.pipelineIdToMultipleOf8BitWidthByHeadercount.keys():
             multipleOf8BitWiseHeaderFieldListMap = self.pipelineIdToMultipleOf8bitwidthWiseHeaderFields.get(pipelineKey)
             for bitwidth in multipleOf8BitWiseHeaderFieldListMap.keys():
