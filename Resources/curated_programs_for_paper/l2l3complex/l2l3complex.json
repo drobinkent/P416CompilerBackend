@@ -7,38 +7,34 @@
         ["tmp", 48, false],
         ["tmp_0", 48, false],
         ["tmp_1", 16, false],
-        ["tmp_2", 16, false],
-        ["tmp_3", 48, false],
-        ["tmp_4", 16, false],
-        ["tmp_5", 32, false],
-        ["tmp_6", 32, false],
-        ["tmp_7", 8, false],
+        ["tmp_2", 32, false],
+        ["tmp_3", 32, false],
+        ["tmp_4", 8, false],
+        ["tmp_5", 16, false],
+        ["tmp_6", 16, false],
+        ["tmp_7", 16, false],
         ["tmp_8", 16, false],
-        ["tmp_9", 16, false],
-        ["tmp_10", 16, false],
-        ["tmp_11", 16, false],
-        ["tmp_12", 32, false],
-        ["tmp_13", 32, false],
-        ["tmp_14", 8, false],
+        ["tmp_9", 32, false],
+        ["tmp_10", 32, false],
+        ["tmp_11", 8, false],
+        ["tmp_12", 16, false],
+        ["tmp_13", 16, false],
+        ["tmp_14", 16, false],
         ["tmp_15", 16, false],
-        ["tmp_16", 16, false],
-        ["tmp_17", 16, false],
-        ["tmp_18", 16, false],
-        ["tmp_19", 128, false],
-        ["tmp_20", 128, false],
-        ["tmp_21", 8, false],
+        ["tmp_16", 128, false],
+        ["tmp_17", 128, false],
+        ["tmp_18", 8, false],
+        ["tmp_19", 16, false],
+        ["tmp_20", 16, false],
+        ["tmp_21", 16, false],
         ["tmp_22", 16, false],
-        ["tmp_23", 16, false],
-        ["tmp_24", 16, false],
-        ["tmp_25", 16, false],
-        ["tmp_26", 128, false],
-        ["tmp_27", 128, false],
-        ["tmp_28", 8, false],
+        ["tmp_23", 128, false],
+        ["tmp_24", 128, false],
+        ["tmp_25", 8, false],
+        ["tmp_26", 16, false],
+        ["tmp_27", 16, false],
+        ["tmp_28", 16, false],
         ["tmp_29", 16, false],
-        ["tmp_30", 16, false],
-        ["tmp_31", 16, false],
-        ["tmp_32", 16, false],
-        ["key_0", 12, false],
         ["userMetadata._hop_metadata_bd_index0", 16, false],
         ["userMetadata._hop_metadata_ig_lif1", 16, false],
         ["userMetadata._hop_metadata_vrf_index2", 12, false],
@@ -56,8 +52,7 @@
         ["userMetadata._hop_metadata_urpf_check_fail14", 1, false],
         ["userMetadata._hop_metadata_drop_code15", 8, false],
         ["userMetadata._hop_metadata_eg_lif16", 16, false],
-        ["userMetadata._hop_metadata_storm_control_color17", 1, false],
-        ["_padding_0", 4, false]
+        ["userMetadata._hop_metadata_storm_control_color17", 1, false]
       ]
     },
     {
@@ -160,8 +155,18 @@
       ]
     },
     {
-      "name" : "tcp_t",
+      "name" : "mpls_t",
       "id" : 8,
+      "fields" : [
+        ["label", 20, false],
+        ["exp", 3, false],
+        ["bos", 1, false],
+        ["ttl", 8, false]
+      ]
+    },
+    {
+      "name" : "tcp_t",
+      "id" : 9,
       "fields" : [
         ["srcPort", 16, false],
         ["dstPort", 16, false],
@@ -178,22 +183,12 @@
     },
     {
       "name" : "udp_t",
-      "id" : 9,
+      "id" : 10,
       "fields" : [
         ["srcPort", 16, false],
         ["dstPort", 16, false],
         ["length_", 16, false],
         ["checksum", 16, false]
-      ]
-    },
-    {
-      "name" : "mpls_t",
-      "id" : 10,
-      "fields" : [
-        ["label", 20, false],
-        ["exp", 3, false],
-        ["bos", 1, false],
-        ["ttl", 8, false]
       ]
     },
     {
@@ -265,50 +260,35 @@
       "pi_omit" : true
     },
     {
-      "name" : "tcp",
+      "name" : "mpls",
       "id" : 8,
+      "header_type" : "mpls_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "tcp",
+      "id" : 9,
       "header_type" : "tcp_t",
       "metadata" : false,
       "pi_omit" : true
     },
     {
       "name" : "udp",
-      "id" : 9,
+      "id" : 10,
       "header_type" : "udp_t",
       "metadata" : false,
       "pi_omit" : true
     },
     {
-      "name" : "mpls[0]",
-      "id" : 10,
-      "header_type" : "mpls_t",
-      "metadata" : false,
-      "pi_omit" : true
-    },
-    {
-      "name" : "vlan_tag_[0]",
+      "name" : "vlan_tag",
       "id" : 11,
       "header_type" : "vlan_tag_t",
       "metadata" : false,
       "pi_omit" : true
     }
   ],
-  "header_stacks" : [
-    {
-      "name" : "mpls",
-      "id" : 0,
-      "header_type" : "mpls_t",
-      "size" : 1,
-      "header_ids" : [10]
-    },
-    {
-      "name" : "vlan_tag_",
-      "id" : 1,
-      "header_type" : "vlan_tag_t",
-      "size" : 1,
-      "header_ids" : [11]
-    }
-  ],
+  "header_stacks" : [],
   "header_union_types" : [],
   "header_unions" : [],
   "header_union_stacks" : [],
@@ -593,7 +573,7 @@
             {
               "parameters" : [
                 {
-                  "type" : "stack",
+                  "type" : "regular",
                   "value" : "mpls"
                 }
               ],
@@ -616,7 +596,7 @@
           ],
           "transition_key" : [
             {
-              "type" : "stack_field",
+              "type" : "field",
               "value" : ["mpls", "bos"]
             }
           ]
@@ -676,8 +656,8 @@
             {
               "parameters" : [
                 {
-                  "type" : "stack",
-                  "value" : "vlan_tag_"
+                  "type" : "regular",
+                  "value" : "vlan_tag"
                 }
               ],
               "op" : "extract"
@@ -735,8 +715,8 @@
           ],
           "transition_key" : [
             {
-              "type" : "stack_field",
-              "value" : ["vlan_tag_", "etherType"]
+              "type" : "field",
+              "value" : ["vlan_tag", "etherType"]
             }
           ]
         },
@@ -762,7 +742,7 @@
     {
       "name" : "deparser",
       "id" : 0,
-      "order" : ["ethernet", "vlan_tag_[0]", "arp_rarp", "ipv6", "ipv4", "gre", "udp", "tcp", "icmp", "mpls[0]"],
+      "order" : ["ethernet", "vlan_tag", "arp_rarp", "ipv6", "ipv4", "gre", "udp", "tcp", "icmp", "mpls"],
       "primitives" : []
     }
   ],
@@ -805,6 +785,18 @@
       "input" : [
         {
           "type" : "field",
+          "value" : ["scalars", "tmp_2"]
+        },
+        {
+          "type" : "field",
+          "value" : ["scalars", "tmp_3"]
+        },
+        {
+          "type" : "field",
+          "value" : ["scalars", "tmp_4"]
+        },
+        {
+          "type" : "field",
           "value" : ["scalars", "tmp_5"]
         },
         {
@@ -818,7 +810,14 @@
         {
           "type" : "field",
           "value" : ["scalars", "tmp_8"]
-        },
+        }
+      ]
+    },
+    {
+      "name" : "calc_1",
+      "id" : 2,
+      "algo" : "crc16",
+      "input" : [
         {
           "type" : "field",
           "value" : ["scalars", "tmp_9"]
@@ -830,14 +829,7 @@
         {
           "type" : "field",
           "value" : ["scalars", "tmp_11"]
-        }
-      ]
-    },
-    {
-      "name" : "calc_1",
-      "id" : 2,
-      "algo" : "crc16",
-      "input" : [
+        },
         {
           "type" : "field",
           "value" : ["scalars", "tmp_12"]
@@ -853,7 +845,14 @@
         {
           "type" : "field",
           "value" : ["scalars", "tmp_15"]
-        },
+        }
+      ]
+    },
+    {
+      "name" : "calc_2",
+      "id" : 3,
+      "algo" : "crc16",
+      "input" : [
         {
           "type" : "field",
           "value" : ["scalars", "tmp_16"]
@@ -865,14 +864,7 @@
         {
           "type" : "field",
           "value" : ["scalars", "tmp_18"]
-        }
-      ]
-    },
-    {
-      "name" : "calc_2",
-      "id" : 3,
-      "algo" : "crc16",
-      "input" : [
+        },
         {
           "type" : "field",
           "value" : ["scalars", "tmp_19"]
@@ -888,7 +880,14 @@
         {
           "type" : "field",
           "value" : ["scalars", "tmp_22"]
-        },
+        }
+      ]
+    },
+    {
+      "name" : "calc_3",
+      "id" : 4,
+      "algo" : "crc16",
+      "input" : [
         {
           "type" : "field",
           "value" : ["scalars", "tmp_23"]
@@ -900,14 +899,7 @@
         {
           "type" : "field",
           "value" : ["scalars", "tmp_25"]
-        }
-      ]
-    },
-    {
-      "name" : "calc_3",
-      "id" : 4,
-      "algo" : "crc16",
-      "input" : [
+        },
         {
           "type" : "field",
           "value" : ["scalars", "tmp_26"]
@@ -923,18 +915,6 @@
         {
           "type" : "field",
           "value" : ["scalars", "tmp_29"]
-        },
-        {
-          "type" : "field",
-          "value" : ["scalars", "tmp_30"]
-        },
-        {
-          "type" : "field",
-          "value" : ["scalars", "tmp_31"]
-        },
-        {
-          "type" : "field",
-          "value" : ["scalars", "tmp_32"]
         }
       ]
     },
@@ -1041,26 +1021,7 @@
       ]
     }
   ],
-  "learn_lists" : [
-    {
-      "id" : 1,
-      "name" : "mac_learn_digest",
-      "elements" : [
-        {
-          "type" : "field",
-          "value" : ["scalars", "tmp_2"]
-        },
-        {
-          "type" : "field",
-          "value" : ["scalars", "tmp_3"]
-        },
-        {
-          "type" : "field",
-          "value" : ["scalars", "tmp_4"]
-        }
-      ]
-    }
-  ],
+  "learn_lists" : [],
   "actions" : [
     {
       "name" : "NoAction",
@@ -1405,7 +1366,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["vlan_tag_[0]", "vid"]
+              "value" : ["vlan_tag", "vid"]
             },
             {
               "type" : "runtime_data",
@@ -1856,72 +1817,7 @@
       "name" : "generate_learn_notify",
       "id" : 42,
       "runtime_data" : [],
-      "primitives" : [
-        {
-          "op" : "assign",
-          "parameters" : [
-            {
-              "type" : "field",
-              "value" : ["scalars", "tmp_2"]
-            },
-            {
-              "type" : "field",
-              "value" : ["scalars", "userMetadata._hop_metadata_bd_index0"]
-            }
-          ]
-        },
-        {
-          "op" : "assign",
-          "parameters" : [
-            {
-              "type" : "field",
-              "value" : ["scalars", "tmp_3"]
-            },
-            {
-              "type" : "field",
-              "value" : ["ethernet", "srcAddr"]
-            }
-          ],
-          "source_info" : {
-            "filename" : "headers.p4",
-            "line" : 97,
-            "column" : 4,
-            "source_fragment" : "ethernet.srcAddr"
-          }
-        },
-        {
-          "op" : "assign",
-          "parameters" : [
-            {
-              "type" : "field",
-              "value" : ["scalars", "tmp_4"]
-            },
-            {
-              "type" : "field",
-              "value" : ["scalars", "userMetadata._hop_metadata_ig_lif1"]
-            }
-          ]
-        },
-        {
-          "op" : "generate_digest",
-          "parameters" : [
-            {
-              "type" : "hexstr",
-              "value" : "0x00000400"
-            },
-            {
-              "type" : "hexstr",
-              "value" : "0x1"
-            }
-          ],
-          "source_info" : {
-            "filename" : "actions.p4",
-            "line" : 39,
-            "column" : 4,
-            "source_fragment" : "generate_digest(1024, mac_learn_digest)"
-          }
-        }
-      ]
+      "primitives" : []
     },
     {
       "name" : "set_multicast_replication_list",
@@ -2042,7 +1938,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_5"]
+              "value" : ["scalars", "tmp_2"]
             },
             {
               "type" : "field",
@@ -2061,7 +1957,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_6"]
+              "value" : ["scalars", "tmp_3"]
             },
             {
               "type" : "field",
@@ -2080,7 +1976,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_7"]
+              "value" : ["scalars", "tmp_4"]
             },
             {
               "type" : "field",
@@ -2099,7 +1995,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_8"]
+              "value" : ["scalars", "tmp_5"]
             },
             {
               "type" : "field",
@@ -2118,7 +2014,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_9"]
+              "value" : ["scalars", "tmp_6"]
             },
             {
               "type" : "field",
@@ -2137,7 +2033,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_10"]
+              "value" : ["scalars", "tmp_7"]
             },
             {
               "type" : "field",
@@ -2156,7 +2052,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_11"]
+              "value" : ["scalars", "tmp_8"]
             },
             {
               "type" : "field",
@@ -2256,7 +2152,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_12"]
+              "value" : ["scalars", "tmp_9"]
             },
             {
               "type" : "field",
@@ -2275,7 +2171,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_13"]
+              "value" : ["scalars", "tmp_10"]
             },
             {
               "type" : "field",
@@ -2294,7 +2190,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_14"]
+              "value" : ["scalars", "tmp_11"]
             },
             {
               "type" : "field",
@@ -2313,7 +2209,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_15"]
+              "value" : ["scalars", "tmp_12"]
             },
             {
               "type" : "field",
@@ -2332,7 +2228,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_16"]
+              "value" : ["scalars", "tmp_13"]
             },
             {
               "type" : "field",
@@ -2351,7 +2247,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_17"]
+              "value" : ["scalars", "tmp_14"]
             },
             {
               "type" : "field",
@@ -2370,7 +2266,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_18"]
+              "value" : ["scalars", "tmp_15"]
             },
             {
               "type" : "field",
@@ -2482,7 +2378,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_19"]
+              "value" : ["scalars", "tmp_16"]
             },
             {
               "type" : "field",
@@ -2501,7 +2397,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_20"]
+              "value" : ["scalars", "tmp_17"]
             },
             {
               "type" : "field",
@@ -2520,7 +2416,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_21"]
+              "value" : ["scalars", "tmp_18"]
             },
             {
               "type" : "field",
@@ -2539,7 +2435,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_22"]
+              "value" : ["scalars", "tmp_19"]
             },
             {
               "type" : "field",
@@ -2558,7 +2454,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_23"]
+              "value" : ["scalars", "tmp_20"]
             },
             {
               "type" : "field",
@@ -2577,7 +2473,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_24"]
+              "value" : ["scalars", "tmp_21"]
             },
             {
               "type" : "field",
@@ -2596,7 +2492,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_25"]
+              "value" : ["scalars", "tmp_22"]
             },
             {
               "type" : "field",
@@ -2696,7 +2592,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_26"]
+              "value" : ["scalars", "tmp_23"]
             },
             {
               "type" : "field",
@@ -2715,7 +2611,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_27"]
+              "value" : ["scalars", "tmp_24"]
             },
             {
               "type" : "field",
@@ -2734,7 +2630,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_28"]
+              "value" : ["scalars", "tmp_25"]
             },
             {
               "type" : "field",
@@ -2753,7 +2649,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_29"]
+              "value" : ["scalars", "tmp_26"]
             },
             {
               "type" : "field",
@@ -2772,7 +2668,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_30"]
+              "value" : ["scalars", "tmp_27"]
             },
             {
               "type" : "field",
@@ -2791,7 +2687,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_31"]
+              "value" : ["scalars", "tmp_28"]
             },
             {
               "type" : "field",
@@ -2810,7 +2706,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_32"]
+              "value" : ["scalars", "tmp_29"]
             },
             {
               "type" : "field",
@@ -3156,32 +3052,6 @@
       "id" : 62,
       "runtime_data" : [],
       "primitives" : []
-    },
-    {
-      "name" : "tables27",
-      "id" : 63,
-      "runtime_data" : [],
-      "primitives" : [
-        {
-          "op" : "assign",
-          "parameters" : [
-            {
-              "type" : "field",
-              "value" : ["scalars", "key_0"]
-            },
-            {
-              "type" : "field",
-              "value" : ["vlan_tag_[0]", "vid"]
-            }
-          ],
-          "source_info" : {
-            "filename" : "tables.p4",
-            "line" : 27,
-            "column" : 8,
-            "source_fragment" : "vlan_tag_[0].vid"
-          }
-        }
-      ]
     }
   ],
   "pipelines" : [
@@ -3221,11 +3091,11 @@
           "direct_meters" : null,
           "action_ids" : [31, 33, 6],
           "actions" : ["nop", "set_bcast_storm_meter", "NoAction"],
-          "base_default_next" : "tbl_tables27",
+          "base_default_next" : "ig_phy_meta",
           "next_tables" : {
-            "nop" : "tbl_tables27",
-            "set_bcast_storm_meter" : "tbl_tables27",
-            "NoAction" : "tbl_tables27"
+            "nop" : "ig_phy_meta",
+            "set_bcast_storm_meter" : "ig_phy_meta",
+            "NoAction" : "ig_phy_meta"
           },
           "default_entry" : {
             "action_id" : 6,
@@ -3235,37 +3105,8 @@
           }
         },
         {
-          "name" : "tbl_tables27",
-          "id" : 1,
-          "source_info" : {
-            "filename" : "tables.p4",
-            "line" : 27,
-            "column" : 8,
-            "source_fragment" : "vlan_tag_[0].vid"
-          },
-          "key" : [],
-          "match_type" : "exact",
-          "type" : "simple",
-          "max_size" : 1024,
-          "with_counters" : false,
-          "support_timeout" : false,
-          "direct_meters" : null,
-          "action_ids" : [63],
-          "actions" : ["tables27"],
-          "base_default_next" : "ig_phy_meta",
-          "next_tables" : {
-            "tables27" : "ig_phy_meta"
-          },
-          "default_entry" : {
-            "action_id" : 63,
-            "action_const" : true,
-            "action_data" : [],
-            "action_entry_const" : true
-          }
-        },
-        {
           "name" : "ig_phy_meta",
-          "id" : 2,
+          "id" : 1,
           "source_info" : {
             "filename" : "tables.p4",
             "line" : 24,
@@ -3275,14 +3116,14 @@
           "key" : [
             {
               "match_type" : "exact",
-              "name" : "vlan_tag_[0].$valid$",
-              "target" : ["vlan_tag_[0]", "$valid$"],
+              "name" : "vlan_tag.$valid$",
+              "target" : ["vlan_tag", "$valid$"],
               "mask" : null
             },
             {
               "match_type" : "exact",
-              "name" : "vlan_tag_[0].vid",
-              "target" : ["scalars", "key_0"],
+              "name" : "vlan_tag.vid",
+              "target" : ["vlan_tag", "vid"],
               "mask" : null
             },
             {
@@ -3314,7 +3155,7 @@
         },
         {
           "name" : "ig_props",
-          "id" : 3,
+          "id" : 2,
           "source_info" : {
             "filename" : "tables.p4",
             "line" : 58,
@@ -3357,7 +3198,7 @@
         },
         {
           "name" : "ig_smac",
-          "id" : 4,
+          "id" : 3,
           "source_info" : {
             "filename" : "tables.p4",
             "line" : 40,
@@ -3387,7 +3228,7 @@
         },
         {
           "name" : "ig_acl1",
-          "id" : 5,
+          "id" : 4,
           "source_info" : {
             "filename" : "tables.p4",
             "line" : 87,
@@ -3448,7 +3289,7 @@
         },
         {
           "name" : "ig_router_mac",
-          "id" : 6,
+          "id" : 5,
           "source_info" : {
             "filename" : "tables.p4",
             "line" : 105,
@@ -3483,14 +3324,14 @@
           "direct_meters" : null,
           "action_ids" : [37, 38, 39, 40, 41, 10],
           "actions" : ["on_ipv4_ucast_hit", "on_ipv4_xcast_hit", "on_ipv6_ucast_hit", "on_ipv6_xcast_hit", "on_miss", "NoAction"],
-          "base_default_next" : "node_15",
+          "base_default_next" : "node_14",
           "next_tables" : {
             "on_ipv4_ucast_hit" : "ipv4_ucast_host",
             "on_ipv4_xcast_hit" : "ipv4_mcast",
             "on_ipv6_ucast_hit" : "ipv6_ucast_host",
             "on_ipv6_xcast_hit" : "ipv6_mcast",
-            "on_miss" : "node_15",
-            "NoAction" : "node_15"
+            "on_miss" : "node_14",
+            "NoAction" : "node_14"
           },
           "default_entry" : {
             "action_id" : 10,
@@ -3501,7 +3342,7 @@
         },
         {
           "name" : "ipv4_ucast_host",
-          "id" : 7,
+          "id" : 6,
           "source_info" : {
             "filename" : "tables.p4",
             "line" : 124,
@@ -3545,7 +3386,7 @@
         },
         {
           "name" : "ipv4_ucast_lpm",
-          "id" : 8,
+          "id" : 7,
           "source_info" : {
             "filename" : "tables.p4",
             "line" : 139,
@@ -3574,11 +3415,11 @@
           "direct_meters" : null,
           "action_ids" : [46, 48, 15],
           "actions" : ["set_next_hop_ipv4", "on_miss", "NoAction"],
-          "base_default_next" : "node_15",
+          "base_default_next" : "node_14",
           "next_tables" : {
-            "set_next_hop_ipv4" : "node_15",
-            "on_miss" : "node_15",
-            "NoAction" : "node_15"
+            "set_next_hop_ipv4" : "node_14",
+            "on_miss" : "node_14",
+            "NoAction" : "node_14"
           },
           "default_entry" : {
             "action_id" : 15,
@@ -3589,7 +3430,7 @@
         },
         {
           "name" : "ipv4_mcast",
-          "id" : 9,
+          "id" : 8,
           "source_info" : {
             "filename" : "tables.p4",
             "line" : 154,
@@ -3630,10 +3471,10 @@
           "direct_meters" : null,
           "action_ids" : [43, 12],
           "actions" : ["set_multicast_replication_list", "NoAction"],
-          "base_default_next" : "node_15",
+          "base_default_next" : "node_14",
           "next_tables" : {
-            "set_multicast_replication_list" : "node_15",
-            "NoAction" : "node_15"
+            "set_multicast_replication_list" : "node_14",
+            "NoAction" : "node_14"
           },
           "default_entry" : {
             "action_id" : 12,
@@ -3644,7 +3485,7 @@
         },
         {
           "name" : "ipv6_ucast_host",
-          "id" : 10,
+          "id" : 9,
           "source_info" : {
             "filename" : "tables.p4",
             "line" : 186,
@@ -3688,7 +3529,7 @@
         },
         {
           "name" : "ipv6_ucast_lpm",
-          "id" : 11,
+          "id" : 10,
           "source_info" : {
             "filename" : "tables.p4",
             "line" : 201,
@@ -3717,11 +3558,11 @@
           "direct_meters" : null,
           "action_ids" : [50, 52, 17],
           "actions" : ["set_next_hop_ipv6", "on_miss", "NoAction"],
-          "base_default_next" : "node_15",
+          "base_default_next" : "node_14",
           "next_tables" : {
-            "set_next_hop_ipv6" : "node_15",
-            "on_miss" : "node_15",
-            "NoAction" : "node_15"
+            "set_next_hop_ipv6" : "node_14",
+            "on_miss" : "node_14",
+            "NoAction" : "node_14"
           },
           "default_entry" : {
             "action_id" : 17,
@@ -3732,7 +3573,7 @@
         },
         {
           "name" : "ipv6_mcast",
-          "id" : 12,
+          "id" : 11,
           "source_info" : {
             "filename" : "tables.p4",
             "line" : 216,
@@ -3773,10 +3614,10 @@
           "direct_meters" : null,
           "action_ids" : [44, 13],
           "actions" : ["set_multicast_replication_list", "NoAction"],
-          "base_default_next" : "node_15",
+          "base_default_next" : "node_14",
           "next_tables" : {
-            "set_multicast_replication_list" : "node_15",
-            "NoAction" : "node_15"
+            "set_multicast_replication_list" : "node_14",
+            "NoAction" : "node_14"
           },
           "default_entry" : {
             "action_id" : 13,
@@ -3787,7 +3628,7 @@
         },
         {
           "name" : "ipv4_urpf",
-          "id" : 13,
+          "id" : 12,
           "source_info" : {
             "filename" : "tables.p4",
             "line" : 170,
@@ -3837,7 +3678,7 @@
         },
         {
           "name" : "ipv4_ecmp",
-          "id" : 14,
+          "id" : 13,
           "source_info" : {
             "filename" : "tables.p4",
             "line" : 248,
@@ -3881,7 +3722,7 @@
         },
         {
           "name" : "ipv4_nexthop",
-          "id" : 15,
+          "id" : 14,
           "source_info" : {
             "filename" : "tables.p4",
             "line" : 263,
@@ -3918,7 +3759,7 @@
         },
         {
           "name" : "ipv6_urpf",
-          "id" : 16,
+          "id" : 15,
           "source_info" : {
             "filename" : "tables.p4",
             "line" : 232,
@@ -3968,7 +3809,7 @@
         },
         {
           "name" : "ipv6_ecmp",
-          "id" : 17,
+          "id" : 16,
           "source_info" : {
             "filename" : "tables.p4",
             "line" : 276,
@@ -4012,7 +3853,7 @@
         },
         {
           "name" : "ipv6_nexthop",
-          "id" : 18,
+          "id" : 17,
           "source_info" : {
             "filename" : "tables.p4",
             "line" : 291,
@@ -4049,7 +3890,7 @@
         },
         {
           "name" : "ig_dmac",
-          "id" : 19,
+          "id" : 18,
           "source_info" : {
             "filename" : "tables.p4",
             "line" : 304,
@@ -4092,7 +3933,7 @@
         },
         {
           "name" : "ig_agg_intf",
-          "id" : 20,
+          "id" : 19,
           "source_info" : {
             "filename" : "tables.p4",
             "line" : 318,
@@ -4135,7 +3976,7 @@
         },
         {
           "name" : "ig_acl2",
-          "id" : 21,
+          "id" : 20,
           "source_info" : {
             "filename" : "tables.p4",
             "line" : 332,
@@ -4179,7 +4020,7 @@
         },
         {
           "name" : "eg_phy_meta",
-          "id" : 22,
+          "id" : 21,
           "source_info" : {
             "filename" : "tables.p4",
             "line" : 361,
@@ -4223,7 +4064,7 @@
         },
         {
           "name" : "eg_props",
-          "id" : 23,
+          "id" : 22,
           "source_info" : {
             "filename" : "tables.p4",
             "line" : 347,
@@ -4266,7 +4107,7 @@
         },
         {
           "name" : "eg_acl1",
-          "id" : 24,
+          "id" : 23,
           "source_info" : {
             "filename" : "tables.p4",
             "line" : 376,
@@ -4317,7 +4158,7 @@
       "action_profiles" : [],
       "conditionals" : [
         {
-          "name" : "node_15",
+          "name" : "node_14",
           "id" : 0,
           "source_info" : {
             "filename" : "l2l3complex.p4",
@@ -4337,10 +4178,10 @@
             }
           },
           "true_next" : "ipv4_urpf",
-          "false_next" : "node_19"
+          "false_next" : "node_18"
         },
         {
-          "name" : "node_19",
+          "name" : "node_18",
           "id" : 1,
           "source_info" : {
             "filename" : "l2l3complex.p4",

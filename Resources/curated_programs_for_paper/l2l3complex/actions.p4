@@ -36,7 +36,7 @@ action set_bd_index_and_ig_lif(bd_index, ig_lif) {
 }
 
 action generate_learn_notify() {
-    generate_digest(MAC_LEARN_RECEIVER, mac_learn_digest);
+    //generate_digest(MAC_LEARN_RECEIVER, mac_learn_digest);
 }
 
 meter storm_control_meter {
@@ -118,5 +118,5 @@ action set_egress_props(bd_acl_label, lif_acl_label) {
 }
 
 action set_vlan(vlan_id) {
-    modify_field(vlan_tag_[0].vid, vlan_id);
+    modify_field(vlan_tag.vid, vlan_id);
 }

@@ -252,17 +252,18 @@ def optFound(context):
 
 def printBestOpt(context, printEdges=True):
     if len(context.optNodes) > 0:
-        print("opt-algorithm best edge count: %d" % context.bestEdgeCount)
-        print("opt-algorithm worst bits-per-cycle: %1.3f   (%1.3f bytes-per-cycle)" % \
-                (context.worstBPC, context.worstBPC / 8))
+        # print("opt-algorithm best edge count: %d" % context.bestEdgeCount)
+        # print("opt-algorithm worst bits-per-cycle: %1.3f   (%1.3f bytes-per-cycle)" % \
+        #         (context.worstBPC, context.worstBPC / 8))
         if printEdges:
-            print("opt-algorithm optimal clusters:")
+            # print("opt-algorithm optimal clusters:")
+            print("Clusters in Parse graph")
             # for cluster in sorted(context.bestClusters):
             for cluster in context.bestClusters:
                 print("  %s   (%d edges)" % (cluster, findEdgeCount(context, cluster)))
-                #cnode = DAGChainNode(cluster.chain[0].dagNode, cluster.chain[0].startPos, 0, 0)
-                #coveredClusters = findClustersAndCovers(cnode)
-                #fringe = findFringeWithMinCoverLen(cluster, coveredClusters)
+                # cnode = DAGChainNode(cluster.chain[0].dagNode, cluster.chain[0].startPos, 0, 0)
+                # coveredClusters = findClustersAndCovers(context,cnode)
+                # fringe = findFringeWithMinCoverLen(cluster, coveredClusters)
                 #print "    ",
                 #for f in sorted(fringe):
                 #    print f,
@@ -2038,12 +2039,15 @@ def printDAG(dag):
     print("Printing the parser DAG")
     pending = [dag]
     seen = set(pending)
+    totalEdges = 0
     while len(pending) > 0:
         node = pending.pop(0)
         for nxt in sorted(node.nxt):
+            totalEdges = totalEdges + 1
             if nxt and nxt not in seen:
                 seen.add(nxt)
                 pending.append(nxt)
+
 
     # Work out the length of the longest shortStr
     maxLen = 0
@@ -2052,6 +2056,7 @@ def printDAG(dag):
         if strLen > maxLen:
             maxLen = strLen
 
+    print("Total edges in the parse graph: "+str(totalEdges))
     formatStr = '%%%ds   %%s' % maxLen
     print(formatStr % ('NODE', 'CHILDREN'))
     for node in sorted(seen):
@@ -2128,8 +2133,8 @@ def runExploreAndOpt(context,
 
     expTime = runExplore(context)
 
-    if showExpTime:
-        print("Graph exploration time: %1.03fs" % expTime)
+    # if showExpTime:
+    #     print("Graph exploration time: %1.03fs" % expTime)
 
     if printPathsToExplore:
         baseNode = DAGChainNode(context.dag, 0, 0, 0)
@@ -2140,15 +2145,16 @@ def runExploreAndOpt(context,
                 exp += 3
                 pathCount /= 1000
             pathCount /= 1000.0
-            print("Total paths to explore: %1.3f x 10^%d" % (pathCount, exp))
+            # print("Total paths to explore: %1.3f x 10^%d" % (pathCount, exp))
         else:
-            print("Total paths to explore: %d" % pathCount)
+            # print("Total paths to explore: %d" % pathCount)
+            pass
 
     optTime = runOpt(context)
 
-    if showOptTime:
-        print("Algorithm runtime: %1.03fs" % optTime)
-        print("Algorithm evaluation steps: %d" % context.count)
+    # if showOptTime:
+    #     print("Algorithm runtime: %1.03fs" % optTime)
+    #     print("Algorithm evaluation steps: %d" % context.count)
 
     if printResults:
         printBestOpt(context, printEdges)

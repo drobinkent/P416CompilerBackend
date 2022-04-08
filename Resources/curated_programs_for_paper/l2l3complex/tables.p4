@@ -23,8 +23,8 @@ limitations under the License.
  */
 table ig_phy_meta {
     reads {
-        vlan_tag_[0] : valid;
-        vlan_tag_[0].vid : exact;
+        vlan_tag : valid;
+        vlan_tag.vid : exact;
         standard_metadata.ingress_port : exact;
     }
     actions {

@@ -66,20 +66,20 @@ parser parse_ethernet {
 }
 
 #define VLAN_DEPTH 1
-header vlan_tag_t vlan_tag_[VLAN_DEPTH];
+header vlan_tag_t vlan_tag;
 
 parser parse_vlan {
-    extract(vlan_tag_[next]);
+    extract(vlan_tag);
     return select(latest.etherType) {
         PARSE_ETHERTYPE;
     }
 }
 
 #define MPLS_DEPTH 1
-header mpls_t mpls[MPLS_DEPTH];
+header mpls_t mpls;
 
 parser parse_mpls {
-    extract(mpls[next]);
+    extract(mpls);
     return select(latest.bos) {
         0 : parse_mpls;
         default: ingress;

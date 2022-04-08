@@ -84,20 +84,20 @@ parser parse_ethernet {
 }
 
 
-header vlan_tag_t vlan_tag_[1];
+header vlan_tag_t vlan_tag;
 
 parser parse_vlan {
-    extract(vlan_tag_[next]);
+    extract(vlan_tag);
     return select(latest.etherType) {
         0x8100, 0x9100 : parse_vlan; 0x8847 : parse_mpls; 0x0800 : parse_ipv4; 0x86dd : parse_ipv6; 0x0806 : parse_arp_rarp; 0x8035 : parse_arp_rarp; default: ingress;
     }
 }
 
 
-header mpls_t mpls[1];
+header mpls_t mpls;
 
 parser parse_mpls {
-    extract(mpls[next]);
+    extract(mpls);
     return select(latest.bos) {
         0 : parse_mpls;
         default: ingress;
@@ -452,7 +452,7 @@ action set_bd_index_and_ig_lif(bd_index, ig_lif) {
 }
 
 action generate_learn_notify() {
-    generate_digest(1024, mac_learn_digest);
+    //generate_digest(MAC_LEARN_RECEIVER, mac_learn_digest);
 }
 
 meter storm_control_meter {
@@ -534,7 +534,7 @@ action set_egress_props(bd_acl_label, lif_acl_label) {
 }
 
 action set_vlan(vlan_id) {
-    modify_field(vlan_tag_[0].vid, vlan_id);
+    modify_field(vlan_tag.vid, vlan_id);
 }
 # 25 "l2l3complex.p4" 2
 # 1 "tables.p4" 1
@@ -563,8 +563,8 @@ limitations under the License.
  */
 table ig_phy_meta {
     reads {
-        vlan_tag_[0] : valid;
-        vlan_tag_[0].vid : exact;
+        vlan_tag : valid;
+        vlan_tag.vid : exact;
         standard_metadata.ingress_port : exact;
     }
     actions {

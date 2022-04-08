@@ -154,3 +154,9 @@ hashing way ta j amra input dichi onek function a seta k avoid korte hobe
 ----vvi
 
 probably we need to writ a function to ge the bitrwidth of a hrxstring and use it in action bitwidth calculation
+
+
+
+--vvi:
+
+calcExtractLocs(headerList, headers,initHeader) -- ei function ta k thik korte hobe

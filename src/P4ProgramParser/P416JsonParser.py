@@ -1804,6 +1804,7 @@ class ParserValueType(Enum):
     FIELD = "field"
     HEXSTR = "hexstr"
     REGULAR = "regular"
+    LOOK_AHEAD = "lookahead"
 
 
 
