@@ -62,7 +62,7 @@ parser parse_ethernet {
     }
 }
 
-#define VLAN_DEPTH 1
+/*#define VLAN_DEPTH 1
 header vlan_tag_t vlan_tag;
 
 parser parse_vlan {
@@ -82,7 +82,7 @@ parser parse_mpls {
         default: ingress;
     }
 }
-
+*/
 #define IP_PROTOCOLS_ICMP              1
 #define IP_PROTOCOLS_IGMP              2
 #define IP_PROTOCOLS_IPV4              4
@@ -136,13 +136,7 @@ calculated_field ipv4.hdrChecksum  {
 
 parser parse_ipv4 {
     extract(ipv4);
-    /*return select(latest.fragOffset, latest.ihl, latest.protocol) {
-        IP_PROTOCOLS_IPHL_ICMP : parse_icmp;
-        IP_PROTOCOLS_IPHL_TCP : parse_tcp;
-        IP_PROTOCOLS_IPHL_UDP : parse_udp;
-        IP_PROTOCOLS_IPHL_GRE : parse_gre;
-        default: ingress;
-    }*/
+
     return ingress;
 }
 
@@ -156,54 +150,19 @@ parser  parse_control{
 header ipv6_t ipv6;
 parser parse_ipv6 {
     extract(ipv6);
-    /*return select(latest.nextHdr) {
-        IP_PROTOCOLS_ICMPV6 : parse_icmp;
-        IP_PROTOCOLS_TCP : parse_tcp;
-        IP_PROTOCOLS_UDP : parse_udp;
-        IP_PROTOCOLS_GRE : parse_gre;
-        default: ingress;
-    }*/
     return ingress;
 }
 
-header icmp_t icmp;
 
-parser parse_icmp {
-    extract(icmp);
-    return ingress;
-}
 
 #define TCP_PORT_BGP                   179
 #define TCP_PORT_MSDP                  639
 
-header tcp_t tcp;
-parser parse_tcp {
-    extract(tcp);
-    return ingress;
-}
 
-header udp_t udp;
-
-parser parse_udp {
-    extract(udp);
-    return ingress;
-}
 
 #define GRE_PROTOCOLS_NVGRE            0x20006558
 #define GRE_PROTOCOLS_ERSPAN_T3        0x22EB   /* Type III version 2 */
 
-header gre_t gre;
 
-parser parse_gre {
-    extract(gre);
-    return ingress;
-}
 
 #define ARP_PROTOTYPES_ARP_RARP_IPV4 0x0800
-
-header arp_rarp_t arp_rarp;
-
-parser parse_arp_rarp {
-    extract(arp_rarp);
-    return ingress;
-}

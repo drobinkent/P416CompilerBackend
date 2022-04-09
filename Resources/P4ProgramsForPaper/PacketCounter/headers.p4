@@ -45,61 +45,7 @@ header_type hop_metadata_t {
 }
 metadata hop_metadata_t hop_metadata;
 
-field_list l3_hash_fields_ipv4 {
-    ipv4.srcAddr;
-    ipv4.dstAddr;
-    ipv4.protocol;
-    tcp.srcPort;
-    tcp.dstPort;
-    udp.srcPort;
-    udp.dstPort;
-}
 
-field_list_calculation l3_hash_ipv4 {
-    input {
-        l3_hash_fields_ipv4;
-    }
-    algorithm : crc16;
-    output_width : ECMP_BIT_WIDTH;
-}
-
-field_list l3_hash_fields_ipv6 {
-    ipv6.srcAddr;
-    ipv6.dstAddr;
-    ipv6.nextHdr;
-    tcp.srcPort;
-    tcp.dstPort;
-    udp.srcPort;
-    udp.dstPort;
-}
-
-field_list_calculation l3_hash_ipv6 {
-    input {
-        l3_hash_fields_ipv6;
-    }
-    algorithm : crc16;
-    output_width : ECMP_BIT_WIDTH;
-}
-
-field_list l2_hash_fields {
-    ethernet.srcAddr;
-    ethernet.dstAddr;
-    ethernet.etherType;
-}
-
-field_list_calculation l2_hash_calc {
-    input {
-        l2_hash_fields;
-    }
-    algorithm : crc16;
-    output_width : ECMP_BIT_WIDTH;
-}
-
-field_list mac_learn_digest {
-    hop_metadata.bd_index;
-    ethernet.srcAddr;
-    hop_metadata.ig_lif;
-}
 
 header_type ethernet_t {
     fields {
@@ -109,23 +55,6 @@ header_type ethernet_t {
     }
 }
 
-header_type vlan_tag_t {
-    fields {
-        pcp : 3;
-        cfi : 1;
-        vid : 12;
-        etherType : 16;
-    }
-}
-
-header_type mpls_t {
-    fields {
-        label : 20;
-        exp : 3;
-        bos : 1;
-        ttl : 8;
-    }
-}
 
 header_type ipv4_t {
     fields {
@@ -166,59 +95,8 @@ header_type control_packet_t {
     }
 }
 
-header_type icmp_t {
-    fields {
-        type_ : 8;
-        code : 8;
-        hdrChecksum : 16;
-    }
-}
 
-header_type tcp_t {
-    fields {
-        srcPort : 16;
-        dstPort : 16;
-        seqNo : 32;
-        ackNo : 32;
-        dataOffset : 4;
-        res : 3;
-        ecn : 3;
-        ctrl : 6;
-        window : 16;
-        checksum : 16;
-        urgentPtr : 16;
-    }
-}
 
-header_type udp_t {
-    fields {
-        srcPort : 16;
-        dstPort : 16;
-        length_ : 16;
-        checksum : 16;
-    }
-}
 
-header_type gre_t {
-    fields {
-        C : 1;
-        R : 1;
-        K : 1;
-        S : 1;
-        s : 1;
-        recurse : 3;
-        flags : 5;
-        ver : 3;
-        proto : 16;
-    }
-}
 
-header_type arp_rarp_t {
-    fields {
-        hwType : 16;
-        protoType : 16;
-        hwAddrLen : 8;
-        protoAddrLen : 8;
-        opcode : 16;
-    }
-}
+

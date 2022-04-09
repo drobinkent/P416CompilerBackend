@@ -39,6 +39,7 @@ def loadParseGraph(parserObject,p4ProgramGraph):
     headers = {}
     # while (curParserState != None):
     init_header = None
+    print("Total number of states in the parse graph is : "+str(len(parserObject.parse_states)))
     for curParserState in parserObject.parse_states:
         if(len(curParserState.parser_ops) ==0) and (len(curParserState.transition_key)==0):
             if(curParserState.name == parserObject.init_state):

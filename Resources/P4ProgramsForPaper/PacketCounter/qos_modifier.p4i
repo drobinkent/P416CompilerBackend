@@ -1,7 +1,7 @@
-# 0 "protocol_packet_counting.p4"
+# 0 "qos_modifier.p4"
 # 0 "<built-in>"
 # 0 "<command-line>"
-# 1 "protocol_packet_counting.p4"
+# 1 "qos_modifier.p4"
 /*
 Copyright (c) 2015-2016 by The Board of Trustees of the Leland
 Stanford Junior University.  All rights reserved.
@@ -46,7 +46,7 @@ limitations under the License.
 /* Should be 16 tables
  * Do we need check_ipv6_size though? it kinda sucks
  */
-# 22 "protocol_packet_counting.p4" 2
+# 22 "qos_modifier.p4" 2
 # 1 "parser.p4" 1
 /*
 Copyright (c) 2015-2016 by The Board of Trustees of the Leland
@@ -83,17 +83,17 @@ parser parse_ethernet {
     }
 }
 
-
+/*#define VLAN_DEPTH 1
 header vlan_tag_t vlan_tag;
 
 parser parse_vlan {
     extract(vlan_tag);
     return select(latest.etherType) {
-        0x0800 : parse_ipv4; 0x86dd : parse_ipv6; 0x0806: parse_control ; default: ingress;
+        PARSE_ETHERTYPE;
     }
 }
 
-
+#define MPLS_DEPTH 1
 header mpls_t mpls;
 
 parser parse_mpls {
@@ -103,6 +103,7 @@ parser parse_mpls {
         default: ingress;
     }
 }
+*/
 # 108 "parser.p4"
 header ipv4_t ipv4;
 
@@ -135,13 +136,7 @@ calculated_field ipv4.hdrChecksum {
 
 parser parse_ipv4 {
     extract(ipv4);
-    /*return select(latest.fragOffset, latest.ihl, latest.protocol) {
-        IP_PROTOCOLS_IPHL_ICMP : parse_icmp;
-        IP_PROTOCOLS_IPHL_TCP : parse_tcp;
-        IP_PROTOCOLS_IPHL_UDP : parse_udp;
-        IP_PROTOCOLS_IPHL_GRE : parse_gre;
-        default: ingress;
-    }*/
+
     return ingress;
 }
 
@@ -155,58 +150,9 @@ parser parse_control{
 header ipv6_t ipv6;
 parser parse_ipv6 {
     extract(ipv6);
-    /*return select(latest.nextHdr) {
-        IP_PROTOCOLS_ICMPV6 : parse_icmp;
-        IP_PROTOCOLS_TCP : parse_tcp;
-        IP_PROTOCOLS_UDP : parse_udp;
-        IP_PROTOCOLS_GRE : parse_gre;
-        default: ingress;
-    }*/
     return ingress;
 }
-
-header icmp_t icmp;
-
-parser parse_icmp {
-    extract(icmp);
-    return ingress;
-}
-
-
-
-
-header tcp_t tcp;
-parser parse_tcp {
-    extract(tcp);
-    return ingress;
-}
-
-header udp_t udp;
-
-parser parse_udp {
-    extract(udp);
-    return ingress;
-}
-
-
-
-
-header gre_t gre;
-
-parser parse_gre {
-    extract(gre);
-    return ingress;
-}
-
-
-
-header arp_rarp_t arp_rarp;
-
-parser parse_arp_rarp {
-    extract(arp_rarp);
-    return ingress;
-}
-# 23 "protocol_packet_counting.p4" 2
+# 23 "qos_modifier.p4" 2
 # 1 "headers.p4" 1
 /*
 Copyright (c) 2015-2016 by The Board of Trustees of the Leland
@@ -255,61 +201,7 @@ header_type hop_metadata_t {
 }
 metadata hop_metadata_t hop_metadata;
 
-field_list l3_hash_fields_ipv4 {
-    ipv4.srcAddr;
-    ipv4.dstAddr;
-    ipv4.protocol;
-    tcp.srcPort;
-    tcp.dstPort;
-    udp.srcPort;
-    udp.dstPort;
-}
 
-field_list_calculation l3_hash_ipv4 {
-    input {
-        l3_hash_fields_ipv4;
-    }
-    algorithm : crc16;
-    output_width : 36;
-}
-
-field_list l3_hash_fields_ipv6 {
-    ipv6.srcAddr;
-    ipv6.dstAddr;
-    ipv6.nextHdr;
-    tcp.srcPort;
-    tcp.dstPort;
-    udp.srcPort;
-    udp.dstPort;
-}
-
-field_list_calculation l3_hash_ipv6 {
-    input {
-        l3_hash_fields_ipv6;
-    }
-    algorithm : crc16;
-    output_width : 36;
-}
-
-field_list l2_hash_fields {
-    ethernet.srcAddr;
-    ethernet.dstAddr;
-    ethernet.etherType;
-}
-
-field_list_calculation l2_hash_calc {
-    input {
-        l2_hash_fields;
-    }
-    algorithm : crc16;
-    output_width : 36;
-}
-
-field_list mac_learn_digest {
-    hop_metadata.bd_index;
-    ethernet.srcAddr;
-    hop_metadata.ig_lif;
-}
 
 header_type ethernet_t {
     fields {
@@ -319,23 +211,6 @@ header_type ethernet_t {
     }
 }
 
-header_type vlan_tag_t {
-    fields {
-        pcp : 3;
-        cfi : 1;
-        vid : 12;
-        etherType : 16;
-    }
-}
-
-header_type mpls_t {
-    fields {
-        label : 20;
-        exp : 3;
-        bos : 1;
-        ttl : 8;
-    }
-}
 
 header_type ipv4_t {
     fields {
@@ -375,64 +250,7 @@ header_type control_packet_t {
 
     }
 }
-
-header_type icmp_t {
-    fields {
-        type_ : 8;
-        code : 8;
-        hdrChecksum : 16;
-    }
-}
-
-header_type tcp_t {
-    fields {
-        srcPort : 16;
-        dstPort : 16;
-        seqNo : 32;
-        ackNo : 32;
-        dataOffset : 4;
-        res : 3;
-        ecn : 3;
-        ctrl : 6;
-        window : 16;
-        checksum : 16;
-        urgentPtr : 16;
-    }
-}
-
-header_type udp_t {
-    fields {
-        srcPort : 16;
-        dstPort : 16;
-        length_ : 16;
-        checksum : 16;
-    }
-}
-
-header_type gre_t {
-    fields {
-        C : 1;
-        R : 1;
-        K : 1;
-        S : 1;
-        s : 1;
-        recurse : 3;
-        flags : 5;
-        ver : 3;
-        proto : 16;
-    }
-}
-
-header_type arp_rarp_t {
-    fields {
-        hwType : 16;
-        protoType : 16;
-        hwAddrLen : 8;
-        protoAddrLen : 8;
-        opcode : 16;
-    }
-}
-# 24 "protocol_packet_counting.p4" 2
+# 24 "qos_modifier.p4" 2
 # 1 "actions.p4" 1
 /*
 Copyright (c) 2015-2016 by The Board of Trustees of the Leland
@@ -465,20 +283,20 @@ action action_drop(drop_reason) {
     modify_field(hop_metadata.drop_code, drop_reason);
     drop();
 }
-
+/*
 action set_bd_index_and_ig_lif(bd_index, ig_lif) {
     modify_field(hop_metadata.bd_index, bd_index);
     modify_field(hop_metadata.ig_lif, ig_lif);
 }
 
 action generate_learn_notify() {
-    generate_digest(1024, mac_learn_digest);
+    generate_digest(MAC_LEARN_RECEIVER, mac_learn_digest);
 }
 
 meter storm_control_meter {
     type : bytes;
     result : hop_metadata.storm_control_color;
-    instance_count : 64;
+    instance_count : IG_BCAST_STORM_SIZE;
 }
 
 action set_bcast_storm_meter(meter_idx) {
@@ -505,7 +323,7 @@ action on_ipv6_ucast_hit() {
 action on_ipv6_xcast_hit() {
 }
 
-
+*/
 action set_ipv4_ipv6_qos(){
     register_write(ipv4_port_qos, control_packet.index, control_packet.ipv4_diffserv);
     register_write(ipv6_port_qos, control_packet.index, control_packet.ipv6_trafficClass);
@@ -541,7 +359,7 @@ action set_next_hop_ipv6(port) {
     register_read(ipv6.trafficClass, ipv6_port_qos, port);
 }
 
-action set_multicast_replication_list(mc_index) {
+/*action set_multicast_replication_list(mc_index) {
     modify_field(hop_metadata.mcast_grp, mc_index);
 }
 
@@ -556,18 +374,18 @@ action set_ecmp_next_hop_ipv4(dst_index) {
 action set_ecmp_next_hop_ipv6(dst_index) {
     modify_field(hop_metadata.ipv6_next_hop_index, dst_index);
 }
-
+*/
 action set_ethernet_addr(bd_index, smac, dmac) {
     modify_field(hop_metadata.bd_index, bd_index);
     modify_field(ethernet.srcAddr, smac);
     modify_field(ethernet.dstAddr, dmac);
 }
-
+/*
 action set_eg_lif(eg_lif) {
     modify_field(hop_metadata.eg_lif, eg_lif);
     modify_field_with_hash_based_offset(hop_metadata.l2_hash, 0, l2_hash_calc, 0);
 }
-
+*/
 action set_egress_port(e_port) {
     modify_field(standard_metadata.egress_spec, e_port);
 }
@@ -576,11 +394,13 @@ action set_egress_props(bd_acl_label, lif_acl_label) {
     modify_field(hop_metadata.bd_acl_label, bd_acl_label);
     modify_field(hop_metadata.lif_acl_label, lif_acl_label);
 }
-
+/*
 action set_vlan(vlan_id) {
     modify_field(vlan_tag.vid, vlan_id);
 }
-# 25 "protocol_packet_counting.p4" 2
+
+*/
+# 25 "qos_modifier.p4" 2
 # 1 "tables.p4" 1
 /*
 Copyright (c) 2015-2016 by The Board of Trustees of the Leland
@@ -612,107 +432,7 @@ table match_control_packet {
     }
     size : 256;
 }
-
-/*
- * Table 1: IG_Phy_Meta
- */
-table ig_phy_meta {
-    reads {
-        vlan_tag: valid;
-        vlan_tag.vid : exact;
-        standard_metadata.ingress_port : exact;
-    }
-    actions {
-        set_bd_index_and_ig_lif;
-    }
-    size : 4000;
-}
-
-/*
- * Table 2: IG_Smac
- * Source mac learning.
- */
-table ig_smac {
-    /* 
-     * reads {
-     *     hop_metadata.bd_index : exact;
-     *     ethernet.srcAddr : exact;
-     *     hop_metadata.ig_lif : exact;
-     * }
-     */
-    actions {
-        generate_learn_notify;
-    }
-    size : 128000;
-}
-
-/*
- * Table 3: IG_Props
- * Sets vrf_index and urpf.
- */
-table ig_props {
-    reads {
-        hop_metadata.bd_index : exact;
-        hop_metadata.ig_lif : exact;
-    }
-    actions {
-        set_ig_props;
-    }
-    size : 4000;
-}
-
-/*
- * Table 4: IG_Bcast_Storm
- */
-table ig_bcast_storm {
-    reads {
-        standard_metadata.ingress_port : exact;
-        ethernet.dstAddr : exact;
-    }
-    actions {
-        nop;
-        set_bcast_storm_meter;
-    }
-    size : 64;
-}
-
-/*
- * Table 5: IG_ACL1
- */
-table ig_acl1 {
-    reads {
-        standard_metadata.ingress_port : exact;
-        ethernet.srcAddr : exact;
-        ethernet.dstAddr : exact;
-        hop_metadata.bd_acl_label : ternary;
-        hop_metadata.lif_acl_label : ternary;
-    }
-    actions {
-        action_drop;
-    }
-    size : 8000;
-}
-
-/*
- * Table 6: IG_Router_Mac
- * Decides NTA as IPv4 unicast, IPv4 multicast, IPv6 unicast, IPv6 multicast, or pure L2 packet.
- */
-table ig_router_mac {
-    reads {
-        hop_metadata.bd_index : exact;
-        ethernet.dstAddr : exact;
-        ethernet.etherType : exact;
-    }
-    actions {
-        on_ipv4_ucast_hit;
-        on_ipv4_xcast_hit;
-        on_ipv6_ucast_hit;
-        on_ipv6_xcast_hit;
-        on_miss;
-    }
-    size : 1000;
-}
-
+# 40 "tables.p4"
 /*
  * Table 7: Ipv4_Ucast_Host
  */
@@ -980,7 +700,7 @@ table eg_acl1 {
     }
     size : 16000;
 }
-# 26 "protocol_packet_counting.p4" 2
+# 26 "qos_modifier.p4" 2
 
 control l3_checks_ipv4 {
 
@@ -990,20 +710,10 @@ control process_control_packet {
    apply(match_control_packet);
 }
 
-control l3_checks_ipv6 {
 
-    apply(ipv6_nexthop);
-}
 
-control ipv4_ucast {
-    apply(ipv4_ucast_host);
-    apply(ipv4_ucast_lpm);
-}
 
-control ipv6_ucast {
-    apply(ipv6_ucast_host);
-    apply(ipv6_ucast_lpm);
-}
+
 
 control ingress {
     /* Ingress properties, learning */

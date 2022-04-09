@@ -26,7 +26,7 @@
     "MaxMoveAheadBit": 128,
     "TCAMLength": 255,
     "TCAMLookupFieldCount": 4,
-    "TCAMLookupFieldWidth": 4,
+    "TCAMLookupFieldWidth": 1,
     "MaxExtractableData": 4
   },
   "StageDescription": [

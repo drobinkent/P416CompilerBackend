@@ -13,6 +13,7 @@ def calculatePHVWaste(headerFieldSpecsInP4Program, mappedPacketHeaderVector,tota
         for phv in phvList:
             totalBitsRequiredInPhv = totalBitsRequiredInPhv + phv
 
+    print("Total Bitwidth of the raw header fields is: "+str(totalRawBitwidth)+" bits")
     print("Total Bitwidth required for accomodating the header fields using the smallest size PHV field is: "+str(totalBitsRequiredForRawHeaderFields)+" bits")
     print("Total Bitwidth required for accomodating the header fields using the PHV fields is: "+str(totalBitsRequiredInPhv)+" bits")
     waste = 0

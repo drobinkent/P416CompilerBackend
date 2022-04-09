@@ -32,20 +32,10 @@ control process_control_packet {
    apply(match_control_packet);
 }
 
-control l3_checks_ipv6 {
 
-    apply(ipv6_nexthop);
-}
 
-control ipv4_ucast {
-    apply(ipv4_ucast_host);
-    apply(ipv4_ucast_lpm);
-}
 
-control ipv6_ucast {
-    apply(ipv6_ucast_host);
-    apply(ipv6_ucast_lpm);
-}
+
 
 control ingress {
     /* Ingress properties, learning */

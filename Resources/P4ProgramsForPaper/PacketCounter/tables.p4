@@ -29,105 +29,13 @@ table match_control_packet {
     size :  CONTROL_TABLE_SIZE;
 }
 
-/*
- * Table 1: IG_Phy_Meta
- */
-table ig_phy_meta {
-    reads {
-        vlan_tag: valid;
-        vlan_tag.vid : exact;
-        standard_metadata.ingress_port : exact;
-    }
-    actions {
-        set_bd_index_and_ig_lif;
-    }
-    size : IG_PHY_META_SIZE;
-}
 
-/*
- * Table 2: IG_Smac
- * Source mac learning.
- */
-table ig_smac {
-    /* 
-     * reads {
-     *     hop_metadata.bd_index : exact;
-     *     ethernet.srcAddr : exact;
-     *     hop_metadata.ig_lif : exact;
-     * }
-     */
-    actions {
-        generate_learn_notify;
-    }
-    size : IG_SMAC_SIZE;
-}
 
-/*
- * Table 3: IG_Props
- * Sets vrf_index and urpf.
- */
-table ig_props {
-    reads {
-        hop_metadata.bd_index : exact;
-        hop_metadata.ig_lif : exact;
-    }
-    actions {
-        set_ig_props;
-    }
-    size : IG_PROPS_SIZE;
-}
 
-/*
- * Table 4: IG_Bcast_Storm
- */
-table ig_bcast_storm {
-    reads {
-        standard_metadata.ingress_port : exact;
-        ethernet.dstAddr : exact;
-    }
-    actions {
-        nop;
-        set_bcast_storm_meter;
-    }
-    size : IG_BCAST_STORM_SIZE;
-}
 
-/*
- * Table 5: IG_ACL1
- */
-table ig_acl1 {
-    reads {
-        standard_metadata.ingress_port : exact;
-        ethernet.srcAddr : exact;
-        ethernet.dstAddr : exact;
-        hop_metadata.bd_acl_label : ternary;
-        hop_metadata.lif_acl_label : ternary;
-    }
-    actions {
-        action_drop;
-    }
-    size : IG_ACL1_SIZE;
-}
 
-/*
- * Table 6: IG_Router_Mac
- * Decides NTA as IPv4 unicast, IPv4 multicast, IPv6 unicast, IPv6 multicast, or pure L2 packet.
- */
-table ig_router_mac {
-    reads {
-        hop_metadata.bd_index : exact;
-        ethernet.dstAddr : exact;
-        ethernet.etherType : exact;
-    }
-    actions {
-        on_ipv4_ucast_hit;
-        on_ipv4_xcast_hit;
-        on_ipv6_ucast_hit;
-        on_ipv6_xcast_hit;
-        on_miss; 
-    }
-    size : IG_ROUTER_MAC_SIZE;
-}
+
+
 
 /*
  * Table 7: Ipv4_Ucast_Host
