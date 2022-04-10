@@ -37,10 +37,10 @@
         "ActionMemoryBlockWidth": 8,
         "ActionMemoryBlockBitwdith": 80,
         "SRAMResources": {
-          "MemoryPortWidth": 112,
+          "MemoryPortWidth": 80,
           "MemoryPortCount": 8,
           "MemoryBlockCount": 106,
-          "MemoryBlockBitWidth": 112,
+          "MemoryBlockBitWidth": 80,
           "MemoroyBlockRowCount": 1024
         },
         "TCAMMatResources": {
@@ -68,7 +68,7 @@
           },
           "PerSRAMMatBlockSpec": {
             "SRAMBitWidth": 80,
-            "HashingWay": 1
+            "HashingWay": 4
           }
         },
         "ExternResources": {
