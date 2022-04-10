@@ -1,0 +1,1082 @@
+{
+  "header_types" : [
+    {
+      "name" : "scalars_0",
+      "id" : 0,
+      "fields" : [
+        ["tmp", 7, false],
+        ["tmp_0", 7, false],
+        ["tmp_1", 7, false],
+        ["tmp_2", 7, false],
+        ["userMetadata._hop_metadata_bd_index0", 16, false],
+        ["userMetadata._hop_metadata_ig_lif1", 16, false],
+        ["userMetadata._hop_metadata_vrf_index2", 12, false],
+        ["userMetadata._hop_metadata_urpf3", 2, false],
+        ["userMetadata._hop_metadata_ingress_port4", 9, false],
+        ["userMetadata._hop_metadata_egress_port5", 9, false],
+        ["userMetadata._hop_metadata_bd_acl_label6", 24, false],
+        ["userMetadata._hop_metadata_lif_acl_label7", 24, false],
+        ["userMetadata._hop_metadata_ipv4_next_hop_index8", 16, false],
+        ["userMetadata._hop_metadata_ipv4_ecmp_index9", 16, false],
+        ["userMetadata._hop_metadata_ipv6_next_hop_index10", 16, false],
+        ["userMetadata._hop_metadata_ipv6_ecmp_index11", 16, false],
+        ["userMetadata._hop_metadata_ipv6_prefix12", 64, false],
+        ["userMetadata._hop_metadata_l3_hash13", 16, false],
+        ["userMetadata._hop_metadata_l2_hash14", 16, false],
+        ["userMetadata._hop_metadata_mcast_grp15", 16, false],
+        ["userMetadata._hop_metadata_urpf_check_fail16", 1, false],
+        ["userMetadata._hop_metadata_drop_code17", 8, false],
+        ["userMetadata._hop_metadata_eg_lif18", 16, false],
+        ["userMetadata._hop_metadata_storm_control_color19", 1, false],
+        ["userMetadata._hop_metadata_register_tmp20", 32, false],
+        ["_padding_0", 2, false]
+      ]
+    },
+    {
+      "name" : "standard_metadata",
+      "id" : 1,
+      "fields" : [
+        ["ingress_port", 9, false],
+        ["egress_spec", 9, false],
+        ["egress_port", 9, false],
+        ["instance_type", 32, false],
+        ["packet_length", 32, false],
+        ["enq_timestamp", 32, false],
+        ["enq_qdepth", 19, false],
+        ["deq_timedelta", 32, false],
+        ["deq_qdepth", 19, false],
+        ["ingress_global_timestamp", 48, false],
+        ["egress_global_timestamp", 48, false],
+        ["mcast_grp", 16, false],
+        ["egress_rid", 16, false],
+        ["checksum_error", 1, false],
+        ["parser_error", 32, false],
+        ["priority", 3, false],
+        ["_padding", 3, false]
+      ]
+    },
+    {
+      "name" : "control_packet_t",
+      "id" : 2,
+      "fields" : [
+        ["ipv4_diffserv", 8, false],
+        ["ipv6_trafficClass", 8, false],
+        ["index", 8, false]
+      ]
+    },
+    {
+      "name" : "ethernet_t",
+      "id" : 3,
+      "fields" : [
+        ["dstAddr", 48, false],
+        ["srcAddr", 48, false],
+        ["etherType", 16, false]
+      ]
+    },
+    {
+      "name" : "ipv4_t",
+      "id" : 4,
+      "fields" : [
+        ["version", 4, false],
+        ["ihl", 4, false],
+        ["diffserv", 8, false],
+        ["totalLen", 16, false],
+        ["identification", 16, false],
+        ["flags", 3, false],
+        ["fragOffset", 13, false],
+        ["ttl", 8, false],
+        ["protocol", 8, false],
+        ["hdrChecksum", 16, false],
+        ["srcAddr", 32, false],
+        ["dstAddr", 32, false]
+      ]
+    },
+    {
+      "name" : "ipv6_t",
+      "id" : 5,
+      "fields" : [
+        ["version", 4, false],
+        ["trafficClass", 8, false],
+        ["flowLabel", 20, false],
+        ["payloadLen", 16, false],
+        ["nextHdr", 8, false],
+        ["hopLimit", 8, false],
+        ["srcAddr", 128, false],
+        ["dstAddr", 128, false]
+      ]
+    }
+  ],
+  "headers" : [
+    {
+      "name" : "scalars",
+      "id" : 0,
+      "header_type" : "scalars_0",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "standard_metadata",
+      "id" : 1,
+      "header_type" : "standard_metadata",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "control_packet",
+      "id" : 2,
+      "header_type" : "control_packet_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "ethernet",
+      "id" : 3,
+      "header_type" : "ethernet_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "ipv4",
+      "id" : 4,
+      "header_type" : "ipv4_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "ipv6",
+      "id" : 5,
+      "header_type" : "ipv6_t",
+      "metadata" : false,
+      "pi_omit" : true
+    }
+  ],
+  "header_stacks" : [],
+  "header_union_types" : [],
+  "header_unions" : [],
+  "header_union_stacks" : [],
+  "field_lists" : [],
+  "errors" : [
+    ["NoError", 0],
+    ["PacketTooShort", 1],
+    ["NoMatch", 2],
+    ["StackOutOfBounds", 3],
+    ["HeaderTooShort", 4],
+    ["ParserTimeout", 5],
+    ["ParserInvalidArgument", 6]
+  ],
+  "enums" : [],
+  "parsers" : [
+    {
+      "name" : "parser",
+      "id" : 0,
+      "init_state" : "start",
+      "parse_states" : [
+        {
+          "name" : "parse_control",
+          "id" : 0,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "control_packet"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : []
+        },
+        {
+          "name" : "parse_ethernet",
+          "id" : 1,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "ethernet"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "hexstr",
+              "value" : "0x0800",
+              "mask" : null,
+              "next_state" : "parse_ipv4"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x86dd",
+              "mask" : null,
+              "next_state" : "parse_ipv6"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0806",
+              "mask" : null,
+              "next_state" : "parse_control"
+            },
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : [
+            {
+              "type" : "field",
+              "value" : ["ethernet", "etherType"]
+            }
+          ]
+        },
+        {
+          "name" : "parse_ipv4",
+          "id" : 2,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "ipv4"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : []
+        },
+        {
+          "name" : "parse_ipv6",
+          "id" : 3,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "ipv6"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : []
+        },
+        {
+          "name" : "start",
+          "id" : 4,
+          "parser_ops" : [],
+          "transitions" : [
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : "parse_ethernet"
+            }
+          ],
+          "transition_key" : []
+        }
+      ]
+    }
+  ],
+  "parse_vsets" : [],
+  "deparsers" : [
+    {
+      "name" : "deparser",
+      "id" : 0,
+      "order" : ["ethernet", "control_packet", "ipv6", "ipv4"],
+      "primitives" : []
+    }
+  ],
+  "meter_arrays" : [],
+  "counter_arrays" : [],
+  "register_arrays" : [
+    {
+      "name" : "ipv4_port_qos",
+      "id" : 0,
+      "size" : 128,
+      "bitwidth" : 8
+    },
+    {
+      "name" : "ipv6_port_qos",
+      "id" : 1,
+      "size" : 128,
+      "bitwidth" : 8
+    }
+  ],
+  "calculations" : [
+    {
+      "name" : "calc",
+      "id" : 0,
+      "algo" : "csum16",
+      "input" : [
+        {
+          "type" : "field",
+          "value" : ["ipv4", "version"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "ihl"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "diffserv"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "totalLen"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "identification"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "flags"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "fragOffset"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "ttl"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "protocol"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "srcAddr"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "dstAddr"]
+        }
+      ]
+    },
+    {
+      "name" : "calc_0",
+      "id" : 1,
+      "algo" : "csum16",
+      "input" : [
+        {
+          "type" : "field",
+          "value" : ["ipv4", "version"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "ihl"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "diffserv"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "totalLen"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "identification"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "flags"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "fragOffset"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "ttl"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "protocol"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "srcAddr"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "dstAddr"]
+        }
+      ]
+    }
+  ],
+  "learn_lists" : [],
+  "actions" : [
+    {
+      "name" : "NoAction",
+      "id" : 0,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 1,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 2,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "set_next_hop_ipv4",
+      "id" : 3,
+      "runtime_data" : [
+        {
+          "name" : "port",
+          "bitwidth" : 9
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._hop_metadata_egress_port5"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "actions.p4",
+            "line" : 88,
+            "column" : 25,
+            "source_fragment" : "port) { ..."
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "&",
+                      "left" : {
+                        "type" : "local",
+                        "value" : 0
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0x007f"
+                      }
+                    }
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0x7f"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "actions.p4",
+            "line" : 88,
+            "column" : 25,
+            "source_fragment" : "port"
+          }
+        },
+        {
+          "op" : "register_read",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["ipv4", "diffserv"]
+            },
+            {
+              "type" : "register_array",
+              "value" : "ipv4_port_qos"
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "actions.p4",
+            "line" : 90,
+            "column" : 7,
+            "source_fragment" : "register_read(ipv4.diffserv, ipv4_port_qos, port)"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["ipv6", "dstAddr"]
+            },
+            {
+              "type" : "field",
+              "value" : ["ipv6", "srcAddr"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "actions.p4",
+            "line" : 91,
+            "column" : 7,
+            "source_fragment" : "modify_field(ipv6.dstAddr, ipv6.srcAddr)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "ipv4_miss",
+      "id" : 4,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["ipv6", "dstAddr"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000000000000000000000000970bed"
+            }
+          ],
+          "source_info" : {
+            "filename" : "actions.p4",
+            "line" : 85,
+            "column" : 4,
+            "source_fragment" : "modify_field(ipv6.dstAddr, 9898989)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "set_next_hop_ipv6",
+      "id" : 5,
+      "runtime_data" : [
+        {
+          "name" : "port",
+          "bitwidth" : 9
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._hop_metadata_egress_port5"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "actions.p4",
+            "line" : 102,
+            "column" : 25,
+            "source_fragment" : "port) { ..."
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_0"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "&",
+                      "left" : {
+                        "type" : "local",
+                        "value" : 0
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0x007f"
+                      }
+                    }
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0x7f"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "actions.p4",
+            "line" : 102,
+            "column" : 25,
+            "source_fragment" : "port"
+          }
+        },
+        {
+          "op" : "register_read",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["ipv6", "trafficClass"]
+            },
+            {
+              "type" : "register_array",
+              "value" : "ipv6_port_qos"
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_0"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "actions.p4",
+            "line" : 105,
+            "column" : 4,
+            "source_fragment" : "register_read(ipv6.trafficClass, ipv6_port_qos, port)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "set_ipv4_ipv6_qos",
+      "id" : 6,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_1"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "&",
+                      "left" : {
+                        "type" : "field",
+                        "value" : ["control_packet", "index"]
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0x7f"
+                      }
+                    }
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0x7f"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "actions.p4",
+            "line" : 74,
+            "column" : 34,
+            "source_fragment" : "control_packet.index"
+          }
+        },
+        {
+          "op" : "register_write",
+          "parameters" : [
+            {
+              "type" : "register_array",
+              "value" : "ipv4_port_qos"
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_1"]
+            },
+            {
+              "type" : "field",
+              "value" : ["control_packet", "ipv4_diffserv"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "actions.p4",
+            "line" : 74,
+            "column" : 4,
+            "source_fragment" : "register_write(ipv4_port_qos, control_packet.index, control_packet.ipv4_diffserv)"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_2"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "&",
+                      "left" : {
+                        "type" : "field",
+                        "value" : ["control_packet", "index"]
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0x7f"
+                      }
+                    }
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0x7f"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "actions.p4",
+            "line" : 75,
+            "column" : 34,
+            "source_fragment" : "control_packet.index"
+          }
+        },
+        {
+          "op" : "register_write",
+          "parameters" : [
+            {
+              "type" : "register_array",
+              "value" : "ipv6_port_qos"
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_2"]
+            },
+            {
+              "type" : "field",
+              "value" : ["control_packet", "ipv6_trafficClass"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "actions.p4",
+            "line" : 75,
+            "column" : 4,
+            "source_fragment" : "register_write(ipv6_port_qos, control_packet.index, control_packet.ipv6_trafficClass)"
+          }
+        }
+      ]
+    }
+  ],
+  "pipelines" : [
+    {
+      "name" : "ingress",
+      "id" : 0,
+      "init_table" : "node_2",
+      "tables" : [
+        {
+          "name" : "match_control_packet",
+          "id" : 0,
+          "source_info" : {
+            "filename" : "tables.p4",
+            "line" : 21,
+            "column" : 0,
+            "source_fragment" : "table match_control_packet { ..."
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "control_packet.$valid$",
+              "target" : ["control_packet", "$valid$"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 256,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [6, 2],
+          "actions" : ["set_ipv4_ipv6_qos", "NoAction"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "set_ipv4_ipv6_qos" : null,
+            "NoAction" : null
+          },
+          "default_entry" : {
+            "action_id" : 2,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "ipv4_nexthop",
+          "id" : 1,
+          "source_info" : {
+            "filename" : "tables.p4",
+            "line" : 34,
+            "column" : 0,
+            "source_fragment" : "table ipv4_nexthop { ..."
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "ipv4.dstAddr",
+              "target" : ["ipv4", "dstAddr"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1600,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [3, 4, 0],
+          "actions" : ["set_next_hop_ipv4", "ipv4_miss", "NoAction"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "ipv4_miss" : "ipv6_nexthop",
+            "set_next_hop_ipv4" : null,
+            "NoAction" : null
+          },
+          "default_entry" : {
+            "action_id" : 0,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "ipv6_nexthop",
+          "id" : 2,
+          "source_info" : {
+            "filename" : "tables.p4",
+            "line" : 46,
+            "column" : 0,
+            "source_fragment" : "table ipv6_nexthop { ..."
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "ipv6.dstAddr",
+              "target" : ["ipv6", "dstAddr"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1600,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [5, 1],
+          "actions" : ["set_next_hop_ipv6", "NoAction"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "set_next_hop_ipv6" : null,
+            "NoAction" : null
+          },
+          "default_entry" : {
+            "action_id" : 1,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        }
+      ],
+      "action_profiles" : [],
+      "conditionals" : [
+        {
+          "name" : "node_2",
+          "id" : 0,
+          "source_info" : {
+            "filename" : "qos_modifier.p4",
+            "line" : 43,
+            "column" : 7,
+            "source_fragment" : "valid(control_packet)"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "d2b",
+              "left" : null,
+              "right" : {
+                "type" : "field",
+                "value" : ["control_packet", "$valid$"]
+              }
+            }
+          },
+          "true_next" : "match_control_packet",
+          "false_next" : "ipv4_nexthop"
+        }
+      ]
+    },
+    {
+      "name" : "egress",
+      "id" : 1,
+      "init_table" : null,
+      "tables" : [],
+      "action_profiles" : [],
+      "conditionals" : []
+    }
+  ],
+  "checksums" : [
+    {
+      "name" : "cksum",
+      "id" : 0,
+      "target" : ["ipv4", "hdrChecksum"],
+      "type" : "generic",
+      "calculation" : "calc",
+      "verify" : false,
+      "update" : true,
+      "if_cond" : {
+        "type" : "expression",
+        "value" : {
+          "op" : "==",
+          "left" : {
+            "type" : "field",
+            "value" : ["ipv4", "ihl"]
+          },
+          "right" : {
+            "type" : "hexstr",
+            "value" : "0x05"
+          }
+        }
+      }
+    },
+    {
+      "name" : "cksum_0",
+      "id" : 1,
+      "target" : ["ipv4", "hdrChecksum"],
+      "type" : "generic",
+      "calculation" : "calc_0",
+      "verify" : true,
+      "update" : false,
+      "if_cond" : {
+        "type" : "expression",
+        "value" : {
+          "op" : "==",
+          "left" : {
+            "type" : "field",
+            "value" : ["ipv4", "ihl"]
+          },
+          "right" : {
+            "type" : "hexstr",
+            "value" : "0x05"
+          }
+        }
+      }
+    }
+  ],
+  "force_arith" : [],
+  "extern_instances" : [],
+  "field_aliases" : [
+    [
+      "queueing_metadata.enq_timestamp",
+      ["standard_metadata", "enq_timestamp"]
+    ],
+    [
+      "queueing_metadata.enq_qdepth",
+      ["standard_metadata", "enq_qdepth"]
+    ],
+    [
+      "queueing_metadata.deq_timedelta",
+      ["standard_metadata", "deq_timedelta"]
+    ],
+    [
+      "queueing_metadata.deq_qdepth",
+      ["standard_metadata", "deq_qdepth"]
+    ],
+    [
+      "intrinsic_metadata.ingress_global_timestamp",
+      ["standard_metadata", "ingress_global_timestamp"]
+    ],
+    [
+      "intrinsic_metadata.egress_global_timestamp",
+      ["standard_metadata", "egress_global_timestamp"]
+    ],
+    [
+      "intrinsic_metadata.mcast_grp",
+      ["standard_metadata", "mcast_grp"]
+    ],
+    [
+      "intrinsic_metadata.egress_rid",
+      ["standard_metadata", "egress_rid"]
+    ],
+    [
+      "intrinsic_metadata.priority",
+      ["standard_metadata", "priority"]
+    ]
+  ],
+  "program" : "./qos_modifier.p4i",
+  "__meta__" : {
+    "version" : [2, 23],
+    "compiler" : "https://github.com/p4lang/p4c"
+  }
+}

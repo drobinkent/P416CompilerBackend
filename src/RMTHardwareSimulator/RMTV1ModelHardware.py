@@ -407,7 +407,7 @@ class RMTV1ModelHardware:
                 hardware.printStageHardwareAvailableResourceStatistics(startingPhyicalStageIndex)
                 endingPhysicalStageListForLogicalStageIndex = endingPhysicalStageListForLogicalStageIndex + endingStageList
                 endingPhysicalStageListForLogicalStageIndex.sort()
-                logicalStageIndexToPhysicalStageIndexMap[logicalStageIndex] = endingPhysicalStageListForLogicalStageIndex[len(endingPhysicalStageListForLogicalStageIndex)-1]+1
+                logicalStageIndexToPhysicalStageIndexMap[logicalStageIndex] = endingPhysicalStageListForLogicalStageIndex[len(endingPhysicalStageListForLogicalStageIndex)-1]
                 startingPhyicalStageIndex = endingPhysicalStageListForLogicalStageIndex[len(endingPhysicalStageListForLogicalStageIndex)-1]+1
 
         print('Printing logical stage index to physical stage index')
@@ -416,9 +416,10 @@ class RMTV1ModelHardware:
             print("Logical Stage: "+str(logicalStageIndex)+" Corresponding ending physical Stage is : "+str(logicalStageIndexToPhysicalStageIndexMap.get(logicalStageIndex)))
             if(maxPhysicalStageIndex < logicalStageIndexToPhysicalStageIndexMap.get(logicalStageIndex)):
                 maxPhysicalStageIndex = logicalStageIndexToPhysicalStageIndexMap.get(logicalStageIndex)
-        print("TOTAL NUMBER of physcial stages required by pipeline: "+str(pipelineID)+" is :"+str(maxPhysicalStageIndex))
+
         if(maxPhysicalStageIndex != -1):
-            return maxPhysicalStageIndex + 1 # Becuase max index 3 means actually 4 stages are required
+            maxPhysicalStageIndex =  maxPhysicalStageIndex + 1 # Becuase max index 3 means actually 4 stages are required
+        print("TOTAL NUMBER of physcial stages required by pipeline: "+str(pipelineID)+" is :"+str(maxPhysicalStageIndex))
         return  maxPhysicalStageIndex
 
 
@@ -505,6 +506,7 @@ class RMTV1ModelHardware:
             remainingActionEntries = remainingMatEntries
         if(remainingMatEntries == 0):
             startingStage, endingStage = startingStageIndex, startingStageIndex
+            currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode, numberOfMatEntriesToBeAllocated = 1, numberOfActionEntriesToBeAllocated = 1, pipelineID=pipelineID)
         while(currentStageHardwareResource != None) and (remainingMatEntries > 0):
             accmodatableMatEntries = 0
             if(matNode.matKeyBitWidth == 0):
@@ -558,8 +560,9 @@ class RMTV1ModelHardware:
         if(remainingMatEntries < remainingActionEntries):
             remainingActionEntries = remainingMatEntries
 
-        # if(remainingMatEntries == 0):
-        #     startingStage, endingStage = startingStageIndex, startingStageIndex
+        if(remainingMatEntries == 0):
+            startingStage, endingStage = startingStageIndex, startingStageIndex
+            currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode, numberOfMatEntriesToBeAllocated = 1, numberOfActionEntriesToBeAllocated = 1, pipelineID=pipelineID)
         while(currentStageHardwareResource != None) and (remainingMatEntries >=0 ):
             accmodatableMatEntries = 0
             accmodatableActionEntries = 0
@@ -638,8 +641,9 @@ class RMTV1ModelHardware:
         remainingActionEntries = matNode.getRequiredNumberOfActionEntries()
         if(remainingMatEntries < remainingActionEntries):
             remainingActionEntries = remainingMatEntries
-        # if(remainingMatEntries == 0):
-        #     startingStage, endingStage = startingStageIndex, startingStageIndex
+        if(remainingMatEntries == 0):
+            startingStage, endingStage = startingStageIndex, startingStageIndex
+            currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode, numberOfMatEntriesToBeAllocated = 1, numberOfActionEntriesToBeAllocated = 1, pipelineID=pipelineID)
         while(currentStageHardwareResource != None) and (remainingMatEntries >= 0):
             accmodatableMatEntries = 0
             if(matNode.matKeyBitWidth == 0):
@@ -695,6 +699,7 @@ class RMTV1ModelHardware:
             remainingActionEntries = remainingMatEntries
         if(remainingMatEntries == 0):
             startingStage, endingStage = startingStageIndex, startingStageIndex
+            currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode, numberOfMatEntriesToBeAllocated = 1, numberOfActionEntriesToBeAllocated = 1, pipelineID=pipelineID)
         while(currentStageHardwareResource != None) and (remainingMatEntries > 0):
             accmodatableMatEntries = 0
             # if(matNode.matKeyBitWidth == 0):
@@ -844,9 +849,15 @@ class RMTV1ModelHardware:
                 startTimeList.append(prevStageEndTime+0)
                 endingTimeList.append(prevStageEndTime+1)
 
-            prevStageStartTime = startTimeList[len(startTimeList)-1]
-            prevStageEndTime = endingTimeList[len(endingTimeList)-1]
+            # prevStageStartTime = startTimeList[len(startTimeList)-1]
+            # prevStageEndTime = endingTimeList[len(endingTimeList)-1]
+
+            if(prevStageStartTime < startTimeList[len(startTimeList)-1]):
+                prevStageStartTime = startTimeList[len(startTimeList)-1]
+            if (prevStageEndTime < endingTimeList[len(endingTimeList)-1]):
+                prevStageEndTime = endingTimeList[len(endingTimeList)-1]
             print("Stage: "+str(stageIndex)+" starts execution at cycle "+str(startTimeList[0])+" and finishes execution at cycle "+str(endingTimeList[len(endingTimeList)-1]))
+            print("According to latency calculation: this stage starts at "+str(prevStageStartTime)+" and ends at "+str(prevStageEndTime))
         return endingTimeList[len(endingTimeList)-1]
 
 # algo
@@ -981,7 +992,7 @@ class RMTV1ModelHardware:
         for tbl in tblList:
             tbl.executionStartingCycle = startCycle
             tbl.executionEndingCycle= tbl.executionStartingCycle + hw.hardwareSpecRawJsonObjects.single_stage_cycle_length
-            # print("Table "+str(tbl.name)+" Starting cycle "+str(tbl.executionStartingCycle)+" Ending cycle "+str(tbl.executionEndingCycle))
+            print("Table "+str(tbl.name)+" Starting cycle "+str(tbl.executionStartingCycle)+" Ending cycle "+str(tbl.executionEndingCycle))
             for child in tbl.concurrentlyExecutableDependentTableList:
                 self.assignStartAndFinishCycleToSuperTable([child], tbl.executionStartingCycle+1,hw)
 
