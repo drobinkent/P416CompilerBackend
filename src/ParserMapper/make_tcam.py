@@ -60,7 +60,7 @@ maxSkip = 0  #how much it can jump while extracting
 minSkip = 0
 firstLookupAtZero = True
 windowSize = 16
-extract = False
+extract = True
 extractBytes = 16
 maxHdrs = 16
 
@@ -114,7 +114,7 @@ def setParserMapperParameter(hw):
     ParserMapper.make_tcam.extractBytes = hw.parserSpecs.max_extractable_data
     ParserMapper.make_tcam.minSkip = 0
     ParserMapper.make_tcam.firstLookupAtZero = True
-    ParserMapper.make_tcam.extract = False
+    ParserMapper.make_tcam.extract = True
 
 
 
@@ -270,7 +270,7 @@ def printBestOpt(context, printEdges=True):
                 #for f in sorted(fringe):
                 #    print f,
                 #print ""
-        print("Total edges in the parse graph is :"+str(totalEdges))
+        # print("Total edges in the cluster parse graph is :"+str(totalEdges))
     else:
         print("opt-algorithm could not find optimal that met required BPC (%d) or minimum skip amount (%d)" % (globalBPC, minSkip))
         print('Exiting!!')

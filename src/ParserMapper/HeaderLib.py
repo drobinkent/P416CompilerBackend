@@ -40,6 +40,11 @@ def loadParseGraph(parserObject,p4ProgramGraph):
     # while (curParserState != None):
     init_header = None
     print("Total number of states in the parse graph is : "+str(len(parserObject.parse_states)))
+    totalEdgeCount = 0
+    for curParserState in parserObject.parse_states:
+        totalEdgeCount = totalEdgeCount + len(curParserState.transitions)
+
+    print("Total edges in the parse graph is: "+ str(totalEdgeCount))
     for curParserState in parserObject.parse_states:
         if(len(curParserState.parser_ops) ==0) and (len(curParserState.transition_key)==0):
             if(curParserState.name == parserObject.init_state):
@@ -102,12 +107,13 @@ def loadParseGraph(parserObject,p4ProgramGraph):
                     exit(1)
 
                 if(len(curParserState.transition_key) ==0) and (curParserState.transitions[0].next_state != None): # This means it is a default transition, because there are not transition kes but there is a trnasition which is default
-                    print("Default transition" )
+                    # print("Default transition" )
                     handleParserDefaultTransition(p4ProgramGraph, parserObject, curParserState, parserMapperHeader)
                 elif(len(curParserState.transition_key) ==0) and (curParserState.transitions[0].next_state == None): # This means it is a default transition
-                    print("Reached an end state of the parse graph. Current state name is "+str(curParserState.name) )
+                    # print("Reached an end state of the parse graph. Current state name is "+str(curParserState.name) )
+                    pass
                 else:
-                    print("Non end state in parse graph")
+                    # print("Non end state in parse graph")
                     fromFields = curParserState.getTransitionKeyFieldsAsList()
                     rangeCount = 0
                     widths = parserMapperHeader.getFieldWidths(fromFields) # There are some suspiciois about this function and the function that adds header fileds to a parsedmappedheadder

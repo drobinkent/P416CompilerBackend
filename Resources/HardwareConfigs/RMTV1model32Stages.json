@@ -21,13 +21,13 @@
   ],
   "ParserSpecs": {
     "ParsingRate": 40,
-    "HeaderIdentificationBufferSize": 16,
-    "MaxIdentifieableHeader": 3,
+    "HeaderIdentificationBufferSize": 32,
+    "MaxIdentifieableHeader": 4,
     "MaxMoveAheadBit": 128,
-    "TCAMLength": 255,
+    "TCAMLength": 256,
     "TCAMLookupFieldCount": 4,
     "TCAMLookupFieldWidth": 1,
-    "MaxExtractableData": 4
+    "MaxExtractableData": 16
   },
   "StageDescription": [
       {

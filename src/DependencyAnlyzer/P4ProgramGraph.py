@@ -3,6 +3,7 @@ import logging
 from enum import Enum
 import sys
 
+import CompilerConfigurations
 from DependencyAnlyzer.DefinitionConstants import PipelineID
 from DependencyAnlyzer.PipelineGraph import PipelineGraph
 
@@ -91,6 +92,8 @@ class P4ProgramGraph:
                 newPipelineGraph.preProcessPipelineGraph(hw)
 
     def embedPipelines(self, hw):
+        maxPhysicalStageIndexForIngress = -1
+        maxPhysicalStageIndexForEgress =-1
         logger.info("Embeding pipelines")
         if (len(self.parsedP4Program.pipelines) <= 0):
             logger.info("There is no pipelines found in the P4 program graph representation. Exiting")
@@ -101,11 +104,32 @@ class P4ProgramGraph:
                 # self.pipelineIdToPipelineGraphMap[PipelineID.INGRESS_PIPELINE] = newPipelineGraph
                 # self.pipelineIdToPipelineMap[PipelineID.INGRESS_PIPELINE] = pipeline
                 # newPipelineGraph.preProcessPipelineGraph()
-                hw.embedP4ProgramAccordingToSingleMatrix(self,pipelineID=PipelineID.INGRESS_PIPELINE, hardware = hw)
+                maxPhysicalStageIndexForIngress = hw.embedP4ProgramAccordingToSingleMatrix(self,pipelineID=PipelineID.INGRESS_PIPELINE, hardware = hw)
                 # hw.reinitializeResourcesForNewPiepeline()
             if(pipeline.name == PipelineID.EGRESS_PIPELINE.value):
-                hw.embedP4ProgramAccordingToSingleMatrix(self,pipelineID=PipelineID.EGRESS_PIPELINE, hardware = hw)
-                pass
+                maxPhysicalStageIndexForEgress = hw.embedP4ProgramAccordingToSingleMatrix(self,pipelineID=PipelineID.EGRESS_PIPELINE, hardware = hw)
+        maxPhysicalStageIndex = -1
+        if(maxPhysicalStageIndexForEgress > maxPhysicalStageIndexForIngress):
+            print("Total Stage requirement for the whole P4 program is "+str(maxPhysicalStageIndexForEgress))
+            maxPhysicalStageIndex = maxPhysicalStageIndexForEgress
+        else:
+            print("Total Stage requirement for the whole P4 program is "+str(maxPhysicalStageIndexForIngress))
+            maxPhysicalStageIndex = maxPhysicalStageIndexForIngress
+
+        #Power calculation
+        print("Calculating Power requirement")
+        totalPower = 0
+        totalTCAMBlockRequired = 0
+        totalSRAMBlockRequired = 0
+        for physicalStageIndex in range(0,maxPhysicalStageIndex):
+            physicalStageResource = hw.stageWiseResources.get(physicalStageIndex)
+            x = physicalStageResource.tcamMatResource.usedTcamMatBlocks * CompilerConfigurations.PER_TCAM_BLOCK_POWER_CONSUMPTION
+            y= physicalStageResource.sramMatResource.usedSramMatBlocks * CompilerConfigurations.PER_SRAM_BLOCK_POWER_CONSUMPTION
+            totalTCAMBlockRequired = totalTCAMBlockRequired + physicalStageResource.tcamMatResource.usedTcamMatBlocks
+            totalSRAMBlockRequired = totalSRAMBlockRequired + physicalStageResource.sramMatResource.usedSramMatBlocks
+            totalPower = totalPower + x + y
+        print("TOTAL TCAM BLOCKS REQUIRED: "+str(totalTCAMBlockRequired)+" and SRAM BLOCKS REQUIRED : "+str(totalSRAMBlockRequired)+" To amap the P4 program on the given hardware")
+        print("TOTAL POWER CONSUMPTION FOR THE SRAM AND TCAM BLOCKS IN ALL STAGE IS : "+str(totalPower)+" WATTS")
 
     def headeranalyzer(self,hw):
         # print(self.parsedP4Program.nameToHeaderTypeObjectMap)

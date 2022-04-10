@@ -340,6 +340,7 @@ class RMTV1ModelHardware:
         self.sanityCheckingOfTheLogicalMats(logicalStageNumbersAsList, pipelineGraph)
         startingPhyicalStageIndex = min(self.stageWiseResources.keys())
         #TODO: make a check here to understand how many stages does this program need. if it needs more than available stages then we can halt earlier.
+        logicalStageIndexToPhysicalStageIndexMap = {}
         for logicalStageIndex in logicalStageNumbersAsList:
             startingPhysicalStageListForLogicalStageIndex=[]
             endingPhysicalStageListForLogicalStageIndex = []
@@ -406,7 +407,23 @@ class RMTV1ModelHardware:
                 hardware.printStageHardwareAvailableResourceStatistics(startingPhyicalStageIndex)
                 endingPhysicalStageListForLogicalStageIndex = endingPhysicalStageListForLogicalStageIndex + endingStageList
                 endingPhysicalStageListForLogicalStageIndex.sort()
+                logicalStageIndexToPhysicalStageIndexMap[logicalStageIndex] = endingPhysicalStageListForLogicalStageIndex[len(endingPhysicalStageListForLogicalStageIndex)-1]+1
                 startingPhyicalStageIndex = endingPhysicalStageListForLogicalStageIndex[len(endingPhysicalStageListForLogicalStageIndex)-1]+1
+
+        print('Printing logical stage index to physical stage index')
+        maxPhysicalStageIndex = -1
+        for logicalStageIndex in logicalStageIndexToPhysicalStageIndexMap:
+            print("Logical Stage: "+str(logicalStageIndex)+" Corresponding ending physical Stage is : "+str(logicalStageIndexToPhysicalStageIndexMap.get(logicalStageIndex)))
+            if(maxPhysicalStageIndex < logicalStageIndexToPhysicalStageIndexMap.get(logicalStageIndex)):
+                maxPhysicalStageIndex = logicalStageIndexToPhysicalStageIndexMap.get(logicalStageIndex)
+        print("TOTAL NUMBER of physcial stages required by pipeline: "+str(pipelineID)+" is :"+str(maxPhysicalStageIndex))
+        if(maxPhysicalStageIndex != -1):
+            return maxPhysicalStageIndex + 1 # Becuase max index 3 means actually 4 stages are required
+        return  maxPhysicalStageIndex
+
+
+
+
 
     def orderTablesAccordingToTheirPositionInTDG(self,matListNotUsingStatefulMem, tblList):
         for tbl in matListNotUsingStatefulMem:
@@ -797,12 +814,12 @@ class RMTV1ModelHardware:
         return  statefulMemoryNameToUserMatListMap, matListNotUsingStatefulMem, usedStatefulMemSet
 
     def calculateTotalLatency(self,p4ProgramGraph, hw):
-        ingressPipepine1Delay = 0
+        ingressPipepineDelay = 0
         egressPipepineDelay = 0
         for pipeline in p4ProgramGraph.parsedP4Program.pipelines:
             if(pipeline.name == PipelineID.INGRESS_PIPELINE.value):
-                ingressPipepine1Delay = self.calculateTotalLatencyOfPipeline(p4ProgramGraph, PipelineID.INGRESS_PIPELINE, hw)
-                print("ingressPipeline1Delay = 0 is "+str(ingressPipepine1Delay))
+                ingressPipepineDelay = self.calculateTotalLatencyOfPipeline(p4ProgramGraph, PipelineID.INGRESS_PIPELINE, hw)
+                print("ingressPipeline1Delay = 0 is " + str(ingressPipepineDelay))
             if(pipeline.name == PipelineID.EGRESS_PIPELINE.value):
                 egressPipepineDelay = self.calculateTotalLatencyOfPipeline(p4ProgramGraph, PipelineID.EGRESS_PIPELINE, hw)
                 print("egressPipelineDelay = 0 is "+str(egressPipepineDelay))
@@ -830,6 +847,7 @@ class RMTV1ModelHardware:
             prevStageStartTime = startTimeList[len(startTimeList)-1]
             prevStageEndTime = endingTimeList[len(endingTimeList)-1]
             print("Stage: "+str(stageIndex)+" starts execution at cycle "+str(startTimeList[0])+" and finishes execution at cycle "+str(endingTimeList[len(endingTimeList)-1]))
+        return endingTimeList[len(endingTimeList)-1]
 
 # algo
 #
