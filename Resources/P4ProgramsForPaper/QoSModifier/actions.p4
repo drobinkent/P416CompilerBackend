@@ -25,51 +25,11 @@ action on_miss() {
 action nop() {
 }
 
-action action_drop(drop_reason) {
-    modify_field(hop_metadata.drop_code, drop_reason);
-    drop();
-}
-/*
-action set_bd_index_and_ig_lif(bd_index, ig_lif) {
-    modify_field(hop_metadata.bd_index, bd_index);
-    modify_field(hop_metadata.ig_lif, ig_lif);
-}
 
-action generate_learn_notify() {
-    generate_digest(MAC_LEARN_RECEIVER, mac_learn_digest);
-}
 
-meter storm_control_meter {
-    type : bytes;
-    result : hop_metadata.storm_control_color;
-    instance_count : IG_BCAST_STORM_SIZE;
-}
 
-action set_bcast_storm_meter(meter_idx) {
-    execute_meter(storm_control_meter, meter_idx,
-                  hop_metadata.storm_control_color);
-}
 
-action set_ig_props(vrf_index, urpf, bd_acl_label, lif_acl_label) {
-    modify_field(hop_metadata.vrf_index, vrf_index);
-    modify_field(hop_metadata.urpf, urpf);
-    modify_field(hop_metadata.bd_acl_label, bd_acl_label);
-    modify_field(hop_metadata.lif_acl_label, lif_acl_label);
-}
 
-action on_ipv4_ucast_hit() {
-}
-
-action on_ipv4_xcast_hit() {
-}
-
-action on_ipv6_ucast_hit() {
-}
-
-action on_ipv6_xcast_hit() {
-}
-
-*/
 action set_ipv4_ipv6_qos(){
     register_write(ipv4_port_qos, control_packet.index, control_packet.ipv4_diffserv);
     register_write(ipv6_port_qos, control_packet.index, control_packet.ipv6_trafficClass);
@@ -81,14 +41,12 @@ register ipv4_port_qos {
     instance_count: 128;
 }
 
-action ipv4_miss(){
-    modify_field(ipv6.dstAddr, CONTROLLER_IP);
-}
+
 
 action set_next_hop_ipv4(port) {
       modify_field(hop_metadata.egress_port, port);
        register_read(ipv4.diffserv, ipv4_port_qos, port);
-       modify_field(ipv6.dstAddr, ipv6.srcAddr);
+       modify_field(ipv6.dstAddr, CONTROLLER_IP);
 }
 
 
@@ -105,44 +63,10 @@ action set_next_hop_ipv6(port) {
     register_read(ipv6.trafficClass, ipv6_port_qos, port);
 }
 
-/*action set_multicast_replication_list(mc_index) {
-    modify_field(hop_metadata.mcast_grp, mc_index);
-}
 
-action set_urpf_fail() {
-    modify_field(hop_metadata.urpf_check_fail, 1);
-}
 
-action set_ecmp_next_hop_ipv4(dst_index) {
-    modify_field(hop_metadata.ipv4_next_hop_index, dst_index);
-}
-
-action set_ecmp_next_hop_ipv6(dst_index) {
-    modify_field(hop_metadata.ipv6_next_hop_index, dst_index);
-}
-*/
-action set_ethernet_addr(bd_index, smac, dmac) {
-    modify_field(hop_metadata.bd_index, bd_index);
-    modify_field(ethernet.srcAddr, smac);
-    modify_field(ethernet.dstAddr, dmac);
-}
-/*
-action set_eg_lif(eg_lif) {
-    modify_field(hop_metadata.eg_lif, eg_lif);
-    modify_field_with_hash_based_offset(hop_metadata.l2_hash, 0, l2_hash_calc, 0);
-}
-*/
 action set_egress_port(e_port) {
     modify_field(standard_metadata.egress_spec, e_port);
 }
 
-action set_egress_props(bd_acl_label, lif_acl_label) {
-    modify_field(hop_metadata.bd_acl_label, bd_acl_label);
-    modify_field(hop_metadata.lif_acl_label, lif_acl_label);
-}
-/*
-action set_vlan(vlan_id) {
-    modify_field(vlan_tag.vid, vlan_id);
-}
 
-*/

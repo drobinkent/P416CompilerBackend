@@ -8,27 +8,9 @@
         ["tmp_0", 7, false],
         ["tmp_1", 7, false],
         ["tmp_2", 7, false],
-        ["userMetadata._hop_metadata_bd_index0", 16, false],
-        ["userMetadata._hop_metadata_ig_lif1", 16, false],
-        ["userMetadata._hop_metadata_vrf_index2", 12, false],
-        ["userMetadata._hop_metadata_urpf3", 2, false],
-        ["userMetadata._hop_metadata_ingress_port4", 9, false],
-        ["userMetadata._hop_metadata_egress_port5", 9, false],
-        ["userMetadata._hop_metadata_bd_acl_label6", 24, false],
-        ["userMetadata._hop_metadata_lif_acl_label7", 24, false],
-        ["userMetadata._hop_metadata_ipv4_next_hop_index8", 16, false],
-        ["userMetadata._hop_metadata_ipv4_ecmp_index9", 16, false],
-        ["userMetadata._hop_metadata_ipv6_next_hop_index10", 16, false],
-        ["userMetadata._hop_metadata_ipv6_ecmp_index11", 16, false],
-        ["userMetadata._hop_metadata_ipv6_prefix12", 64, false],
-        ["userMetadata._hop_metadata_l3_hash13", 16, false],
-        ["userMetadata._hop_metadata_l2_hash14", 16, false],
-        ["userMetadata._hop_metadata_mcast_grp15", 16, false],
-        ["userMetadata._hop_metadata_urpf_check_fail16", 1, false],
-        ["userMetadata._hop_metadata_drop_code17", 8, false],
-        ["userMetadata._hop_metadata_eg_lif18", 16, false],
-        ["userMetadata._hop_metadata_storm_control_color19", 1, false],
-        ["userMetadata._hop_metadata_register_tmp20", 32, false],
+        ["userMetadata._hop_metadata_ingress_port0", 9, false],
+        ["userMetadata._hop_metadata_egress_port1", 9, false],
+        ["userMetadata._hop_metadata_drop_code2", 8, false],
         ["_padding_0", 2, false]
       ]
     },
@@ -471,7 +453,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "userMetadata._hop_metadata_egress_port5"]
+              "value" : ["scalars", "userMetadata._hop_metadata_egress_port1"]
             },
             {
               "type" : "runtime_data",
@@ -480,7 +462,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 88,
+            "line" : 46,
             "column" : 25,
             "source_fragment" : "port) { ..."
           }
@@ -522,7 +504,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 88,
+            "line" : 46,
             "column" : 25,
             "source_fragment" : "port"
           }
@@ -545,37 +527,11 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 90,
+            "line" : 48,
             "column" : 7,
             "source_fragment" : "register_read(ipv4.diffserv, ipv4_port_qos, port)"
           }
         },
-        {
-          "op" : "assign",
-          "parameters" : [
-            {
-              "type" : "field",
-              "value" : ["ipv6", "dstAddr"]
-            },
-            {
-              "type" : "field",
-              "value" : ["ipv6", "srcAddr"]
-            }
-          ],
-          "source_info" : {
-            "filename" : "actions.p4",
-            "line" : 91,
-            "column" : 7,
-            "source_fragment" : "modify_field(ipv6.dstAddr, ipv6.srcAddr)"
-          }
-        }
-      ]
-    },
-    {
-      "name" : "ipv4_miss",
-      "id" : 4,
-      "runtime_data" : [],
-      "primitives" : [
         {
           "op" : "assign",
           "parameters" : [
@@ -590,8 +546,8 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 85,
-            "column" : 4,
+            "line" : 49,
+            "column" : 7,
             "source_fragment" : "modify_field(ipv6.dstAddr, 9898989)"
           }
         }
@@ -599,7 +555,7 @@
     },
     {
       "name" : "set_next_hop_ipv6",
-      "id" : 5,
+      "id" : 4,
       "runtime_data" : [
         {
           "name" : "port",
@@ -612,7 +568,7 @@
           "parameters" : [
             {
               "type" : "field",
-              "value" : ["scalars", "userMetadata._hop_metadata_egress_port5"]
+              "value" : ["scalars", "userMetadata._hop_metadata_egress_port1"]
             },
             {
               "type" : "runtime_data",
@@ -621,7 +577,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 102,
+            "line" : 60,
             "column" : 25,
             "source_fragment" : "port) { ..."
           }
@@ -663,7 +619,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 102,
+            "line" : 60,
             "column" : 25,
             "source_fragment" : "port"
           }
@@ -686,7 +642,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 105,
+            "line" : 63,
             "column" : 4,
             "source_fragment" : "register_read(ipv6.trafficClass, ipv6_port_qos, port)"
           }
@@ -695,7 +651,7 @@
     },
     {
       "name" : "set_ipv4_ipv6_qos",
-      "id" : 6,
+      "id" : 5,
       "runtime_data" : [],
       "primitives" : [
         {
@@ -735,7 +691,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 74,
+            "line" : 34,
             "column" : 34,
             "source_fragment" : "control_packet.index"
           }
@@ -758,7 +714,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 74,
+            "line" : 34,
             "column" : 4,
             "source_fragment" : "register_write(ipv4_port_qos, control_packet.index, control_packet.ipv4_diffserv)"
           }
@@ -800,7 +756,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 75,
+            "line" : 35,
             "column" : 34,
             "source_fragment" : "control_packet.index"
           }
@@ -823,7 +779,7 @@
           ],
           "source_info" : {
             "filename" : "actions.p4",
-            "line" : 75,
+            "line" : 35,
             "column" : 4,
             "source_fragment" : "register_write(ipv6_port_qos, control_packet.index, control_packet.ipv6_trafficClass)"
           }
@@ -860,7 +816,7 @@
           "with_counters" : false,
           "support_timeout" : false,
           "direct_meters" : null,
-          "action_ids" : [6, 2],
+          "action_ids" : [5, 2],
           "actions" : ["set_ipv4_ipv6_qos", "NoAction"],
           "base_default_next" : null,
           "next_tables" : {
@@ -897,13 +853,12 @@
           "with_counters" : false,
           "support_timeout" : false,
           "direct_meters" : null,
-          "action_ids" : [3, 4, 0],
-          "actions" : ["set_next_hop_ipv4", "ipv4_miss", "NoAction"],
+          "action_ids" : [3, 0],
+          "actions" : ["set_next_hop_ipv4", "NoAction"],
           "base_default_next" : null,
           "next_tables" : {
-            "ipv4_miss" : "ipv6_nexthop",
-            "set_next_hop_ipv4" : null,
-            "NoAction" : null
+            "__MISS__" : null,
+            "__HIT__" : "ipv6_nexthop"
           },
           "default_entry" : {
             "action_id" : 0,
@@ -917,7 +872,7 @@
           "id" : 2,
           "source_info" : {
             "filename" : "tables.p4",
-            "line" : 46,
+            "line" : 45,
             "column" : 0,
             "source_fragment" : "table ipv6_nexthop { ..."
           },
@@ -935,7 +890,7 @@
           "with_counters" : false,
           "support_timeout" : false,
           "direct_meters" : null,
-          "action_ids" : [5, 1],
+          "action_ids" : [4, 1],
           "actions" : ["set_next_hop_ipv6", "NoAction"],
           "base_default_next" : null,
           "next_tables" : {
@@ -957,7 +912,7 @@
           "id" : 0,
           "source_info" : {
             "filename" : "qos_modifier.p4",
-            "line" : 43,
+            "line" : 40,
             "column" : 7,
             "source_fragment" : "valid(control_packet)"
           },

@@ -72,6 +72,32 @@ class PipelineGraph:
         self.sfMemNameWiseLevelList = {}
 
 
+    def appendAllHeaderFeildsOfHeader(self, headerFieldName, fieldList ):
+        dotIndex = headerFieldName.index(".")
+        if(dotIndex == -1):
+            print("Can not find header type from header field name. Severer error. exiting!!")
+            exit(1)
+        headerName = headerFieldName[:dotIndex]
+        headerTypeName = self.parsedP4Program.getHeaderTypeNameFromName(headerName)
+        headerType = self.parsedP4Program.getHeaderTypeFromName(headerTypeName)
+        if (headerType == None):
+            logger.error("Header Type for the header field"+headerFieldName+" is not found. Exiting")
+            exit(1)
+        for htf in headerType.fields:
+            fldName = headerName+"."+htf[0]
+            fieldList.append(fldName)
+            # self.parsedP4Program.
+
+
+    # returnValue = {}
+    # headerType = self.getHeaderTypeFromName(headerTypeName)
+    #
+    # for htf in headerType.fields:
+    #     bitWidth = math.ceil(float(htf[1]/hw.getMinBitwidthOfPHVFields()))*hw.getMinBitwidthOfPHVFields()
+    #     # bitWidth = math.ceil(float(htf[1]))
+    #     hdrObj = HeaderField(name=headerTypeName+"."+htf[0], bitWidth= float(htf[1]), isSigned= htf[2],  mutlipleOf8Bitwidth= bitWidth)
+    #     returnValue[hdrObj.name] = hdrObj
+    # return returnValue
     def headeranalyzerForSinglePipeline(self):
         '''
         This function analyze which headers are used in a pipeline. and find what is their total length so that we can split the header fields in 2 different sets
@@ -91,22 +117,26 @@ class PipelineGraph:
                 if len(allHeaderFieldUsedInOneMAT)>0:
                     for e in allHeaderFieldUsedInOneMAT:
                         allHeaderFieldUsedInMatchPartAllMAT.append(e)
+                        self.appendAllHeaderFeildsOfHeader(e,allHeaderFieldUsedInMatchPartAllMAT)
                 if len(allHeaderFieldUsedInActionsOfOneMAT)>0:
                     for e in allHeaderFieldUsedInActionsOfOneMAT:
                         allHeaderFieldUsedInActionsOfAllMAT.append(e)
+                        self.appendAllHeaderFeildsOfHeader(e,allHeaderFieldUsedInActionsOfAllMAT)
+
             else:
                 print("For node "+tbl.name+" The node type is not table. This can not happen. Exiting. Debug Pleaase ")
                 exit(1)
 
-        print("Before removing duplicate member of match fields "+str(len(allHeaderFieldUsedInMatchPartAllMAT)))
-        allHeaderFieldUsedInMatchPartAllMAT = set(allHeaderFieldUsedInMatchPartAllMAT) # removing duplicate through set operations. Becuase multiple MAT can use same header fileds.
-        print("After removing duplicate member  of match fields "+str(len(allHeaderFieldUsedInMatchPartAllMAT)))
+        # print("Before removing duplicate member of match fields "+str(len(allHeaderFieldUsedInMatchPartAllMAT)))
+        allHeaderFieldUsedInMatchPartAllMAT = list(set(allHeaderFieldUsedInMatchPartAllMAT)) # removing duplicate through set operations. Becuase multiple MAT can use same header fileds.
+        # print("After removing duplicate member  of match fields "+str(len(allHeaderFieldUsedInMatchPartAllMAT)))
         # print(allHeaderFieldUsedInMatchPartAllMAT)
-        print("Before removing duplicate member of action fields "+str(len(allHeaderFieldUsedInActionsOfAllMAT)))
-        allHeaderFieldUsedInActionsOfAllMAT = set(allHeaderFieldUsedInActionsOfAllMAT) # removing duplicate through set operations. Becuase multiple MAT can use same header fileds in their actions.
-        print("After removing duplicate member  of match fields "+str(len(allHeaderFieldUsedInActionsOfAllMAT)))
-        fullListOfHeaderFieldsUsedInThePipeline= allHeaderFieldUsedInMatchPartAllMAT.union(allHeaderFieldUsedInActionsOfAllMAT)
+        # print("Before removing duplicate member of action fields "+str(len(allHeaderFieldUsedInActionsOfAllMAT)))
+        allHeaderFieldUsedInActionsOfAllMAT = list(set(allHeaderFieldUsedInActionsOfAllMAT)) # removing duplicate through set operations. Becuase multiple MAT can use same header fileds in their actions.
+        # print("After removing duplicate member  of match fields "+str(len(allHeaderFieldUsedInActionsOfAllMAT)))
+        fullListOfHeaderFieldsUsedInThePipeline= set(allHeaderFieldUsedInMatchPartAllMAT).union(set(allHeaderFieldUsedInActionsOfAllMAT))
         print("Total number of header fields used in the pipeline is "+str(len(fullListOfHeaderFieldsUsedInThePipeline)))
+        # print(allHeaderFieldUsedInActionsOfAllMAT)
 
         #Now analyzig the conditionals of the pipeline
         allHeaderFieldUsedInConditionCheckingPartOfAllConditionals = []
@@ -115,15 +145,17 @@ class PipelineGraph:
             allHeaderFieldUsedInOneMAT = conditionalObj.getAllMatchFieldsOfRawP4Conditional()
             if len(allHeaderFieldUsedInOneMAT)>0:
                 for e in allHeaderFieldUsedInOneMAT:
-                    allHeaderFieldUsedInMatchPartAllMAT.add(e)
+                    allHeaderFieldUsedInMatchPartAllMAT.append(e)
+                    self.appendAllHeaderFeildsOfHeader(e,allHeaderFieldUsedInMatchPartAllMAT)
             exprNode = ExpressionNode(parsedP4Node = conditionalObj.expression, name =conditionalObj.name,  parsedP4NodeType = P4ProgramNodeType.CONDITIONAL_NODE, pipelineID=self.pipelineID)
             allHeaderFieldUsedInConditionCheckingPartOfOneConditionals = exprNode.getAllFieldList()
             if len(allHeaderFieldUsedInConditionCheckingPartOfOneConditionals)>0:
                 for e in allHeaderFieldUsedInConditionCheckingPartOfOneConditionals:
                     allHeaderFieldUsedInConditionCheckingPartOfAllConditionals.append(e)
-        print("Before removing duplicate member of conditional checking of all the conditional  "+str(len(allHeaderFieldUsedInConditionCheckingPartOfAllConditionals)))
+                    self.appendAllHeaderFeildsOfHeader(e,allHeaderFieldUsedInConditionCheckingPartOfAllConditionals)
+        # print("Before removing duplicate member of conditional checking of all the conditional  "+str(len(allHeaderFieldUsedInConditionCheckingPartOfAllConditionals)))
         allHeaderFieldUsedInConditionCheckingPartOfAllConditionals = set(allHeaderFieldUsedInConditionCheckingPartOfAllConditionals) # removing duplicate through set operations. Becuase multiple MAT can use same header fileds.
-        print("After removing duplicate member of conditional checking of all the conditional  "+str(len(allHeaderFieldUsedInConditionCheckingPartOfAllConditionals)))
+        # print("After removing duplicate member of conditional checking of all the conditional  "+str(len(allHeaderFieldUsedInConditionCheckingPartOfAllConditionals)))
         #Condtioanls have either true or false. they do not have own action. their true_next or false_next is an action. These acrions are analyzed with match-action tables.
         #So need to proces them again
         fullListOfHeaderFieldsUsedInThePipeline = allHeaderFieldUsedInConditionCheckingPartOfAllConditionals.union(fullListOfHeaderFieldsUsedInThePipeline).union(allHeaderFieldUsedInMatchPartAllMAT)

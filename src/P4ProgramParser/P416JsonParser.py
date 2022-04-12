@@ -3070,7 +3070,7 @@ class HeaderField:
         self.name = name
         self.bitWidth = bitWidth
         self.isSigned = isSigned
-        self.mutlipleOf8Bitwidth = mutlipleOf8Bitwidth
+        self.mutlipleOf8Bitwidth = bitWidth
         self.mappedPhyscialHeaderVectorFieldBitwdith =mappedPhyscialHeaderVectorFieldBitwdith
         self.pipelineIDToPHVListMap = {}
         self.primitiveListAccessingTheHeaderField = {}
@@ -3234,6 +3234,7 @@ class ParsedP416ProgramForV1ModelArchitecture:
             exit(1)
         for htf in headerType.fields:
             bitWidth = math.ceil(float(htf[1]/hw.getMinBitwidthOfPHVFields()))*hw.getMinBitwidthOfPHVFields()
+            # bitWidth = math.ceil(float(htf[1]))
             hdrObj = HeaderField(name=headerTypeName+"."+htf[0], bitWidth= float(htf[1]), isSigned= htf[2],  mutlipleOf8Bitwidth= bitWidth)
             returnValue[hdrObj.name] = hdrObj
         return returnValue
@@ -3284,6 +3285,11 @@ class ParsedP416ProgramForV1ModelArchitecture:
                 return hf
         return None
 
+    def getHeaderTypeNameFromName(self, headerName):
+        for h in self.headers:
+            if (h.name ==headerName ):
+                return h.header_type
+        return None
     @staticmethod
     def from_dict(obj: Any) -> 'ParsedP416ProgramForV1ModelArchitecture':
         assert isinstance(obj, dict)

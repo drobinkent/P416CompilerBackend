@@ -20,27 +20,27 @@ limitations under the License.
 
 header_type hop_metadata_t {
     fields {
-        bd_index: 16;
+        /*bd_index: 16;
         ig_lif: 16;
         vrf_index: 12;
-        urpf: 2;
+        urpf: 2;*/
         ingress_port:9;
         egress_port:9;
-        bd_acl_label: 24;
-        lif_acl_label: 24;
-        ipv4_next_hop_index: 16;
-        ipv4_ecmp_index: 16;
-        ipv6_next_hop_index: 16;
-        ipv6_ecmp_index: 16;
-        ipv6_prefix : 64;
-        l3_hash : 16;
-        l2_hash : 16;
-        mcast_grp : 16;
-        urpf_check_fail : 1;
+        //bd_acl_label: 24;
+        //lif_acl_label: 24;
+        //ipv4_next_hop_index: 16;
+        //ipv4_ecmp_index: 16;
+        //ipv6_next_hop_index: 16;
+        //ipv6_ecmp_index: 16;
+        //ipv6_prefix : 64;
+        //l3_hash : 16;
+        //l2_hash : 16;
+        //mcast_grp : 16;
+        //urpf_check_fail : 1;
         drop_code : 8;
-        eg_lif : 16;
-        storm_control_color : 1; /* 0: pass, 1: fail */
-        register_tmp : 32;
+        //eg_lif : 16;
+        //storm_control_color : 1; /* 0: pass, 1: fail */
+        //register_tmp : 32;
     }
 }
 metadata hop_metadata_t hop_metadata;

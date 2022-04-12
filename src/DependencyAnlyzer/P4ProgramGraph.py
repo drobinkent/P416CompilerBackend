@@ -234,6 +234,7 @@ class P4ProgramGraph:
                 hf = self.parsedP4Program.nameToHeaderTypeObjectMap.get(k.name)
             else:
                 hf = self.parsedP4Program.nameToHeaderTypeObjectMap.get(k)
+                # self.parsedP4Program.buildHeaderVectorForGivenStruct(hdrtype.name, hdrtype,hw)
             if (hf==None):
                 logger.info("Field not found in map . The field is "+str(k))
             else:

@@ -37,7 +37,6 @@ table ipv4_nexthop {
     }
     actions {
         set_next_hop_ipv4;
-        ipv4_miss;
     }
     size : IPV4_NEXTHOP_SIZE;
 }

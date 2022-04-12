@@ -24,10 +24,7 @@ limitations under the License.
 #include "actions.p4"
 #include "tables.p4"
 
-control l3_checks_ipv4 {
 
-    apply(ipv4_nexthop);
-}
 control process_control_packet {
    apply(match_control_packet);
 }
@@ -46,7 +43,7 @@ control ingress {
     else {
         //l3_checks_ipv4();
         apply(ipv4_nexthop){
-            ipv4_miss {
+            hit {
                 apply(ipv6_nexthop);
             }
         }
