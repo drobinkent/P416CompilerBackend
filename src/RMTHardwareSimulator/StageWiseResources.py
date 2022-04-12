@@ -459,7 +459,7 @@ class StageWiseResource:
             exit(1)
         return False
 
-    def allocateMatNodeOverTCAMMatWithOutParam(self, matNode,pipelineID):
+    def allocateMatNodeOverTCAMMatWithOutParam(self, matNode,pipelineID, hardware):
         self.allocateTCAMMatKeyCrossbarBitwidth(matNode.matKeyBitWidth)
         #For TCAM all tcam blocks are only used for MATCHing therefore allocating a tcam block automatically modifies the block count.
         #However in the case of sram this is not the case
@@ -470,7 +470,7 @@ class StageWiseResource:
         #TODO need to allocate direct stateful memories here
         self.listOfLogicalTableMappedToThisStage.get(pipelineID).append(matNode)
 
-    def allocateMatNodeOverTCAMMat(self, matNode, numberOfMatEntriesToBeAllocated, numberOfActionEntriesToBeAllocated,pipelineID):
+    def allocateMatNodeOverTCAMMat(self, matNode, numberOfMatEntriesToBeAllocated, numberOfActionEntriesToBeAllocated,pipelineID, hardware):
         self.allocateTCAMMatKeyCrossbarBitwidth(matNode.matKeyBitWidth)
         self.allocateMatEntriesOverTCAMBasedMATSinSingleStage(matNode.matKeyBitWidth, numberOfMatEntriesToBeAllocated) # This embeds both match-key and tables and entries in one stage
         self.allocateActionCrossbarBitwidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
@@ -478,7 +478,7 @@ class StageWiseResource:
         self.allocateActionMemoryPortWidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
         self.listOfLogicalTableMappedToThisStage.get(pipelineID).append(matNode)
 
-    def allocateMatNodeOverSRAMMatWithoutParam(self, matNode,pipelineID):
+    def allocateMatNodeOverSRAMMatWithoutParam(self, matNode,pipelineID, hardware):
         self.allocateSRAMMatKeyCrossbarBitwidth(matNode.matKeyBitWidth)
         #For TCAM all tcam blocks are only used for MATCHing therefore allocating a tcam block automatically modifies the block count.
         #However in the case of sram this is not the case. In sram based mat we can only use 8 SRAM based MAT (in bosshart paper), But there are 106 sram blocks,
@@ -490,7 +490,7 @@ class StageWiseResource:
         self.allocateActionMemoryPortWidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
         #TODO need to allocate direct stateful memories here
         self.listOfLogicalTableMappedToThisStage.get(pipelineID).append(matNode)
-    def allocateMatNodeOverSRAMMat(self, matNode, numberOfMatEntriesToBeAllocated, numberOfActionEntriesToBeAllocated,pipelineID):
+    def allocateMatNodeOverSRAMMat(self, matNode, numberOfMatEntriesToBeAllocated, numberOfActionEntriesToBeAllocated,pipelineID, hardware):
         self.allocateSRAMMatKeyCrossbarBitwidth(matNode.matKeyBitWidth)
         #For TCAM all tcam blocks are only used for MATCHing therefore allocating a tcam block automatically modifies the block count.
         #However in the case of sram this is not the case. In sram based mat we can only use 8 SRAM based MAT (in bosshart paper), But there are 106 sram blocks,
@@ -614,14 +614,14 @@ class StageWiseResource:
             if(matNode.originalP4node.match_type.value != MatchType.EXACT):
                 #try to embed the matnode in tcam
                 if(self.isMatNodeEmbeddableOnTCAMMatBlocks(matNode,maxActionCrossbarBitwidth,maxActionMemoryBitwidth)):
-                    self.allocateMatNodeOverTCAMMatWithOutParam(matNode,pipelineID) #TODO : this need to include both action memory and direct statefule memories
+                    self.allocateMatNodeOverTCAMMatWithOutParam(matNode,pipelineID, hardware) #TODO : this need to include both action memory and direct statefule memories
                 else:
                     isEmbeddable = False
             else:
                 if(self.isMatNodeEmbeddableOnSRAMMatBlocks(matNode)):
-                    self.allocateMatNodeOverSRAMMatWithoutParam(matNode,pipelineID) #TODO : this need to include both action memory and direct statefule memories #------------- check from here. uoto before is done
+                    self.allocateMatNodeOverSRAMMatWithoutParam(matNode,pipelineID, hardware) #TODO : this need to include both action memory and direct statefule memories #------------- check from here. uoto before is done
                 elif(self.isMatNodeEmbeddableOnTCAMMatBlocks(matNode)):
-                    self.allocateMatNodeOverTCAMMatWithOutParam(matNode,pipelineID)
+                    self.allocateMatNodeOverTCAMMatWithOutParam(matNode,pipelineID, hardware)
                 else:
                     isEmbeddable = False
         # if(isEmbeddable == True):

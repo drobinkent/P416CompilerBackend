@@ -506,7 +506,7 @@ class RMTV1ModelHardware:
             remainingActionEntries = remainingMatEntries
         if(remainingMatEntries == 0):
             startingStage, endingStage = startingStageIndex, startingStageIndex
-            currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode, numberOfMatEntriesToBeAllocated = 1, numberOfActionEntriesToBeAllocated = 1, pipelineID=pipelineID)
+            currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode, numberOfMatEntriesToBeAllocated = 1, numberOfActionEntriesToBeAllocated = 1, pipelineID=pipelineID, hardware=hardware)
         while(currentStageHardwareResource != None) and (remainingMatEntries > 0):
             accmodatableMatEntries = 0
             if(matNode.matKeyBitWidth == 0):
@@ -531,7 +531,7 @@ class RMTV1ModelHardware:
                 if(startingStage == -1):
                     startingStage = currentStageIndex
                 endingStage = currentStageIndex
-                currentStageHardwareResource.allocateMatNodeOverTCAMMat(matNode, min(accmodatableMatEntries, remainingMatEntries), remainingActionEntries,pipelineID)
+                currentStageHardwareResource.allocateMatNodeOverTCAMMat(matNode, min(accmodatableMatEntries, remainingMatEntries), remainingActionEntries,pipelineID, hardware)
                 remainingMatEntries = remainingMatEntries - min(accmodatableMatEntries, remainingMatEntries)
                 if(remainingMatEntries ==0): #Becuse if this matnode is a conditional node and have nothing to embed as mat entry it only need embed action entries.
                     break
@@ -562,8 +562,8 @@ class RMTV1ModelHardware:
 
         if(remainingMatEntries == 0):
             startingStage, endingStage = startingStageIndex, startingStageIndex
-            currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode, numberOfMatEntriesToBeAllocated = 1, numberOfActionEntriesToBeAllocated = 1, pipelineID=pipelineID)
-        while(currentStageHardwareResource != None) and (remainingMatEntries >=0 ):
+            currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode, numberOfMatEntriesToBeAllocated = 1, numberOfActionEntriesToBeAllocated = 1, pipelineID=pipelineID, hardware=hardware)
+        while(currentStageHardwareResource != None) and (remainingMatEntries >0 ):
             accmodatableMatEntries = 0
             accmodatableActionEntries = 0
             totalMemoryPortWidth = 0
@@ -610,7 +610,7 @@ class RMTV1ModelHardware:
                 # allocate mat entries on copied resource then check whther direct stateful memories are acoomodatable or not
 
                 endingStage = currentStageIndex
-                currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode, matEntriesAccomodatationPossible, actionEntriesAccomodatationPossible,pipelineID) # write a method with this signature.
+                currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode, matEntriesAccomodatationPossible, actionEntriesAccomodatationPossible,pipelineID,hardware) # write a method with this signature.
                 remainingMatEntries = remainingMatEntries - min(accmodatableMatEntries, remainingMatEntries)
                 # remainingActionEntries = remainingActionEntries - actionEntriesAccomodatationPossible
                 # currentStageIndex = currentStageIndex + 1
@@ -643,8 +643,8 @@ class RMTV1ModelHardware:
             remainingActionEntries = remainingMatEntries
         if(remainingMatEntries == 0):
             startingStage, endingStage = startingStageIndex, startingStageIndex
-            currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode, numberOfMatEntriesToBeAllocated = 1, numberOfActionEntriesToBeAllocated = 1, pipelineID=pipelineID)
-        while(currentStageHardwareResource != None) and (remainingMatEntries >= 0):
+            currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode, numberOfMatEntriesToBeAllocated = 1, numberOfActionEntriesToBeAllocated = 1, pipelineID=pipelineID, hardware=hardware)
+        while(currentStageHardwareResource != None) and (remainingMatEntries >0):
             accmodatableMatEntries = 0
             if(matNode.matKeyBitWidth == 0):
                 accmodatableMatEntries = matNode.getRequiredNumberOfMatEntries()
@@ -671,7 +671,7 @@ class RMTV1ModelHardware:
                 remainingMatEntries = remainingMatEntries - entriesToBePlacedInThisStage
                 remainingActionEntries = remainingActionEntries - entriesToBePlacedInThisStage
                 print("We may allocate the resource here")
-                currentStageHardwareResource.allocateMatNodeOverTCAMMat(matNode , numberOfMatEntriesToBeAllocated = entriesToBePlacedInThisStage, numberOfActionEntriesToBeAllocated = entriesToBePlacedInThisStage,pipelineID=pipelineID)
+                currentStageHardwareResource.allocateMatNodeOverTCAMMat(matNode , numberOfMatEntriesToBeAllocated = entriesToBePlacedInThisStage, numberOfActionEntriesToBeAllocated = entriesToBePlacedInThisStage,pipelineID=pipelineID, hardware= hardware)
                 if(remainingMatEntries ==0): #Becuse if this matnode is a conditional node and have nothing to embed as mat entry it only need embed action entries.
                     break
                 elif(remainingMatEntries>0):
@@ -699,7 +699,7 @@ class RMTV1ModelHardware:
             remainingActionEntries = remainingMatEntries
         if(remainingMatEntries == 0):
             startingStage, endingStage = startingStageIndex, startingStageIndex
-            currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode, numberOfMatEntriesToBeAllocated = 1, numberOfActionEntriesToBeAllocated = 1, pipelineID=pipelineID)
+            currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode, numberOfMatEntriesToBeAllocated = 1, numberOfActionEntriesToBeAllocated = 1, pipelineID=pipelineID, hardware=hardware)
         while(currentStageHardwareResource != None) and (remainingMatEntries > 0):
             accmodatableMatEntries = 0
             # if(matNode.matKeyBitWidth == 0):
@@ -737,7 +737,7 @@ class RMTV1ModelHardware:
                 remainingMatEntries = remainingMatEntries - entriesToBePlacedInThisStage
                 remainingActionEntries = remainingActionEntries - entriesToBePlacedInThisStage
                 print("We may allocate the resource here")
-                currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode, numberOfMatEntriesToBeAllocated = entriesToBePlacedInThisStage, numberOfActionEntriesToBeAllocated = entriesToBePlacedInThisStage, pipelineID=pipelineID)
+                currentStageHardwareResource.allocateMatNodeOverSRAMMat(matNode, numberOfMatEntriesToBeAllocated = entriesToBePlacedInThisStage, numberOfActionEntriesToBeAllocated = entriesToBePlacedInThisStage, pipelineID=pipelineID, hardware=hardware)
                 if(remainingMatEntries ==0): #Becuse if this matnode is a conditional node and have nothing to embed as mat entry it only need embed action entries.
                     break
                 elif(remainingMatEntries>0):
@@ -992,7 +992,7 @@ class RMTV1ModelHardware:
         for tbl in tblList:
             tbl.executionStartingCycle = startCycle
             tbl.executionEndingCycle= tbl.executionStartingCycle + hw.hardwareSpecRawJsonObjects.single_stage_cycle_length
-            print("Table "+str(tbl.name)+" Starting cycle "+str(tbl.executionStartingCycle)+" Ending cycle "+str(tbl.executionEndingCycle))
+            # print("Table "+str(tbl.name)+" Starting cycle "+str(tbl.executionStartingCycle)+" Ending cycle "+str(tbl.executionEndingCycle))
             for child in tbl.concurrentlyExecutableDependentTableList:
                 self.assignStartAndFinishCycleToSuperTable([child], tbl.executionStartingCycle+1,hw)
 

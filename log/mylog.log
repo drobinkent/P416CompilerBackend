@@ -8677,3 +8677,303 @@ Namee for the node is Null. Returning
 [04-12 16:56:01] p33679 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
 [04-12 16:56:01] p33679 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
 [04-12 16:56:01] p33679 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:23:55] p44992 {/home/deba/Desktop/P416CompilerBackend/src/DependencyAnlyzer/P4ProgramGraph.py:73} INFO - Loading pipelines
+[04-12 18:23:55] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:23:55] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:23:55] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:23:55] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:23:55] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:23:55] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:23:55] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:23:55] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:23:55] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:23:55] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:23:55] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:23:55] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:23:55] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:23:55] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:23:55] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:23:55] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:23:55] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:23:55] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:23:55] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:23:55] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:23:55] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:23:55] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:23:55] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:23:55] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+Nothing to do. 
+Nothing to do. 
+Name is None in getNode. returning None
+Name is None in getNode. returning None
+Name is None in getNodeWithActionsForTDGProcessing. returning None
+Name is None in getNodeWithActionsForTDGProcessing. returning None
+Namee for the node is Null. Returning
+Namee for the node is Null. Returning
+[04-12 18:23:56] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:23:56] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:23:56] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:23:56] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:23:56] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:23:56] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:23:56] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:23:56] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:23:56] p44992 {/home/deba/Desktop/P416CompilerBackend/src/DependencyAnlyzer/P4ProgramGraph.py:220} INFO - Field not found in map . The field is control_packet.$valid$
+[04-12 18:23:56] p44992 {/home/deba/Desktop/P416CompilerBackend/src/DependencyAnlyzer/P4ProgramGraph.py:239} INFO - Field not found in map . The field is control_packet.$valid$
+[04-12 18:23:56] p44992 {/home/deba/Desktop/P416CompilerBackend/src/DependencyAnlyzer/P4ProgramGraph.py:97} INFO - Embeding pipelines
+[04-12 18:23:56] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:23:56] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:23:56] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:23:56] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:23:56] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:23:56] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:23:56] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:23:56] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:23:56] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:23:56] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:23:56] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:23:56] p44992 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/DependencyAnlyzer/P4ProgramGraph.py:73} INFO - Loading pipelines
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+Nothing to do. 
+Nothing to do. 
+Name is None in getNode. returning None
+Name is None in getNode. returning None
+Name is None in getNodeWithActionsForTDGProcessing. returning None
+Name is None in getNodeWithActionsForTDGProcessing. returning None
+Namee for the node is Null. Returning
+Namee for the node is Null. Returning
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/DependencyAnlyzer/P4ProgramGraph.py:220} INFO - Field not found in map . The field is control_packet.$valid$
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/DependencyAnlyzer/P4ProgramGraph.py:239} INFO - Field not found in map . The field is control_packet.$valid$
+[04-12 18:26:23] p45236 {/home/deba/Desktop/P416CompilerBackend/src/DependencyAnlyzer/P4ProgramGraph.py:97} INFO - Embeding pipelines
+[04-12 18:26:24] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:26:24] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:26:24] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:26:24] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:26:24] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:26:24] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:26:24] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:26:24] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:26:24] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:26:24] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:26:24] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:26:24] p45236 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:29:04] p45410 {/home/deba/Desktop/P416CompilerBackend/src/DependencyAnlyzer/P4ProgramGraph.py:73} INFO - Loading pipelines
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+Nothing to do. 
+Nothing to do. 
+Name is None in getNode. returning None
+Name is None in getNode. returning None
+Name is None in getNodeWithActionsForTDGProcessing. returning None
+Name is None in getNodeWithActionsForTDGProcessing. returning None
+Namee for the node is Null. Returning
+Namee for the node is Null. Returning
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:29:05] p45410 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:29:07] p45410 {/home/deba/Desktop/P416CompilerBackend/src/DependencyAnlyzer/P4ProgramGraph.py:220} INFO - Field not found in map . The field is control_packet.$valid$
+[04-12 18:29:07] p45410 {/home/deba/Desktop/P416CompilerBackend/src/DependencyAnlyzer/P4ProgramGraph.py:239} INFO - Field not found in map . The field is control_packet.$valid$
+[04-12 18:29:10] p45410 {/home/deba/Desktop/P416CompilerBackend/src/DependencyAnlyzer/P4ProgramGraph.py:97} INFO - Embeding pipelines
+[04-12 18:31:32] p46073 {/home/deba/Desktop/P416CompilerBackend/src/DependencyAnlyzer/P4ProgramGraph.py:73} INFO - Loading pipelines
+[04-12 18:31:32] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:31:32] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:31:32] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:31:32] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:31:32] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:31:32] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:31:32] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:31:32] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:31:32] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:31:32] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:31:32] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:31:32] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:31:32] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:31:32] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:31:32] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:31:32] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:31:32] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:31:32] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:31:32] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:31:32] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:31:32] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:31:32] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:31:32] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:31:32] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+Nothing to do. 
+Nothing to do. 
+Name is None in getNode. returning None
+Name is None in getNode. returning None
+Name is None in getNodeWithActionsForTDGProcessing. returning None
+Name is None in getNodeWithActionsForTDGProcessing. returning None
+Namee for the node is Null. Returning
+Namee for the node is Null. Returning
+[04-12 18:31:33] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:31:33] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:31:33] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:31:33] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:31:33] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:31:33] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:31:33] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:31:33] p46073 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:31:33] p46073 {/home/deba/Desktop/P416CompilerBackend/src/DependencyAnlyzer/P4ProgramGraph.py:220} INFO - Field not found in map . The field is control_packet.$valid$
+[04-12 18:31:33] p46073 {/home/deba/Desktop/P416CompilerBackend/src/DependencyAnlyzer/P4ProgramGraph.py:239} INFO - Field not found in map . The field is control_packet.$valid$
+[04-12 18:31:33] p46073 {/home/deba/Desktop/P416CompilerBackend/src/DependencyAnlyzer/P4ProgramGraph.py:97} INFO - Embeding pipelines
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/DependencyAnlyzer/P4ProgramGraph.py:73} INFO - Loading pipelines
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+Nothing to do. 
+Nothing to do. 
+Name is None in getNode. returning None
+Name is None in getNode. returning None
+Name is None in getNodeWithActionsForTDGProcessing. returning None
+Name is None in getNodeWithActionsForTDGProcessing. returning None
+Namee for the node is Null. Returning
+Namee for the node is Null. Returning
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/DependencyAnlyzer/P4ProgramGraph.py:220} INFO - Field not found in map . The field is control_packet.$valid$
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/DependencyAnlyzer/P4ProgramGraph.py:239} INFO - Field not found in map . The field is control_packet.$valid$
+[04-12 18:45:58] p47636 {/home/deba/Desktop/P416CompilerBackend/src/DependencyAnlyzer/P4ProgramGraph.py:97} INFO - Embeding pipelines
+[04-12 18:46:32] p47766 {/home/deba/Desktop/P416CompilerBackend/src/DependencyAnlyzer/P4ProgramGraph.py:73} INFO - Loading pipelines
+[04-12 18:46:32] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:46:32] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:46:32] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:46:32] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:46:32] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:46:32] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:46:32] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:46:32] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:46:32] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:46:32] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:46:32] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:46:32] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:46:32] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:46:32] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:46:32] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:46:32] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:46:32] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:46:32] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:46:32] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:46:32] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:46:32] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:46:32] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:46:32] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:46:32] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+Nothing to do. 
+Nothing to do. 
+Name is None in getNode. returning None
+Name is None in getNode. returning None
+Name is None in getNodeWithActionsForTDGProcessing. returning None
+Name is None in getNodeWithActionsForTDGProcessing. returning None
+Namee for the node is Null. Returning
+Namee for the node is Null. Returning
+[04-12 18:46:33] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:46:33] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:46:33] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:46:33] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:46:33] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:46:33] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:46:33] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:46:33] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:46:33] p47766 {/home/deba/Desktop/P416CompilerBackend/src/DependencyAnlyzer/P4ProgramGraph.py:220} INFO - Field not found in map . The field is control_packet.$valid$
+[04-12 18:46:33] p47766 {/home/deba/Desktop/P416CompilerBackend/src/DependencyAnlyzer/P4ProgramGraph.py:239} INFO - Field not found in map . The field is control_packet.$valid$
+[04-12 18:46:33] p47766 {/home/deba/Desktop/P416CompilerBackend/src/DependencyAnlyzer/P4ProgramGraph.py:97} INFO - Embeding pipelines
+[04-12 18:46:33] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:46:33] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:46:33] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:46:33] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:46:33] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:46:33] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:46:33] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:46:33] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:46:33] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:46:33] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1457} INFO - Runtime data is not needed to be parsed in our system for finding dependency between two nodes. passing it 
+[04-12 18:46:33] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
+[04-12 18:46:33] p47766 {/home/deba/Desktop/P416CompilerBackend/src/P4ProgramParser/P416JsonParser.py:1467} INFO - Local primitive does not impact on dependency anlysis. so skiping
