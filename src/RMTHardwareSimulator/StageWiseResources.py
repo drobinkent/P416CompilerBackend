@@ -85,7 +85,9 @@ class StageWiseResource:
         self.tcamMatResource.availableTcamMatCrossbarBitwidth = self.tcamMatResource.availableTcamMatCrossbarBitwidth - keyWidth
         self.tcamMatResource.usedTcamMatCrossbarBitwidth = self.tcamMatResource.usedTcamMatCrossbarBitwidth + keyWidth
 
-    def allocateSRAMMatKeyCrossbarBitwidth(self, keyWidth):
+    def allocateSRAMMatKeyCrossbarBitwidth(self, keyWidth,hardware):
+        if(keyWidth == 0):
+            keyWidth = hardware.getMinBitwidthOfPHVFields()
         self.sramMatResource.availableSramMatCrossbarBitwidth = self.sramMatResource.availableSramMatCrossbarBitwidth - keyWidth
         self.sramMatResource.usedSramMatCrossbarBitwidth = self.sramMatResource.usedSramMatCrossbarBitwidth + keyWidth
 
@@ -164,6 +166,8 @@ class StageWiseResource:
         blockWidth, requiredSramBlocks = self.getMemoryBlockWidthAndBlockCountFromBitWidthAndRequiredNumberOfEntries(bitWidth=matKeyBitWidth,
                          memoryBlockBitwidth=self.sramResource.perMemoryBlockBitwidth,memoryBlockRowCount=self.sramResource.perMemoryBlockRowCount,
                          requiredNumberOfEntries=requiredMatEntries, hashingWay=hashingWay)
+        if(requiredSramBlocks == 0):
+            requiredSramBlocks = 1
         # requiredSramBlocks = requiredSramBlocks* self.sramMatResource.sramMatHashingWay
         memoryPortWidthList = self.bitWidthToMemoryPortWidthConsumption(matKeyBitWidth, list(self.externResource.bitWidthToRegisterExternMap.keys()))
         totalMemoryPortWidth = sum(memoryPortWidthList)
@@ -484,19 +488,28 @@ class StageWiseResource:
         #However in the case of sram this is not the case. In sram based mat we can only use 8 SRAM based MAT (in bosshart paper), But there are 106 sram blocks,
         #Therefore unlike tcam based mat, in sram based mat we need to explicitily keep track of the number of available SRAM based mat blocks.
         self.allocateSRAMMatBlocks(self.convertMatKeyBitWidthLengthToSRAMMatBlockCount(matNode.matKeyBitWidth))
-        self.allocateMatEntriesOverSRAMBasedMATSInSingleStage(matNode.matKeyBitWidth, matNode.getRequiredNumberOfMatEntries()) # This embeds both match-key and tables and entries in one stage
+        if(matNode.matKeyBitWidth == 0):
+            matKeyWidth = hardware.getMinBitwidthOfPHVFields()
+        else:
+            matKeyWidth = matNode.matKeyBitWidth
+        self.allocateMatEntriesOverSRAMBasedMATSInSingleStage(matKeyWidth, matNode.getRequiredNumberOfMatEntries()) # This embeds both match-key and tables and entries in one stage
         self.allocateActionCrossbarBitwidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
         self.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= matNode.getRequiredNumberOfActionEntries())
         self.allocateActionMemoryPortWidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
         #TODO need to allocate direct stateful memories here
         self.listOfLogicalTableMappedToThisStage.get(pipelineID).append(matNode)
     def allocateMatNodeOverSRAMMat(self, matNode, numberOfMatEntriesToBeAllocated, numberOfActionEntriesToBeAllocated,pipelineID, hardware):
-        self.allocateSRAMMatKeyCrossbarBitwidth(matNode.matKeyBitWidth)
+        self.allocateSRAMMatKeyCrossbarBitwidth(matNode.matKeyBitWidth,hardware)
         #For TCAM all tcam blocks are only used for MATCHing therefore allocating a tcam block automatically modifies the block count.
         #However in the case of sram this is not the case. In sram based mat we can only use 8 SRAM based MAT (in bosshart paper), But there are 106 sram blocks,
         #Therefore unlike tcam based mat, in sram based mat we need to explicitily keep track of the number of available SRAM based mat blocks.
         self.allocateSRAMMatBlocks(self.convertMatKeyBitWidthLengthToSRAMMatBlockCount(matNode.matKeyBitWidth))
-        self.allocateMatEntriesOverSRAMBasedMATSInSingleStage(matNode.matKeyBitWidth, numberOfMatEntriesToBeAllocated)#,self.sramMatResource.sramMatHashingWay) # This embeds both match-key and tables and entries in one stage
+        matKeyWidth = 0
+        if(matNode.matKeyBitWidth == 0):
+            matKeyWidth = hardware.getMinBitwidthOfPHVFields()
+        else:
+            matKeyWidth = matNode.matKeyBitWidth
+        self.allocateMatEntriesOverSRAMBasedMATSInSingleStage(matKeyWidth, numberOfMatEntriesToBeAllocated)#,self.sramMatResource.sramMatHashingWay) # This embeds both match-key and tables and entries in one stage
         self.allocateActionCrossbarBitwidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
         self.allocateSramBlockForActionMemory(actionEntryBitwidth = matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries= numberOfActionEntriesToBeAllocated)
         self.allocateActionMemoryPortWidth(matNode.getMaxActionCrossbarBitwidthRequiredByAnyAction())
@@ -841,3 +854,4 @@ class ExternResource:
         #         bitWiseInstructionList = self.availableBitwidthToRegisterInstructionMap.get(externInstructionBitwidth)
         #         bitWiseInstructionList.append(instructionSpec)
         #         self.availableBitwidthToRegisterInstructionMap[externInstructionBitwidth] = bitWiseInstructionList
+
