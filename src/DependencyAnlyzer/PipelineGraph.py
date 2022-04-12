@@ -79,7 +79,7 @@ class PipelineGraph:
         :return:
         '''
         #At first analyzig the match action table of the  pipeline
-        print("HEre remains a question: Should we unify the metadata's with both ingress nad egress separately or not!!!!!!!!!!!!!!")
+        # print("HEre remains a question: Should we unify the metadata's with both ingress nad egress separately or not!!!!!!!!!!!!!!")
         pipelineObject = self.pipeline
         allHeaderFieldUsedInMatchPartAllMAT = []
         allHeaderFieldUsedInActionsOfAllMAT = []

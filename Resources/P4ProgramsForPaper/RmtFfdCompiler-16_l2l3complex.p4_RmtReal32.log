@@ -1,0 +1,342 @@
+INFO:root:This log has several sections separated by ~~: Switch Info, JobId, P4 -> TDG, Program Info, Compiler Log, Final switch configurations
+INFO:root:~~
+INFO:root:Switch Info
+INFO:src.rmt.rmt_switch:RMT SWITCH
+INFO:src.rmt.rmt_switch:Memory types: ['sram', 'tcam']
+INFO:src.rmt.rmt_switch:Match type: {'sram': ['exact'], 'tcam': ['exact', 'lpm', 'ternary', 'gw', 'mapper']}
+INFO:src.rmt.rmt_switch:Number of blocks: [('sram', 106.0), ('tcam', 16.0)]
+INFO:src.rmt.rmt_switch:Number of stages: 32 
+INFO:src.rmt.rmt_switch:Depth and width of memory: ['1000x80b sram', '2000x40b tcam'] 
+INFO:src.rmt.rmt_switch:Input crossbar: ['8 80b sram', '8 80b tcam'] 
+INFO:src.rmt.rmt_switch:Action crossbar has 1280 bits
+INFO:src.rmt.rmt_switch:Match Tables per stage: ['8 sram', '8 tcam']
+INFO:src.rmt.rmt_switch:Pipeline delays: {'action': 3, 'match': 12, 'successor': 1}
+INFO:src.rmt.rmt_switch:Power numbers: {'wattsPerTcamBit': 5.8520785245e-07, 'wattsPerSram': 0.01344726562504, 'wattsPerSramBit': 1.68090820313e-07, 'wattsPerTcam': 0.046816628196}
+INFO:src.rmt.rmt_switch:Types in: {'sram': ['sram', 'action'], 'tcam': ['tcam']}
+INFO:src.rmt.rmt_switch:All types: ['action', 'sram', 'tcam']
+WARNING:root:not found program with key None
+WARNING:root: in file ../config/prog00.txt 
+WARNING:root:query[program][module] is None 
+INFO:root:~~
+INFO:root:JobId: RmtFfdCompiler-16_l2l3complex.p4_RmtReal32
+INFO:root:~~
+INFO:root:P4 -> TDG
+INFO:tp:DEPENDENCIES FROM ingress TABLE GRAPH
+INFO:tp:REVERSE_READ: [('ipv6_urpf', 'ipv6_nexthop'), ('ipv4_mcast', 'ipv6_nexthop'), ('ipv4_mcast', 'ipv4_nexthop'), ('ipv6_mcast', 'ipv6_nexthop'), ('ipv6_mcast', 'ipv4_nexthop'), ('ipv4_urpf', 'ipv4_nexthop'), ('ig_acl1', 'ipv6_nexthop'), ('ig_acl1', 'ipv4_nexthop'), ('ig_bcast_storm', 'ipv4_nexthop'), ('ig_bcast_storm', 'ipv6_nexthop')]
+INFO:tp:PREDICATION: [('ig_router_mac', 'ipv4_ucast_host'), ('ig_router_mac', 'ipv6_ucast_host'), ('ig_router_mac', 'ipv6_mcast'), ('ig_router_mac', 'ipv4_mcast')]
+INFO:tp:SUCCESSOR: [('_condition_1', 'ipv6_urpf'), ('_condition_1', 'ipv6_ecmp'), ('_condition_0', 'ipv4_ecmp'), ('_condition_0', '_condition_1'), ('_condition_0', 'ipv4_urpf')]
+INFO:tp:ACTION: [('ipv6_ucast_host', 'ipv6_ucast_lpm'), ('ipv4_ucast_host', 'ipv4_ucast_lpm'), ('ig_acl1', 'ig_acl2'), ('ig_acl2', 'eg_phy_meta'), ('eg_phy_meta', 'eg_acl1')]
+INFO:tp:MATCH: [('ipv6_ucast_lpm', 'ipv6_ecmp'), ('ipv6_ucast_lpm', 'ipv4_ecmp'), ('ig_agg_intf', 'eg_phy_meta'), ('ig_phy_meta', 'ig_props'), ('ig_phy_meta', 'ig_router_mac'), ('ig_props', 'ig_acl1'), ('ig_props', 'ipv6_ucast_host'), ('ig_props', 'ipv4_ucast_host'), ('ig_props', 'ipv6_urpf'), ('ig_props', 'ipv4_mcast'), ('ig_props', 'ipv6_mcast'), ('ig_props', 'ipv4_urpf'), ('ig_dmac', 'ig_agg_intf'), ('ig_dmac', 'eg_props'), ('eg_props', 'eg_acl1'), ('ipv4_nexthop', 'ig_dmac'), ('ipv4_ucast_lpm', 'ipv4_ecmp'), ('ipv4_ucast_lpm', 'ipv6_ecmp'), ('ipv6_nexthop', 'ig_dmac'), ('ipv6_ecmp', 'ig_acl2'), ('ipv6_ecmp', 'ipv6_nexthop'), ('ipv4_ecmp', 'ipv4_nexthop'), ('ipv4_ecmp', 'ig_acl2')]
+INFO:tp:NOP: []
+INFO:tp:27 tables in ingress control flow: ['ipv6_urpf', 'ingress', 'ipv6_ucast_lpm', 'ipv4_mcast', '_condition_1', '_condition_0', 'ig_agg_intf', 'ig_phy_meta', 'ig_props', 'ig_dmac', 'eg_props', 'ipv6_mcast', 'ipv4_nexthop', 'ipv4_ucast_lpm', 'ipv6_ucast_host', 'ipv6_nexthop', 'eg_acl1', 'ipv6_ecmp', 'ig_router_mac', 'ipv4_ecmp', 'ig_smac', 'ipv4_ucast_host', 'ipv4_urpf', 'ig_acl1', 'ig_acl2', 'ig_bcast_storm', 'eg_phy_meta']
+INFO:tp:24 tables in p4 tables: ['ig_phy_meta', 'ig_smac', 'ig_props', 'ig_bcast_storm', 'ig_acl1', 'ig_router_mac', 'ipv4_ucast_host', 'ipv4_ucast_lpm', 'ipv4_mcast', 'ipv4_urpf', 'ipv6_ucast_host', 'ipv6_ucast_lpm', 'ipv6_mcast', 'ipv6_urpf', 'ipv4_ecmp', 'ipv4_nexthop', 'ipv6_ecmp', 'ipv6_nexthop', 'ig_dmac', 'ig_agg_intf', 'ig_acl2', 'eg_props', 'eg_phy_meta', 'eg_acl1']
+INFO:tp:2 tables in p4 conditional nodes: ['_condition_1', '_condition_2']
+INFO:tp:1 p4 tables / conditional nodes not in control flow: ['_condition_2']
+INFO:tp:Table ig_phy_meta has width: 22, rounded width: 40 for fields: [('vlan_tag', 1, 8), ('vid', 12, 16), ('ingress_port', 9, 16)]
+INFO:tp:Table ig_smac has width: 0, rounded width: 0 for fields: []
+INFO:tp:Table ig_props has width: 32, rounded width: 32 for fields: [('bd_index', 16, 16), ('ig_lif', 16, 16)]
+INFO:tp:Table ig_bcast_storm has width: 57, rounded width: 64 for fields: [('ingress_port', 9, 16), ('dstAddr', 48, 48)]
+INFO:tp:Table ig_acl1 has width: 153, rounded width: 160 for fields: [('ingress_port', 9, 16), ('srcAddr', 48, 48), ('dstAddr', 48, 48), ('bd_acl_label', 24, 24), ('lif_acl_label', 24, 24)]
+INFO:tp:Table ig_router_mac has width: 80, rounded width: 80 for fields: [('bd_index', 16, 16), ('dstAddr', 48, 48), ('etherType', 16, 16)]
+INFO:tp:Table ipv4_ucast_host has width: 44, rounded width: 48 for fields: [('vrf_index', 12, 16), ('dstAddr', 32, 32)]
+INFO:tp:Table ipv4_ucast_lpm has width: 44, rounded width: 48 for fields: [('vrf_index', 12, 16), ('dstAddr', 32, 32)]
+INFO:tp:Table ipv4_mcast has width: 92, rounded width: 96 for fields: [('vrf_index', 12, 16), ('bd_index', 16, 16), ('srcAddr', 32, 32), ('dstAddr', 32, 32)]
+INFO:tp:Table ipv4_urpf has width: 50, rounded width: 56 for fields: [('bd_index', 16, 16), ('srcAddr', 32, 32), ('urpf', 2, 8)]
+INFO:tp:Table ipv6_ucast_host has width: 140, rounded width: 144 for fields: [('vrf_index', 12, 16), ('dstAddr', 128, 128)]
+INFO:tp:Table ipv6_ucast_lpm has width: 140, rounded width: 144 for fields: [('vrf_index', 12, 16), ('dstAddr', 128, 128)]
+INFO:tp:Table ipv6_mcast has width: 284, rounded width: 288 for fields: [('vrf_index', 12, 16), ('bd_index', 16, 16), ('srcAddr', 128, 128), ('dstAddr', 128, 128)]
+INFO:tp:Table ipv6_urpf has width: 146, rounded width: 152 for fields: [('bd_index', 16, 16), ('srcAddr', 128, 128), ('urpf', 2, 8)]
+INFO:tp:Table ipv4_ecmp has width: 32, rounded width: 32 for fields: [('ipv6_ecmp_index', 16, 16), ('l3_hash', 16, 16)]
+INFO:tp:Table ipv4_nexthop has width: 16, rounded width: 16 for fields: [('ipv4_next_hop_index', 16, 16)]
+INFO:tp:Table ipv6_ecmp has width: 32, rounded width: 32 for fields: [('ipv4_ecmp_index', 16, 16), ('l3_hash', 16, 16)]
+INFO:tp:Table ipv6_nexthop has width: 16, rounded width: 16 for fields: [('ipv6_next_hop_index', 16, 16)]
+INFO:tp:Table ig_dmac has width: 64, rounded width: 64 for fields: [('bd_index', 16, 16), ('dstAddr', 48, 48)]
+INFO:tp:Table ig_agg_intf has width: 32, rounded width: 32 for fields: [('eg_lif', 16, 16), ('l2_hash', 16, 16)]
+INFO:tp:Table ig_acl2 has width: 32, rounded width: 32 for fields: [('ipv4_next_hop_index', 16, 16), ('ipv6_next_hop_index', 16, 16)]
+INFO:tp:Table eg_props has width: 32, rounded width: 32 for fields: [('bd_index', 16, 16), ('eg_lif', 16, 16)]
+INFO:tp:Table eg_phy_meta has width: 25, rounded width: 32 for fields: [('egress_spec', 9, 16), ('bd_index', 16, 16)]
+INFO:tp:Table eg_acl1 has width: 64, rounded width: 64 for fields: [('bd_index', 16, 16), ('bd_acl_label', 24, 24), ('lif_acl_label', 24, 24)]
+INFO:tp:Table ig_phy_meta has action data: [[('bd_index', 16), ('ig_lif', 16)]]
+INFO:tp:Table ig_smac has action data: [[]]
+INFO:tp:Table ig_props has action data: [[('vrf_index', 12), ('urpf', 2), ('bd_acl_label', 24), ('lif_acl_label', 24)]]
+INFO:tp:Table ig_bcast_storm has action data: [[], [('meter_idx', 32)]]
+INFO:tp:Table ig_acl1 has action data: [[('drop_reason', 8)]]
+INFO:tp:Table ig_router_mac has action data: [[], [], [], [], []]
+INFO:tp:Table ipv4_ucast_host has action data: [[('next_hop_index', 16), ('ecmp_index', 16)], []]
+INFO:tp:Table ipv4_ucast_lpm has action data: [[('next_hop_index', 16), ('ecmp_index', 16)], []]
+INFO:tp:Table ipv4_mcast has action data: [[('mc_index', 16)]]
+INFO:tp:Table ipv4_urpf has action data: [[], []]
+INFO:tp:Table ipv6_ucast_host has action data: [[('next_hop_index', 16), ('ecmp_index', 16)], []]
+INFO:tp:Table ipv6_ucast_lpm has action data: [[('next_hop_index', 16), ('ecmp_index', 16)], []]
+INFO:tp:Table ipv6_mcast has action data: [[('mc_index', 16)]]
+INFO:tp:Table ipv6_urpf has action data: [[], []]
+INFO:tp:Table ipv4_ecmp has action data: [[('dst_index', 16)], []]
+INFO:tp:Table ipv4_nexthop has action data: [[('bd_index', 16), ('smac', 48), ('dmac', 48)]]
+INFO:tp:Table ipv6_ecmp has action data: [[('dst_index', 16)], []]
+INFO:tp:Table ipv6_nexthop has action data: [[('bd_index', 16), ('smac', 48), ('dmac', 48)]]
+INFO:tp:Table ig_dmac has action data: [[('eg_lif', 16)]]
+INFO:tp:Table ig_agg_intf has action data: [[('e_port', 9)]]
+INFO:tp:Table ig_acl2 has action data: [[('drop_reason', 8)], []]
+INFO:tp:Table eg_props has action data: [[('bd_acl_label', 24), ('lif_acl_label', 24)]]
+INFO:tp:Table eg_phy_meta has action data: [[('vlan_id', 12)], [('drop_reason', 8)]]
+INFO:tp:Table eg_acl1 has action data: [[('drop_reason', 8)]]
+WARNING:tp:All condition tables have default settings: {'match_type': 'gw', 'num_action_words': 1, 'width': 1, 'num_entries': 12, 'fixed_action_data_per_stage': False, 'action_widths': [0]}
+INFO:tp:tables-names: [(0, 'ig_phy_meta'), (1, 'ig_smac'), (2, 'ig_props'), (3, 'ig_bcast_storm'), (4, 'ig_acl1'), (5, 'ig_router_mac'), (6, 'ipv4_ucast_host'), (7, 'ipv4_ucast_lpm'), (8, 'ipv4_mcast'), (9, 'ipv4_urpf'), (10, 'ipv6_ucast_host'), (11, 'ipv6_ucast_lpm'), (12, 'ipv6_mcast'), (13, 'ipv6_urpf'), (14, 'ipv4_ecmp'), (15, 'ipv4_nexthop'), (16, 'ipv6_ecmp'), (17, 'ipv6_nexthop'), (18, 'ig_dmac'), (19, 'ig_agg_intf'), (20, 'ig_acl2'), (21, 'eg_props'), (22, 'eg_phy_meta'), (23, 'eg_acl1'), (24, '_condition_0'), (25, '_condition_1')]
+INFO:tp:Tables input to compiler: ['ig_phy_meta', 'ig_smac', 'ig_props', 'ig_bcast_storm', 'ig_acl1', 'ig_router_mac', 'ipv4_ucast_host', 'ipv4_ucast_lpm', 'ipv4_mcast', 'ipv4_urpf', 'ipv6_ucast_host', 'ipv6_ucast_lpm', 'ipv6_mcast', 'ipv6_urpf', 'ipv4_ecmp', 'ipv4_nexthop', 'ipv6_ecmp', 'ipv6_nexthop', 'ig_dmac', 'ig_agg_intf', 'ig_acl2', 'eg_props', 'eg_phy_meta', 'eg_acl1', '_condition_0', '_condition_1']
+INFO:tp:new-tables-names: [(0, 'ig_phy_meta'), (1, 'ig_smac'), (2, 'ig_props'), (3, 'ig_bcast_storm'), (4, 'ig_acl1'), (5, 'ig_router_mac'), (6, 'ipv4_ucast_host'), (7, 'ipv4_ucast_lpm'), (8, 'ipv4_mcast'), (9, 'ipv4_urpf'), (10, 'ipv6_ucast_host'), (11, 'ipv6_ucast_lpm'), (12, 'ipv6_mcast'), (13, 'ipv6_urpf'), (14, 'ipv4_ecmp'), (15, 'ipv4_nexthop'), (16, 'ipv6_ecmp'), (17, 'ipv6_nexthop'), (18, 'ig_dmac'), (19, 'ig_agg_intf'), (20, 'ig_acl2'), (21, 'eg_props'), (22, 'eg_phy_meta'), (23, 'eg_acl1'), (24, '_condition_0'), (25, '_condition_1')]
+INFO:tp:total width 1663
+WARNING:tp:WARNING!! Can't get match_type for ['ig_smac'], setting to exact
+WARNING:tp:WARNING!! Can't get num_action_words for ['ig_phy_meta', 'ig_smac', 'ig_props', 'ig_bcast_storm', 'ig_acl1', 'ig_router_mac', 'ipv4_ucast_host', 'ipv4_ucast_lpm', 'ipv4_mcast', 'ipv4_urpf', 'ipv6_ucast_host', 'ipv6_ucast_lpm', 'ipv6_mcast', 'ipv6_urpf', 'ipv4_ecmp', 'ipv4_nexthop', 'ipv6_ecmp', 'ipv6_nexthop', 'ig_dmac', 'ig_agg_intf', 'ig_acl2', 'eg_props', 'eg_phy_meta', 'eg_acl1'], setting to 1
+WARNING:tp:WARNING!! Can't get width for ['ig_smac'], setting to 32
+WARNING:tp:WARNING!! Can't get fixed_action_data_per_stage for ['ig_phy_meta', 'ig_smac', 'ig_props', 'ig_bcast_storm', 'ig_acl1', 'ig_router_mac', 'ipv4_ucast_host', 'ipv4_ucast_lpm', 'ipv4_mcast', 'ipv4_urpf', 'ipv6_ucast_host', 'ipv6_ucast_lpm', 'ipv6_mcast', 'ipv6_urpf', 'ipv4_ecmp', 'ipv4_nexthop', 'ipv6_ecmp', 'ipv6_nexthop', 'ig_dmac', 'ig_agg_intf', 'ig_acl2', 'eg_props', 'eg_phy_meta', 'eg_acl1'], setting to False
+INFO:root:~~
+INFO:root:Program Info
+INFO:programs.program:PROGRAM INFO
+INFO:programs.program:action dependencies: [('ipv6_ucast_host', 'ipv6_ucast_lpm'), ('ipv4_ucast_host', 'ipv4_ucast_lpm'), ('ig_acl1', 'ig_acl2'), ('ig_acl2', 'eg_phy_meta'), ('eg_phy_meta', 'eg_acl1')]
+INFO:programs.program:match dependencies: [('ipv6_ucast_lpm', 'ipv6_ecmp'), ('ipv6_ucast_lpm', 'ipv4_ecmp'), ('ig_agg_intf', 'eg_phy_meta'), ('ig_phy_meta', 'ig_props'), ('ig_phy_meta', 'ig_router_mac'), ('ig_props', 'ig_acl1'), ('ig_props', 'ipv6_ucast_host'), ('ig_props', 'ipv4_ucast_host'), ('ig_props', 'ipv6_urpf'), ('ig_props', 'ipv4_mcast'), ('ig_props', 'ipv6_mcast'), ('ig_props', 'ipv4_urpf'), ('ig_dmac', 'ig_agg_intf'), ('ig_dmac', 'eg_props'), ('eg_props', 'eg_acl1'), ('ipv4_nexthop', 'ig_dmac'), ('ipv4_ucast_lpm', 'ipv4_ecmp'), ('ipv4_ucast_lpm', 'ipv6_ecmp'), ('ipv6_nexthop', 'ig_dmac'), ('ipv6_ecmp', 'ig_acl2'), ('ipv6_ecmp', 'ipv6_nexthop'), ('ipv4_ecmp', 'ipv4_nexthop'), ('ipv4_ecmp', 'ig_acl2')]
+INFO:programs.program:successor dependencies: [('_condition_1', 'ipv6_urpf'), ('_condition_1', 'ipv6_ecmp'), ('_condition_0', 'ipv4_ecmp'), ('_condition_0', '_condition_1'), ('_condition_0', 'ipv4_urpf'), ('ig_router_mac', 'ipv4_ucast_host'), ('ig_router_mac', 'ipv6_ucast_host'), ('ig_router_mac', 'ipv6_mcast'), ('ig_router_mac', 'ipv4_mcast'), ('ipv6_urpf', 'ipv6_nexthop'), ('ipv4_mcast', 'ipv6_nexthop'), ('ipv4_mcast', 'ipv4_nexthop'), ('ipv6_mcast', 'ipv6_nexthop'), ('ipv6_mcast', 'ipv4_nexthop'), ('ipv4_urpf', 'ipv4_nexthop'), ('ig_acl1', 'ipv6_nexthop'), ('ig_acl1', 'ipv4_nexthop'), ('ig_bcast_storm', 'ipv4_nexthop'), ('ig_bcast_storm', 'ipv6_nexthop')]
+INFO:programs.program:                     tablename   T    #M-E  M-W                 A-W
+INFO:programs.program:                   ig_phy_meta   e    4000   22                [32]
+INFO:programs.program:                       ig_smac   e  128000   32                 [0]
+INFO:programs.program:                      ig_props   e    4000   32                [62]
+INFO:programs.program:                ig_bcast_storm   e      64   57             [32, 0]
+INFO:programs.program:                       ig_acl1   t    8000  153                 [8]
+INFO:programs.program:                 ig_router_mac   e    1000   80     [0, 0, 0, 0, 0]
+INFO:programs.program:               ipv4_ucast_host   e  128000   44             [32, 0]
+INFO:programs.program:                ipv4_ucast_lpm   l   16000   44             [32, 0]
+INFO:programs.program:                    ipv4_mcast   l   32000   92                [16]
+INFO:programs.program:                     ipv4_urpf   e   16000   50              [0, 0]
+INFO:programs.program:               ipv6_ucast_host   e  128000  140             [32, 0]
+INFO:programs.program:                ipv6_ucast_lpm   l   16000  140             [32, 0]
+INFO:programs.program:                    ipv6_mcast   l   32000  284                [16]
+INFO:programs.program:                     ipv6_urpf   e   16000  146              [0, 0]
+INFO:programs.program:                     ipv4_ecmp   e     256   32             [16, 0]
+INFO:programs.program:                  ipv4_nexthop   e  128000   16               [112]
+INFO:programs.program:                     ipv6_ecmp   e     245   32             [16, 0]
+INFO:programs.program:                  ipv6_nexthop   e  128000   16               [112]
+INFO:programs.program:                       ig_dmac   e  128000   64                [16]
+INFO:programs.program:                   ig_agg_intf   e      64   32                 [9]
+INFO:programs.program:                       ig_acl2   t    8000   32              [8, 0]
+INFO:programs.program:                      eg_props   e      64   32                [48]
+INFO:programs.program:                   eg_phy_meta   e    4000   25             [12, 8]
+INFO:programs.program:                       eg_acl1   t   16000   64                 [8]
+INFO:programs.program:                  _condition_0   g      12    1                 [0]
+INFO:programs.program:                  _condition_1   g      12    1                 [0]
+INFO:root:
+INFO:root:~~
+INFO:root:Compiler Log
+INFO:src.rmt.rmt_ffd_compiler:tables in order of limiting resourceipv6_mcast(0.5), ipv6_urpf(0.25), ipv6_ucast_lpm(0.25), ipv4_mcast(0.25), ipv6_ucast_host(0.25), ig_acl1(0.25), _condition_0(0.125), _condition_1(0.125), ig_agg_intf(0.125), ipv6_ecmp(0.125), ig_phy_meta(0.125), ig_props(0.125), ig_dmac(0.125), eg_props(0.125), ipv4_nexthop(0.125), ipv4_ucast_lpm(0.125), ipv6_nexthop(0.125), eg_acl1(0.125), ig_router_mac(0.125), ipv4_ecmp(0.125), ig_smac(0.125), ig_bcast_storm(0.125), ipv4_urpf(0.125), ig_acl2(0.125), ipv4_ucast_host(0.125), eg_phy_meta(0.125), end(0), start(0), 
+INFO:src.rmt.rmt_ffd_compiler:Compiler attempt successful.
+INFO:src.rmt.rmt_ffd_compiler:Attempted to assign the following tables in order: ['_condition_0', '_condition_1', 'ig_phy_meta', 'ig_props', 'ipv6_urpf', 'ig_acl1', 'ig_router_mac', 'ipv6_mcast', 'ipv4_mcast', 'ipv6_ucast_host', 'ipv6_ucast_lpm', 'ig_smac', 'ig_bcast_storm', 'ipv4_urpf', 'ipv4_ucast_host', 'ipv4_ucast_lpm', 'ipv6_ecmp', 'ipv6_nexthop', 'ipv4_ecmp', 'ipv4_nexthop', 'ig_dmac', 'ig_agg_intf', 'eg_props', 'ig_acl2', 'eg_phy_meta', 'eg_acl1']
+INFO:src.rmt.rmt_ffd_compiler:Table _condition_0 in stages 0 .. 0 (words assigned, input xbar subunits, action xbar bits):  St 0 tcam: 12, 1, 0b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Table _condition_1 in stages 0 .. 0 (words assigned, input xbar subunits, action xbar bits):  St 0 tcam: 12, 1, 0b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Table ig_phy_meta in stages 0 .. 0 (words assigned, input xbar subunits, action xbar bits):  St 0 sram: 4000, 1, 32b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Table ig_props in stages 1 .. 1 (words assigned, input xbar subunits, action xbar bits):  St 1 sram: 4000, 1, 62b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Table ipv6_urpf in stages 2 .. 2 (words assigned, input xbar subunits, action xbar bits):  St 2 sram: 16000, 2, 0b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Table ig_acl1 in stages 2 .. 2 (words assigned, input xbar subunits, action xbar bits):  St 2 tcam: 8000, 2, 8b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Table ig_router_mac in stages 1 .. 1 (words assigned, input xbar subunits, action xbar bits):  St 1 sram: 1000, 1, 0b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Table ipv6_mcast in stages 2 .. 10 (words assigned, input xbar subunits, action xbar bits):  St 2 tcam: X;  St 3 tcam: 4000, 4, 16b;  St 4 tcam: 4000, 4, 16b;  St 5 tcam: 4000, 4, 16b;  St 6 tcam: 4000, 4, 16b;  St 7 tcam: 4000, 4, 16b;  St 8 tcam: 4000, 4, 16b;  St 9 tcam: 4000, 4, 16b;  St 10 tcam: 4000, 4, 16b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Some stages couldn't fit any words
+No words in St 2 tcam: "Can't fit any entries (284b). Table has 16b action data. 73 RAMs, 0 TCAMs left. "
+
+INFO:src.rmt.rmt_ffd_compiler:Table ipv4_mcast in stages 2 .. 14 (words assigned, input xbar subunits, action xbar bits):  St 2 tcam: X;  St 3 tcam: X;  St 4 tcam: X;  St 5 tcam: X;  St 6 tcam: X;  St 7 tcam: X;  St 8 tcam: X;  St 9 tcam: X;  St 10 tcam: X;  St 11 tcam: 10000, 2, 16b;  St 12 tcam: 10000, 2, 16b;  St 13 tcam: 10000, 2, 16b;  St 14 tcam: 2000, 2, 16b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Some stages couldn't fit any words
+No words in St 2 tcam: "Can't fit any entries (92b). Table has 16b action data. 73 RAMs, 0 TCAMs left. "
+No words in St 3 tcam: "Can't fit any entries (92b). Table has 16b action data. 106 RAMs, 0 TCAMs left. "
+No words in St 4 tcam: "Can't fit any entries (92b). Table has 16b action data. 106 RAMs, 0 TCAMs left. "
+No words in St 5 tcam: "Can't fit any entries (92b). Table has 16b action data. 106 RAMs, 0 TCAMs left. "
+No words in St 6 tcam: "Can't fit any entries (92b). Table has 16b action data. 106 RAMs, 0 TCAMs left. "
+No words in St 7 tcam: "Can't fit any entries (92b). Table has 16b action data. 106 RAMs, 0 TCAMs left. "
+No words in St 8 tcam: "Can't fit any entries (92b). Table has 16b action data. 106 RAMs, 0 TCAMs left. "
+No words in St 9 tcam: "Can't fit any entries (92b). Table has 16b action data. 106 RAMs, 0 TCAMs left. "
+No words in St 10 tcam: "Can't fit any entries (92b). Table has 16b action data. 105 RAMs, 0 TCAMs left. "
+
+INFO:src.rmt.rmt_ffd_compiler:Table ipv6_ucast_host in stages 2 .. 5 (words assigned, input xbar subunits, action xbar bits):  St 2 tcam: X;  St 3 tcam: X;  St 4 tcam: X;  St 5 sram: 15000, 2, 32b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Some stages couldn't fit any words
+No words in St 2 tcam: "Can't fit any entries (140b). Table has 32b action data. 0 RAMs, 0 TCAMs left. "
+No words in St 3 tcam: "Can't fit any entries (140b). Table has 32b action data. 0 RAMs, 0 TCAMs left. "
+No words in St 4 tcam: "Can't fit any entries (140b). Table has 32b action data. 0 RAMs, 0 TCAMs left. "
+
+INFO:src.rmt.rmt_ffd_compiler:Table ipv6_ucast_lpm in stages 6 .. 16 (words assigned, input xbar subunits, action xbar bits):  St 6 tcam: X;  St 7 tcam: X;  St 8 tcam: X;  St 9 tcam: X;  St 10 tcam: X;  St 11 tcam: X;  St 12 tcam: X;  St 13 tcam: X;  St 14 tcam: 6000, 2, 32b;  St 15 tcam: 8000, 2, 32b;  St 16 tcam: 2000, 2, 32b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Some stages couldn't fit any words
+No words in St 6 tcam: "Can't fit any entries (140b). Table has 32b action data. 106 RAMs, 0 TCAMs left. "
+No words in St 7 tcam: "Can't fit any entries (140b). Table has 32b action data. 106 RAMs, 0 TCAMs left. "
+No words in St 8 tcam: "Can't fit any entries (140b). Table has 32b action data. 106 RAMs, 0 TCAMs left. "
+No words in St 9 tcam: "Can't fit any entries (140b). Table has 32b action data. 106 RAMs, 0 TCAMs left. "
+No words in St 10 tcam: "Can't fit any entries (140b). Table has 32b action data. 105 RAMs, 0 TCAMs left. "
+No words in St 11 tcam: "Can't fit any entries (140b). Table has 32b action data. 106 RAMs, 0 TCAMs left. "
+No words in St 12 tcam: "Can't fit any entries (140b). Table has 32b action data. 106 RAMs, 0 TCAMs left. "
+No words in St 13 tcam: "Can't fit any entries (140b). Table has 32b action data. 106 RAMs, 0 TCAMs left. "
+
+INFO:src.rmt.rmt_ffd_compiler:Table ig_smac in stages 0 .. 0 (words assigned, input xbar subunits, action xbar bits):  St 0 sram: 128000, 1, 0b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Table ig_bcast_storm in stages 0 .. 0 (words assigned, input xbar subunits, action xbar bits):  St 0 sram: 64, 1, 32b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Table ipv4_urpf in stages 2 .. 5 (words assigned, input xbar subunits, action xbar bits):  St 2 tcam: X;  St 3 tcam: X;  St 4 tcam: X;  St 5 sram: 16000, 1, 0b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Some stages couldn't fit any words
+No words in St 2 tcam: "Can't fit any entries (50b). "
+No words in St 3 tcam: "Can't fit any entries (50b). "
+No words in St 4 tcam: "Can't fit any entries (50b). "
+
+INFO:src.rmt.rmt_ffd_compiler:Table ipv4_ucast_host in stages 2 .. 6 (words assigned, input xbar subunits, action xbar bits):  St 2 tcam: X;  St 3 tcam: X;  St 4 tcam: X;  St 5 tcam: X;  St 6 sram: 78000, 1, 32b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Some stages couldn't fit any words
+No words in St 2 tcam: "Can't fit any entries (44b). Table has 32b action data. 0 RAMs, 0 TCAMs left. "
+No words in St 3 tcam: "Can't fit any entries (44b). Table has 32b action data. 0 RAMs, 0 TCAMs left. "
+No words in St 4 tcam: "Can't fit any entries (44b). Table has 32b action data. 0 RAMs, 0 TCAMs left. "
+No words in St 5 tcam: "Can't fit any entries (44b). Table has 32b action data. 0 RAMs, 0 TCAMs left. "
+
+INFO:src.rmt.rmt_ffd_compiler:Table ipv4_ucast_lpm in stages 7 .. 17 (words assigned, input xbar subunits, action xbar bits):  St 7 tcam: X;  St 8 tcam: X;  St 9 tcam: X;  St 10 tcam: X;  St 11 tcam: X;  St 12 tcam: X;  St 13 tcam: X;  St 14 tcam: X;  St 15 tcam: X;  St 16 tcam: 12000, 1, 32b;  St 17 tcam: 4000, 1, 32b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Some stages couldn't fit any words
+No words in St 7 tcam: "Can't fit any entries (44b). Table has 32b action data. 106 RAMs, 0 TCAMs left. "
+No words in St 8 tcam: "Can't fit any entries (44b). Table has 32b action data. 106 RAMs, 0 TCAMs left. "
+No words in St 9 tcam: "Can't fit any entries (44b). Table has 32b action data. 106 RAMs, 0 TCAMs left. "
+No words in St 10 tcam: "Can't fit any entries (44b). Table has 32b action data. 105 RAMs, 0 TCAMs left. "
+No words in St 11 tcam: "Can't fit any entries (44b). Table has 32b action data. 106 RAMs, 0 TCAMs left. "
+No words in St 12 tcam: "Can't fit any entries (44b). Table has 32b action data. 106 RAMs, 0 TCAMs left. "
+No words in St 13 tcam: "Can't fit any entries (44b). Table has 32b action data. 106 RAMs, 0 TCAMs left. "
+No words in St 14 tcam: "Can't fit any entries (44b). Table has 32b action data. 105 RAMs, 0 TCAMs left. "
+No words in St 15 tcam: "Can't fit any entries (44b). Table has 32b action data. 106 RAMs, 0 TCAMs left. "
+
+INFO:src.rmt.rmt_ffd_compiler:Table ipv6_ecmp in stages 18 .. 18 (words assigned, input xbar subunits, action xbar bits):  St 18 sram: 245, 1, 16b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Table ipv6_nexthop in stages 19 .. 21 (words assigned, input xbar subunits, action xbar bits):  St 19 tcam: X;  St 20 tcam: X;  St 21 sram: 38000, 1, 112b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Some stages couldn't fit any words
+No words in St 19 tcam: "Can't fit any entries (16b). Table has 112b action data. 2 RAMs, 16 TCAMs left. "
+No words in St 20 tcam: "Can't fit any entries (16b). Table has 112b action data. 2 RAMs, 16 TCAMs left. "
+
+INFO:src.rmt.rmt_ffd_compiler:Table ipv4_ecmp in stages 18 .. 18 (words assigned, input xbar subunits, action xbar bits):  St 18 sram: 256, 1, 16b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Table ipv4_nexthop in stages 19 .. 24 (words assigned, input xbar subunits, action xbar bits):  St 19 tcam: X;  St 20 tcam: X;  St 21 tcam: X;  St 22 tcam: X;  St 23 tcam: X;  St 24 sram: 33000, 1, 112b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Some stages couldn't fit any words
+No words in St 19 tcam: "Can't fit any entries (16b). Table has 112b action data. 2 RAMs, 16 TCAMs left. "
+No words in St 20 tcam: "Can't fit any entries (16b). Table has 112b action data. 2 RAMs, 16 TCAMs left. "
+No words in St 21 tcam: "Can't fit any entries (16b). Table has 112b action data. 2 RAMs, 16 TCAMs left. "
+No words in St 22 tcam: "Can't fit any entries (16b). Table has 112b action data. 2 RAMs, 16 TCAMs left. "
+No words in St 23 tcam: "Can't fit any entries (16b). Table has 112b action data. 2 RAMs, 16 TCAMs left. "
+
+INFO:src.rmt.rmt_ffd_compiler:Table ig_dmac in stages 25 .. 26 (words assigned, input xbar subunits, action xbar bits):  St 25 tcam: 10000, 1, 16b;  St 26 sram: 32000, 1, 16b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Table ig_agg_intf in stages 27 .. 27 (words assigned, input xbar subunits, action xbar bits):  St 27 sram: 64, 1, 9b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Table eg_props in stages 27 .. 27 (words assigned, input xbar subunits, action xbar bits):  St 27 sram: 64, 1, 48b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Table ig_acl2 in stages 19 .. 19 (words assigned, input xbar subunits, action xbar bits):  St 19 tcam: 8000, 1, 8b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Table eg_phy_meta in stages 28 .. 28 (words assigned, input xbar subunits, action xbar bits):  St 28 sram: 4000, 1, 12b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Table eg_acl1 in stages 29 .. 29 (words assigned, input xbar subunits, action xbar bits):  St 29 tcam: 16000, 1, 8b; 
+
+INFO:src.rmt.rmt_configuration:Total words unassigned 0 out of 941717 (0.0 p.c.)
+INFO:src.rmt.rmt_ffd_compiler:done
+INFO:src.rmt.rmt_configuration:Need 9.05W for 88.00 active RAMs and 168.02 active TCAMs.
+INFO:root:Finished compiling.
+INFO:root:
+INFO:root:~~
+INFO:root:Final switch configurations
+INFO:root:
+Displaying config for greedyConfig
+INFO:src.rmt.rmt_dependency_analysis:nodes ['start', 'ig_phy_meta', 'ig_props', 'ipv4_ucast_host', 'ipv4_ucast_lpm', 'ipv6_ecmp', 'ipv6_nexthop', 'ig_dmac', 'ig_agg_intf', 'eg_phy_meta', 'eg_acl1', 'end']
+INFO:src.rmt.rmt_configuration:Total words unassigned 0 out of 941717 (0.0 p.c.)
+INFO:src.rmt.rmt_configuration:Need 9.05W for 88.00 active RAMs and 168.02 active TCAMs.
+INFO:src.rmt.rmt_configuration:
+(FFD) Power for RAMs and TCAMs 9.04944488367
+INFO:src.rmt.rmt_configuration:
+(FFD) Pipeline Latency 110.0
+INFO:src.rmt.rmt_configuration:
+(FFD) Blocks allocated per stage
+
+INFO:src.rmt.rmt_configuration:Stage 0 (59 SRAMs, 2 TCAMs): : ig_smac (52 s)  , ig_phy_meta (3 a, 2 s)  , ig_bcast_storm (1 a, 1 s)  , _condition_0 (1 t)  , _condition_1 (1 t)  
+INFO:src.rmt.rmt_configuration:Stage 1 (7 SRAMs, 0 TCAMs): : ig_props (4 a, 2 s)  , ig_router_mac (1 s)  
+INFO:src.rmt.rmt_configuration:Stage 2 (106 SRAMs, 16 TCAMs): : ipv6_ucast_host (15 a, 58 s)  , ipv6_urpf (32 s)  , ig_acl1 (1 a, 16 t)  
+INFO:src.rmt.rmt_configuration:Stage 3 (106 SRAMs, 16 TCAMs): : ipv6_ucast_host (21 a, 84 s)  , ipv6_mcast (1 a, 16 t)  
+INFO:src.rmt.rmt_configuration:Stage 4 (106 SRAMs, 16 TCAMs): : ipv6_ucast_host (21 a, 84 s)  , ipv6_mcast (1 a, 16 t)  
+INFO:src.rmt.rmt_configuration:Stage 5 (106 SRAMs, 16 TCAMs): : ipv4_ucast_host (25 a, 30 s)  , ipv6_ucast_host (8 a, 30 s)  , ipv6_mcast (1 a, 16 t)  , ipv4_urpf (12 s)  
+INFO:src.rmt.rmt_configuration:Stage 6 (89 SRAMs, 16 TCAMs): : ipv4_ucast_host (40 a, 48 s)  , ipv6_mcast (1 a, 16 t)  
+INFO:src.rmt.rmt_configuration:Stage 7 (1 SRAMs, 16 TCAMs): : ipv6_mcast (1 a, 16 t)  
+INFO:src.rmt.rmt_configuration:Stage 8 (1 SRAMs, 16 TCAMs): : ipv6_mcast (1 a, 16 t)  
+INFO:src.rmt.rmt_configuration:Stage 9 (1 SRAMs, 16 TCAMs): : ipv6_mcast (1 a, 16 t)  
+INFO:src.rmt.rmt_configuration:Stage 10 (1 SRAMs, 16 TCAMs): : ipv6_mcast (1 a, 16 t)  
+INFO:src.rmt.rmt_configuration:Stage 11 (2 SRAMs, 15 TCAMs): : ipv4_mcast (2 a, 15 t)  
+INFO:src.rmt.rmt_configuration:Stage 12 (2 SRAMs, 15 TCAMs): : ipv4_mcast (2 a, 15 t)  
+INFO:src.rmt.rmt_configuration:Stage 13 (2 SRAMs, 15 TCAMs): : ipv4_mcast (2 a, 15 t)  
+INFO:src.rmt.rmt_configuration:Stage 14 (4 SRAMs, 15 TCAMs): : ipv6_ucast_lpm (3 a, 12 t)  , ipv4_mcast (1 a, 3 t)  
+INFO:src.rmt.rmt_configuration:Stage 15 (4 SRAMs, 16 TCAMs): : ipv6_ucast_lpm (4 a, 16 t)  
+INFO:src.rmt.rmt_configuration:Stage 16 (7 SRAMs, 16 TCAMs): : ipv4_ucast_lpm (6 a, 12 t)  , ipv6_ucast_lpm (1 a, 4 t)  
+INFO:src.rmt.rmt_configuration:Stage 17 (2 SRAMs, 4 TCAMs): : ipv4_ucast_lpm (2 a, 4 t)  
+INFO:src.rmt.rmt_configuration:Stage 18 (4 SRAMs, 0 TCAMs): : ipv6_ecmp (1 a, 1 s)  , ipv4_ecmp (1 a, 1 s)  
+INFO:src.rmt.rmt_configuration:Stage 19 (100 SRAMs, 4 TCAMs): : ipv6_nexthop (90 a, 9 s)  , ig_acl2 (1 a, 4 t)  
+INFO:src.rmt.rmt_configuration:Stage 20 (99 SRAMs, 0 TCAMs): : ipv6_nexthop (90 a, 9 s)  
+INFO:src.rmt.rmt_configuration:Stage 21 (103 SRAMs, 0 TCAMs): : ipv6_nexthop (80 a, 8 s)  , ipv4_nexthop (10 a, 5 s)  
+INFO:src.rmt.rmt_configuration:Stage 22 (99 SRAMs, 0 TCAMs): : ipv4_nexthop (90 a, 9 s)  
+INFO:src.rmt.rmt_configuration:Stage 23 (99 SRAMs, 0 TCAMs): : ipv4_nexthop (90 a, 9 s)  
+INFO:src.rmt.rmt_configuration:Stage 24 (77 SRAMs, 0 TCAMs): : ipv4_nexthop (70 a, 7 s)  
+INFO:src.rmt.rmt_configuration:Stage 25 (106 SRAMs, 10 TCAMs): : ig_dmac (20 a, 86 s, 10 t)  
+INFO:src.rmt.rmt_configuration:Stage 26 (39 SRAMs, 0 TCAMs): : ig_dmac (7 a, 32 s)  
+INFO:src.rmt.rmt_configuration:Stage 27 (4 SRAMs, 0 TCAMs): : ig_agg_intf (1 a, 1 s)  , eg_props (1 a, 1 s)  
+INFO:src.rmt.rmt_configuration:Stage 28 (3 SRAMs, 0 TCAMs): : eg_phy_meta (1 a, 2 s)  
+INFO:src.rmt.rmt_configuration:Stage 29 (2 SRAMs, 16 TCAMs): : eg_acl1 (2 a, 16 t)  
+INFO:src.rmt.rmt_configuration:
+(FFD) Table xx can't start before stage @st because of @dependency on table @prev which ends in stage @prevEndSt [(st, dependency, prev, prevEndSt),..]
+INFO:src.rmt.rmt_configuration:ig_phy_meta  : []
+INFO:src.rmt.rmt_configuration:ig_smac  : []
+INFO:src.rmt.rmt_configuration:ig_props  : [(1, 'MATCH', 'ig_phy_meta', 0)]
+INFO:src.rmt.rmt_configuration:ig_bcast_storm  : []
+INFO:src.rmt.rmt_configuration:ig_acl1  : [(2, 'MATCH', 'ig_props', 1)]
+INFO:src.rmt.rmt_configuration:ig_router_mac  : [(1, 'MATCH', 'ig_phy_meta', 0)]
+INFO:src.rmt.rmt_configuration:ipv4_ucast_host  : [(2, 'MATCH', 'ig_props', 1), (1, 'SUCCESSOR', 'ig_router_mac', 1)]
+INFO:src.rmt.rmt_configuration:ipv4_ucast_lpm  : [(7, 'ACTION', 'ipv4_ucast_host', 6)]
+INFO:src.rmt.rmt_configuration:ipv4_mcast  : [(2, 'MATCH', 'ig_props', 1), (1, 'SUCCESSOR', 'ig_router_mac', 1)]
+INFO:src.rmt.rmt_configuration:ipv4_urpf  : [(2, 'MATCH', 'ig_props', 1), (0, 'SUCCESSOR', '_condition_0', 0)]
+INFO:src.rmt.rmt_configuration:ipv6_ucast_host  : [(2, 'MATCH', 'ig_props', 1), (1, 'SUCCESSOR', 'ig_router_mac', 1)]
+INFO:src.rmt.rmt_configuration:ipv6_ucast_lpm  : [(6, 'ACTION', 'ipv6_ucast_host', 5)]
+INFO:src.rmt.rmt_configuration:ipv6_mcast  : [(2, 'MATCH', 'ig_props', 1), (1, 'SUCCESSOR', 'ig_router_mac', 1)]
+INFO:src.rmt.rmt_configuration:ipv6_urpf  : [(2, 'MATCH', 'ig_props', 1), (0, 'SUCCESSOR', '_condition_1', 0)]
+INFO:src.rmt.rmt_configuration:ipv4_ecmp  : [(18, 'MATCH', 'ipv4_ucast_lpm', 17), (17, 'MATCH', 'ipv6_ucast_lpm', 16), (0, 'SUCCESSOR', '_condition_0', 0)]
+INFO:src.rmt.rmt_configuration:ipv4_nexthop  : [(19, 'MATCH', 'ipv4_ecmp', 18), (14, 'SUCCESSOR', 'ipv4_mcast', 14), (10, 'SUCCESSOR', 'ipv6_mcast', 10), (5, 'SUCCESSOR', 'ipv4_urpf', 5), (2, 'SUCCESSOR', 'ig_acl1', 2), (0, 'SUCCESSOR', 'ig_bcast_storm', 0)]
+INFO:src.rmt.rmt_configuration:ipv6_ecmp  : [(18, 'MATCH', 'ipv4_ucast_lpm', 17), (17, 'MATCH', 'ipv6_ucast_lpm', 16), (0, 'SUCCESSOR', '_condition_1', 0)]
+INFO:src.rmt.rmt_configuration:ipv6_nexthop  : [(19, 'MATCH', 'ipv6_ecmp', 18), (14, 'SUCCESSOR', 'ipv4_mcast', 14), (10, 'SUCCESSOR', 'ipv6_mcast', 10), (2, 'SUCCESSOR', 'ipv6_urpf', 2), (2, 'SUCCESSOR', 'ig_acl1', 2), (0, 'SUCCESSOR', 'ig_bcast_storm', 0)]
+INFO:src.rmt.rmt_configuration:ig_dmac  : [(25, 'MATCH', 'ipv4_nexthop', 24), (22, 'MATCH', 'ipv6_nexthop', 21)]
+INFO:src.rmt.rmt_configuration:ig_agg_intf  : [(27, 'MATCH', 'ig_dmac', 26)]
+INFO:src.rmt.rmt_configuration:ig_acl2  : [(19, 'MATCH', 'ipv6_ecmp', 18), (19, 'MATCH', 'ipv4_ecmp', 18), (3, 'ACTION', 'ig_acl1', 2)]
+INFO:src.rmt.rmt_configuration:eg_props  : [(27, 'MATCH', 'ig_dmac', 26)]
+INFO:src.rmt.rmt_configuration:eg_phy_meta  : [(28, 'MATCH', 'ig_agg_intf', 27), (20, 'ACTION', 'ig_acl2', 19)]
+INFO:src.rmt.rmt_configuration:eg_acl1  : [(29, 'ACTION', 'eg_phy_meta', 28), (28, 'MATCH', 'eg_props', 27)]
+INFO:src.rmt.rmt_configuration:_condition_0  : []
+INFO:src.rmt.rmt_configuration:_condition_1  : [(0, 'SUCCESSOR', '_condition_0', 0)]
+INFO:root:
+Critical path: start -> ig_phy_meta (0.0) => ig_props (1.0) => ipv4_ucast_host (2.0) ~> ipv4_ucast_lpm (3.0) => ipv6_ecmp (4.0) => ipv6_nexthop (5.0) => ig_dmac (6.0) => ig_agg_intf (7.0) => eg_phy_meta (8.0) ~> eg_acl1 (9.0) -> end (9.0), 9 match/action deps, needs 9 stages 
+INFO:root:Tables that start later than expected
+INFO:root:1) ipv4_ucast_host can start in 2, but starts in 5. 
+INFO:root:2) ipv4_ucast_lpm can start in 3, but starts in 16. 
+INFO:root:3) ipv4_mcast can start in 2, but starts in 11. 
+INFO:root:4) ipv4_urpf can start in 2, but starts in 5. 
+INFO:root:5) ipv6_ucast_lpm can start in 3, but starts in 14. 
+INFO:root:6) ipv6_mcast can start in 2, but starts in 3. 
+INFO:root:7) ipv4_ecmp can start in 4, but starts in 18. 
+INFO:root:8) ipv4_nexthop can start in 5, but starts in 21. 
+INFO:root:9) ipv6_ecmp can start in 4, but starts in 18. 
+INFO:root:10) ipv6_nexthop can start in 5, but starts in 19. 
+INFO:root:11) ig_dmac can start in 6, but starts in 25. 
+INFO:root:12) ig_agg_intf can start in 7, but starts in 27. 
+INFO:root:13) ig_acl2 can start in 5, but starts in 19. 
+INFO:root:14) eg_props can start in 7, but starts in 27. 
+INFO:root:15) eg_phy_meta can start in 8, but starts in 28. 
+INFO:root:16) eg_acl1 can start in 9, but starts in 29. 
+INFO:root:picture in ./-greedyConfig-RmtFfdCompiler-16_l2l3complex.p4_RmtReal32.pdf
+CRITICAL:root:Summary: numStages: 30, pipelineLatency: 110.0, power: 9.04944488367, solveTime: 0.135814905167, solved: True, totalUnassignedWords: 0, time: 0.135834

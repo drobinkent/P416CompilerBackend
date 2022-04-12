@@ -1,0 +1,139 @@
+INFO:root:This log has several sections separated by ~~: Switch Info, JobId, P4 -> TDG, Program Info, Compiler Log, Final switch configurations
+INFO:root:~~
+INFO:root:Switch Info
+INFO:src.rmt.rmt_switch:RMT SWITCH
+INFO:src.rmt.rmt_switch:Memory types: ['sram', 'tcam']
+INFO:src.rmt.rmt_switch:Match type: {'sram': ['exact'], 'tcam': ['exact', 'lpm', 'ternary', 'gw', 'mapper']}
+INFO:src.rmt.rmt_switch:Number of blocks: [('sram', 106.0), ('tcam', 16.0)]
+INFO:src.rmt.rmt_switch:Number of stages: 32 
+INFO:src.rmt.rmt_switch:Depth and width of memory: ['1000x80b sram', '2000x40b tcam'] 
+INFO:src.rmt.rmt_switch:Input crossbar: ['8 80b sram', '8 80b tcam'] 
+INFO:src.rmt.rmt_switch:Action crossbar has 1280 bits
+INFO:src.rmt.rmt_switch:Match Tables per stage: ['8 sram', '8 tcam']
+INFO:src.rmt.rmt_switch:Pipeline delays: {'action': 3, 'match': 12, 'successor': 1}
+INFO:src.rmt.rmt_switch:Power numbers: {'wattsPerTcamBit': 5.8520785245e-07, 'wattsPerSram': 0.01344726562504, 'wattsPerSramBit': 1.68090820313e-07, 'wattsPerTcam': 0.046816628196}
+INFO:src.rmt.rmt_switch:Types in: {'sram': ['sram', 'action'], 'tcam': ['tcam']}
+INFO:src.rmt.rmt_switch:All types: ['action', 'sram', 'tcam']
+WARNING:root:not found program with key None
+WARNING:root: in file ../config/prog00.txt 
+WARNING:root:query[program][module] is None 
+INFO:root:~~
+INFO:root:JobId: RmtFfdCompiler-16_l2l3Simple.p4_RmtReal32
+INFO:root:~~
+INFO:root:P4 -> TDG
+INFO:tp:DEPENDENCIES FROM ingress TABLE GRAPH
+INFO:tp:REVERSE_READ: [('routable_check_routable', 'unicast_routing'), ('mac_learning', 'unicast_routing')]
+INFO:tp:PREDICATION: [('routable_check_multicast', 'routable_check_routable'), ('routable_check_multicast', 'multicast_routing')]
+INFO:tp:SUCCESSOR: []
+INFO:tp:ACTION: [('multicast_routing', 'igmp')]
+INFO:tp:MATCH: [('unicast_routing', 'switching'), ('switching', 'acl')]
+INFO:tp:NOP: []
+INFO:tp:9 tables in ingress control flow: ['routable_check_multicast', 'ingress', 'routable_check_routable', 'mac_learning', 'unicast_routing', 'multicast_routing', 'acl', 'switching', 'igmp']
+INFO:tp:8 tables in p4 tables: ['routable_check_multicast', 'routable_check_routable', 'unicast_routing', 'multicast_routing', 'mac_learning', 'igmp', 'switching', 'acl']
+INFO:tp:0 tables in p4 conditional nodes: []
+INFO:tp:0 p4 tables / conditional nodes not in control flow: []
+INFO:tp:Table routable_check_multicast has width: 108, rounded width: 112 for fields: [('srcAddr', 48, 48), ('dstAddr', 48, 48), ('vid', 12, 16)]
+INFO:tp:Table routable_check_routable has width: 108, rounded width: 112 for fields: [('srcAddr', 48, 48), ('dstAddr', 48, 48), ('vid', 12, 16)]
+INFO:tp:Table unicast_routing has width: 32, rounded width: 32 for fields: [('dstAddr', 32, 32)]
+INFO:tp:Table multicast_routing has width: 32, rounded width: 32 for fields: [('dstAddr', 32, 32)]
+INFO:tp:Table mac_learning has width: 60, rounded width: 64 for fields: [('srcAddr', 48, 48), ('vid', 12, 16)]
+INFO:tp:Table igmp has width: 53, rounded width: 64 for fields: [('dstAddr', 32, 32), ('vid', 12, 16), ('ingress_port', 9, 16)]
+INFO:tp:Table switching has width: 60, rounded width: 64 for fields: [('dstAddr', 48, 48), ('vid', 12, 16)]
+INFO:tp:Table acl has width: 160, rounded width: 192 for fields: [('srcAddr', 48, 48), ('dstAddr', 48, 48), ('vid', 12, 16), ('ingress_port', 9, 16), ('is_routable', 1, 8), ('is_multicast', 1, 8), ('dstAddr', 32, 32), ('egress_spec', 9, 16)]
+INFO:tp:Table routable_check_multicast has action data: [[], []]
+INFO:tp:Table routable_check_routable has action data: [[]]
+INFO:tp:Table unicast_routing has action data: [[('smac', 48), ('dmac', 48), ('vlan_id', 12)]]
+INFO:tp:Table multicast_routing has action data: [[('idx', 16)]]
+INFO:tp:Table mac_learning has action data: [[]]
+INFO:tp:Table igmp has action data: [[('idx', 16)]]
+INFO:tp:Table switching has action data: [[('port', 9)]]
+INFO:tp:Table acl has action data: [[('code', 16)]]
+WARNING:tp:All condition tables have default settings: {'match_type': 'gw', 'num_action_words': 1, 'width': 1, 'num_entries': 12, 'fixed_action_data_per_stage': False, 'action_widths': [0]}
+INFO:tp:tables-names: [(0, 'routable_check_multicast'), (1, 'routable_check_routable'), (2, 'unicast_routing'), (3, 'multicast_routing'), (4, 'mac_learning'), (5, 'igmp'), (6, 'switching'), (7, 'acl')]
+INFO:tp:Tables input to compiler: ['routable_check_multicast', 'routable_check_routable', 'unicast_routing', 'multicast_routing', 'mac_learning', 'igmp', 'switching', 'acl']
+INFO:tp:new-tables-names: [(0, 'routable_check_multicast'), (1, 'routable_check_routable'), (2, 'unicast_routing'), (3, 'multicast_routing'), (4, 'mac_learning'), (5, 'igmp'), (6, 'switching'), (7, 'acl')]
+INFO:tp:total width 613
+WARNING:tp:WARNING!! Can't get num_action_words for ['routable_check_multicast', 'routable_check_routable', 'unicast_routing', 'multicast_routing', 'mac_learning', 'igmp', 'switching', 'acl'], setting to 1
+WARNING:tp:WARNING!! Can't get fixed_action_data_per_stage for ['routable_check_multicast', 'routable_check_routable', 'unicast_routing', 'multicast_routing', 'mac_learning', 'igmp', 'switching', 'acl'], setting to False
+INFO:root:~~
+INFO:root:Program Info
+INFO:programs.program:PROGRAM INFO
+INFO:programs.program:action dependencies: [('multicast_routing', 'igmp')]
+INFO:programs.program:match dependencies: [('unicast_routing', 'switching'), ('switching', 'acl')]
+INFO:programs.program:successor dependencies: [('routable_check_multicast', 'routable_check_routable'), ('routable_check_multicast', 'multicast_routing'), ('routable_check_routable', 'unicast_routing'), ('mac_learning', 'unicast_routing')]
+INFO:programs.program:                     tablename   T    #M-E  M-W                 A-W
+INFO:programs.program:      routable_check_multicast   e      64  108              [0, 0]
+INFO:programs.program:       routable_check_routable   e      64  108                 [0]
+INFO:programs.program:               unicast_routing   t   32000   32               [108]
+INFO:programs.program:             multicast_routing   t   24000   32                [16]
+INFO:programs.program:                  mac_learning   e   68000   60                 [0]
+INFO:programs.program:                          igmp   t   24000   53                [16]
+INFO:programs.program:                     switching   e   68000   60                 [9]
+INFO:programs.program:                           acl   t    1600  160                [16]
+INFO:root:
+INFO:root:~~
+INFO:root:Compiler Log
+INFO:src.rmt.rmt_ffd_compiler:tables in order of limiting resourceroutable_check_multicast(0.25), routable_check_routable(0.25), acl(0.25), mac_learning(0.125), unicast_routing(0.125), multicast_routing(0.125), switching(0.125), igmp(0.125), end(0), start(0), 
+INFO:src.rmt.rmt_ffd_compiler:Compiler attempt successful.
+INFO:src.rmt.rmt_ffd_compiler:Attempted to assign the following tables in order: ['routable_check_multicast', 'routable_check_routable', 'mac_learning', 'unicast_routing', 'multicast_routing', 'switching', 'acl', 'igmp']
+INFO:src.rmt.rmt_ffd_compiler:Table routable_check_multicast in stages 0 .. 0 (words assigned, input xbar subunits, action xbar bits):  St 0 sram: 64, 2, 0b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Table routable_check_routable in stages 0 .. 0 (words assigned, input xbar subunits, action xbar bits):  St 0 sram: 64, 2, 0b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Table mac_learning in stages 0 .. 0 (words assigned, input xbar subunits, action xbar bits):  St 0 sram: 68000, 1, 0b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Table unicast_routing in stages 0 .. 1 (words assigned, input xbar subunits, action xbar bits):  St 0 tcam: 24000, 1, 108b;  St 1 tcam: 8000, 1, 108b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Table multicast_routing in stages 0 .. 1 (words assigned, input xbar subunits, action xbar bits):  St 0 tcam: X;  St 1 tcam: 24000, 1, 16b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Some stages couldn't fit any words
+No words in St 0 tcam: "Can't fit any entries (32b). Table has 16b action data. 51 RAMs, 0 TCAMs left. "
+
+INFO:src.rmt.rmt_ffd_compiler:Table switching in stages 2 .. 2 (words assigned, input xbar subunits, action xbar bits):  St 2 sram: 68000, 1, 9b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Table acl in stages 3 .. 3 (words assigned, input xbar subunits, action xbar bits):  St 3 tcam: 1600, 2, 16b; 
+
+INFO:src.rmt.rmt_ffd_compiler:Table igmp in stages 2 .. 3 (words assigned, input xbar subunits, action xbar bits):  St 2 tcam: 16000, 1, 16b;  St 3 tcam: 8000, 1, 16b; 
+
+INFO:src.rmt.rmt_configuration:Total words unassigned 0 out of 217728 (0.0 p.c.)
+INFO:src.rmt.rmt_ffd_compiler:done
+INFO:src.rmt.rmt_configuration:Need 2.79W for 19.00 active RAMs and 54.11 active TCAMs.
+INFO:root:Finished compiling.
+INFO:root:
+INFO:root:~~
+INFO:root:Final switch configurations
+INFO:root:
+Displaying config for greedyConfig
+INFO:src.rmt.rmt_dependency_analysis:nodes ['start', 'mac_learning', 'unicast_routing', 'switching', 'acl']
+INFO:src.rmt.rmt_configuration:Total words unassigned 0 out of 217728 (0.0 p.c.)
+INFO:src.rmt.rmt_configuration:Need 2.79W for 19.00 active RAMs and 54.11 active TCAMs.
+INFO:src.rmt.rmt_configuration:
+(FFD) Power for RAMs and TCAMs 2.7888959651
+INFO:src.rmt.rmt_configuration:
+(FFD) Pipeline Latency 53.0
+INFO:src.rmt.rmt_configuration:
+(FFD) Blocks allocated per stage
+
+INFO:src.rmt.rmt_configuration:Stage 0 (103 SRAMs, 12 TCAMs): : unicast_routing (48 a, 12 t)  , mac_learning (51 s)  , routable_check_multicast (2 s)  , routable_check_routable (2 s)  
+INFO:src.rmt.rmt_configuration:Stage 1 (21 SRAMs, 16 TCAMs): : unicast_routing (16 a, 4 t)  , multicast_routing (5 a, 12 t)  
+INFO:src.rmt.rmt_configuration:Stage 2 (64 SRAMs, 16 TCAMs): : switching (9 a, 51 s)  , igmp (4 a, 16 t)  
+INFO:src.rmt.rmt_configuration:Stage 3 (3 SRAMs, 12 TCAMs): : igmp (2 a, 8 t)  , acl (1 a, 4 t)  
+INFO:src.rmt.rmt_configuration:
+(FFD) Table xx can't start before stage @st because of @dependency on table @prev which ends in stage @prevEndSt [(st, dependency, prev, prevEndSt),..]
+INFO:src.rmt.rmt_configuration:routable_check_multicast  : []
+INFO:src.rmt.rmt_configuration:routable_check_routable  : [(0, 'SUCCESSOR', 'routable_check_multicast', 0)]
+INFO:src.rmt.rmt_configuration:unicast_routing  : [(0, 'SUCCESSOR', 'routable_check_routable', 0), (0, 'SUCCESSOR', 'mac_learning', 0)]
+INFO:src.rmt.rmt_configuration:multicast_routing  : [(0, 'SUCCESSOR', 'routable_check_multicast', 0)]
+INFO:src.rmt.rmt_configuration:mac_learning  : []
+INFO:src.rmt.rmt_configuration:igmp  : [(2, 'ACTION', 'multicast_routing', 1)]
+INFO:src.rmt.rmt_configuration:switching  : [(2, 'MATCH', 'unicast_routing', 1)]
+INFO:src.rmt.rmt_configuration:acl  : [(3, 'MATCH', 'switching', 2)]
+INFO:root:
+Critical path: start -> mac_learning (0.0) -> unicast_routing (0.0) => switching (1.0) => acl (2.0), 2 match/action deps, needs 2 stages 
+INFO:root:Tables that start later than expected
+INFO:root:1) multicast_routing can start in 0, but starts in 1. 
+INFO:root:2) igmp can start in 1, but starts in 2. 
+INFO:root:3) switching can start in 1, but starts in 2. 
+INFO:root:4) acl can start in 2, but starts in 3. 
+INFO:root:picture in ./-greedyConfig-RmtFfdCompiler-16_l2l3Simple.p4_RmtReal32.pdf
+CRITICAL:root:Summary: numStages: 4, pipelineLatency: 53.0, power: 2.7888959651, solveTime: 0.0222330093384, solved: True, totalUnassignedWords: 0, time: 0.022243

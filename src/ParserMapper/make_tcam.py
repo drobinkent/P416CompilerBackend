@@ -277,14 +277,17 @@ def printBestOpt(context, printEdges=True):
         exit(1)
 
 def printEntries(context):
+    totalEntriesRequired = 0
     if len(context.optNodes) > 0:
         print("opt-algorithm TCAM entries:")
-        for cluster in sorted(context.bestClusters):
+        for cluster in context.bestClusters:
             print("  %s   (%d edges)" % (cluster, findEdgeCount(context, cluster)))
             cnode = cluster.chain[0]
             coveredClusters = findClustersAndCovers(context, cnode)
-            for entry in sorted(coveredClusters[cluster]):
+            for entry in coveredClusters[cluster]:
                 print("     %s" % entry)
+                totalEntriesRequired= totalEntriesRequired+ 1
+    return totalEntriesRequired
 
 def numStatesNeeded(chain):
     """Identify the number of states needed by a chain"""
@@ -980,7 +983,8 @@ def printTCAMEntries(context, stateWidth10, stateBits, stateBytes):
             tcamFile.write("  %s\n" % firstLookupStr)
 
         for states in sorted(clustersByState):
-            for cluster in sorted(clustersByState[states]):
+            # for cluster in sorted(clustersByState[states]):
+            for cluster in clustersByState[states]:
                 printTCAMEntry(context, cluster,stateWidth10=stateWidth10,stateBits = stateBits, stateBytes = stateBytes)
         if saveTCAM:
             tcamFile.close()
@@ -2183,7 +2187,8 @@ def combineClustersByInst(context):
 
     clustersByHdrPos = {}
     newEdgeCount = 0
-    for cluster in sorted(context.bestClusters):
+    # for cluster in sorted(context.bestClusters):
+    for cluster in context.bestClusters:
         if len(cluster.chain) > 0:
             zeroCluster = chainInstOne(context, cluster)
             zeroClusterEdgeCount = findEdgeCount(context, zeroCluster)
@@ -2803,12 +2808,12 @@ def buildParserMapper(parseGraphHeaderList, parsedGraphHeaders,hw,initHeader):
     runExploreAndOpt(ccontext, showExpTime=True, showOptTime=True, printPathsToExplore=True, printEdges=True)
     bestContext = ccontext
     allocateResultVectorEntries(bestContext)
-    totalTCAMEntriesRequired = calculateRequiredNumberOfTCAMEntries(bestContext, stateWidth10=stateWidth10, stateBits = stateBits, stateBytes= stateBytes)
-    if(totalTCAMEntriesRequired > tcamMaxState):
-        print("Ttoal TCAM entries required is : "+str(totalTCAMEntriesRequired)+" But the parser TCAM in the hardware contains space for only "+str(tcamMaxState)+" entries. Exiting")
-        exit(1)
-    else:
-        print("Ttoal TCAM entries required is : "+str(totalTCAMEntriesRequired)+" and parser TCAM in the hardware contains space for  "+str(tcamMaxState)+". Accmodatable")
+    # totalTCAMEntriesRequired = calculateRequiredNumberOfTCAMEntries(bestContext, stateWidth10=stateWidth10, stateBits = stateBits, stateBytes= stateBytes)
+    # if(totalTCAMEntriesRequired > tcamMaxState):
+    #     print("Ttoal TCAM entries required is : "+str(totalTCAMEntriesRequired)+" But the parser TCAM in the hardware contains space for only "+str(tcamMaxState)+" entries. Exiting")
+    #     exit(1)
+    # else:
+    #     print("Ttoal TCAM entries required is : "+str(totalTCAMEntriesRequired)+" and parser TCAM in the hardware contains space for  "+str(tcamMaxState)+". Accmodatable")
     # if printTCAM or saveTCAM:
     #     print("allocateResultVectorEntries")
     #     allocateResultVectorEntries(bestContext)
@@ -2854,7 +2859,7 @@ def buildParserMapper(parseGraphHeaderList, parsedGraphHeaders,hw,initHeader):
     #     else:
     #         print("Multi-parent barriers do not improve results")
     #     print("\n\n\n")
-    #
+
     # if parallelEdge:
     #     print("\nAttempting optimization of parallel edges to downstream nodes...\n")
     #     # Insert barriers between adjacent nodes when multiple patterns cause the transition
@@ -2881,21 +2886,27 @@ def buildParserMapper(parseGraphHeaderList, parsedGraphHeaders,hw,initHeader):
     #     else:
     #         print("Parallel edge barriers do not improve results")
     #     print("\n\n\n")
-    #
-    #
-    # if instMerge:
-    #     print("\nAttempting combining clusters that differ only by instance number...\n")
-    #     combineClustersByInst(bestContext)
-    #
-    # print("")
-    # print("Final optimization results:")
-    # print("---------------------------")
-    # printDAG(bestContext.dag)
-    # printBestOpt(bestContext)
-    # print("")
-    # printEntries(bestContext)
-    # if printTCAM or saveTCAM:
-    #     print("")
-    #     allocateResultVectorEntries(bestContext)
-    #     print("")
-    #     printTCAMEntries(bestContext, stateWidth10=stateWidth10, stateBits = stateBits, stateBytes= stateBytes)
+
+
+    if instMerge:
+        print("\nAttempting combining clusters that differ only by instance number...\n")
+        combineClustersByInst(bestContext)
+
+    print("")
+    print("Final optimization results:")
+    print("---------------------------")
+    printDAG(bestContext.dag)
+    printBestOpt(bestContext)
+    print("")
+    totalTCAMEntriesRequired = printEntries(bestContext)
+    if printTCAM or saveTCAM:
+        print("")
+        allocateResultVectorEntries(bestContext)
+        print("")
+        # printTCAMEntries(bestContext, stateWidth10=stateWidth10, stateBits = stateBits, stateBytes= stateBytes)
+    # totalTCAMEntriesRequired = calculateRequiredNumberOfTCAMEntries(bestContext, stateWidth10=stateWidth10, stateBits = stateBits, stateBytes= stateBytes)
+    if(totalTCAMEntriesRequired > tcamMaxState):
+        print("Ttoal TCAM entries required is : "+str(totalTCAMEntriesRequired)+" But the parser TCAM in the hardware contains space for only "+str(tcamMaxState)+" entries. Exiting")
+        exit(1)
+    else:
+        print("Ttoal TCAM entries required is : "+str(totalTCAMEntriesRequired)+" and parser TCAM in the hardware contains space for  "+str(tcamMaxState)+". Accmodatable")
