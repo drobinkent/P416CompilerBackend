@@ -479,7 +479,7 @@ class RMTV1ModelHardware:
         startingStage = -1
         endginStage = -1
         if(remainingMatEntries != remainingActionEntries) :
-            if  (matNode.getMatchType() != MatchType.EXACT.value):
+            if  (matNode.getMatchType().value != MatchType.EXACT.value):
                 startingStage, endginStage = self.embedMatNodeOverTCAMMatInMultipleStageWithActionEntriesReplication(p4ProgramGraph,pipelineID, matNode, hardware, startingStageIndex)
             else:
                 startingStage, endginStage = self.embedMatNodeOverSRAMMatInMultipleStageWithActionEntriesReplication(p4ProgramGraph,pipelineID, matNode, hardware, startingStageIndex)
@@ -488,7 +488,7 @@ class RMTV1ModelHardware:
         else: # This case will most likely not happen. Becuase we are assigning fixed number of action entries. which is covered in the if segement. Even if we need
             #  n number of action entries where n is the number of mat entries required, we need to handle same thing. Therefore the functions for replication and distribution mode are same
             #However when we want to generate the configuration binary, we need to handle the index generation . on that case the details of these two functions become different
-            if  (matNode.getMatchType() != MatchType.EXACT.value):
+            if  (matNode.getMatchType().value != MatchType.EXACT.value):
                 startingStage, endginStage = self.embedMatNodeOverTCAMMatInMultipleStageWithActionEntriesDistribution(p4ProgramGraph,pipelineID, matNode, hardware, startingStageIndex)
             else:
                 startingStage, endginStage = self.embedMatNodeOverSRAMMatInMultipleStageWithActionEntriesDistribution(p4ProgramGraph,pipelineID, matNode, hardware, startingStageIndex)
@@ -761,7 +761,7 @@ class RMTV1ModelHardware:
         '''We give highest priority to matchtype that is not exact, so that TCAM's are at first used for non-exact matching '''
         sortedMatNodeList = []
         for matNode in matNodeList:
-            if (matNode.getMatchType() == MatchType.EXACT.value):
+            if (matNode.getMatchType().value == MatchType.EXACT.value):
                 sortedMatNodeList.append(matNode)
             else:
                 sortedMatNodeList = [matNode] + sortedMatNodeList
