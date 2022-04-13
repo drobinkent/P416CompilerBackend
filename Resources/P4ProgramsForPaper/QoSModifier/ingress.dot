@@ -1,0 +1,19 @@
+digraph ingress {
+subgraph cluster {
+graph [
+label="", labeljust=r, style=bold];
+0[label=__START__, margin="", shape=rectangle, style=solid];
+1[label=__EXIT__, margin="", shape=rectangle, style=solid];
+2[label="hdr.control_packet.isValid();", margin="", shape=rectangle, style=solid];
+3[label=match_control_packet, margin="", shape=ellipse, style=solid];
+4[label="ipv4_nexthop_0/ipv4_nexthop.apply().hit;", margin="", shape=rectangle, style=solid];
+5[label=ipv6_nexthop, margin="", shape=ellipse, style=solid];
+0 -> 2[label=""];
+2 -> 3[label=TRUE];
+2 -> 4[label=FALSE];
+3 -> 1[label=""];
+4 -> 5[label=TRUE];
+4 -> 1[label=FALSE];
+5 -> 1[label=""];
+}
+}

@@ -805,8 +805,8 @@
           "key" : [
             {
               "match_type" : "exact",
-              "name" : "control_packet.$valid$",
-              "target" : ["control_packet", "$valid$"],
+              "name" : "control_packet.index",
+              "target" : ["control_packet", "index"],
               "mask" : null
             }
           ],

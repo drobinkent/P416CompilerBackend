@@ -1,0 +1,12 @@
+p4test --p4v 14 --pp qos_modifier_16.p4 qos_modifier.p4
+
+TDG graph generation
+p4c-graphs --arch v1model qos_modifier_16.p4 --graphs-dir .
+
+The above command creae threee files a) parserImp.dot, b) ingress.dot c) egress.dot
+
+dot -Tpdf  ParserImpl.dot > ParserImpl.pdf
+dot -Tpdf  ingress.dot > ingres.pdf
+
+
+

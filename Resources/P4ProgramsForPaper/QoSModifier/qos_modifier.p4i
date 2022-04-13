@@ -348,7 +348,7 @@ limitations under the License.
 
 table match_control_packet {
     reads {
-        control_packet: valid;
+        control_packet.index: exact;
 
     }
     actions {

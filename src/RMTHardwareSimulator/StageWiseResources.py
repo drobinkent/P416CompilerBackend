@@ -178,7 +178,7 @@ class StageWiseResource:
         blockWidth, requiredSramBlocks = self.getMemoryBlockWidthAndBlockCountFromBitWidthAndRequiredNumberOfEntries(bitWidth=matKeyBitWidth,
                  memoryBlockBitwidth=self.sramResource.perMemoryBlockBitwidth,memoryBlockRowCount=self.sramResource.perMemoryBlockRowCount,
                  requiredNumberOfEntries=requiredMatEntries,hashingWay=hashingWay)
-        requiredSramBlocks = requiredSramBlocks* self.sramMatResource.sramMatHashingWay
+        requiredSramBlocks = requiredSramBlocks
         memoryPortWidthList = self.bitWidthToMemoryPortWidthConsumption(matKeyBitWidth, list(self.externResource.bitWidthToRegisterExternMap.keys()))
         totalMemoryPortWidth = sum(memoryPortWidthList)
         self.sramResource.availableSramBlocks = self.sramResource.availableSramBlocks + requiredSramBlocks
@@ -483,7 +483,7 @@ class StageWiseResource:
         self.listOfLogicalTableMappedToThisStage.get(pipelineID).append(matNode)
 
     def allocateMatNodeOverSRAMMatWithoutParam(self, matNode,pipelineID, hardware):
-        self.allocateSRAMMatKeyCrossbarBitwidth(matNode.matKeyBitWidth)
+        self.allocateSRAMMatKeyCrossbarBitwidth(matNode.matKeyBitWidth, hardware)
         #For TCAM all tcam blocks are only used for MATCHing therefore allocating a tcam block automatically modifies the block count.
         #However in the case of sram this is not the case. In sram based mat we can only use 8 SRAM based MAT (in bosshart paper), But there are 106 sram blocks,
         #Therefore unlike tcam based mat, in sram based mat we need to explicitily keep track of the number of available SRAM based mat blocks.
@@ -528,7 +528,7 @@ class StageWiseResource:
             print("The mat node: "+matNode.name+" requires total "+str(matNode.totalKeysTobeMatched)+" match keys and their bitwidth is "+str(self.convertMatKeyBitWidthLengthToSRAMMatKeyLength(matNode.matKeyBitWidth)))
             print("But the SRAM based MATS at stage " + str(self.stageIndex) +" can accomodate  bttwidth for matkey: " + str(self.getAvailableTCAMMatKeyCrossbarBitwidth()))
             isEmbeddable = False
-        if(self.isMatEntriesAccomodatableInSRAMBasedMATInThisStage(self.convertMatKeyBitWidthLengthToSRAMMatKeyLength(matNode.matKeyBitWidth), matNode.getRequiredNumberOfMatEntries())): #, self.sramMatResource.sramMatHashingWay)):
+        if(self.isMatEntriesAccomodatableInSRAMBasedMATInThisStage(self.convertMatKeyBitWidthLengthToSRAMMatKeyLength(matNode.matKeyBitWidth), matNode.getRequiredNumberOfMatEntries(),1)): #, self.sramMatResource.sramMatHashingWay)):
             isEmbeddable=True
             self.allocateMatEntriesOverSRAMBasedMATSInSingleStage(self.convertMatKeyBitWidthLengthToSRAMMatKeyLength(matNode.matKeyBitWidth), matNode.getRequiredNumberOfMatEntries())
             if(self.isActionMemoryAccomodatable(actionEntryBitwidth=matNode.getMaxBitwidthOfActionParameter(), numberOfActionEntries=matNode.getRequiredNumberOfActionEntries())):
@@ -624,16 +624,16 @@ class StageWiseResource:
                 # print("new maxActionCrossbarBitwidth = "+str(maxActionCrossbarBitwidth))
         for matNode in matNodeList: # The matnode list already sorted and TCAM based tables will come first. So they will be embedded at first
             p4ProgramGraph.parsedP4Program.computeMatchActionResourceRequirementForMatNode(matNode, p4ProgramGraph, pipelineID,hardware) # Though redundant but not harm in calling
-            if(matNode.originalP4node.match_type.value != MatchType.EXACT):
+            if(matNode.originalP4node.match_type.value != MatchType.EXACT.value):
                 #try to embed the matnode in tcam
                 if(self.isMatNodeEmbeddableOnTCAMMatBlocks(matNode,maxActionCrossbarBitwidth,maxActionMemoryBitwidth)):
                     self.allocateMatNodeOverTCAMMatWithOutParam(matNode,pipelineID, hardware) #TODO : this need to include both action memory and direct statefule memories
                 else:
                     isEmbeddable = False
             else:
-                if(self.isMatNodeEmbeddableOnSRAMMatBlocks(matNode)):
+                if(self.isMatNodeEmbeddableOnSRAMMatBlocks(matNode,maxActionCrossbarBitwidth)):
                     self.allocateMatNodeOverSRAMMatWithoutParam(matNode,pipelineID, hardware) #TODO : this need to include both action memory and direct statefule memories #------------- check from here. uoto before is done
-                elif(self.isMatNodeEmbeddableOnTCAMMatBlocks(matNode)):
+                elif(self.isMatNodeEmbeddableOnTCAMMatBlocks(matNode,maxActionCrossbarBitwidth,maxActionMemoryBitwidth)):
                     self.allocateMatNodeOverTCAMMatWithOutParam(matNode,pipelineID, hardware)
                 else:
                     isEmbeddable = False

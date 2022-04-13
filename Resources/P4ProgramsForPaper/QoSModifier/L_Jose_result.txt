@@ -1,0 +1,105 @@
+ cat /home/drobin/Desktop/switch-compiler/mapper/parser/RmtFfdCompiler-16_qos_modifier.p4_RmtReal32.log
+INFO:root:This log has several sections separated by ~~: Switch Info, JobId, P4 -> TDG, Program Info, Compiler Log, Final switch configurations
+INFO:root:~~
+INFO:root:Switch Info
+INFO:src.rmt.rmt_switch:RMT SWITCH
+INFO:src.rmt.rmt_switch:Memory types: ['sram', 'tcam']
+INFO:src.rmt.rmt_switch:Match type: {'sram': ['exact'], 'tcam': ['exact', 'lpm', 'ternary', 'gw', 'mapper']}
+INFO:src.rmt.rmt_switch:Number of blocks: [('sram', 106.0), ('tcam', 16.0)]
+INFO:src.rmt.rmt_switch:Number of stages: 32
+INFO:src.rmt.rmt_switch:Depth and width of memory: ['1000x80b sram', '2000x40b tcam']
+INFO:src.rmt.rmt_switch:Input crossbar: ['8 80b sram', '8 80b tcam']
+INFO:src.rmt.rmt_switch:Action crossbar has 1280 bits
+INFO:src.rmt.rmt_switch:Match Tables per stage: ['8 sram', '8 tcam']
+INFO:src.rmt.rmt_switch:Pipeline delays: {'action': 3, 'match': 12, 'successor': 1}
+INFO:src.rmt.rmt_switch:Power numbers: {'wattsPerTcamBit': 5.8520785245e-07, 'wattsPerSram': 0.01344726562504, 'wattsPerSramBit': 1.68090820313e-07, 'wattsPerTcam': 0.046816628196}
+INFO:src.rmt.rmt_switch:Types in: {'sram': ['sram', 'action'], 'tcam': ['tcam']}
+INFO:src.rmt.rmt_switch:All types: ['action', 'sram', 'tcam']
+WARNING:root:not found program with key None
+WARNING:root: in file ../config/prog00.txt
+WARNING:root:query[program][module] is None
+INFO:root:~~
+INFO:root:JobId: RmtFfdCompiler-16_qos_modifier.p4_RmtReal32
+INFO:root:~~
+INFO:root:P4 -> TDG
+INFO:tp:DEPENDENCIES FROM ingress TABLE GRAPH
+INFO:tp:REVERSE_READ: []
+INFO:tp:PREDICATION: []
+INFO:tp:SUCCESSOR: [('_condition_0', 'ipv4_nexthop'), ('_condition_0', 'match_control_packet')]
+INFO:tp:ACTION: []
+INFO:tp:MATCH: [('ipv4_nexthop', 'ipv6_nexthop')]
+INFO:tp:NOP: []
+INFO:tp:5 tables in ingress control flow: ['match_control_packet', 'ingress', 'ipv4_nexthop', 'ipv6_nexthop', '_condition_0']
+INFO:tp:3 tables in p4 tables: ['match_control_packet', 'ipv4_nexthop', 'ipv6_nexthop']
+INFO:tp:1 tables in p4 conditional nodes: ['_condition_1']
+INFO:tp:1 p4 tables / conditional nodes not in control flow: ['_condition_1']
+INFO:tp:Table match_control_packet has width: 1, rounded width: 8 for fields: [('control_packet', 1, 8)]
+INFO:tp:Table ipv4_nexthop has width: 32, rounded width: 32 for fields: [('dstAddr', 32, 32)]
+INFO:tp:Table ipv6_nexthop has width: 128, rounded width: 128 for fields: [('dstAddr', 128, 128)]
+INFO:tp:Table match_control_packet has action data: [[]]
+INFO:tp:Table ipv4_nexthop has action data: [[('port', 32)]]
+INFO:tp:Table ipv6_nexthop has action data: [[('port', 32)]]
+WARNING:tp:All condition tables have default settings: {'match_type': 'gw', 'num_action_words': 1, 'width': 1, 'num_entries': 12, 'fixed_action_data_per_stage': False, 'action_widths': [0]}
+INFO:tp:tables-names: [(0, 'match_control_packet'), (1, 'ipv4_nexthop'), (2, 'ipv6_nexthop'), (3, '_condition_0')]
+INFO:tp:Tables input to compiler: ['match_control_packet', 'ipv4_nexthop', 'ipv6_nexthop', '_condition_0']
+INFO:tp:new-tables-names: [(0, 'match_control_packet'), (1, 'ipv4_nexthop'), (2, 'ipv6_nexthop'), (3, '_condition_0')]
+INFO:tp:total width 162
+WARNING:tp:WARNING!! Can't get num_action_words for ['match_control_packet', 'ipv4_nexthop', 'ipv6_nexthop'], setting to 1
+WARNING:tp:WARNING!! Can't get fixed_action_data_per_stage for ['match_control_packet', 'ipv4_nexthop', 'ipv6_nexthop'], setting to False
+INFO:root:~~
+INFO:root:Program Info
+INFO:programs.program:PROGRAM INFO
+INFO:programs.program:action dependencies: []
+INFO:programs.program:match dependencies: [('ipv4_nexthop', 'ipv6_nexthop')]
+INFO:programs.program:successor dependencies: [('_condition_0', 'ipv4_nexthop'), ('_condition_0', 'match_control_packet')]
+INFO:programs.program:                     tablename   T    #M-E  M-W                 A-W
+INFO:programs.program:          match_control_packet   e     256    1                 [0]
+INFO:programs.program:                  ipv4_nexthop   e    1600   32                [32]
+INFO:programs.program:                  ipv6_nexthop   e    1600  128                [32]
+INFO:programs.program:                  _condition_0   g      12    1                 [0]
+INFO:root:
+INFO:root:~~
+INFO:root:Compiler Log
+INFO:src.rmt.rmt_ffd_compiler:tables in order of limiting resourceipv6_nexthop(0.25), match_control_packet(0.125), _condition_0(0.125), ipv4_nexthop(0.125), end(0), start(0),
+INFO:src.rmt.rmt_ffd_compiler:Compiler attempt successful.
+INFO:src.rmt.rmt_ffd_compiler:Attempted to assign the following tables in order: ['_condition_0', 'match_control_packet', 'ipv4_nexthop', 'ipv6_nexthop']
+INFO:src.rmt.rmt_ffd_compiler:Table _condition_0 in stages 0 .. 0 (words assigned, input xbar subunits, action xbar bits):  St 0 tcam: 12, 1, 0b;
+
+INFO:src.rmt.rmt_ffd_compiler:Table match_control_packet in stages 0 .. 0 (words assigned, input xbar subunits, action xbar bits):  St 0 sram: 256, 1, 0b;
+
+INFO:src.rmt.rmt_ffd_compiler:Table ipv4_nexthop in stages 0 .. 0 (words assigned, input xbar subunits, action xbar bits):  St 0 sram: 1600, 1, 32b;
+
+INFO:src.rmt.rmt_ffd_compiler:Table ipv6_nexthop in stages 1 .. 1 (words assigned, input xbar subunits, action xbar bits):  St 1 sram: 1600, 2, 32b;
+
+INFO:src.rmt.rmt_configuration:Total words unassigned 0 out of 3468 (0.0 p.c.)
+INFO:src.rmt.rmt_ffd_compiler:done
+INFO:src.rmt.rmt_configuration:Need 1.95W for 6.00 active RAMs and 40.00 active TCAMs.
+INFO:root:Finished compiling.
+INFO:root:
+INFO:root:~~
+INFO:root:Final switch configurations
+INFO:root:
+Displaying config for greedyConfig
+INFO:src.rmt.rmt_dependency_analysis:nodes ['start', '_condition_0', 'ipv4_nexthop', 'ipv6_nexthop', 'end']
+INFO:src.rmt.rmt_configuration:Total words unassigned 0 out of 3468 (0.0 p.c.)
+INFO:src.rmt.rmt_configuration:Need 1.95W for 6.00 active RAMs and 40.00 active TCAMs.
+INFO:src.rmt.rmt_configuration:
+(FFD) Power for RAMs and TCAMs 1.95334872159
+INFO:src.rmt.rmt_configuration:
+(FFD) Pipeline Latency 42.0
+INFO:src.rmt.rmt_configuration:
+(FFD) Blocks allocated per stage
+
+INFO:src.rmt.rmt_configuration:Stage 0 (3 SRAMs, 1 TCAMs): : ipv4_nexthop (1 a, 1 s)  , match_control_packet (1 s)  , _condition_0 (1 t)
+INFO:src.rmt.rmt_configuration:Stage 1 (5 SRAMs, 0 TCAMs): : ipv6_nexthop (1 a, 4 s)
+INFO:src.rmt.rmt_configuration:
+(FFD) Table xx can't start before stage @st because of @dependency on table @prev which ends in stage @prevEndSt [(st, dependency, prev, prevEndSt),..]
+INFO:src.rmt.rmt_configuration:match_control_packet  : [(0, 'SUCCESSOR', '_condition_0', 0)]
+INFO:src.rmt.rmt_configuration:ipv4_nexthop  : [(0, 'SUCCESSOR', '_condition_0', 0)]
+INFO:src.rmt.rmt_configuration:ipv6_nexthop  : [(1, 'MATCH', 'ipv4_nexthop', 0)]
+INFO:src.rmt.rmt_configuration:_condition_0  : []
+INFO:root:
+Critical path: start -> _condition_0 (0.0) -> ipv4_nexthop (0.0) => ipv6_nexthop (1.0) -> end (1.0), 1 match/action deps, needs 1 stages
+INFO:root:Tables that start later than expected
+INFO:root:picture in ./-greedyConfig-RmtFfdCompiler-16_qos_modifier.p4_RmtReal32.pdf
+CRITICAL:root:Summary: numStages: 2, pipelineLatency: 42.0, power: 1.95334872159, solveTime: 0.0102610588074, solved: True, totalUnassignedWords: 0, time: 0.010

@@ -3,27 +3,9 @@
 #include <v1model.p4>
 
 struct hop_metadata_t {
-    bit<16> bd_index;
-    bit<16> ig_lif;
-    bit<12> vrf_index;
-    bit<2>  urpf;
-    bit<9>  ingress_port;
-    bit<9>  egress_port;
-    bit<24> bd_acl_label;
-    bit<24> lif_acl_label;
-    bit<16> ipv4_next_hop_index;
-    bit<16> ipv4_ecmp_index;
-    bit<16> ipv6_next_hop_index;
-    bit<16> ipv6_ecmp_index;
-    bit<64> ipv6_prefix;
-    bit<16> l3_hash;
-    bit<16> l2_hash;
-    bit<16> mcast_grp;
-    bit<1>  urpf_check_fail;
-    bit<8>  drop_code;
-    bit<16> eg_lif;
-    bit<1>  storm_control_color;
-    bit<32> register_tmp;
+    bit<9> ingress_port;
+    bit<9> egress_port;
+    bit<8> drop_code;
 }
 
 header control_packet_t {
@@ -126,7 +108,7 @@ control process_control_packet(inout headers hdr, inout metadata meta, inout sta
             set_ipv4_ipv6_qos;
         }
         key = {
-            hdr.control_packet.isValid(): exact;
+            hdr.control_packet.index: exact;
         }
         size = 256;
     }
@@ -139,9 +121,6 @@ control ingress(inout headers hdr, inout metadata meta, inout standard_metadata_
     @name(".set_next_hop_ipv4") action set_next_hop_ipv4(bit<9> port) {
         meta.hop_metadata.egress_port = port;
         ipv4_port_qos.read(hdr.ipv4.diffserv, (bit<7>)(bit<7>)port);
-        hdr.ipv6.dstAddr = hdr.ipv6.srcAddr;
-    }
-    @name(".ipv4_miss") action ipv4_miss() {
         hdr.ipv6.dstAddr = 128w9898989;
     }
     @name(".set_next_hop_ipv6") action set_next_hop_ipv6(bit<9> port) {
@@ -151,7 +130,6 @@ control ingress(inout headers hdr, inout metadata meta, inout standard_metadata_
     @name(".ipv4_nexthop") table ipv4_nexthop {
         actions = {
             set_next_hop_ipv4;
-            ipv4_miss;
         }
         key = {
             hdr.ipv4.dstAddr: exact;
@@ -172,10 +150,8 @@ control ingress(inout headers hdr, inout metadata meta, inout standard_metadata_
         if (hdr.control_packet.isValid()) {
             process_control_packet_0.apply(hdr, meta, standard_metadata);
         } else {
-            switch (ipv4_nexthop.apply().action_run) {
-                ipv4_miss: {
-                    ipv6_nexthop.apply();
-                }
+            if (ipv4_nexthop.apply().hit) {
+                ipv6_nexthop.apply();
             }
         }
     }

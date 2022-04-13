@@ -20,18 +20,7 @@ logger.setLevel(logging.INFO)
 
 
 
-class Dependency:
-    def __init__(self, node1, node2, dependencyType):
-        '''
-        This constructor stores information of  a dependency between node1 and node2.
-        The direction is always from node1 to node 2.
-        :param node1:
-        :param node2:
-        :param dependencyType:
-        '''
-        self.node1 = node1
-        self.node2 = node2
-        self.dependencyType = dependencyType
+
 
 
 
