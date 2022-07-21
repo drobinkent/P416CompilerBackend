@@ -70,6 +70,8 @@ class PipelineGraph:
         self.allTDGNode[confConst.DUMMY_START_NODE] = self.dummyStart
         self.levelWiseLogicalMatList = {}
         self.sfMemNameWiseLevelList = {}
+        self.rawTDGNodeCountInPipeline = 0
+        self.rawTDGEdgeCountInPiepeline = 0
 
 
     def appendAllHeaderFeildsOfHeader(self, headerFieldName, fieldList ):
@@ -220,6 +222,8 @@ class PipelineGraph:
 
         self.getTDGGraphBeforeDependencyAnlaysis(self.pipeline.init_table, nxGraph, pred = confConst.DUMMY_START_NODE, indenter ="", alreadyVisitedNodesMap=alreadyVisitedNodesMap)
         self.drawPipeline(nxGraph = nxGraph, filePath="before-conditional-processing"+str(self.pipelineID)+".jpg")
+        self.rawTDGNodeCountInPipeline += len(list(nxGraph.nodes))
+        self.rawTDGEdgeCountInPiepeline += len(list(nxGraph.edges))
         self.preprocessConditionalNodeRecursively(self.pipeline.init_table, confConst.DUMMY_START_NODE)
         self.loadTDG(self.pipeline.init_table, self.dummyStart)
         self.addStatefulMemoryDependencies()

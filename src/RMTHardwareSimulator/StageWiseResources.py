@@ -57,6 +57,7 @@ class StageWiseResource:
         self.sramResource.printAvailableResourceStatistics()
         self.sramMatResource.printAvailableResourceStatistics()
         self.tcamMatResource.printAvailableResourceStatistics()
+        pass
 
     def getCycleLengthForThisStage(self, pipelineId):
         if(len(self.listOfLogicalTableMappedToThisStage.get(pipelineId)) >0):

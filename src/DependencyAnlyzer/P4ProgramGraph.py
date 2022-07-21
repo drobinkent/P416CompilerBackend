@@ -35,7 +35,8 @@ class P4ProgramGraph:
         self.parsedP4Program = parsedP4Program
         self.pipelineIdToMultipleOf8BitWidthByHeadercount = {}
         self.pipelineIdToMultipleOf8bitwidthWiseHeaderFields = {}
-
+        self.rawTDGNodeCount = 0
+        self.rawTDGEdgeCount = 0
 
     # def analyzeActions(self):
     #     print("Inside action analyzer")
@@ -85,11 +86,15 @@ class P4ProgramGraph:
                 self.pipelineIdToPipelineMap[PipelineID.INGRESS_PIPELINE] = pipeline
                 newPipelineGraph.preProcessPipelineGraph(hw)
                 # hw.embedP4ProgramAccordingToSingleMatrix(self)
+                self.rawTDGNodeCount += newPipelineGraph.rawTDGNodeCountInPipeline
+                self.rawTDGEdgeCount += newPipelineGraph.rawTDGEdgeCountInPiepeline
             if(pipeline.name == PipelineID.EGRESS_PIPELINE.value):
                 newPipelineGraph = PipelineGraph(pipelineID=PipelineID.EGRESS_PIPELINE, pipeline = pipeline, actions= self.parsedP4Program.actions,parsedP4Program = self.parsedP4Program)
                 self.pipelineIdToPipelineGraphMap[PipelineID.EGRESS_PIPELINE] = newPipelineGraph
                 self.pipelineIdToPipelineMap[PipelineID.EGRESS_PIPELINE] = pipeline
                 newPipelineGraph.preProcessPipelineGraph(hw)
+                self.rawTDGNodeCount += newPipelineGraph.rawTDGNodeCountInPipeline
+                self.rawTDGEdgeCount += newPipelineGraph.rawTDGEdgeCountInPiepeline
 
     def embedPipelines(self, hw):
         maxPhysicalStageIndexForIngress = -1
