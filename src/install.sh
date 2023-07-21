@@ -10,6 +10,7 @@ THIS_SCRIPT_DIR_ABSOLUTE=`readlink -f "${THIS_SCRIPT_DIR_MAYBE_RELATIVE}"`
 linux_version_warning() {
     1>&2 echo "Found ID ${ID} and VERSION_ID ${VERSION_ID} in /etc/os-release"
     1>&2 echo "This script only supports these:"
+    1>&2 echo "    ID ubuntu, VERSION_ID in 20.04 22.04"
     1>&2 echo "    ID fedora, VERSION_ID in 36 37 38"
     1>&2 echo ""
     1>&2 echo "Proceed installing manually at your own risk of"
@@ -32,6 +33,9 @@ if [ "${ID}" = "ubuntu" ]
 then
     case "${VERSION_ID}" in
 	20.04)
+	    supported_distribution=1
+	    ;;
+	22.04)
 	    supported_distribution=1
 	    ;;
     esac
