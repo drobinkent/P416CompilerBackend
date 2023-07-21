@@ -32,7 +32,7 @@ if [ "${ID}" = "ubuntu" ]
 then
     case "${VERSION_ID}" in
 	20.04)
-	    supported_distribution=0
+	    supported_distribution=1
 	    ;;
     esac
 elif [ "${ID}" = "fedora" ]
@@ -69,14 +69,17 @@ fi
 
 
 set -ex
-if [ ${ID} = "fedora" ]
+if [ ${ID} = "ubuntu" ]
+then
+    sudo apt-get install -y graphviz graphviz-dev python3-dev
+elif [ ${ID} = "fedora" ]
 then
     sudo dnf -y install graphviz graphviz-devel python-devel
 fi
 
 python3 -m venv ${INSTALL_DIR}/my-venv
 source ${INSTALL_DIR}/my-venv/bin/activate
-pip install matplotlib networkx ortools pygraphviz
+pip install matplotlib networkx ortools
 set +ex
 
 echo "You must run this command in any shell where you want to run"
