@@ -71,7 +71,7 @@ fi
 set -ex
 if [ ${ID} = "ubuntu" ]
 then
-    sudo apt-get install -y graphviz graphviz-dev python3-dev
+    sudo apt-get install -y graphviz graphviz-dev python3-dev python3-venv
 elif [ ${ID} = "fedora" ]
 then
     sudo dnf -y install graphviz graphviz-devel python-devel
@@ -79,7 +79,7 @@ fi
 
 python3 -m venv ${INSTALL_DIR}/my-venv
 source ${INSTALL_DIR}/my-venv/bin/activate
-pip install matplotlib networkx ortools
+pip install matplotlib networkx ortools pygraphviz
 set +ex
 
 echo "You must run this command in any shell where you want to run"
