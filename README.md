@@ -47,7 +47,7 @@ depends upon.
 
 On a supported Linux distribution and version, which currently includes:
 
-+ Fedora 37
++ Fedora 36, 37, and 38
 
 run this script to install software that P416Compiler depends upon:
 
