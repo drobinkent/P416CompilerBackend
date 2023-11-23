@@ -16,6 +16,9 @@
 
 # How to run this compiler backend
 
+See the next section for installing the software that P416Compiler
+depends upon.
+
   ## You need to provide the hardware resources at first. Example hardware resources are given in following folder 
   
     -- P416CompilerBackend/Resources/HardwareConfigs/
@@ -40,5 +43,16 @@
   
   
   
+# Install steps
 
+On a supported Linux distribution and version, which currently includes:
 
++ Ubuntu 20.04, 22.04
++ Fedora 36, 37, 38
+
+run this script to install software that P416Compiler depends upon:
+
+```bash
+cd P416CompilerBackend
+./src/install.sh
+```
