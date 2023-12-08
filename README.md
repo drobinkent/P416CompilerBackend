@@ -58,7 +58,7 @@ cd P416CompilerBackend
 ```
 
 
-# If you are using this repository please consider citing my paper 
+# If you are using this repository, please consider citing my paper 
 
 `@INPROCEEDINGS{10061720,
   author={Robin, Debobroto Das and Khan, Javed I.},
@@ -69,4 +69,18 @@ cd P416CompilerBackend
   number={},
   pages={133-138},
   doi={10.1109/UCC56403.2022.00024}}`
+
+
+# Details of this compiler backend can be found in the following technical report in arxiv 
+
+`@misc{robin2022opensource,
+      title={An Open-Source P416 Compiler Backend for Reconfigurable Match-Action Table Switches}, 
+      author={Debobroto Das Robin and Javed I. Khan},
+      year={2022},
+      eprint={2208.12892},
+      archivePrefix={arXiv},
+      primaryClass={cs.NI}
+}'
+
+
 
