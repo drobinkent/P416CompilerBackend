@@ -56,3 +56,17 @@ run this script to install software that P416Compiler depends upon:
 cd P416CompilerBackend
 ./src/install.sh
 ```
+
+
+# If you are using this repository please consider citing my paper 
+
+@INPROCEEDINGS{10061720,
+  author={Robin, Debobroto Das and Khan, Javed I.},
+  booktitle={2022 IEEE/ACM 15th International Conference on Utility and Cloud Computing (UCC)}, 
+  title={Open Source Compiling for V1Model RMT Switch: Making Data Center Networking Innovation Accessible}, 
+  year={2022},
+  volume={},
+  number={},
+  pages={133-138},
+  doi={10.1109/UCC56403.2022.00024}}
+
