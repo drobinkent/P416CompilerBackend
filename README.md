@@ -83,4 +83,7 @@ cd P416CompilerBackend
 }`
 
 
+# Code explanation 
+
+You need to read our technical report mentioned in the arxiv citation. Then it is easier to understand the flow of the code. A brief overview of the code is given in `https://github.com/drobinkent/P416CompilerBackend/blob/main/Doccumentation.md`
 
